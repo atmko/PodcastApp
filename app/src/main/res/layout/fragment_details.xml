@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/podcastImageView"
+        style="@style/Podcast_Feature_Image_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/content_description_podcast_feature_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/x6_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/content_description_play_button"
+        android:src="@drawable/ic_play_button_circular"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/podcastTitle"
+        style="@style/Large_Heading_Style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:layout_marginTop="@dimen/x3_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/podcastImageView"
+        tools:text="True Crime Garage" />
+
+    <TextView
+        android:id="@+id/podcastDescription"
+        style="@style/Body_Style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/podcastTitle"
+        tools:text="Each week Nic and the Captain fire up the true
+crime garage flying ship fueled with beer, great
+discussion and listener participation. The" />
+
+    <TextView
+        android:id="@+id/showMore"
+        style="@style/Body_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:text="@string/show_more"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/podcastDescription" />
+
+    <TextView
+        android:id="@+id/episodes"
+        style="@style/Body_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x3_layout_margin"
+        android:text="@string/episodes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showMore" />
+
+    <FrameLayout
+        android:id="@+id/episodeDivider"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toBottomOf="@id/episodes" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/commentsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/episodeDivider" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/x2_layout_margin"
+        android:src="@drawable/ic_up_nav_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/content_description_back_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

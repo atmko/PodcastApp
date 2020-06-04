@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/podcastImageView"
+        style="@style/Podcast_Feature_Image_Style"
+        android:layout_width="@dimen/item_podcast_list_size"
+        android:layout_height="@dimen/item_podcast_list_size"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:contentDescription="@string/content_description_podcast_feature_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/name"
+        style="@style/Standard_Heading_Style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x4_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        app:layout_constraintBottom_toTopOf="@id/network"
+        app:layout_constraintEnd_toStartOf="@+id/playButton"
+        app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+        app:layout_constraintTop_toTopOf="@id/podcastImageView"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="True Crime Garage" />
+
+    <TextView
+        android:id="@+id/network"
+        style="@style/Caption_Style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x4_layout_margin"
+        android:layout_marginTop="@dimen/half_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        app:layout_constraintBottom_toTopOf="@id/episodes"
+        app:layout_constraintEnd_toStartOf="@+id/playButton"
+        app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+        app:layout_constraintTop_toBottomOf="@+id/name"
+        tools:text="True Crime Garage" />
+
+    <TextView
+        android:id="@+id/episodes"
+        style="@style/Caption_Style"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x4_layout_margin"
+        android:layout_marginTop="@dimen/half_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
+        app:layout_constraintEnd_toStartOf="@+id/playButton"
+        app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+        app:layout_constraintTop_toBottomOf="@+id/network"
+        tools:text="325 Episodes" />
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/x6_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/content_description_play_button"
+        android:src="@drawable/ic_play_button_circular"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toBottomOf="@id/podcastImageView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

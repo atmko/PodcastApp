@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/podcastImageView"
+            style="@style/Podcast_Feature_Image_Style"
+            android:layout_width="@dimen/item_podcast_square_size_small"
+            android:layout_height="@dimen/item_podcast_square_size_small"
+            android:layout_margin="@dimen/x2_layout_margin"
+            android:contentDescription="@string/content_description_podcast_feature_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/previousEpisodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:background="@null"
+            android:contentDescription="@string/content_description_previous_episode"
+            android:rotation="180"
+            android:src="@drawable/ic_next_episode_button"
+            app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
+            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+            app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+
+        <TextView
+            android:id="@+id/podcastTitle"
+            style="@style/Standard_Heading_Style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintBottom_toTopOf="@id/episodeNumber"
+            app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
+            app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
+            app:layout_constraintTop_toTopOf="@+id/podcastImageView"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="True Crime Garage" />
+
+        <TextView
+            android:id="@+id/episodeNumber"
+            style="@style/Caption_Style_Accented"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginTop="@dimen/half_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
+            app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
+            app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
+            app:layout_constraintTop_toBottomOf="@id/podcastTitle"
+            tools:text="Episode 239" />
+
+        <ImageButton
+            android:id="@+id/nextEpisodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            android:background="@null"
+            android:contentDescription="@string/content_description_next_episode"
+            android:src="@drawable/ic_next_episode_button"
+            app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/podcastTitle"
+            app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+
+        <FrameLayout
+            android:id="@+id/description_divider"
+            style="@style/Divider_Style"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            app:layout_constraintTop_toBottomOf="@id/podcastImageView" />
+
+        <TextView
+            android:id="@+id/episodeTitle"
+            style="@style/Large_Heading_Style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/description_divider"
+            tools:text="MISSING: Margaret Ellen Fox" />
+
+        <TextView
+            android:id="@+id/episodeDescription"
+            style="@style/Body_Style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/episodeTitle"
+            tools:text="In 2017 the FBI released a chilling recorded
+phone call that may be the only clue as to
+what happened to Margaret Ellen Fox back in
+1974.\n\n
+
+Sources for this episode cannot be listed here
+due to character limitations. For a full list of
+sources, please visit " />
+
+        <FrameLayout
+            android:id="@+id/playPanelDivider"
+            style="@style/Divider_Style"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            app:layout_constraintTop_toBottomOf="@id/episodeDescription" />
+
+        <FrameLayout
+            android:id="@+id/playPanel"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/colorAccent"
+            app:layout_constraintTop_toBottomOf="@id/playPanelDivider" />
+
+        <TextView
+            android:id="@+id/commentsTextView"
+            style="@style/Standard_Heading_Style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/x2_layout_margin"
+            app:layout_constraintEnd_toStartOf="@id/commentCount"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playPanel"
+            tools:text="Comments" />
+
+        <TextView
+            android:id="@+id/commentCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/x2_layout_margin"
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/commentsTextView"
+            app:layout_constraintTop_toBottomOf="@id/playPanel"
+            tools:text="3920" />
+
+        <FrameLayout
+            android:id="@+id/commentsDivider"
+            style="@style/Divider_Style"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            app:layout_constraintTop_toBottomOf="@id/commentsTextView" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/commentsDivider" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

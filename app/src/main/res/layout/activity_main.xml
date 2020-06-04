@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/navigationDivider">
+
+        <FrameLayout
+            android:id="@+id/topDivider"
+            style="@style/Divider_Style"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/podcastImageView"
+            style="@style/Podcast_Feature_Image_Style"
+            android:layout_width="@dimen/item_podcast_square_size_small"
+            android:layout_height="@dimen/item_podcast_square_size_small"
+            android:layout_margin="@dimen/x2_layout_margin"
+            android:contentDescription="@string/content_description_podcast_feature_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topDivider" />
+
+        <TextView
+            android:id="@+id/podcastTitle"
+            style="@style/Standard_Heading_Style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintBottom_toTopOf="@id/episodeNumber"
+            app:layout_constraintEnd_toStartOf="@+id/playButton"
+            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+            app:layout_constraintTop_toTopOf="@+id/podcastImageView"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="True Crime Garage" />
+
+        <TextView
+            android:id="@+id/episodeNumber"
+            style="@style/Caption_Style_Accented"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginTop="@dimen/half_layout_margin"
+            android:layout_marginEnd="@dimen/x2_layout_margin"
+            app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
+            app:layout_constraintEnd_toStartOf="@+id/playButton"
+            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+            app:layout_constraintTop_toBottomOf="@id/podcastTitle"
+            tools:text="Episode 239" />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/x4_layout_margin"
+            android:background="@null"
+            android:contentDescription="@string/content_description_play_button"
+            android:src="@drawable/ic_play_button_sharp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/description_divider"
+            style="@style/Divider_Style"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            app:layout_constraintTop_toBottomOf="@id/podcastImageView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/navigationDivider"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        app:layout_constraintBottom_toTopOf="@id/homeButton" />
+
+    <ImageButton
+        android:id="@+id/homeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x5_layout_margin"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/content_description_home_button"
+        android:src="@drawable/ic_home"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/subscriptionsButton"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/subscriptionsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/content_description_subscriptions_button"
+        android:src="@drawable/ic_subscribed_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/searchButton"
+        app:layout_constraintStart_toEndOf="@id/homeButton" />
+
+    <ImageButton
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/x5_layout_margin"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/content_description_search_button"
+        android:src="@drawable/ic_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/subscriptionsButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
