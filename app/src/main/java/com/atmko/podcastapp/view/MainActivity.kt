@@ -1,7 +1,8 @@
-package com.atmko.podcastapp
+package com.atmko.podcastapp.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.atmko.podcastapp.R
 
 class MainActivity : AppCompatActivity() {
 
