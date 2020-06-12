@@ -22,4 +22,6 @@
     <string name="title_subscriptions">Subscriptions</string>
     <string name="title_search">Search</string>
 
+    <string name="error_loading_subscriptions">Couldn\'t load data</string>
+
 </resources>
