@@ -17,13 +17,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/title"
         style="@style/Standard_Heading_Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/x4_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
-        app:layout_constraintBottom_toTopOf="@id/network"
+        app:layout_constraintBottom_toTopOf="@id/publisher"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
         app:layout_constraintTop_toTopOf="@id/podcastImageView"
@@ -31,21 +31,21 @@
         tools:text="True Crime Garage" />
 
     <TextView
-        android:id="@+id/network"
+        android:id="@+id/publisher"
         style="@style/Caption_Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/x4_layout_margin"
         android:layout_marginTop="@dimen/half_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
-        app:layout_constraintBottom_toTopOf="@id/episodes"
+        app:layout_constraintBottom_toTopOf="@id/totalEpisodes"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-        app:layout_constraintTop_toBottomOf="@+id/name"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="True Crime Garage" />
 
     <TextView
-        android:id="@+id/episodes"
+        android:id="@+id/totalEpisodes"
         style="@style/Caption_Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-        app:layout_constraintTop_toBottomOf="@+id/network"
+        app:layout_constraintTop_toBottomOf="@+id/publisher"
         tools:text="325 Episodes" />
 
     <ImageButton
