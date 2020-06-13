@@ -15,8 +15,6 @@ import com.atmko.podcastapp.model.GENRE_ID_KEY
 import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.view.adapters.PodcastAdapter
 import com.atmko.podcastapp.viewmodel.SearchViewModel
-import kotlinx.android.synthetic.main.layout_error_and_loading.*
-import kotlinx.android.synthetic.main.results_recycler_view.*
 
 class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: ResultsRecyclerViewBinding? = null
@@ -63,7 +61,7 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     }
 
     fun configureViews() {
-        resultsRecyclerView.apply {
+        binding.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = podcastAdapter
         }
@@ -71,23 +69,24 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
     fun configureViewModel() {
         viewModel?.searchResults?.observe(viewLifecycleOwner, Observer {subscriptions ->
-            resultsRecyclerView.visibility = View.VISIBLE
+            binding.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }
         })
 
         viewModel?.loading?.observe(viewLifecycleOwner, Observer {isLoading ->
             isLoading?.let {
-                loadingScreen.visibility = if (it) View.VISIBLE else View.GONE
+                binding.errorAndLoading.loadingScreen.visibility = if (it) View.VISIBLE else View.GONE
                 if (it) {
-                    errorScreen.visibility = View.GONE
-                    resultsRecyclerView.visibility = View.GONE
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
+                    binding.resultsRecyclerView.visibility = View.GONE
                 }
             }
         })
 
         viewModel?.loadError?.observe(viewLifecycleOwner, Observer {isError ->
             isError?.let {
-                isError.let { errorScreen.visibility = if (it) View.VISIBLE else View.GONE }
+                isError.let { binding.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE }
             }
         })
     }
