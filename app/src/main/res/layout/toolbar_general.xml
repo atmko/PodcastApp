@@ -25,17 +25,13 @@
             android:id="@+id/cancelSearchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="@dimen/x1_layout_margin"
-            android:layout_marginEnd="@dimen/x1_layout_margin"
-            android:layout_marginBottom="@dimen/x1_layout_margin"
+            android:layout_marginEnd="@dimen/x3_layout_margin"
             android:background="@null"
             android:contentDescription="@string/content_description_search_button"
-            android:padding="@dimen/x2_layout_margin"
             android:src="@drawable/ic_cancel_search"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/searchBox"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/searchBox" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

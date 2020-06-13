@@ -56,10 +56,7 @@
         <item name="android:layout_marginEnd">@dimen/x1_layout_margin</item>
         <item name="android:layout_marginBottom">@dimen/x1_layout_margin</item>
         <item name="android:hint">@string/search_text_box_hint</item>
-        <item name="android:paddingLeft">@dimen/search_box_padding</item>
-        <item name="android:paddingStart">@dimen/search_box_padding</item>
-        <item name="android:paddingRight">@dimen/search_box_padding</item>
-        <item name="android:paddingEnd">@dimen/search_box_padding</item>
+        <item name="android:padding">@dimen/x1_layout_margin</item>
         <item name="android:inputType">text</item>
         <item name="android:textCursorDrawable">@drawable/toolbar_search_box_cursor</item>
         <item name="android:background">@null</item>
