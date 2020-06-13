@@ -46,6 +46,20 @@
         <item name="android:textColor">@color/colorAccent</item>
     </style>
 
+    <style name="List_Excess_Style">
+        <item name="android:layout_marginStart">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/list_excess_margin</item>
+    </style>
+
+    <style name="List_Item_Style">
+        <item name="android:layout_marginStart">@dimen/list_margin</item>
+        <item name="android:layout_marginLeft">@dimen/list_margin</item>
+        <item name="android:layout_marginEnd">@dimen/list_margin</item>
+        <item name="android:layout_marginRight">@dimen/list_margin</item>
+    </style>
+
     <style name="style_standard_search_box">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>

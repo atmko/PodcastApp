@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
 import com.atmko.podcastapp.model.GENRE_ID_KEY
@@ -67,7 +67,7 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
     fun configureViews() {
         binding.resultsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
         }
     }

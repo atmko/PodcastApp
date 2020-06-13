@@ -15,6 +15,9 @@
     <dimen name="x19_layout_margin">152dp</dimen>
     <dimen name="x21_layout_margin">168dp</dimen>
 
+    <dimen name="list_margin">0dp</dimen>
+    <dimen name="list_excess_margin">0dp</dimen>
+
     <!--TEXT DIMENSIONS-->
     <dimen name="appbar_headline_text_size">18sp</dimen>
     <dimen name="caption_text_size">12sp</dimen>
