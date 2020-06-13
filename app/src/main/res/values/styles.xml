@@ -68,6 +68,7 @@
         <item name="android:hint">@string/search_text_box_hint</item>
         <item name="android:padding">@dimen/x2_layout_margin</item>
         <item name="android:inputType">text</item>
+        <item name="android:textColor">@color/color_body_text</item>
         <item name="android:textCursorDrawable">@drawable/toolbar_search_box_cursor</item>
         <item name="android:background">@null</item>
         <item name="android:imeOptions">actionSearch|flagNoExtractUi|flagNoFullscreen</item>
