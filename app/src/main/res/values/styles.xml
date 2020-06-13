@@ -46,11 +46,11 @@
         <item name="android:textColor">@color/colorAccent</item>
     </style>
 
-    <style name="List_Excess_Style">
-        <item name="android:layout_marginStart">@dimen/list_excess_margin</item>
-        <item name="android:layout_marginLeft">@dimen/list_excess_margin</item>
-        <item name="android:layout_marginEnd">@dimen/list_excess_margin</item>
-        <item name="android:layout_marginRight">@dimen/list_excess_margin</item>
+    <style name="Search_Bar_Excess_Style">
+        <item name="android:layout_marginStart">@dimen/search_bar_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/search_bar_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/search_bar_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/search_bar_excess_margin</item>
     </style>
 
     <style name="List_Item_Style">
@@ -63,14 +63,10 @@
     <style name="style_standard_search_box">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginTop">@dimen/x1_layout_margin</item>
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginStart">@dimen/x2_layout_margin</item>
-        <item name="android:layout_marginRight">@dimen/x1_layout_margin</item>
-        <item name="android:layout_marginEnd">@dimen/x1_layout_margin</item>
-        <item name="android:layout_marginBottom">@dimen/x1_layout_margin</item>
+        <item name="android:layout_marginRight">@dimen/x2_layout_margin</item>
+        <item name="android:layout_marginEnd">@dimen/x2_layout_margin</item>
         <item name="android:hint">@string/search_text_box_hint</item>
-        <item name="android:padding">@dimen/x1_layout_margin</item>
+        <item name="android:padding">@dimen/x2_layout_margin</item>
         <item name="android:inputType">text</item>
         <item name="android:textCursorDrawable">@drawable/toolbar_search_box_cursor</item>
         <item name="android:background">@null</item>

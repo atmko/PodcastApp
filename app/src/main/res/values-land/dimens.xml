@@ -2,6 +2,6 @@
 <resources>
     <!--MARGINS-->
     <dimen name="list_margin">@dimen/x2_layout_margin</dimen>
-    <dimen name="list_excess_margin">120dp</dimen>
+    <dimen name="search_bar_excess_margin">120dp</dimen>
     <!--MARGINS-->
 </resources>

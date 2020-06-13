@@ -3,14 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/search_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/search_background"
-        android:orientation="horizontal"
-        style="@style/List_Excess_Style">
+        android:layout_height="match_parent">
 
         <EditText
             android:id="@+id/searchBox"
@@ -25,10 +23,10 @@
         <ImageButton
             android:id="@+id/cancelSearchButton"
             android:layout_width="wrap_content"
-            android:padding="@dimen/x2_layout_margin"
             android:layout_height="wrap_content"
             android:background="@null"
             android:contentDescription="@string/content_description_search_button"
+            android:padding="@dimen/x2_layout_margin"
             android:src="@drawable/ic_cancel_search"
             app:layout_constraintBottom_toBottomOf="@id/searchBox"
             app:layout_constraintEnd_toEndOf="parent"
