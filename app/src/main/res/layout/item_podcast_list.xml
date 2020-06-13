@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/x4_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:lines="1"
         app:layout_constraintBottom_toTopOf="@id/publisher"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
@@ -38,6 +39,7 @@
         android:layout_marginStart="@dimen/x4_layout_margin"
         android:layout_marginTop="@dimen/half_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:lines="1"
         app:layout_constraintBottom_toTopOf="@id/totalEpisodes"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
@@ -52,11 +54,12 @@
         android:layout_marginStart="@dimen/x4_layout_margin"
         android:layout_marginTop="@dimen/half_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:lines="1"
+        android:text="@string/total_episodes_format"
         app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
         app:layout_constraintTop_toBottomOf="@+id/publisher"
-        android:text="@string/total_episodes_format"
         tools:text="325 Episodes" />
 
     <ImageButton
