@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.podcastapp.R
+import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
 import com.atmko.podcastapp.model.GENRE_ID_KEY
 import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.view.adapters.PodcastAdapter
@@ -18,6 +19,9 @@ import kotlinx.android.synthetic.main.layout_error_and_loading.*
 import kotlinx.android.synthetic.main.results_recycler_view.*
 
 class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
+    private var _binding: ResultsRecyclerViewBinding? = null
+    private val binding get() = _binding!!
+
     private val podcastAdapter: PodcastAdapter =
         PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
 
@@ -41,7 +45,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.results_recycler_view, container, false)
+        _binding = ResultsRecyclerViewBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
