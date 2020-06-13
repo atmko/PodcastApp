@@ -12,6 +12,7 @@
         android:orientation="horizontal">
 
         <EditText
+            android:id="@+id/searchBox"
             style="@style/style_standard_search_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

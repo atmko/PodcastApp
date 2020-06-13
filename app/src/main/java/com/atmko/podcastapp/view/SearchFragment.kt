@@ -53,8 +53,10 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
         configureViews()
 
         if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
-            genreId?.let { viewModel?.refresh(it) }
+            parentFragment?.let {fragment ->
+                viewModel = ViewModelProviders.of(fragment).get(SearchViewModel::class.java)
+                genreId?.let { viewModel?.fetchPodcastsByGenre(it) }
+            }
         }
 
         configureViewModel()
@@ -68,12 +70,12 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     }
 
     fun configureViewModel() {
-        viewModel?.searchResults?.observe(viewLifecycleOwner, Observer {subscriptions ->
+        viewModel?.genreResults?.observe(viewLifecycleOwner, Observer {subscriptions ->
             binding.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }
         })
 
-        viewModel?.loading?.observe(viewLifecycleOwner, Observer {isLoading ->
+        viewModel?.genreLoading?.observe(viewLifecycleOwner, Observer {isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility = if (it) View.VISIBLE else View.GONE
                 if (it) {
@@ -83,10 +85,9 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
             }
         })
 
-        viewModel?.loadError?.observe(viewLifecycleOwner, Observer {isError ->
+        viewModel?.genreLoadError?.observe(viewLifecycleOwner, Observer {isError ->
             isError?.let {
-                isError.let { binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE }
+                binding.errorAndLoading.errorScreen.visibility = if (it) View.VISIBLE else View.GONE
             }
         })
     }

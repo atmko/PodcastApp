@@ -21,4 +21,8 @@ class PodcastsService : PodcastsApi {
     override fun getPodcastsByGenre(genreId: Int): Single<ApiResults> {
         return api.getPodcastsByGenre(genreId)
     }
+
+    override fun searchPodcasts(queryString: String): Single<ApiResults> {
+        return api.searchPodcasts(queryString)
+    }
 }

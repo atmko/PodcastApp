@@ -12,32 +12,53 @@ import io.reactivex.schedulers.Schedulers
 
 class SearchViewModel: ViewModel() {
     val searchResults:MutableLiveData<List<Podcast>> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
+    val searchLoadError: MutableLiveData<Boolean> = MutableLiveData()
+    val searchLoading: MutableLiveData<Boolean> = MutableLiveData()
+
+    val genreResults:MutableLiveData<List<Podcast>> = MutableLiveData()
+    val genreLoadError: MutableLiveData<Boolean> = MutableLiveData()
+    val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     private val podcastService: PodcastsService = PodcastsService()
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    fun refresh(genreId: Int) {
-        fetchPodcasts(genreId)
+    fun search(queryString: String) {
+        searchLoading.value = true
+        disposable.add(
+            podcastService.searchPodcasts(queryString)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
+                    override fun onSuccess(results: ApiResults?) {
+                        searchResults.value = results?.podcasts
+                        searchLoadError.value = false
+                        searchLoading.value = false
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        searchLoadError.value = true
+                        searchLoading.value = false
+                    }
+                })
+        )
     }
 
-    fun fetchPodcasts(genreId: Int) {
-        loading.value = true
+    fun fetchPodcastsByGenre(genreId: Int) {
+        genreLoading.value = true
         disposable.add(
             podcastService.getPodcastsByGenre(genreId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
                     override fun onSuccess(results: ApiResults?) {
-                        searchResults.value = results?.podcasts
-                        loadError.value = false
-                        loading.value = false
+                        genreResults.value = results?.podcasts
+                        genreLoadError.value = false
+                        genreLoading.value = false
                     }
 
                     override fun onError(e: Throwable?) {
-                        loadError.value = true
-                        loading.value = false
+                        genreLoadError.value = true
+                        genreLoading.value = false
                     }
                 })
         )

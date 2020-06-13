@@ -4,17 +4,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentSearchParentBinding
 import com.atmko.podcastapp.model.Genre
+import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.view.adapters.GenrePagerAdapter
+import com.atmko.podcastapp.view.adapters.PodcastAdapter
+import com.atmko.podcastapp.viewmodel.SearchViewModel
 import com.google.android.material.tabs.TabLayout
 
-class SearchParentFragment : Fragment() {
+class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
+
+    private val podcastAdapter: PodcastAdapter =
+        PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
+
+    private lateinit var viewModel: SearchViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -25,9 +37,14 @@ class SearchParentFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         configureViews()
+
+        viewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
+
+        configureViewModel()
     }
 
     fun configureViews() {
+        //configure tabs and view pager
         binding.tabLayout.removeAllTabs()
         val genresNames: Array<String> = resources.getStringArray(R.array.genre_titles)
         val genresIds: IntArray = resources.getIntArray(R.array.genre_ids)
@@ -58,10 +75,61 @@ class SearchParentFragment : Fragment() {
                 }
             })
         }
+
+        //configure search box
+        binding.toolbar.searchBox.apply {
+            setOnEditorActionListener { view, actionId, event ->
+                val queryString : String = view.text.toString()
+                if (queryString != "") {
+                    binding.tabLayout.visibility = View.GONE
+                    binding.searchViewPager.visibility = View.GONE
+                    binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
+
+                    viewModel.search(queryString)
+                }
+
+                true
+            }
+        }
+
+        //configure recycler view
+        binding.resultsFrameLayout.resultsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = podcastAdapter
+        }
+    }
+
+    fun configureViewModel() {
+        viewModel.searchResults.observe(viewLifecycleOwner, Observer {subscriptions ->
+            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            subscriptions?.let { podcastAdapter.updatePodcasts(it) }
+        })
+
+        viewModel.searchLoading.observe(viewLifecycleOwner, Observer {isLoading ->
+            isLoading?.let {
+                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel.searchLoadError.observe(viewLifecycleOwner, Observer {isError ->
+            isError.let {
+                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE }
+        })
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    override fun onItemClick(podcast: Podcast) {
+        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+        //TODO not yet implemented
     }
 }
