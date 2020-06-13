@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.podcastapp.model.Podcast
+import com.atmko.podcastapp.util.loadNetworkImage
 import kotlinx.android.synthetic.main.item_podcast_list.view.*
 import kotlinx.android.synthetic.main.item_podcast_square.view.podcastImageView
 
@@ -50,6 +51,7 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
         holder.title.text = podcast.title
         holder.publisher.text = podcast.publisher
         holder.totalEpisodes.text = podcast.totalEpisodes
+        holder.podcastImageView.loadNetworkImage(podcast.image)
     }
 
     fun updatePodcasts(updatedPodcasts: List<Podcast>) {
