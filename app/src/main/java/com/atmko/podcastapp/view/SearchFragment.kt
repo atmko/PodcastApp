@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
 import com.atmko.podcastapp.model.GENRE_ID_KEY
+import com.atmko.podcastapp.model.GENRE_NAME_KEY
 import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.view.adapters.PodcastAdapter
 import com.atmko.podcastapp.viewmodel.SearchViewModel
@@ -24,13 +25,15 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
         PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
 
     private var genreId: Int? = null
+    private lateinit var genreName: String
     private var viewModel: SearchViewModel? = null
 
     companion object {
         @JvmStatic
-        fun newInstance(genreId: Int) = SearchFragment().apply {
+        fun newInstance(genreId: Int, genreName: String) = SearchFragment().apply {
             arguments = Bundle().apply {
                 this.putInt(GENRE_ID_KEY, genreId)
+                this.putString(GENRE_NAME_KEY, genreName)
             }
         }
     }
@@ -38,7 +41,9 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            genreId = it.getInt(GENRE_ID_KEY) }
+            genreId = it.getInt(GENRE_ID_KEY)
+            genreName = it.getString(GENRE_NAME_KEY)!!
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -53,10 +58,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
         configureViews()
 
         if (viewModel == null) {
-            parentFragment?.let {fragment ->
-                viewModel = ViewModelProviders.of(fragment).get(SearchViewModel::class.java)
-                genreId?.let { viewModel?.fetchPodcastsByGenre(it) }
-            }
+            viewModel = ViewModelProviders.of(this).get(genreName, SearchViewModel::class.java)
+            genreId?.let { viewModel?.fetchPodcastsByGenre(it) }
         }
 
         configureViewModel()

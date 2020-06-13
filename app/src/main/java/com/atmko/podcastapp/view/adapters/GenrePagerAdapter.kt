@@ -10,7 +10,7 @@ class GenrePagerAdapter(fragmentManager: FragmentManager, behavior: Int, private
     FragmentStatePagerAdapter(fragmentManager, behavior) {
 
     override fun getItem(position: Int): Fragment {
-        return SearchFragment.newInstance(genres[position].id)
+        return SearchFragment.newInstance(genres[position].id, genres[position].name)
     }
 
     override fun getCount(): Int {

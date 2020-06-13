@@ -50,9 +50,9 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
         val genresNames: Array<String> = resources.getStringArray(R.array.genre_titles)
         val genresIds: IntArray = resources.getIntArray(R.array.genre_ids)
         val genres: MutableList<Genre> = mutableListOf()
-        for (i in genresNames.indices){
+        for (i in genresNames.indices) {
             binding.tabLayout.addTab(binding.tabLayout.newTab().setText(genresNames[i]))
-            genres.add(Genre(genresIds[i]))
+            genres.add(Genre(genresIds[i], genresNames[i]))
         }
 
         binding.searchViewPager.apply {
