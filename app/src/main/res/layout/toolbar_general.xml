@@ -24,8 +24,8 @@
         <ImageButton
             android:id="@+id/cancelSearchButton"
             android:layout_width="wrap_content"
+            android:padding="@dimen/x2_layout_margin"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/x3_layout_margin"
             android:background="@null"
             android:contentDescription="@string/content_description_search_button"
             android:src="@drawable/ic_cancel_search"
