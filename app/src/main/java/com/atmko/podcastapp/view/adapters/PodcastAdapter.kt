@@ -50,8 +50,9 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
         val podcast: Podcast = podcasts[position]
         holder.title.text = podcast.title
         holder.publisher.text = podcast.publisher
-        holder.totalEpisodes.text = podcast.totalEpisodes
         holder.podcastImageView.loadNetworkImage(podcast.image)
+        holder.totalEpisodes.text =
+            String.format(holder.totalEpisodes.text.toString(), podcast.totalEpisodes)
     }
 
     fun updatePodcasts(updatedPodcasts: List<Podcast>) {

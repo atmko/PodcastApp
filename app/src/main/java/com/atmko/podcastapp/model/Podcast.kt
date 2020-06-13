@@ -7,5 +7,5 @@ class Podcast(@SerializedName("id") val id: String,
               @SerializedName("publisher", alternate=["publisher_original"]) val publisher: String,
               val image: String,
               val description: String,
-              @SerializedName("total_episodes") val totalEpisodes: String) {
+              @SerializedName("total_episodes") val totalEpisodes: Int) {
 }
