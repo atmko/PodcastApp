@@ -91,7 +91,13 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
         })
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
     override fun onItemClick(podcast: Podcast) {
         Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+        //TODO not yet implemented
     }
 }
