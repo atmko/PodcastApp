@@ -14,6 +14,7 @@ import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentSearchParentBinding
 import com.atmko.podcastapp.model.Genre
 import com.atmko.podcastapp.model.Podcast
+import com.atmko.podcastapp.util.toEditable
 import com.atmko.podcastapp.view.adapters.GenrePagerAdapter
 import com.atmko.podcastapp.view.adapters.PodcastAdapter
 import com.atmko.podcastapp.viewmodel.SearchViewModel
@@ -89,6 +90,16 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
                 }
 
                 true
+            }
+        }
+
+        binding.toolbar.cancelSearchButton.apply {
+            setOnClickListener {
+                binding.toolbar.searchBox.text = "".toEditable()
+                binding.tabLayout.visibility = View.VISIBLE
+                binding.searchViewPager.visibility = View.VISIBLE
+                binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
+                podcastAdapter.podcasts.clear()
             }
         }
 
