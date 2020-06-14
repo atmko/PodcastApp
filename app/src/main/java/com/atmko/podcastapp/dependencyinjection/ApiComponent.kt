@@ -1,6 +1,7 @@
 package com.atmko.podcastapp.dependencyinjection
 
 import com.atmko.podcastapp.model.PodcastsService
+import com.atmko.podcastapp.viewmodel.DetailsViewModel
 import com.atmko.podcastapp.viewmodel.SearchViewModel
 import dagger.Component
 
@@ -8,4 +9,5 @@ import dagger.Component
 interface ApiComponent {
     fun inject(service: PodcastsService)
     fun inject(service: SearchViewModel)
+    fun inject(service: DetailsViewModel)
 }
