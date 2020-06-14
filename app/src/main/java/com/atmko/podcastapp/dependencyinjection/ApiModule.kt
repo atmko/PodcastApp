@@ -1,4 +1,4 @@
-package com.atmko.podcastapp.di
+package com.atmko.podcastapp.dependencyinjection
 
 import com.atmko.podcastapp.model.PodcastsApi
 import com.atmko.podcastapp.model.PodcastsService

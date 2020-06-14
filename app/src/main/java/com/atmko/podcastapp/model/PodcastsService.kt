@@ -1,6 +1,6 @@
 package com.atmko.podcastapp.model
 
-import com.atmko.podcastapp.di.DaggerApiComponent
+import com.atmko.podcastapp.dependencyinjection.DaggerApiComponent
 import io.reactivex.Single
 import javax.inject.Inject
 
