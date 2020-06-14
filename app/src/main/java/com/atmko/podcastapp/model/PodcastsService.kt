@@ -19,4 +19,8 @@ class PodcastsService : PodcastsApi {
     override fun searchPodcasts(queryString: String): Single<ApiResults> {
         return api.searchPodcasts(queryString)
     }
+
+    override fun getDetails(podcastId: String): Single<Podcast> {
+        return api.getDetails(podcastId)
+    }
 }
