@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/title"
         style="@style/Body_Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
         android:src="@drawable/ic_play_button_sharp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/name"
+        app:layout_constraintStart_toEndOf="@id/title"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -39,7 +39,7 @@
         android:layout_marginStart="@dimen/x2_layout_margin"
         android:layout_marginTop="@dimen/half_layout_margin"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="May 21, 2020" />
 
     <TextView
@@ -49,7 +49,7 @@
         android:layout_marginStart="@dimen/x1_layout_margin"
         android:text="|"
         app:layout_constraintStart_toEndOf="@id/date"
-        app:layout_constraintTop_toBottomOf="@id/name"
+        app:layout_constraintTop_toBottomOf="@id/title"
         tools:ignore="HardcodedText" />
 
     <TextView
@@ -60,7 +60,7 @@
         android:layout_marginStart="@dimen/x1_layout_margin"
         android:layout_marginTop="@dimen/half_layout_margin"
         app:layout_constraintStart_toEndOf="@id/dateLengthDivider"
-        app:layout_constraintTop_toBottomOf="@+id/name"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="56:48" />
 
     <FrameLayout
