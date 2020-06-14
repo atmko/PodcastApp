@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
@@ -101,7 +102,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     }
 
     override fun onItemClick(podcast: Podcast) {
-        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
-        //TODO not yet implemented
+        val action =
+            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(podcast.id)
+        view?.findNavController()?.navigate(action)
     }
 }

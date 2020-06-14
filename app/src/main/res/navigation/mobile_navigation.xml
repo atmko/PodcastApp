@@ -21,12 +21,20 @@
         android:id="@+id/navigation_search"
         android:name="com.atmko.podcastapp.view.SearchParentFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search_parent" />
+        tools:layout="@layout/fragment_search_parent">
+        <action
+            android:id="@+id/action_navigation_search_to_navigation_details"
+            app:destination="@id/navigation_details" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_details"
         android:name="com.atmko.podcastapp.view.DetailsFragment"
         android:label="@string/title_details"
-        tools:layout="@layout/fragment_details" />
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="podcast_id"
+            app:argType="string" />
+    </fragment>
 
 </navigation>
