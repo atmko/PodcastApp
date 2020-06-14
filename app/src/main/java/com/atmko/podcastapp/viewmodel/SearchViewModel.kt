@@ -2,6 +2,7 @@ package com.atmko.podcastapp.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.atmko.podcastapp.dependencyinjection.DaggerApiComponent
 import com.atmko.podcastapp.model.ApiResults
 import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.model.PodcastsService
@@ -9,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 class SearchViewModel: ViewModel() {
     val searchResults:MutableLiveData<List<Podcast>> = MutableLiveData()
@@ -19,8 +21,13 @@ class SearchViewModel: ViewModel() {
     val genreLoadError: MutableLiveData<Boolean> = MutableLiveData()
     val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
 
-    private val podcastService: PodcastsService = PodcastsService()
+    @Inject
+    lateinit var podcastService: PodcastsService
     private val disposable: CompositeDisposable = CompositeDisposable()
+
+    init {
+        DaggerApiComponent.create().inject(this)
+    }
 
     fun search(queryString: String) {
         searchLoading.value = true
