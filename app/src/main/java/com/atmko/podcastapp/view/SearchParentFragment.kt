@@ -84,7 +84,10 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
                 if (queryString != "") {
                     binding.tabLayout.visibility = View.GONE
                     binding.searchViewPager.visibility = View.GONE
+                    binding.presetSearchDivider.visibility = View.GONE
+
                     binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
+                    binding.manualSearchDivider.visibility = View.VISIBLE
 
                     viewModel.search(queryString)
                 }
@@ -96,9 +99,14 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
         binding.toolbar.cancelSearchButton.apply {
             setOnClickListener {
                 binding.toolbar.searchBox.text = "".toEditable()
+
                 binding.tabLayout.visibility = View.VISIBLE
                 binding.searchViewPager.visibility = View.VISIBLE
+                binding.presetSearchDivider.visibility = View.VISIBLE
+
                 binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
+                binding.manualSearchDivider.visibility = View.GONE
+
                 podcastAdapter.podcasts.clear()
             }
         }
