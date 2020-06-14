@@ -16,7 +16,8 @@ class EpisodeAdapter(var episodes: ArrayList<Episode>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
-        return EpisodeViewHolder(ItemEpisodeBinding.inflate(LayoutInflater.from(parent.context)))
+        return EpisodeViewHolder(ItemEpisodeBinding.inflate(LayoutInflater.from(parent.context),
+                parent, false))
     }
 
     override fun getItemCount(): Int {
