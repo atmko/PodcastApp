@@ -4,16 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.podcastapp.databinding.FragmentDetailsBinding
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
+import com.atmko.podcastapp.model.Episode
 import com.atmko.podcastapp.model.Podcast
+import com.atmko.podcastapp.view.adapters.EpisodeAdapter
 import com.atmko.podcastapp.viewmodel.DetailsViewModel
 
-class DetailsFragment : Fragment() {
+class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -23,6 +27,7 @@ class DetailsFragment : Fragment() {
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding;
     private lateinit var podcastDetails: Podcast
     private lateinit var viewModel: DetailsViewModel
+    private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +59,10 @@ class DetailsFragment : Fragment() {
 
     private fun configureViews() {
        resultsFrameLayout = binding.includeDetailsExtras.resultsFrameLayout
+        resultsFrameLayout.resultsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = episodeAdapter
+        }
     }
 
     private fun configureViewModel() {
@@ -63,6 +72,7 @@ class DetailsFragment : Fragment() {
             this.podcastDetails.let {
                 binding.title.text = it.title
                 binding.description.text = it.description
+                episodeAdapter.updateEpisodes(it.episodes)
             }
         })
 
@@ -82,5 +92,10 @@ class DetailsFragment : Fragment() {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE }
         })
+    }
+
+    override fun onItemClick(episode: Episode) {
+        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+        //TODO not yet implemented
     }
 }
