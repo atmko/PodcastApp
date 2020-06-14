@@ -47,6 +47,11 @@ class DetailsFragment : Fragment() {
         configureViewModel()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
     private fun configureViews() {
        resultsFrameLayout = binding.includeDetailsExtras.resultsFrameLayout
     }
