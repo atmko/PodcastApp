@@ -14,6 +14,7 @@ import com.atmko.podcastapp.databinding.FragmentDetailsBinding
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
 import com.atmko.podcastapp.model.Episode
 import com.atmko.podcastapp.model.Podcast
+import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.view.adapters.EpisodeAdapter
 import com.atmko.podcastapp.viewmodel.DetailsViewModel
 
@@ -72,6 +73,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             this.podcastDetails.let {
                 binding.title.text = it.title
                 binding.description.text = it.description
+                binding.podcastImageView.loadNetworkImage(podcastDetails.image)
                 episodeAdapter.updateEpisodes(it.episodes)
             }
         })
