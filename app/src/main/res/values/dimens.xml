@@ -16,6 +16,8 @@
     <dimen name="x21_layout_margin">168dp</dimen>
 
     <dimen name="list_margin">0dp</dimen>
+    <dimen name="list_excess_margin">0dp</dimen>
+    <dimen name="text_excess_margin">@dimen/x2_layout_margin</dimen>
     <dimen name="search_bar_excess_margin">@dimen/x3_layout_margin</dimen>
 
     <!--TEXT DIMENSIONS-->

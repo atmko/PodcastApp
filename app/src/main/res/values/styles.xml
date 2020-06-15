@@ -31,9 +31,23 @@
         <item name="fontFamily">sans-serif-medium</item>
     </style>
 
+    <style name="Large_Heading_Excess_Style" parent="Large_Heading_Style">
+        <item name="android:layout_marginStart">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/text_excess_margin</item>
+    </style>
+
     <style name="Body_Style">
         <item name="android:textSize">@dimen/body_text_size</item>
         <item name="android:textColor">@color/color_body_text</item>
+    </style>
+
+    <style name="Body_Excess_Style" parent="Body_Style">
+        <item name="android:layout_marginStart">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/text_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/text_excess_margin</item>
     </style>
 
     <style name="Caption_Style">
@@ -51,6 +65,13 @@
         <item name="android:layout_marginLeft">@dimen/search_bar_excess_margin</item>
         <item name="android:layout_marginEnd">@dimen/search_bar_excess_margin</item>
         <item name="android:layout_marginRight">@dimen/search_bar_excess_margin</item>
+    </style>
+
+    <style name="List_Excess_Style">
+        <item name="android:layout_marginStart">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/list_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/list_excess_margin</item>
     </style>
 
     <style name="List_Item_Style">

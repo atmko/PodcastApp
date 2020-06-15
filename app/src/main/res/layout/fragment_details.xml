@@ -37,12 +37,10 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/Large_Heading_Style"
+            style="@style/Large_Heading_Excess_Style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x3_layout_margin"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/podcastImageView"
@@ -50,12 +48,10 @@
 
         <TextView
             android:id="@+id/description"
-            style="@style/Body_Style"
+            style="@style/Body_Excess_Style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x2_layout_margin"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
@@ -65,12 +61,10 @@ discussion and listener participation. The" />
 
         <TextView
             android:id="@+id/showMore"
-            style="@style/Body_Style"
+            style="@style/Body_Excess_Style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x2_layout_margin"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
             android:text="@string/show_more"
             android:textColor="@color/colorAccent"
             app:layout_constraintStart_toStartOf="parent"
