@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.atmko.podcastapp.databinding.ItemEpisodeBinding
 import com.atmko.podcastapp.model.Episode
 
-class EpisodeAdapter(var episodes: ArrayList<Episode>,
-                     private val clickListener: OnEpisodeItemClickListener):
+class EpisodeAdapter(
+    var episodes: ArrayList<Episode>,
+    private val clickListener: OnEpisodeItemClickListener
+) :
     RecyclerView.Adapter<EpisodeAdapter.EpisodeViewHolder>() {
 
     interface OnEpisodeItemClickListener {
@@ -16,8 +18,12 @@ class EpisodeAdapter(var episodes: ArrayList<Episode>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpisodeViewHolder {
-        return EpisodeViewHolder(ItemEpisodeBinding.inflate(LayoutInflater.from(parent.context),
-                parent, false))
+        return EpisodeViewHolder(
+            ItemEpisodeBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent, false
+            )
+        )
     }
 
     override fun getItemCount(): Int {

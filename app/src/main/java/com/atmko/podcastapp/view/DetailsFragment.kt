@@ -61,7 +61,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     private fun configureViews() {
-       resultsFrameLayout = binding.includeDetailsExtras.resultsFrameLayout
+        resultsFrameLayout = binding.includeDetailsExtras.resultsFrameLayout
         resultsFrameLayout.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = episodeAdapter
@@ -105,10 +105,11 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             }
         })
 
-        viewModel.loadError.observe(viewLifecycleOwner, Observer {isError ->
+        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE }
+                    if (it) View.VISIBLE else View.GONE
+            }
         })
     }
 
