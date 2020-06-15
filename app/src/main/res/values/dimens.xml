@@ -19,6 +19,7 @@
     <dimen name="list_excess_margin">0dp</dimen>
     <dimen name="text_excess_margin">@dimen/x2_layout_margin</dimen>
     <dimen name="search_bar_excess_margin">@dimen/x3_layout_margin</dimen>
+    <dimen name="fab_excess_margin">@dimen/x6_layout_margin</dimen>
 
     <!--TEXT DIMENSIONS-->
     <dimen name="appbar_headline_text_size">18sp</dimen>
