@@ -19,6 +19,8 @@ import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.view.adapters.EpisodeAdapter
 import com.atmko.podcastapp.viewmodel.DetailsViewModel
 
+private const val SHOW_MORE_KEY = "show_more"
+
 class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
@@ -52,6 +54,11 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         configureViewModel()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
@@ -65,7 +72,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         }
 
         binding.showMore.setOnClickListener {
-            limitDescriptionText()
+            toggleFullOrLimitedDescription()
         }
 
         binding.upNavigationButton.setOnClickListener {
@@ -83,6 +90,8 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         if (savedInstanceState == null) {
             podcastId?.let { viewModel?.refresh(it) }
             binding.showMore.tag = false
+        } else {
+            binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
         }
     }
 
@@ -92,7 +101,13 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
                 binding.title.text = it.title
-                limitDescriptionText()
+
+                if (binding.showMore.tag as Boolean) {
+                    showFullDescription()
+                } else {
+                    showLimitedDescription()
+                }
+
                 binding.podcastImageView.loadNetworkImage(podcastDetails.image)
                 episodeAdapter.updateEpisodes(it.episodes)
             }
@@ -117,21 +132,32 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         })
     }
 
-    //limit long text
-    private fun limitDescriptionText() {
+    //limit long / short description text
+    private fun toggleFullOrLimitedDescription() {
         val showMoreText = binding.showMore
-        val descriptionText = binding.description
         if (showMoreText.tag == false) {
-            descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
-            descriptionText.text = podcastDetails.description
-            showMoreText.text = getString(R.string.show_more)
+            showFullDescription()
             showMoreText.tag = true
         } else {
-            descriptionText.maxLines = Int.MAX_VALUE
-            descriptionText.text = podcastDetails.description
-            showMoreText.text = getString(R.string.show_less)
+            showLimitedDescription()
             showMoreText.tag = false
         }
+    }
+
+    private fun showLimitedDescription() {
+        val showMoreText = binding.showMore
+        val descriptionText = binding.description
+        descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
+        descriptionText.text = podcastDetails.description
+        showMoreText.text = getString(R.string.show_more)
+    }
+
+    private fun showFullDescription() {
+        val showMoreText = binding.showMore
+        val descriptionText = binding.description
+        descriptionText.maxLines = Int.MAX_VALUE
+        descriptionText.text = podcastDetails.description
+        showMoreText.text = getString(R.string.show_less)
     }
 
     override fun onItemClick(episode: Episode) {
