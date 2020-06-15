@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentDetailsBinding
 import com.atmko.podcastapp.databinding.ResultsRecyclerViewBinding
 import com.atmko.podcastapp.model.Episode
@@ -50,6 +52,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         podcastId?.let { viewModel.refresh(it) }
 
         configureViews()
+        configureValues()
         configureViewModel()
     }
 
@@ -64,6 +67,14 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             layoutManager = LinearLayoutManager(context)
             adapter = episodeAdapter
         }
+
+        binding.showMore.setOnClickListener {
+            limitText(it, binding.description)
+        }
+    }
+
+    private fun configureValues() {
+        binding.showMore.tag = false
     }
 
     private fun configureViewModel() {
@@ -72,7 +83,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
                 binding.title.text = it.title
-                binding.description.text = it.description
+                limitText(binding.showMore, binding.description)
                 binding.podcastImageView.loadNetworkImage(podcastDetails.image)
                 episodeAdapter.updateEpisodes(it.episodes)
             }
@@ -94,6 +105,19 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE }
         })
+    }
+
+    //limit long text
+    private fun limitText(buttonView: View, textView: TextView) {
+        if (buttonView.tag == false) {
+            textView.maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            textView.text = podcastDetails.description
+            buttonView.tag = true
+        } else {
+            textView.maxLines = Int.MAX_VALUE
+            textView.text = podcastDetails.description
+            buttonView.tag = false
+        }
     }
 
     override fun onItemClick(episode: Episode) {
