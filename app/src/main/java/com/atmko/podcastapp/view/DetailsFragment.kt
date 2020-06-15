@@ -28,7 +28,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
 
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding;
     private lateinit var podcastDetails: Podcast
-    private lateinit var viewModel: DetailsViewModel
+    private var viewModel: DetailsViewModel? = null
     private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +47,8 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this).get(DetailsViewModel::class.java)
-        podcastId?.let { viewModel.refresh(it) }
-
         configureViews()
-        configureValues()
+        configureValues(savedInstanceState)
         configureViewModel()
     }
 
@@ -78,12 +75,19 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         }
     }
 
-    private fun configureValues() {
-        binding.showMore.tag = false
+    private fun configureValues(savedInstanceState: Bundle?) {
+        if (viewModel == null) {
+            viewModel = ViewModelProviders.of(this).get(DetailsViewModel::class.java)
+        }
+
+        if (savedInstanceState == null) {
+            podcastId?.let { viewModel?.refresh(it) }
+            binding.showMore.tag = false
+        }
     }
 
     private fun configureViewModel() {
-        viewModel.podcastDetails.observe(viewLifecycleOwner, Observer { podcastDetails ->
+        viewModel?.podcastDetails?.observe(viewLifecycleOwner, Observer { podcastDetails ->
             resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
@@ -94,7 +98,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             }
         })
 
-        viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -105,7 +109,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             }
         })
 
-        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
