@@ -12,6 +12,7 @@
     <string name="content_description_back_button">back button</string>
 
     <string name="show_more">Show More</string>
+    <string name="show_less">Show Less</string>
     <string name="episodes">Episodes</string>
     <string name="total_episodes_format">%d Episodes</string>
 

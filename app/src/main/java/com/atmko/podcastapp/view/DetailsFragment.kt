@@ -120,10 +120,12 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         if (showMoreText.tag == false) {
             descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
             descriptionText.text = podcastDetails.description
+            showMoreText.text = getString(R.string.show_more)
             showMoreText.tag = true
         } else {
             descriptionText.maxLines = Int.MAX_VALUE
             descriptionText.text = podcastDetails.description
+            showMoreText.text = getString(R.string.show_less)
             showMoreText.tag = false
         }
     }
