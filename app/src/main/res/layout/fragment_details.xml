@@ -84,8 +84,11 @@ discussion and listener participation. The" />
         </FrameLayout>
 
         <ImageButton
+            android:id="@+id/up_navigation_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:background="@null"
             android:contentDescription="@string/content_description_back_button"
             android:padding="@dimen/x2_layout_margin"
             android:src="@drawable/ic_up_nav_btn"
