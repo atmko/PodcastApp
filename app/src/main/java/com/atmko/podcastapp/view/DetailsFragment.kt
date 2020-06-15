@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -69,7 +68,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         }
 
         binding.showMore.setOnClickListener {
-            limitText(it, binding.description)
+            limitDescriptionText()
         }
 
         binding.upNavigationButton.setOnClickListener {
@@ -89,7 +88,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
                 binding.title.text = it.title
-                limitText(binding.showMore, binding.description)
+                limitDescriptionText()
                 binding.podcastImageView.loadNetworkImage(podcastDetails.image)
                 episodeAdapter.updateEpisodes(it.episodes)
             }
@@ -114,15 +113,17 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     //limit long text
-    private fun limitText(buttonView: View, textView: TextView) {
-        if (buttonView.tag == false) {
-            textView.maxLines = resources.getInteger(R.integer.max_lines_details_description)
-            textView.text = podcastDetails.description
-            buttonView.tag = true
+    private fun limitDescriptionText() {
+        val showMoreText = binding.showMore
+        val descriptionText = binding.description
+        if (showMoreText.tag == false) {
+            descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            descriptionText.text = podcastDetails.description
+            showMoreText.tag = true
         } else {
-            textView.maxLines = Int.MAX_VALUE
-            textView.text = podcastDetails.description
-            buttonView.tag = false
+            descriptionText.maxLines = Int.MAX_VALUE
+            descriptionText.text = podcastDetails.description
+            showMoreText.tag = false
         }
     }
 
