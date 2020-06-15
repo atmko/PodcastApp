@@ -1,6 +1,12 @@
 package com.atmko.podcastapp.model
 
+import android.annotation.SuppressLint
 import com.google.gson.annotations.SerializedName
+import java.text.SimpleDateFormat
+import java.util.*
+
+const val MINUTE_TO_SECONDS = 60
+const val PUBLISH_DATE_FORMAT = "MMM dd, yyyy"
 
 class Episode(
     val title: String,
@@ -9,4 +15,16 @@ class Episode(
     val publishDate: Long,
     @SerializedName("audio_length_sec")
     val lengthInSeconds: Int) {
+
+    fun getFormattedAudioLength(): String {
+        val minutes = lengthInSeconds / MINUTE_TO_SECONDS
+        val seconds = lengthInSeconds - (minutes * MINUTE_TO_SECONDS)
+        return "${minutes}:${seconds}"
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun getFormattedPublishDate(): String {
+        val dateFormat = SimpleDateFormat(PUBLISH_DATE_FORMAT)
+        return dateFormat.format(Date(publishDate)).toString()
+    }
 }

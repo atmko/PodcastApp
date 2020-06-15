@@ -39,9 +39,8 @@ class EpisodeAdapter(var episodes: ArrayList<Episode>,
     override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {
         val episode: Episode = episodes[position]
         holder.binding.title.text = episode.title
-        //TODO implement date and length
-        holder.binding.date.text = "temp"
-        holder.binding.length.text = "temp"
+        holder.binding.date.text = episode.getFormattedPublishDate()
+        holder.binding.length.text = episode.getFormattedAudioLength()
     }
 
     fun updateEpisodes(updatedEpisodes: List<Episode>) {
