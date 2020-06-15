@@ -71,6 +71,12 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         binding.showMore.setOnClickListener {
             limitText(it, binding.description)
         }
+
+        binding.upNavigationButton.setOnClickListener {
+            activity?.let {
+                (activity as MasterActivity).onBackPressed()
+            }
+        }
     }
 
     private fun configureValues() {
