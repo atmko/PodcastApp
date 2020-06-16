@@ -88,7 +88,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/podcastImageView"
+                android:id="@+id/expandedPodcastImageView"
                 style="@style/Podcast_Feature_Image_Style"
                 android:layout_width="@dimen/item_podcast_square_size_small"
                 android:layout_height="@dimen/item_podcast_square_size_small"
@@ -106,9 +106,9 @@
                 android:contentDescription="@string/content_description_previous_episode"
                 android:rotation="180"
                 android:src="@drawable/ic_next_episode_button"
-                app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
-                app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-                app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+                app:layout_constraintBottom_toBottomOf="@+id/expandedPodcastImageView"
+                app:layout_constraintStart_toEndOf="@+id/expandedPodcastImageView"
+                app:layout_constraintTop_toTopOf="@+id/expandedPodcastImageView" />
 
             <TextView
                 android:id="@+id/expandedTitle"
@@ -120,7 +120,7 @@
                 app:layout_constraintBottom_toTopOf="@id/episodeNumber"
                 app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
                 app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
-                app:layout_constraintTop_toTopOf="@+id/podcastImageView"
+                app:layout_constraintTop_toTopOf="@+id/expandedPodcastImageView"
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:text="True Crime Garage" />
 
@@ -132,7 +132,7 @@
                 android:layout_marginStart="@dimen/x2_layout_margin"
                 android:layout_marginTop="@dimen/half_layout_margin"
                 android:layout_marginEnd="@dimen/x2_layout_margin"
-                app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
+                app:layout_constraintBottom_toBottomOf="@id/expandedPodcastImageView"
                 app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
                 app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
                 app:layout_constraintTop_toBottomOf="@id/expandedTitle"
@@ -146,10 +146,10 @@
                 android:background="@null"
                 android:contentDescription="@string/content_description_next_episode"
                 android:src="@drawable/ic_next_episode_button"
-                app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
+                app:layout_constraintBottom_toBottomOf="@+id/expandedPodcastImageView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/expandedTitle"
-                app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+                app:layout_constraintTop_toTopOf="@+id/expandedPodcastImageView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -162,8 +162,9 @@
             app:layout_constraintTop_toBottomOf="@id/expandedBottomSheet" />
 
         <TextView
-            android:id="@+id/episodeTitle"
+            android:id="@+id/title"
             style="@style/Large_Heading_Style"
+            android:textColor="@color/color_body_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/x2_layout_margin"
@@ -175,7 +176,7 @@
             tools:text="MISSING: Margaret Ellen Fox" />
 
         <TextView
-            android:id="@+id/episodeDescription"
+            android:id="@+id/description"
             style="@style/Body_Style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -184,7 +185,7 @@
             android:layout_marginEnd="@dimen/x2_layout_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/episodeTitle"
+            app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="In 2017 the FBI released a chilling recorded
 phone call that may be the only clue as to
 what happened to Margaret Ellen Fox back in
@@ -200,7 +201,7 @@ sources, please visit " />
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height"
             android:layout_marginTop="@dimen/x2_layout_margin"
-            app:layout_constraintTop_toBottomOf="@id/episodeDescription" />
+            app:layout_constraintTop_toBottomOf="@id/description" />
 
         <FrameLayout
             android:id="@+id/playPanel"

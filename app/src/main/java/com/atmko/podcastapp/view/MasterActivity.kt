@@ -40,9 +40,9 @@ class MasterActivity : AppCompatActivity() {
         bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
     }
 
-    fun loadEpisodeIntoBottomSheet(episodeId: String) {
+    fun loadEpisodeIntoBottomSheet(episodeId: String, podcastTitle: String) {
         expandBottomSheet()
-        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId)
+        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId, podcastTitle)
         supportFragmentManager.beginTransaction()
             .replace(R.id.bottomSheet, episodeFragment)
             .commit()
