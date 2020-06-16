@@ -23,4 +23,8 @@ class PodcastsService : PodcastsApi {
     override fun getDetails(podcastId: String): Single<Podcast> {
         return api.getDetails(podcastId)
     }
+
+    override fun getEpisodeDetails(episodeId: String): Single<Episode> {
+        return api.getEpisodeDetails(episodeId)
+    }
 }
