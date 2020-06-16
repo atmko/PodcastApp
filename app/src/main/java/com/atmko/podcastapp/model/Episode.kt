@@ -13,10 +13,19 @@ class Episode(
     val id: String,
     val title: String,
     val description: String,
+    val image: String,
     @SerializedName("pub_date_ms")
     val publishDate: Long,
     @SerializedName("audio_length_sec")
     val lengthInSeconds: Int) {
+
+    var podcast: Podcast? = null
+
+    constructor(id: String, title: String, description: String, image: String, publishDate: Long,
+                lengthInSeconds: Int, podcast: Podcast):
+            this(id, title, description, image, publishDate, lengthInSeconds) {
+        this.podcast = podcast
+    }
 
     fun getFormattedAudioLength(): String {
         val minutes = lengthInSeconds / MINUTE_TO_SECONDS
