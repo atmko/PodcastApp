@@ -5,10 +5,12 @@ import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
 import java.util.*
 
+const val EPISODE_ID_KEY = "episode_id"
 const val MINUTE_TO_SECONDS = 60
 const val PUBLISH_DATE_FORMAT = "MMM dd, yyyy"
 
 class Episode(
+    val id: String,
     val title: String,
     val description: String,
     @SerializedName("pub_date_ms")
