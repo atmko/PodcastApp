@@ -120,7 +120,7 @@
                 android:layout_marginStart="@dimen/x2_layout_margin"
                 android:layout_marginEnd="@dimen/x2_layout_margin"
                 android:lines="1"
-                app:layout_constraintBottom_toTopOf="@id/episodeNumber"
+                app:layout_constraintBottom_toTopOf="@id/expandedEpisodeNumber"
                 app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
                 app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
                 app:layout_constraintTop_toTopOf="@+id/expandedPodcastImageView"
@@ -128,7 +128,7 @@
                 tools:text="True Crime Garage" />
 
             <TextView
-                android:id="@+id/episodeNumber"
+                android:id="@+id/expandedEpisodeNumber"
                 style="@style/Caption_Style_Accented"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

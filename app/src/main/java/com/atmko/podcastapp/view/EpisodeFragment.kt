@@ -82,14 +82,22 @@ class EpisodeFragment : Fragment() {
         viewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
             this.episodeDetails.let {
-                binding.title.text = it.title
+                //set expanded values
                 binding.expandedPodcastImageView.loadNetworkImage(it.image)
                 binding.expandedTitle.text = it.podcast?.title
+                binding.expandedEpisodeNumber.text = it.title
+                binding.title.text = it.title
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     binding.description.text = Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
                 } else {
                     binding.description.text = Html.fromHtml(it.description)
                 }
+
+                //set collapsed values
+                binding.collapsedPodcastImageView.loadNetworkImage(it.image)
+                binding.collapsedTitle.text = it.podcast?.title
+                binding.collapsedEpisodeNumber.text = it.title
+
             }
         })
 
