@@ -8,6 +8,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ActivityMasterBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class MasterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMasterBinding
@@ -31,5 +32,19 @@ class MasterActivity : AppCompatActivity() {
         )
 
         navView.setupWithNavController(navController)
+    }
+
+    fun expandBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+    }
+
+    fun loadEpisodeIntoBottomSheet(episodeId: String) {
+        expandBottomSheet()
+        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.bottomSheet, episodeFragment)
+            .commit()
     }
 }
