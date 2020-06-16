@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background"
-    android:fillViewport="true"
     android:elevation="@dimen/x2_layout_margin"
+    android:fillViewport="true"
     tools:context=".view.MasterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -164,16 +164,26 @@
         <TextView
             android:id="@+id/title"
             style="@style/Large_Heading_Style"
-            android:textColor="@color/color_body_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x2_layout_margin"
             android:layout_marginEnd="@dimen/x2_layout_margin"
+            android:textColor="@color/color_body_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/description_divider"
             tools:text="MISSING: Margaret Ellen Fox" />
+
+        <include
+            android:id="@+id/errorAndLoading"
+            layout="@layout/layout_error_and_loading"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/playPanelDivider"
+            app:layout_constraintTop_toBottomOf="@id/description_divider"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/description"
@@ -216,11 +226,11 @@ sources, please visit " />
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/x2_layout_margin"
+            android:text="@string/comments"
             app:layout_constraintEnd_toStartOf="@id/commentCount"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playPanel"
-            android:text="@string/comments" />
+            app:layout_constraintTop_toBottomOf="@id/playPanel" />
 
         <TextView
             android:id="@+id/commentCount"
