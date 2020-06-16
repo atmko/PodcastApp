@@ -27,7 +27,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     //fragment init variable
     private var podcastId: String? = null
 
-    private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding;
+    private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
     private lateinit var podcastDetails: Podcast
     private var viewModel: DetailsViewModel? = null
     private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
@@ -39,8 +39,10 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         podcastId = args.podcastId
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
