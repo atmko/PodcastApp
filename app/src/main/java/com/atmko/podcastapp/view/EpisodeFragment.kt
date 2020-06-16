@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.atmko.podcastapp.databinding.FragmentEpisodeBinding
 import com.atmko.podcastapp.model.EPISODE_ID_KEY
-import com.atmko.podcastapp.model.PODCAST_TITILE_KEY
 
 class EpisodeFragment : Fragment() {
     private var _binding: FragmentEpisodeBinding? = null
@@ -15,13 +14,11 @@ class EpisodeFragment : Fragment() {
 
     //fragment init variable
     private var episodeId: String? = null
-    private var podcastTitle: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             episodeId = it.getString(EPISODE_ID_KEY)
-            podcastTitle = it.getString(PODCAST_TITILE_KEY)
         }
     }
 
@@ -40,11 +37,10 @@ class EpisodeFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(episodeId: String, podcastTitle: String) =
+        fun newInstance(episodeId: String) =
             EpisodeFragment().apply {
                 arguments = Bundle().apply {
                     putString(EPISODE_ID_KEY, episodeId)
-                    putString(PODCAST_TITILE_KEY, podcastTitle)
                 }
             }
     }
