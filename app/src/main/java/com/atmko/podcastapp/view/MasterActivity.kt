@@ -6,13 +6,17 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.podcastapp.R
+import com.atmko.podcastapp.databinding.ActivityMasterBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MasterActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMasterBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_master)
+        binding = ActivityMasterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         val navController = findNavController(R.id.nav_host_fragment)
