@@ -29,6 +29,8 @@
     <string name="title_search">Search</string>
     <string name="title_details">Details</string>
 
+    <string name="comments">Comments</string>
+
     <string name="error_loading_subscriptions">Couldn\'t load data</string>
 
 </resources>

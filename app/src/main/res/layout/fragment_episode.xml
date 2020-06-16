@@ -4,76 +4,154 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     android:fillViewport="true"
+    android:elevation="@dimen/x2_layout_margin"
     tools:context=".view.MasterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/podcastImageView"
-            style="@style/Podcast_Feature_Image_Style"
-            android:layout_width="@dimen/item_podcast_square_size_small"
-            android:layout_height="@dimen/item_podcast_square_size_small"
-            android:layout_margin="@dimen/x2_layout_margin"
-            android:contentDescription="@string/content_description_podcast_feature_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/collapsedBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/previousEpisodeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
-            android:background="@null"
-            android:contentDescription="@string/content_description_previous_episode"
-            android:rotation="180"
-            android:src="@drawable/ic_next_episode_button"
-            app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
-            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-            app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+            <ImageView
+                android:id="@+id/collapsedPodcastImageView"
+                style="@style/Podcast_Feature_Image_Style"
+                android:layout_width="@dimen/item_podcast_square_size_small"
+                android:layout_height="@dimen/item_podcast_square_size_small"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:contentDescription="@string/content_description_podcast_feature_image"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/podcastTitle"
-            style="@style/Standard_Heading_Style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
-            app:layout_constraintBottom_toTopOf="@id/episodeNumber"
-            app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
-            app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
-            app:layout_constraintTop_toTopOf="@+id/podcastImageView"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:text="True Crime Garage" />
+            <TextView
+                android:id="@+id/collapsedTitle"
+                style="@style/Standard_Heading_Style"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:layout_marginEnd="@dimen/x2_layout_margin"
+                app:layout_constraintBottom_toTopOf="@id/collapsedEpisodeNumber"
+                app:layout_constraintEnd_toStartOf="@+id/playButton"
+                app:layout_constraintStart_toEndOf="@+id/collapsedPodcastImageView"
+                app:layout_constraintTop_toTopOf="@+id/collapsedPodcastImageView"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="True Crime Garage" />
 
-        <TextView
-            android:id="@+id/episodeNumber"
-            style="@style/Caption_Style_Accented"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x2_layout_margin"
-            android:layout_marginTop="@dimen/half_layout_margin"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
-            app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
-            app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
-            app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
-            app:layout_constraintTop_toBottomOf="@id/podcastTitle"
-            tools:text="Episode 239" />
+            <TextView
+                android:id="@+id/collapsedEpisodeNumber"
+                style="@style/Caption_Style_Accented"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:layout_marginTop="@dimen/half_layout_margin"
+                android:layout_marginEnd="@dimen/x2_layout_margin"
+                app:layout_constraintBottom_toBottomOf="@id/collapsedPodcastImageView"
+                app:layout_constraintEnd_toStartOf="@+id/playButton"
+                app:layout_constraintStart_toEndOf="@+id/collapsedPodcastImageView"
+                app:layout_constraintTop_toBottomOf="@id/collapsedTitle"
+                tools:text="Episode 239" />
 
-        <ImageButton
-            android:id="@+id/nextEpisodeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/x2_layout_margin"
-            android:background="@null"
-            android:contentDescription="@string/content_description_next_episode"
-            android:src="@drawable/ic_next_episode_button"
-            app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/podcastTitle"
-            app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+            <ImageButton
+                android:id="@+id/playButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/x4_layout_margin"
+                android:background="@null"
+                android:contentDescription="@string/content_description_play_button"
+                android:src="@drawable/ic_play_button_sharp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <FrameLayout
+                android:id="@+id/bottomDivider"
+                style="@style/Divider_Style"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/divider_height"
+                android:layout_marginTop="@dimen/x2_layout_margin"
+                app:layout_constraintTop_toBottomOf="@id/collapsedPodcastImageView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/expandedBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/podcastImageView"
+                style="@style/Podcast_Feature_Image_Style"
+                android:layout_width="@dimen/item_podcast_square_size_small"
+                android:layout_height="@dimen/item_podcast_square_size_small"
+                android:layout_margin="@dimen/x2_layout_margin"
+                android:contentDescription="@string/content_description_podcast_feature_image"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/previousEpisodeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:background="@null"
+                android:contentDescription="@string/content_description_previous_episode"
+                android:rotation="180"
+                android:src="@drawable/ic_next_episode_button"
+                app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
+                app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+                app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+
+            <TextView
+                android:id="@+id/expandedTitle"
+                style="@style/Standard_Heading_Style"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:layout_marginEnd="@dimen/x2_layout_margin"
+                app:layout_constraintBottom_toTopOf="@id/episodeNumber"
+                app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
+                app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
+                app:layout_constraintTop_toTopOf="@+id/podcastImageView"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="True Crime Garage" />
+
+            <TextView
+                android:id="@+id/episodeNumber"
+                style="@style/Caption_Style_Accented"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x2_layout_margin"
+                android:layout_marginTop="@dimen/half_layout_margin"
+                android:layout_marginEnd="@dimen/x2_layout_margin"
+                app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
+                app:layout_constraintEnd_toStartOf="@+id/nextEpisodeButton"
+                app:layout_constraintStart_toEndOf="@+id/previousEpisodeButton"
+                app:layout_constraintTop_toBottomOf="@id/expandedTitle"
+                tools:text="Episode 239" />
+
+            <ImageButton
+                android:id="@+id/nextEpisodeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/x2_layout_margin"
+                android:background="@null"
+                android:contentDescription="@string/content_description_next_episode"
+                android:src="@drawable/ic_next_episode_button"
+                app:layout_constraintBottom_toBottomOf="@+id/podcastImageView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/expandedTitle"
+                app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <FrameLayout
             android:id="@+id/description_divider"
@@ -81,7 +159,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height"
             android:layout_marginTop="@dimen/x2_layout_margin"
-            app:layout_constraintTop_toBottomOf="@id/podcastImageView" />
+            app:layout_constraintTop_toBottomOf="@id/expandedBottomSheet" />
 
         <TextView
             android:id="@+id/episodeTitle"
@@ -132,7 +210,7 @@ sources, please visit " />
             app:layout_constraintTop_toBottomOf="@id/playPanelDivider" />
 
         <TextView
-            android:id="@+id/commentsTextView"
+            android:id="@+id/commentsText"
             style="@style/Standard_Heading_Style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -141,7 +219,7 @@ sources, please visit " />
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playPanel"
-            tools:text="Comments" />
+            android:text="@string/comments" />
 
         <TextView
             android:id="@+id/commentCount"
@@ -150,7 +228,7 @@ sources, please visit " />
             android:layout_margin="@dimen/x2_layout_margin"
             android:gravity="end"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/commentsTextView"
+            app:layout_constraintStart_toEndOf="@id/commentsText"
             app:layout_constraintTop_toBottomOf="@id/playPanel"
             tools:text="3920" />
 
@@ -160,10 +238,10 @@ sources, please visit " />
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height"
             android:layout_marginTop="@dimen/x2_layout_margin"
-            app:layout_constraintTop_toBottomOf="@id/commentsTextView" />
+            app:layout_constraintTop_toBottomOf="@id/commentsText" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/commentsRecyclerView"
+        <include
+            layout="@layout/results_recycler_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
