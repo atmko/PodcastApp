@@ -43,6 +43,8 @@
     <dimen name="trending_fragment_size">200dp</dimen>
     <dimen name="home_fragment_size">150dp</dimen>
 
+    <dimen name="bottom_sheet_peek_height">56dp</dimen>
+
     <dimen name="search_box_padding">12dp</dimen>
 
 </resources>
