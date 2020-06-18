@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background"
-    android:elevation="@dimen/x2_layout_margin"
     android:fillViewport="true"
     tools:context=".view.MasterActivity">
 
@@ -217,12 +216,15 @@ sources, please visit " />
             android:layout_marginTop="@dimen/x2_layout_margin"
             app:layout_constraintTop_toBottomOf="@id/description" />
 
-        <FrameLayout
+        <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playPanel"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:background="@color/colorAccent"
-            app:layout_constraintTop_toBottomOf="@id/playPanelDivider" />
+            app:hide_on_touch="false"
+            app:layout_constraintTop_toBottomOf="@id/playPanelDivider"
+            app:show_timeout="-1"
+            app:use_artwork="false" />
 
         <TextView
             android:id="@+id/commentsText"
