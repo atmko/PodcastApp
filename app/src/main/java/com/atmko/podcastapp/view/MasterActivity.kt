@@ -1,6 +1,7 @@
 package com.atmko.podcastapp.view
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -34,17 +35,28 @@ class MasterActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
-    fun expandBottomSheet() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-    }
-
     fun loadEpisodeIntoBottomSheet(episodeId: String) {
-        expandBottomSheet()
-        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.bottomSheet, episodeFragment)
-            .commit()
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetBehavior.peekHeight =
+                        resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+
+                    val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId)
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.bottomSheet, episodeFragment)
+                        .commit()
+
+                    bottomSheetBehavior.removeBottomSheetCallback(this)
+                }
+            }
+        })
+
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 }
