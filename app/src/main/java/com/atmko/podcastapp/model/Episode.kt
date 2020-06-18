@@ -14,6 +14,7 @@ class Episode(
     val title: String,
     val description: String,
     val image: String,
+    val audio: String,
     @SerializedName("pub_date_ms")
     val publishDate: Long,
     @SerializedName("audio_length_sec")
@@ -21,9 +22,9 @@ class Episode(
 
     var podcast: Podcast? = null
 
-    constructor(id: String, title: String, description: String, image: String, publishDate: Long,
-                lengthInSeconds: Int, podcast: Podcast):
-            this(id, title, description, image, publishDate, lengthInSeconds) {
+    constructor(id: String, title: String, description: String, image: String, audio: String,
+                publishDate: Long, lengthInSeconds: Int, podcast: Podcast):
+            this(id, title, description, image, audio, publishDate, lengthInSeconds) {
         this.podcast = podcast
     }
 
