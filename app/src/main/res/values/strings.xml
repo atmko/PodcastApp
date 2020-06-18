@@ -10,6 +10,11 @@
     <string name="content_description_subscriptions_button">subscriptions button</string>
     <string name="content_description_search_button">search button</string>
     <string name="content_description_back_button">back button</string>
+    <string name="content_description_pause_button">pause button</string>
+    <string name="content_description_skip_to_start">skip to start button</string>
+    <string name="content_description_skip_to_next_button">skip to next button</string>
+    <string name="content_description_fast_forward_button">fast forward button</string>
+    <string name="content_description_rewind_button">rewind button</string>
 
     <string name="show_more">Show More</string>
     <string name="show_less">Show Less</string>
