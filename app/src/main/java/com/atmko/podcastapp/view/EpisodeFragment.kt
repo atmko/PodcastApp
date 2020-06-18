@@ -1,5 +1,6 @@
 package com.atmko.podcastapp.view
 
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -9,11 +10,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentEpisodeBinding
 import com.atmko.podcastapp.model.EPISODE_ID_KEY
-import com.atmko.podcastapp.model.Episode
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.viewmodel.EpisodeViewModel
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+
 
 class EpisodeFragment : Fragment() {
     private var _binding: FragmentEpisodeBinding? = null
@@ -22,7 +30,7 @@ class EpisodeFragment : Fragment() {
     //fragment init variable
     private var episodeId: String? = null
 
-    private lateinit var episodeDetails: Episode
+    private lateinit var player: SimpleExoPlayer
     private var viewModel: EpisodeViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,28 +84,45 @@ class EpisodeFragment : Fragment() {
         if (savedInstanceState == null) {
             episodeId?.let { viewModel?.refresh(it) }
         }
+
+        context?.let {
+            player = SimpleExoPlayer.Builder(it).build()
+            binding.playPanel.player = player
+        }
     }
 
     private fun configureViewModel() {
         viewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
-            this.episodeDetails = episodeDetails
-            this.episodeDetails.let {
+            episodeDetails?.let {details ->
                 //set expanded values
-                binding.expandedPodcastImageView.loadNetworkImage(it.image)
-                binding.expandedTitle.text = it.podcast?.title
-                binding.expandedEpisodeNumber.text = it.title
-                binding.title.text = it.title
+                binding.expandedPodcastImageView.loadNetworkImage(details.image)
+                binding.expandedTitle.text = details.podcast?.title
+                binding.expandedEpisodeNumber.text = details.title
+                binding.title.text = details.title
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    binding.description.text = Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
+                    binding.description.text = Html.fromHtml(details.description, Html.FROM_HTML_MODE_COMPACT)
                 } else {
-                    binding.description.text = Html.fromHtml(it.description)
+                    binding.description.text = Html.fromHtml(details.description)
                 }
 
                 //set collapsed values
-                binding.collapsedPodcastImageView.loadNetworkImage(it.image)
-                binding.collapsedTitle.text = it.podcast?.title
-                binding.collapsedEpisodeNumber.text = it.title
+                binding.collapsedPodcastImageView.loadNetworkImage(details.image)
+                binding.collapsedTitle.text = details.podcast?.title
+                binding.collapsedEpisodeNumber.text = details.title
 
+                context?.let {context ->
+                    // Produces DataSource instances through which media data is loaded.
+                    val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
+                        context,
+                        Util.getUserAgent(context, getString(R.string.app_name))
+                    )
+                    // This is the MediaSource representing the media to be played.
+                    val audioSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.parse(details.audio))
+                    // Prepare the player with the source.
+                    player.prepare(audioSource)
+                    player.playWhenReady = true
+                }
             }
         })
 
