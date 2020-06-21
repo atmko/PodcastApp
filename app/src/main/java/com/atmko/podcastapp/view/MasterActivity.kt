@@ -11,6 +11,8 @@ import com.atmko.podcastapp.databinding.ActivityMasterBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
+private const val IS_BOTTOM_SHEET_EXPANDED = "is_bottom_sheet_expanded_key"
+
 class MasterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMasterBinding
 
@@ -33,6 +35,27 @@ class MasterActivity : AppCompatActivity() {
         )
 
         navView.setupWithNavController(navController)
+
+        configureValues(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        val isBottomSheetExpanded: Boolean = bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED, isBottomSheetExpanded)
+    }
+
+    private fun configureValues(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED)) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            } else {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
     }
 
     fun loadEpisodeIntoBottomSheet(episodeId: String) {
