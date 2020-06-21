@@ -1,12 +1,16 @@
 package com.atmko.podcastapp.view
 
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -24,6 +28,10 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
 private const val SHOW_MORE_KEY = "show_more"
+
+private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
+private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
+private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
 class EpisodeFragment : Fragment() {
     private var _binding: FragmentEpisodeBinding? = null
@@ -81,12 +89,50 @@ class EpisodeFragment : Fragment() {
     }
 
     private fun configureViews() {
+        configureDetailExtrasSize()
+
         binding.collapsedBottomSheet.visibility = View.INVISIBLE
         binding.expandedBottomSheet.visibility = View.VISIBLE
 
         binding.showMore.setOnClickListener {
             toggleFullOrLimitedDescription()
         }
+    }
+
+    private fun configureDetailExtrasSize() {
+        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
+        val pixelHeight: Int = displayMetrics.heightPixels
+        val pixelWidth: Int = displayMetrics.widthPixels
+
+        val pixelStatusBarHeight: Int = getStatusBarHeight()
+
+        val includeDetailsExtras: ConstraintLayout? =
+            view?.findViewById(R.id.playPanelConstraintLayout)
+
+        val navBarHeight: Int = (activity as MasterActivity).getBinding().navView.height
+
+        //get total weightedWidth
+        val weightedWidth: Int = pixelWidth
+
+        val detailExtrasParams = FrameLayout.LayoutParams(
+            weightedWidth,
+            pixelHeight - pixelStatusBarHeight - navBarHeight
+        )
+
+        includeDetailsExtras?.layoutParams = detailExtrasParams
+    }
+
+    private fun getStatusBarHeight(): Int {
+        var result = 0
+        val resourceId: Int =
+            resources.getIdentifier(
+                STATUS_BAR_IDENTIFIER,
+                STATUS_BAR_IDENTIFIER_TYPE, STATUS_BAR_IDENTIFIER_PACKAGE
+            )
+        if (resourceId > 0) {
+            result = resources.getDimensionPixelSize(resourceId);
+        }
+        return result
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
