@@ -67,6 +67,7 @@ class EpisodeFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        player.release()
     }
 
     companion object {
