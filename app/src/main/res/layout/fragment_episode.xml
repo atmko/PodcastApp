@@ -227,54 +227,70 @@ sources, please visit " />
             android:layout_marginTop="@dimen/x2_layout_margin"
             app:layout_constraintTop_toBottomOf="@id/showMore" />
 
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/playPanel"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/play_panel_height"
-            app:hide_on_touch="false"
-            app:layout_constraintTop_toBottomOf="@id/playPanelDivider"
-            app:show_timeout="-1"
-            app:use_artwork="false" />
-
-        <TextView
-            android:id="@+id/commentsText"
-            style="@style/Standard_Heading_Style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/x2_layout_margin"
-            android:text="@string/comments"
-            app:layout_constraintEnd_toStartOf="@id/commentCount"
-            app:layout_constraintHorizontal_chainStyle="spread_inside"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playPanel" />
-
-        <TextView
-            android:id="@+id/commentCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/x2_layout_margin"
-            android:gravity="end"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/commentsText"
-            app:layout_constraintTop_toBottomOf="@id/playPanel"
-            tools:text="3920" />
-
+        <!--this frame layout isn't redundant, its used in height calculation-->
         <FrameLayout
-            android:id="@+id/commentsDivider"
-            style="@style/Divider_Style"
+            android:id="@+id/playPanelFrameLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_height"
-            android:layout_marginTop="@dimen/x2_layout_margin"
-            app:layout_constraintTop_toBottomOf="@id/commentsText" />
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/playPanelDivider">
 
-        <include
-            layout="@layout/results_recycler_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/commentsDivider" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/playPanelConstraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="300dp">
+
+                <com.google.android.exoplayer2.ui.PlayerView
+                    android:id="@+id/playPanel"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/play_panel_height"
+                    app:hide_on_touch="false"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:show_timeout="-1"
+                    app:use_artwork="false" />
+
+                <TextView
+                    android:id="@+id/commentsText"
+                    style="@style/Standard_Heading_Style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/x2_layout_margin"
+                    android:text="@string/comments"
+                    app:layout_constraintEnd_toStartOf="@id/commentCount"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/playPanel" />
+
+                <TextView
+                    android:id="@+id/commentCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/x2_layout_margin"
+                    android:gravity="end"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/commentsText"
+                    app:layout_constraintTop_toBottomOf="@id/playPanel"
+                    tools:text="3920" />
+
+                <FrameLayout
+                    android:id="@+id/commentsDivider"
+                    style="@style/Divider_Style"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height"
+                    android:layout_marginTop="@dimen/x2_layout_margin"
+                    app:layout_constraintTop_toBottomOf="@id/commentsText" />
+
+                <include
+                    layout="@layout/results_recycler_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/commentsDivider" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
