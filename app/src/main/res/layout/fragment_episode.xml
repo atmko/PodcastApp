@@ -230,8 +230,7 @@ sources, please visit " />
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:layout_height="@dimen/play_panel_height"
             app:hide_on_touch="false"
             app:layout_constraintTop_toBottomOf="@id/playPanelDivider"
             app:show_timeout="-1"
