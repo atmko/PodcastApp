@@ -59,4 +59,6 @@ class MasterActivity : AppCompatActivity() {
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
+
+    fun getBinding() = binding
 }
