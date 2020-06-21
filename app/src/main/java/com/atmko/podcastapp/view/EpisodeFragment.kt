@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentEpisodeBinding
 import com.atmko.podcastapp.model.EPISODE_ID_KEY
+import com.atmko.podcastapp.model.Episode
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.viewmodel.EpisodeViewModel
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -22,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
+private const val SHOW_MORE_KEY = "show_more"
 
 class EpisodeFragment : Fragment() {
     private var _binding: FragmentEpisodeBinding? = null
@@ -30,6 +32,7 @@ class EpisodeFragment : Fragment() {
     //fragment init variable
     private var episodeId: String? = null
 
+    private lateinit var episodeDetails: Episode
     private lateinit var player: SimpleExoPlayer
     private var viewModel: EpisodeViewModel? = null
 
@@ -56,6 +59,11 @@ class EpisodeFragment : Fragment() {
         configureViewModel()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
@@ -74,6 +82,10 @@ class EpisodeFragment : Fragment() {
     private fun configureViews() {
         binding.collapsedBottomSheet.visibility = View.INVISIBLE
         binding.expandedBottomSheet.visibility = View.VISIBLE
+
+        binding.showMore.setOnClickListener {
+            toggleFullOrLimitedDescription()
+        }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
@@ -83,6 +95,9 @@ class EpisodeFragment : Fragment() {
 
         if (savedInstanceState == null) {
             episodeId?.let { viewModel?.refresh(it) }
+            binding.showMore.tag = false
+        } else {
+            binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
         }
 
         context?.let {
@@ -93,16 +108,18 @@ class EpisodeFragment : Fragment() {
 
     private fun configureViewModel() {
         viewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
+            this.episodeDetails = episodeDetails
             episodeDetails?.let {details ->
                 //set expanded values
                 binding.expandedPodcastImageView.loadNetworkImage(details.image)
                 binding.expandedTitle.text = details.podcast?.title
                 binding.expandedEpisodeNumber.text = details.title
                 binding.title.text = details.title
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    binding.description.text = Html.fromHtml(details.description, Html.FROM_HTML_MODE_COMPACT)
+
+                if (binding.showMore.tag as Boolean) {
+                    showFullDescription()
                 } else {
-                    binding.description.text = Html.fromHtml(details.description)
+                    showLimitedDescription()
                 }
 
                 //set collapsed values
@@ -142,5 +159,44 @@ class EpisodeFragment : Fragment() {
                     if (it) View.VISIBLE else View.GONE
             }
         })
+    }
+
+    //todo consolidate with details show more methods
+    //limit long / short description text
+    private fun toggleFullOrLimitedDescription() {
+        val showMoreText = binding.showMore
+        if (showMoreText.tag == false) {
+            showFullDescription()
+            showMoreText.tag = true
+        } else {
+            showLimitedDescription()
+            showMoreText.tag = false
+        }
+    }
+
+    //todo consolidate with details show more methods
+    private fun showLimitedDescription() {
+        val showMoreText = binding.showMore
+        val descriptionText = binding.description
+        descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            descriptionText.text = Html.fromHtml(episodeDetails.description, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            descriptionText.text = Html.fromHtml(episodeDetails.description)
+        }
+        showMoreText.text = getString(R.string.show_more)
+    }
+
+    //todo consolidate with details show more methods
+    private fun showFullDescription() {
+        val showMoreText = binding.showMore
+        val descriptionText = binding.description
+        descriptionText.maxLines = Int.MAX_VALUE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            descriptionText.text = Html.fromHtml(episodeDetails.description, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            descriptionText.text = Html.fromHtml(episodeDetails.description)
+        }
+        showMoreText.text = getString(R.string.show_less)
     }
 }
