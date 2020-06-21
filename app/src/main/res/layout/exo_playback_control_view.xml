@@ -102,6 +102,7 @@
         app:layout_constraintTop_toBottomOf="@id/exo_position" />
 
     <com.google.android.exoplayer2.ui.DefaultTimeBar
+        android:layout_marginTop="@dimen/x1_layout_margin"
         android:id="@id/exo_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
