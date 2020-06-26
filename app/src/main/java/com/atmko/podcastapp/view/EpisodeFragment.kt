@@ -1,9 +1,14 @@
 package com.atmko.podcastapp.view
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.text.Html
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -18,14 +23,9 @@ import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentEpisodeBinding
 import com.atmko.podcastapp.model.EPISODE_ID_KEY
 import com.atmko.podcastapp.model.Episode
+import com.atmko.podcastapp.services.PlaybackService
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.viewmodel.EpisodeViewModel
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 
 private const val SHOW_MORE_KEY = "show_more"
 
@@ -40,8 +40,9 @@ class EpisodeFragment : Fragment() {
     //fragment init variable
     private var episodeId: String? = null
 
-    private lateinit var episodeDetails: Episode
-    private lateinit var player: SimpleExoPlayer
+    private var mIsBound: Boolean = false
+    private var mPlaybackService: PlaybackService? = null
+    private var episodeDetails: Episode? = null
     private var viewModel: EpisodeViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +68,23 @@ class EpisodeFragment : Fragment() {
         configureViewModel()
     }
 
+    override fun onStart() {
+        super.onStart()
+        context?.let {
+            Intent(context, PlaybackService::class.java).also { intent ->
+                it.startService(intent)
+                it.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (mIsBound) {
+            context?.unbindService(playbackServiceConnection)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
@@ -75,7 +93,18 @@ class EpisodeFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        player.release()
+    }
+
+    private val playbackServiceConnection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            mIsBound = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
+            mIsBound = true
+            binding.playPanel.showController()
+        }
     }
 
     companion object {
@@ -146,11 +175,6 @@ class EpisodeFragment : Fragment() {
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
         }
-
-        context?.let {
-            player = SimpleExoPlayer.Builder(it).build()
-            binding.playPanel.player = player
-        }
     }
 
     private fun configureViewModel() {
@@ -174,19 +198,8 @@ class EpisodeFragment : Fragment() {
                 binding.collapsedTitle.text = details.podcast?.title
                 binding.collapsedEpisodeNumber.text = details.title
 
-                context?.let {context ->
-                    // Produces DataSource instances through which media data is loaded.
-                    val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                        context,
-                        Util.getUserAgent(context, getString(R.string.app_name))
-                    )
-                    // This is the MediaSource representing the media to be played.
-                    val audioSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                        .createMediaSource(Uri.parse(details.audio))
-                    // Prepare the player with the source.
-                    player.prepare(audioSource)
-                    player.playWhenReady = true
-                }
+                binding.playPanel.player = mPlaybackService?.player
+                context?.let { mPlaybackService?.play(Uri.parse(episodeDetails.audio), it) }
             }
         })
 
@@ -227,9 +240,9 @@ class EpisodeFragment : Fragment() {
         val descriptionText = binding.description
         descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text = Html.fromHtml(episodeDetails.description, Html.FROM_HTML_MODE_COMPACT)
+            descriptionText.text = Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
         } else {
-            descriptionText.text = Html.fromHtml(episodeDetails.description)
+            descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }
         showMoreText.text = getString(R.string.show_more)
     }
@@ -240,9 +253,9 @@ class EpisodeFragment : Fragment() {
         val descriptionText = binding.description
         descriptionText.maxLines = Int.MAX_VALUE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text = Html.fromHtml(episodeDetails.description, Html.FROM_HTML_MODE_COMPACT)
+            descriptionText.text = Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
         } else {
-            descriptionText.text = Html.fromHtml(episodeDetails.description)
+            descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }
         showMoreText.text = getString(R.string.show_less)
     }
