@@ -84,6 +84,7 @@ class EpisodeFragment : Fragment() {
         if (mIsBound) {
             context?.unbindService(playbackServiceConnection)
         }
+        mIsBound = false
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
