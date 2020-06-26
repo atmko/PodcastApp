@@ -12,9 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".view.MasterActivity"
-            android:label="@string/title_activity_master">
+            android:label="@string/title_activity_master"
+            android:launchMode="singleTop">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +25,7 @@
             </intent-filter>
 
         </activity>
+
     </application>
 
 </manifest>
