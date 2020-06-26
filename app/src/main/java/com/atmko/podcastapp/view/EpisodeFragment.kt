@@ -42,8 +42,9 @@ class EpisodeFragment : Fragment() {
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
-    private var episodeDetails: Episode? = null
+
     private var viewModel: EpisodeViewModel? = null
+    private var episodeDetails: Episode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,8 +102,9 @@ class EpisodeFragment : Fragment() {
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
             mIsBound = true
+            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
+            binding.playPanel.player = mPlaybackService?.player
             binding.playPanel.showController()
         }
     }
@@ -198,7 +200,6 @@ class EpisodeFragment : Fragment() {
                 binding.collapsedTitle.text = details.podcast?.title
                 binding.collapsedEpisodeNumber.text = details.title
 
-                binding.playPanel.player = mPlaybackService?.player
                 context?.let { mPlaybackService?.play(Uri.parse(episodeDetails.audio), it) }
             }
         })
