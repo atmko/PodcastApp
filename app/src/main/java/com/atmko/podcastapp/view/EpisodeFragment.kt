@@ -187,7 +187,7 @@ class EpisodeFragment : Fragment() {
                 //set expanded values
                 binding.expandedPodcastImageView.loadNetworkImage(details.image)
                 binding.expandedTitle.text = details.podcast?.title
-                binding.expandedEpisodeNumber.text = details.title
+                binding.expandedEpisodeTitle.text = details.title
                 binding.title.text = details.title
 
                 if (binding.showMore.tag as Boolean) {
@@ -199,7 +199,7 @@ class EpisodeFragment : Fragment() {
                 //set collapsed values
                 binding.collapsedPodcastImageView.loadNetworkImage(details.image)
                 binding.collapsedTitle.text = details.podcast?.title
-                binding.collapsedEpisodeNumber.text = details.title
+                binding.collapsedEpisodeTitle.text = details.title
 
                 context?.let { mPlaybackService?.play(Uri.parse(episodeDetails.audio), it) }
             }
