@@ -13,7 +13,8 @@ import com.atmko.podcastapp.model.EPISODE_ID_KEY
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-private const val IS_BOTTOM_SHEET_EXPANDED = "is_bottom_sheet_expanded_key"
+private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
+private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
 
 class MasterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMasterBinding
@@ -45,14 +46,24 @@ class MasterActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
 
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+
+        val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
+        outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
+
         val isBottomSheetExpanded: Boolean = bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
-        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED, isBottomSheetExpanded)
+        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED)) {
+
+            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
+                bottomSheetBehavior.peekHeight =
+                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+            }
+
+            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
