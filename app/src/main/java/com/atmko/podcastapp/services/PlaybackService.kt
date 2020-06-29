@@ -78,7 +78,7 @@ class PlaybackService: JobIntentService() {
         }
     }
 
-    fun play(uri: Uri?, context: Context) {
+    fun prepareMediaForPlayback(uri: Uri?, context: Context) {
         uri?.let {
             if (uri != oldUri) {
                 // Produces DataSource instances through which media data is loaded.
@@ -91,21 +91,19 @@ class PlaybackService: JobIntentService() {
                     .createMediaSource(uri)
 
                 player?.prepare(audioSource)
-
-                // Start the service
-                startService(Intent(context, PlaybackService::class.java))
-                player?.playWhenReady = true
-            } else {
-                // Start the service
-                startService(Intent(context, PlaybackService::class.java))
-                player?.playWhenReady = true // this song was paused so we don't need to reload it
             }
 
             oldUri = uri
-
-            // Register BECOME_NOISY BroadcastReceiver
-            registerReceiver(noisyReceiver, intentFilter)
         }
+    }
+
+    fun play(context: Context) {
+        // Start the service
+        startService(Intent(context, PlaybackService::class.java))
+        player?.playWhenReady = true // this song was paused so we don't need to reload it
+
+        // Register BECOME_NOISY BroadcastReceiver
+        registerReceiver(noisyReceiver, intentFilter)
     }
 
     private class DescriptionAdapter(val context: Context): PlayerNotificationManager.MediaDescriptionAdapter {

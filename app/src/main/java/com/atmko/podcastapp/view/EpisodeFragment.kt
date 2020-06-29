@@ -21,12 +21,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.FragmentEpisodeBinding
-import com.atmko.podcastapp.model.EPISODE_ID_KEY
-import com.atmko.podcastapp.model.Episode
+import com.atmko.podcastapp.model.*
 import com.atmko.podcastapp.services.PlaybackService
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.viewmodel.EpisodeViewModel
 
+const val EPISODE_FRAGMENT_KEY = "episode_fragment"
+
+private const val IS_RESTORING_EPISODE_KEY = "is_restoring_episode"
 private const val SHOW_MORE_KEY = "show_more"
 
 private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
@@ -39,6 +41,7 @@ class EpisodeFragment : Fragment() {
 
     //fragment init variable
     private var episodeId: String? = null
+    private var isRestoringEpisode: Boolean = false
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
@@ -50,6 +53,7 @@ class EpisodeFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             episodeId = it.getString(EPISODE_ID_KEY)
+            isRestoringEpisode = it.getBoolean(IS_RESTORING_EPISODE_KEY)
         }
     }
 
@@ -112,10 +116,11 @@ class EpisodeFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(episodeId: String) =
+        fun newInstance(episodeId: String, isRestoringEpisode: Boolean) =
             EpisodeFragment().apply {
                 arguments = Bundle().apply {
                     putString(EPISODE_ID_KEY, episodeId)
+                    putBoolean(IS_RESTORING_EPISODE_KEY, isRestoringEpisode)
                 }
             }
     }
@@ -185,7 +190,7 @@ class EpisodeFragment : Fragment() {
             this.episodeDetails = episodeDetails
             episodeDetails?.let {details ->
                 //set expanded values
-                binding.expandedPodcastImageView.loadNetworkImage(details.image)
+                details.image?.let { binding.expandedPodcastImageView.loadNetworkImage(it) }
                 binding.expandedTitle.text = details.podcast?.title
                 binding.expandedEpisodeTitle.text = details.title
                 binding.title.text = details.title
@@ -197,11 +202,30 @@ class EpisodeFragment : Fragment() {
                 }
 
                 //set collapsed values
-                binding.collapsedPodcastImageView.loadNetworkImage(details.image)
+                details.image?.let { binding.collapsedPodcastImageView.loadNetworkImage(it) }
                 binding.collapsedTitle.text = details.podcast?.title
                 binding.collapsedEpisodeTitle.text = details.title
 
-                context?.let { mPlaybackService?.play(Uri.parse(episodeDetails.audio), it) }
+                context?.let {
+                    mPlaybackService?.prepareMediaForPlayback(Uri.parse(episodeDetails.audio), it)
+
+                    if (!isRestoringEpisode) {
+                        mPlaybackService?.play(it)
+                        val sharedPrefs = activity?.getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
+                        sharedPrefs?.let {
+                            sharedPrefs.edit()
+                                .putString(EPISODE_ID_KEY, details.id)
+                                .putString(EPISODE_TITLE_KEY, details.title)
+                                .putString(EPISODE_DESCRIPTION_KEY, details.description)
+                                .putString(EPISODE_IMAGE_KEY, details.image)
+                                .putString(EPISODE_AUDIO_KEY, details.audio)
+                                .putLong(EPISODE_PUBLISH_DATE_KEY, details.publishDate)
+                                .putInt(EPISODE_LENGTH_IN_SECONDS_KEY, details.lengthInSeconds)
+                                .putString(PODCAST_TITLE_KEY, details.podcast?.title)
+                                .commit()
+                        }
+                    }
+                }
             }
         })
 

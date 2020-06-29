@@ -2,8 +2,10 @@ package com.atmko.podcastapp.model
 
 import com.google.gson.annotations.SerializedName
 
+const val PODCAST_TITLE_KEY = "podcast_title"
+
 class Podcast(@SerializedName("id") val id: String,
-              @SerializedName("title", alternate=["title_original"]) val title: String,
+              @SerializedName("title", alternate=["title_original"]) val title: String?,
               @SerializedName("publisher", alternate=["publisher_original"]) val publisher: String,
               val image: String,
               val description: String,

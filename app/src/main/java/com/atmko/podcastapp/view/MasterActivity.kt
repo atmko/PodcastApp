@@ -1,5 +1,6 @@
 package com.atmko.podcastapp.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ActivityMasterBinding
+import com.atmko.podcastapp.model.EPISODE_ID_KEY
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
@@ -55,6 +57,12 @@ class MasterActivity : AppCompatActivity() {
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+        } else {
+            val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
+            episodePrefs?.let {
+                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
+                episodeId?.let { restoreEpisodeIntoBottomSheet(episodeId) }
+            }
         }
     }
 
@@ -70,7 +78,8 @@ class MasterActivity : AppCompatActivity() {
                     bottomSheetBehavior.peekHeight =
                         resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
-                    val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId)
+                    val episodeFragment: EpisodeFragment =
+                        EpisodeFragment.newInstance(episodeId, false)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.bottomSheet, episodeFragment)
                         .commit()
@@ -81,6 +90,17 @@ class MasterActivity : AppCompatActivity() {
         })
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun restoreEpisodeIntoBottomSheet(episodeId: String) {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.peekHeight =
+            resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+
+        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId, true)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.bottomSheet, episodeFragment)
+            .commit()
     }
 
     fun getBinding() = binding

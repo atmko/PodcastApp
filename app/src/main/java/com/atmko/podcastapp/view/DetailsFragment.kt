@@ -162,6 +162,6 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     override fun onItemClick(episode: Episode) {
-        (activity as MasterActivity).loadEpisodeIntoBottomSheet(episode.id)
+        episode.id?.let { (activity as MasterActivity).loadEpisodeIntoBottomSheet(it) }
     }
 }
