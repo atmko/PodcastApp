@@ -102,8 +102,9 @@ class EpisodeFragment : Fragment() {
         outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    //todo nullify binding in on destroy view instead of on destroy
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 
