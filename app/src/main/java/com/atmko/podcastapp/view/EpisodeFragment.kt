@@ -8,12 +8,14 @@ import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
 import android.text.Html
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -25,8 +27,12 @@ import com.atmko.podcastapp.model.*
 import com.atmko.podcastapp.services.PlaybackService
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.atmko.podcastapp.viewmodel.EpisodeViewModel
+import com.google.android.exoplayer2.ui.DefaultTimeBar
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
+
+const val SCRUBBER_ANIM_LENGTH: Long = 100
+const val SCRUBBER_HIDE_LENGTH: Long = 2000
 
 private const val IS_RESTORING_EPISODE_KEY = "is_restoring_episode"
 private const val SHOW_MORE_KEY = "show_more"
@@ -130,6 +136,20 @@ class EpisodeFragment : Fragment() {
 
         binding.collapsedBottomSheet.visibility = View.INVISIBLE
         binding.expandedBottomSheet.visibility = View.VISIBLE
+
+        //configure time bar click guard
+        val timeBar: DefaultTimeBar = binding.playPanel.findViewById(R.id.exo_progress)
+        timeBar.hideScrubber()
+        val timeBarOverlayButton: Button = binding.playPanel.findViewById(R.id.timeBarOverlayButton)
+        timeBarOverlayButton.setOnClickListener {
+            timeBarOverlayButton.visibility = View.GONE
+            timeBar.showScrubber(SCRUBBER_ANIM_LENGTH)
+            Handler().postDelayed({
+                timeBar.hideScrubber(SCRUBBER_ANIM_LENGTH)
+                timeBarOverlayButton.visibility = View.VISIBLE
+
+            }, SCRUBBER_HIDE_LENGTH)
+        }
 
         binding.showMore.setOnClickListener {
             toggleFullOrLimitedDescription()
