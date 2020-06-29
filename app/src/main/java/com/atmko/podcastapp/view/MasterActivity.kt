@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.atmko.podcastapp.R
 import com.atmko.podcastapp.databinding.ActivityMasterBinding
 import com.atmko.podcastapp.model.EPISODE_ID_KEY
+import com.atmko.podcastapp.util.loadNetworkImage
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
@@ -36,6 +37,18 @@ class MasterActivity : AppCompatActivity() {
                 R.id.navigation_search
             )
         )
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                binding.collapsedBottomSheet.alpha = 1 - slideOffset
+                binding.episodeFragmentFrameLayout.alpha = slideOffset
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+            }
+        })
 
         navView.setupWithNavController(navController)
 
@@ -92,7 +105,7 @@ class MasterActivity : AppCompatActivity() {
                     val episodeFragment: EpisodeFragment =
                         EpisodeFragment.newInstance(episodeId, false)
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.bottomSheet, episodeFragment)
+                        .replace(R.id.episodeFragmentFrameLayout, episodeFragment)
                         .commit()
 
                     bottomSheetBehavior.removeBottomSheetCallback(this)
@@ -110,8 +123,14 @@ class MasterActivity : AppCompatActivity() {
 
         val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId, true)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.bottomSheet, episodeFragment)
+            .replace(R.id.episodeFragmentFrameLayout, episodeFragment)
             .commit()
+    }
+
+    fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {
+        image?.let { binding.collapsedPodcastImageView.loadNetworkImage(it) }
+        binding.collapsedTitle.text = podcastTitle
+        binding.collapsedEpisodeTitle.text = episodeTitle
     }
 
     fun getBinding() = binding

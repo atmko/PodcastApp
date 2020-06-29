@@ -134,9 +134,6 @@ class EpisodeFragment : Fragment() {
     private fun configureViews() {
         configureDetailExtrasSize()
 
-        binding.collapsedBottomSheet.visibility = View.INVISIBLE
-        binding.expandedBottomSheet.visibility = View.VISIBLE
-
         //configure time bar click guard
         val timeBar: DefaultTimeBar = binding.playPanel.findViewById(R.id.exo_progress)
         timeBar.hideScrubber()
@@ -222,9 +219,10 @@ class EpisodeFragment : Fragment() {
                 }
 
                 //set collapsed values
-                details.image?.let { binding.collapsedPodcastImageView.loadNetworkImage(it) }
-                binding.collapsedTitle.text = details.podcast?.title
-                binding.collapsedEpisodeTitle.text = details.title
+                activity?.let {
+                    (activity as MasterActivity)
+                        .setCollapsedSheetValues(details.image, details.podcast?.title, details.title)
+                }
 
                 context?.let {
                     mPlaybackService?.prepareMediaForPlayback(Uri.parse(episodeDetails.audio), it)
