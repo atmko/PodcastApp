@@ -46,7 +46,12 @@ class MasterActivity : AppCompatActivity() {
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    binding.collapsedBottomSheet.visibility = View.GONE
 
+                } else if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    binding.collapsedBottomSheet.visibility = View.VISIBLE
+                }
             }
         })
 
