@@ -29,6 +29,19 @@ class MasterActivity : AppCompatActivity() {
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
 
+    private val playbackServiceConnection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            mIsBound = false
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mIsBound = true
+            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
+            binding.collapsedBottomSheet.player = mPlaybackService?.player
+            binding.collapsedBottomSheet.showController()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMasterBinding.inflate(layoutInflater)
@@ -48,7 +61,8 @@ class MasterActivity : AppCompatActivity() {
         )
 
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 binding.collapsedBottomSheet.alpha = 1 - slideOffset
                 binding.episodeFragmentFrameLayout.alpha = slideOffset
@@ -85,7 +99,8 @@ class MasterActivity : AppCompatActivity() {
         val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
         outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
 
-        val isBottomSheetExpanded: Boolean = bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+        val isBottomSheetExpanded: Boolean =
+            bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
         outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
     }
 
@@ -95,19 +110,6 @@ class MasterActivity : AppCompatActivity() {
             unbindService(playbackServiceConnection)
         }
         mIsBound = false
-    }
-
-    private val playbackServiceConnection = object : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName?) {
-            mIsBound = false
-        }
-
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            mIsBound = true
-            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
-            binding.collapsedBottomSheet.player = mPlaybackService?.player
-            binding.collapsedBottomSheet.showController()
-        }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
@@ -121,8 +123,14 @@ class MasterActivity : AppCompatActivity() {
 
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.collapsedBottomSheet.visibility = View.GONE
+                binding.collapsedBottomSheet.alpha = 0f
+                binding.episodeFragmentFrameLayout.alpha = 1f
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                binding.collapsedBottomSheet.visibility = View.VISIBLE
+                binding.collapsedBottomSheet.alpha = 1f
+                binding.episodeFragmentFrameLayout.alpha = 0f
             }
         } else {
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
