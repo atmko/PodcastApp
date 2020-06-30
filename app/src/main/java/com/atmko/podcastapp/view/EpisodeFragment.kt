@@ -196,7 +196,13 @@ class EpisodeFragment : Fragment() {
         }
 
         if (savedInstanceState == null) {
-            episodeId?.let { viewModel?.refresh(it) }
+            episodeId?.let {
+                if (isRestoringEpisode) {
+                    viewModel?.restoreEpisode()
+                } else {
+                    viewModel?.refresh(it)
+                }
+            }
             binding.showMore.tag = false
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
