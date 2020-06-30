@@ -94,19 +94,30 @@
             android:layout_marginTop="@dimen/x2_layout_margin"
             app:layout_constraintTop_toBottomOf="@id/expandedBottomSheet" />
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/Large_Heading_Style"
+        <HorizontalScrollView
+            android:id="@+id/title_scroll_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x2_layout_margin"
             android:layout_marginEnd="@dimen/x2_layout_margin"
-            android:textColor="@color/color_body_text"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/description_divider"
-            tools:text="MISSING: Margaret Ellen Fox" />
+            android:scrollbars="none">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/Large_Heading_Style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:textColor="@color/color_body_text"
+                tools:text="MISSING: Margaret Ellen Fox" />
+
+        </HorizontalScrollView>
 
         <include
             android:id="@+id/errorAndLoading"
@@ -126,9 +137,10 @@
             android:layout_marginStart="@dimen/x2_layout_margin"
             android:layout_marginTop="@dimen/x2_layout_margin"
             android:layout_marginEnd="@dimen/x2_layout_margin"
+            android:lines="@integer/max_lines_details_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title_scroll_view"
             tools:text="In 2017 the FBI released a chilling recorded
 phone call that may be the only clue as to
 what happened to Margaret Ellen Fox back in
