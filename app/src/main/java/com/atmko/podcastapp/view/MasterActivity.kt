@@ -64,17 +64,25 @@ class MasterActivity : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                when (slideOffset) {
+                    1f -> {
+                        binding.collapsedBottomSheet.visibility = View.GONE
+                    }
+                    0f -> {
+                        binding.episodeFragmentFrameLayout.visibility = View.GONE
+                    }
+                    else -> {
+                        binding.collapsedBottomSheet.visibility = View.VISIBLE
+                        binding.episodeFragmentFrameLayout.visibility = View.VISIBLE
+                    }
+                }
+
                 binding.collapsedBottomSheet.alpha = 1 - slideOffset
                 binding.episodeFragmentFrameLayout.alpha = slideOffset
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    binding.collapsedBottomSheet.visibility = View.GONE
 
-                } else if (newState == BottomSheetBehavior.STATE_DRAGGING) {
-                    binding.collapsedBottomSheet.visibility = View.VISIBLE
-                }
             }
         })
 
