@@ -7,6 +7,8 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,7 +20,6 @@ import com.atmko.podcastapp.services.PlaybackService
 import com.atmko.podcastapp.util.loadNetworkImage
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.android.synthetic.main.collapsed_play_bar.view.*
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
@@ -187,9 +188,14 @@ class MasterActivity : AppCompatActivity() {
     }
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {
-        image?.let { binding.collapsedBottomSheet.collapsedPodcastImageView.loadNetworkImage(it) }
-        binding.collapsedBottomSheet.collapsedTitle.text = podcastTitle
-        binding.collapsedBottomSheet.collapsedEpisodeTitle.text = episodeTitle
+        image?.let {
+            val collapsedPodcastImageView: ImageView = binding.collapsedBottomSheet.findViewById(R.id.collapsedPodcastImageView)
+            collapsedPodcastImageView.loadNetworkImage(it) }
+
+        val collapsedTitle: TextView = binding.collapsedBottomSheet.findViewById(R.id.collapsedTitle)
+        collapsedTitle.text = podcastTitle
+        val collapsedEpisodeTitle: TextView = binding.collapsedBottomSheet.findViewById(R.id.collapsedEpisodeTitle)
+        collapsedEpisodeTitle.text = episodeTitle
     }
 
     fun getBinding() = binding
