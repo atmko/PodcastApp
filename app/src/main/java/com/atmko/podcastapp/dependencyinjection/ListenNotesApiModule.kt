@@ -9,7 +9,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
-class ApiModule {
+class ListenNotesApiModule {
     private val BASE_URL = "https://listen-api.listennotes.com/api/v2/"
 
     @Provides

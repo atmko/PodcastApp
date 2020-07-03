@@ -2,7 +2,7 @@ package com.atmko.podcastapp.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.podcastapp.dependencyinjection.DaggerApiComponent
+import com.atmko.podcastapp.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.podcastapp.model.Podcast
 import com.atmko.podcastapp.model.PodcastsService
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,7 +21,7 @@ class DetailsViewModel: ViewModel() {
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerApiComponent.create().inject(this)
+        DaggerListenNotesApiComponent.create().inject(this)
     }
 
     fun refresh(podcastId: String) {

@@ -1,7 +1,7 @@
 package com.atmko.podcastapp.model
 
 import android.content.SharedPreferences
-import com.atmko.podcastapp.dependencyinjection.DaggerApiComponent
+import com.atmko.podcastapp.dependencyinjection.DaggerListenNotesApiComponent
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -10,7 +10,7 @@ class PodcastsService : PodcastsApi {
     lateinit var api: PodcastsApi
 
     init {
-        DaggerApiComponent.create().inject(this)
+        DaggerListenNotesApiComponent.create().inject(this)
     }
 
     override fun getPodcastsByGenre(genreId: Int): Single<ApiResults> {

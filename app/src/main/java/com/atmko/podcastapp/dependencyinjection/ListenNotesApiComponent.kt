@@ -6,8 +6,8 @@ import com.atmko.podcastapp.viewmodel.EpisodeViewModel
 import com.atmko.podcastapp.viewmodel.SearchViewModel
 import dagger.Component
 
-@Component(modules = [ApiModule::class])
-interface ApiComponent {
+@Component(modules = [ListenNotesApiModule::class])
+interface ListenNotesApiComponent {
     fun inject(service: PodcastsService)
     fun inject(service: SearchViewModel)
     fun inject(service: DetailsViewModel)

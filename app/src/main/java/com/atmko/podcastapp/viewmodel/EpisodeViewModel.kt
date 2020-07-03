@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.multidex.MultiDexApplication
-import com.atmko.podcastapp.dependencyinjection.DaggerApiComponent
+import com.atmko.podcastapp.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.podcastapp.model.*
 import com.atmko.podcastapp.view.EPISODE_FRAGMENT_KEY
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,7 +24,7 @@ class EpisodeViewModel(application: Application): AndroidViewModel(application) 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerApiComponent.create().inject(this)
+        DaggerListenNotesApiComponent.create().inject(this)
     }
 
     fun refresh(episodeId: String) {
