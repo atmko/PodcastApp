@@ -164,14 +164,11 @@ class EpisodeFragment : Fragment() {
         val includeDetailsExtras: ConstraintLayout? =
             view?.findViewById(R.id.playPanelConstraintLayout)
 
-        val navBarHeight: Int = (activity as MasterActivity).getBinding().navView.height
-
         //get total weightedWidth
         val weightedWidth: Int = pixelWidth
 
         val detailExtrasParams = FrameLayout.LayoutParams(
-            weightedWidth,
-            pixelHeight - pixelStatusBarHeight - navBarHeight
+            weightedWidth, pixelHeight - pixelStatusBarHeight
         )
 
         includeDetailsExtras?.layoutParams = detailExtrasParams

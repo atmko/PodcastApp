@@ -150,8 +150,10 @@ class MasterActivity : AppCompatActivity() {
             val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
 
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
-                bottomSheetBehavior.peekHeight =
-                    resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+                binding.navView.post {
+                    bottomSheetBehavior.peekHeight =
+                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+                }
             }
 
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
@@ -184,7 +186,7 @@ class MasterActivity : AppCompatActivity() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     bottomSheetBehavior.peekHeight =
-                        resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
                     val episodeFragment: EpisodeFragment =
                         EpisodeFragment.newInstance(episodeId, false)
@@ -202,8 +204,10 @@ class MasterActivity : AppCompatActivity() {
 
     private fun restoreEpisodeIntoBottomSheet(episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.peekHeight =
-            resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        binding.navView.post {
+            bottomSheetBehavior.peekHeight =
+                binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        }
 
         val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId, true)
         supportFragmentManager.beginTransaction()
@@ -213,14 +217,16 @@ class MasterActivity : AppCompatActivity() {
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {
         image?.let {
-            val collapsedPodcastImageView: ImageView = binding.collapsedBottomSheet.findViewById(R.id.collapsedPodcastImageView)
-            collapsedPodcastImageView.loadNetworkImage(it) }
+            val collapsedPodcastImageView: ImageView =
+                binding.collapsedBottomSheet.findViewById(R.id.collapsedPodcastImageView)
+            collapsedPodcastImageView.loadNetworkImage(it)
+        }
 
-        val collapsedTitle: TextView = binding.collapsedBottomSheet.findViewById(R.id.collapsedTitle)
+        val collapsedTitle: TextView =
+            binding.collapsedBottomSheet.findViewById(R.id.collapsedTitle)
         collapsedTitle.text = podcastTitle
-        val collapsedEpisodeTitle: TextView = binding.collapsedBottomSheet.findViewById(R.id.collapsedEpisodeTitle)
+        val collapsedEpisodeTitle: TextView =
+            binding.collapsedBottomSheet.findViewById(R.id.collapsedEpisodeTitle)
         collapsedEpisodeTitle.text = episodeTitle
     }
-
-    fun getBinding() = binding
 }
