@@ -30,6 +30,8 @@ class MasterActivity : AppCompatActivity() {
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
 
+    private var navBarOriginalYPosition: Float? = null
+
     private val playbackServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             mIsBound = false
@@ -67,19 +69,41 @@ class MasterActivity : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 when (slideOffset) {
                     1f -> {
+                        //hide collapsedBottomSheet and navView
                         binding.collapsedBottomSheet.visibility = View.GONE
+                        binding.navView.visibility = View.GONE
                     }
                     0f -> {
+                        //hide collapsedBottomSheet
                         binding.episodeFragmentFrameLayout.visibility = View.GONE
                     }
                     else -> {
+                        //show collapsedBottomSheet and episodeFragmentFrameLayout
                         binding.collapsedBottomSheet.visibility = View.VISIBLE
                         binding.episodeFragmentFrameLayout.visibility = View.VISIBLE
+
+                        //hide nav view
+                        binding.navView.visibility = View.VISIBLE
                     }
                 }
 
+                //adjust collapsedBottomSheet alpha values
+                //adjust episodeFragmentFrameLayout alpha values
                 binding.collapsedBottomSheet.alpha = 1 - slideOffset
                 binding.episodeFragmentFrameLayout.alpha = slideOffset
+
+                //adjust navView alpha values
+                //adjust navView y translation values
+                binding.navView.apply {
+                    alpha = 1 - slideOffset
+                    if (navBarOriginalYPosition == null) {
+                        navBarOriginalYPosition = y
+                    }
+
+                    navBarOriginalYPosition?.let {
+                        y = it + (slideOffset / 1 * height)
+                    }
+                }
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
