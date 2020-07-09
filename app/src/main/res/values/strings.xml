@@ -20,6 +20,7 @@
     <string name="show_less">Show Less</string>
     <string name="episodes">Episodes</string>
     <string name="total_episodes_format">%d Episodes</string>
+    <string name="replies_format">%s Replies</string>
 
     <string name="trending_heading_text">Trending</string>
     <string name="unplayed_heading_text">Unplayed</string>
