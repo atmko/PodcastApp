@@ -31,7 +31,7 @@
         tools:text="Macy Winter" />
 
     <TextView
-        android:id="@+id/content"
+        android:id="@+id/body"
         style="@style/Body_Style"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -56,7 +56,7 @@ bathed? The was out swimming..." />
         android:layout_marginEnd="@dimen/x2_layout_margin"
         android:textColor="@color/colorAccent"
         app:layout_constraintStart_toEndOf="@id/profileImageView"
-        app:layout_constraintTop_toBottomOf="@id/content"
+        app:layout_constraintTop_toBottomOf="@id/body"
         tools:text="10 replies" />
 
     <FrameLayout
