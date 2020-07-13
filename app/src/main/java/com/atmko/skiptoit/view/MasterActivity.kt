@@ -10,25 +10,32 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
+import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
 
-class MasterActivity : AppCompatActivity() {
+class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigation {
     private lateinit var binding: ActivityMasterBinding
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
+
+    private var viewModel: MasterActivityViewModel? = null
+    private var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
 
@@ -52,6 +59,7 @@ class MasterActivity : AppCompatActivity() {
 
         configureViews()
         configureValues(savedInstanceState)
+        configureViewModel()
     }
 
     override fun onStart() {
@@ -60,6 +68,11 @@ class MasterActivity : AppCompatActivity() {
             startService(intent)
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        data?.let { viewModel?.onRequestResultReceived(requestCode, resultCode, it) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -111,12 +124,38 @@ class MasterActivity : AppCompatActivity() {
                 binding.episodeFragmentFrameLayout.alpha = 0f
             }
         } else {
+            if (viewModel == null) {
+                viewModel = ViewModelProviders.of(this).get(MasterActivityViewModel::class.java)
+            }
+
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
             episodePrefs?.let {
                 val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
                 episodeId?.let { restoreEpisodeIntoBottomSheet(episodeId) }
             }
         }
+    }
+
+    private fun configureViewModel() {
+        viewModel?.messageEvent?.setEventReceiver(this, this)
+        viewModel?.currentUser?.observe(this, Observer {
+            user = it
+        })
+    }
+
+    fun isSignedIn(): Boolean {
+        viewModel?.isSignedIn()?.let {
+            return it
+        }
+        return false
+    }
+
+    fun signIn() {
+        viewModel?.signIn(this)
+    }
+
+    fun signOut() {
+        viewModel?.signOut(this)
     }
 
     private fun configureBottomSheet() {
