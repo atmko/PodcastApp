@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.atmko.podcastapp.view.HomeFragment"
+        android:name="com.atmko.skiptoit.view.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_subscriptions"
-        android:name="com.atmko.podcastapp.view.SubscriptionsFragment"
+        android:name="com.atmko.skiptoit.view.SubscriptionsFragment"
         android:label="@string/title_subscriptions"
         tools:layout="@layout/fragment_subscriptions" />
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="com.atmko.podcastapp.view.SearchParentFragment"
+        android:name="com.atmko.skiptoit.view.SearchParentFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search_parent">
         <action
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/navigation_details"
-        android:name="com.atmko.podcastapp.view.DetailsFragment"
+        android:name="com.atmko.skiptoit.view.DetailsFragment"
         android:label="@string/title_details"
         tools:layout="@layout/fragment_details">
         <argument

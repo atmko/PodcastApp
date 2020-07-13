@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.atmko.podcastapp"
+        applicationId "com.atmko.skiptoit"
         minSdkVersion 17
         targetSdkVersion 29
         versionCode 1

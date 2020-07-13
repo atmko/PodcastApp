@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.atmko.podcastapp">
+    package="com.atmko.skiptoit">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".view.MasterActivity"
+            android:name="com.atmko.skiptoit.view.MasterActivity"
             android:label="@string/title_activity_master"
             android:launchMode="singleTop">
 
@@ -27,7 +27,7 @@
 
         </activity>
 
-        <service android:name=".services.PlaybackService">
+        <service android:name="com.atmko.skiptoit.services.PlaybackService">
 
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
@@ -35,7 +35,7 @@
 
         </service>
 
-        <receiver android:name=".services.PlaybackService$BecomingNoisyReceiver" />
+        <receiver android:name="com.atmko.skiptoit.services.PlaybackService$BecomingNoisyReceiver" />
 
     </application>
 
