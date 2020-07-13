@@ -143,21 +143,6 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         })
     }
 
-    fun isSignedIn(): Boolean {
-        viewModel?.isSignedIn()?.let {
-            return it
-        }
-        return false
-    }
-
-    fun signIn() {
-        viewModel?.signIn(this)
-    }
-
-    fun signOut() {
-        viewModel?.signOut(this)
-    }
-
     private fun configureBottomSheet() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
@@ -209,7 +194,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
     }
 
     private fun configureAppBar() {
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        val navView: BottomNavigationView = binding.navView
 
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
@@ -222,6 +207,21 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             )
         )
         navView.setupWithNavController(navController)
+    }
+
+    fun isSignedIn(): Boolean {
+        viewModel?.isSignedIn()?.let {
+            return it
+        }
+        return false
+    }
+
+    fun signIn() {
+        viewModel?.signIn(this)
+    }
+
+    fun signOut() {
+        viewModel?.signOut(this)
     }
 
     fun loadEpisodeIntoBottomSheet(episodeId: String) {
