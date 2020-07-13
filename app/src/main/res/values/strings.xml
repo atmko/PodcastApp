@@ -40,4 +40,6 @@
 
     <string name="error_loading_subscriptions">Couldn\'t load data</string>
 
+    <string name="server_client_id">58655822133-gjg7l8q2dbdtnnrlh4jg583clq32s4kn.apps.googleusercontent.com</string>
+
 </resources>
