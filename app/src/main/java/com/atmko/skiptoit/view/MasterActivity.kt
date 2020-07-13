@@ -50,19 +50,76 @@ class MasterActivity : AppCompatActivity() {
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        configureViews()
+        configureValues(savedInstanceState)
+    }
 
-        val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration(
-            setOf(
-                R.id.navigation_home,
-                R.id.navigation_subscriptions,
-                R.id.navigation_search
-            )
-        )
+    override fun onStart() {
+        super.onStart()
+        Intent(this, PlaybackService::class.java).also { intent ->
+            startService(intent)
+            bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+
+        val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
+        outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
+
+        val isBottomSheetExpanded: Boolean =
+            bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (mIsBound) {
+            unbindService(playbackServiceConnection)
+        }
+        mIsBound = false
+    }
+
+    private fun configureViews() {
+        configureBottomSheet()
+        configureAppBar()
+    }
+
+    private fun configureValues(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+
+            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
+                binding.navView.post {
+                    bottomSheetBehavior.peekHeight =
+                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+                }
+            }
+
+            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                binding.collapsedBottomSheet.visibility = View.GONE
+                binding.collapsedBottomSheet.alpha = 0f
+                binding.episodeFragmentFrameLayout.alpha = 1f
+            } else {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                binding.collapsedBottomSheet.visibility = View.VISIBLE
+                binding.collapsedBottomSheet.alpha = 1f
+                binding.episodeFragmentFrameLayout.alpha = 0f
+            }
+        } else {
+            val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
+            episodePrefs?.let {
+                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
+                episodeId?.let { restoreEpisodeIntoBottomSheet(episodeId) }
+            }
+        }
+    }
+
+    private fun configureBottomSheet() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -110,70 +167,22 @@ class MasterActivity : AppCompatActivity() {
 
             }
         })
+    }
 
+    private fun configureAppBar() {
+        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+
+        val navController = findNavController(R.id.nav_host_fragment)
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration(
+            setOf(
+                R.id.navigation_home,
+                R.id.navigation_subscriptions,
+                R.id.navigation_search
+            )
+        )
         navView.setupWithNavController(navController)
-
-        configureValues(savedInstanceState)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Intent(this, PlaybackService::class.java).also { intent ->
-            startService(intent)
-            bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-
-        val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
-        outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
-
-        val isBottomSheetExpanded: Boolean =
-            bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
-        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (mIsBound) {
-            unbindService(playbackServiceConnection)
-        }
-        mIsBound = false
-    }
-
-    private fun configureValues(savedInstanceState: Bundle?) {
-        if (savedInstanceState != null) {
-            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-
-            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
-                binding.navView.post {
-                    bottomSheetBehavior.peekHeight =
-                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-                }
-            }
-
-            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                binding.collapsedBottomSheet.visibility = View.GONE
-                binding.collapsedBottomSheet.alpha = 0f
-                binding.episodeFragmentFrameLayout.alpha = 1f
-            } else {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                binding.collapsedBottomSheet.visibility = View.VISIBLE
-                binding.collapsedBottomSheet.alpha = 1f
-                binding.episodeFragmentFrameLayout.alpha = 0f
-            }
-        } else {
-            val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
-            episodePrefs?.let {
-                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
-                episodeId?.let { restoreEpisodeIntoBottomSheet(episodeId) }
-            }
-        }
     }
 
     fun loadEpisodeIntoBottomSheet(episodeId: String) {
