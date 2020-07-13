@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -151,6 +152,19 @@ class EpisodeFragment : Fragment() {
 
         binding.showMore.setOnClickListener {
             toggleFullOrLimitedDescription()
+        }
+
+        binding.addCommentButton.apply {
+            setOnClickListener {
+                val masterActivity = (activity as MasterActivity)
+                if (masterActivity.isSignedIn()) {
+                    //todo
+                    Toast.makeText(requireContext(), "not yet implemented", Toast.LENGTH_SHORT).show()
+                    //launch create comment fragment
+                } else {
+                    masterActivity.signIn()
+                }
+            }
         }
     }
 
