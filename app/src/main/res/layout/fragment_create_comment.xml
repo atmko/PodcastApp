@@ -1,0 +1,77 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
+
+    <TextView
+        android:id="@+id/usernameTextView"
+        style="@style/Large_Heading_Excess_Style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="slicky" />
+
+    <View
+        android:id="@+id/divider_view"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
+
+    <EditText
+        android:id="@+id/bodyEditText"
+        style="@style/Body_Excess_Style"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="@string/comment"
+        app:layout_constraintBottom_toBottomOf="@id/divider_view2"
+        app:layout_constraintTop_toBottomOf="@id/divider_view" />
+
+    <View
+        android:id="@+id/divider_view2"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        app:layout_constraintBottom_toTopOf="@id/cancel_button" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancel_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:text="@string/cancel"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/create_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:text="@string/create"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <include
+        android:id="@+id/errorAndLoading"
+        layout="@layout/layout_error_and_loading"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
