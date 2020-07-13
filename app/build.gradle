@@ -22,6 +22,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "apiKey", Api_Key
+        buildConfigField "String", "googleServerId", Google_Server_Id
     }
 
     buildTypes {
@@ -76,13 +77,16 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    
+
     implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$rxJavaVersion"
 
     implementation "com.github.bumptech.glide:glide:4.8.0"
 
     implementation 'com.google.android.exoplayer:exoplayer:2.11.5'
+
+    //google auth
+    implementation 'com.google.android.gms:play-services-auth:18.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
