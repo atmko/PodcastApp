@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/top_layout"
+        style="@style/Body_Excess_Style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".CreateListActivity">
+
+        <TextView
+            android:id="@+id/messageTextView"
+            style="@style/Large_Heading_Style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            tools:text="Create a username" />
+
+        <EditText
+            android:id="@+id/usernameEditText"
+            style="@style/style_standard_search_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x2_layout_margin"
+            android:gravity="start"
+            android:hint="@string/username"
+            android:inputType="text"
+            android:padding="@dimen/x2_layout_margin"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height"
+            android:background="@color/color_divider" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/confirmationButton"
+            style="@style/Confirmation_ButtonStyle_End"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x1_layout_margin"
+            android:text="@string/ok"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+    <include
+        android:id="@+id/errorAndLoading"
+        layout="@layout/layout_error_and_loading"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
