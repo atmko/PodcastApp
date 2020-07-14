@@ -18,6 +18,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
+import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
@@ -130,8 +131,11 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
 
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
             episodePrefs?.let {
+                val podcastId = episodePrefs.getString(PODCAST_ID_KEY, "")
                 val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
-                episodeId?.let { restoreEpisodeIntoBottomSheet(episodeId) }
+                if (episodeId != null && podcastId !== null) {
+                    restoreEpisodeIntoBottomSheet(podcastId, episodeId)
+                }
             }
         }
     }
@@ -196,7 +200,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
     private fun configureAppBar() {
         val navView: BottomNavigationView = binding.navView
 
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navController = findNavController(R.id.base_nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration(
@@ -224,7 +228,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         viewModel?.signOut(this)
     }
 
-    fun loadEpisodeIntoBottomSheet(episodeId: String) {
+    fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -236,11 +240,11 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
                     bottomSheetBehavior.peekHeight =
                         binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
-                    val episodeFragment: EpisodeFragment =
-                        EpisodeFragment.newInstance(episodeId, false)
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.episodeFragmentFrameLayout, episodeFragment)
-                        .commit()
+                    val action = EpisodeFragmentDirections
+                        .actionNavigationEpisodeToNavigationEpisode(
+                            podcastId, episodeId, false)
+
+                    findNavController(R.id.episode_nav_host_fragment).navigate(action)
 
                     bottomSheetBehavior.removeBottomSheetCallback(this)
                 }
@@ -250,17 +254,18 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
-    private fun restoreEpisodeIntoBottomSheet(episodeId: String) {
+    private fun restoreEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         binding.navView.post {
             bottomSheetBehavior.peekHeight =
                 binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
         }
 
-        val episodeFragment: EpisodeFragment = EpisodeFragment.newInstance(episodeId, true)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.episodeFragmentFrameLayout, episodeFragment)
-            .commit()
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationEpisode(
+                podcastId, episodeId, true)
+
+        findNavController(R.id.episode_nav_host_fragment).navigate(action)
     }
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {

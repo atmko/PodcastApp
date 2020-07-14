@@ -2,6 +2,7 @@ package com.atmko.skiptoit.model
 
 import com.google.gson.annotations.SerializedName
 
+const val PODCAST_ID_KEY = "podcast_id"
 const val PODCAST_TITLE_KEY = "podcast_title"
 
 class Podcast(@SerializedName("id") val id: String,

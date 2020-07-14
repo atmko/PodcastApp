@@ -25,7 +25,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     private val binding get() = _binding!!
 
     //fragment init variable
-    private var podcastId: String? = null
+    private lateinit var podcastId: String
 
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
     private lateinit var podcastDetails: Podcast
@@ -162,6 +162,6 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     override fun onItemClick(episode: Episode) {
-        episode.id?.let { (activity as MasterActivity).loadEpisodeIntoBottomSheet(it) }
+        episode.id?.let { (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcastId, it) }
     }
 }
