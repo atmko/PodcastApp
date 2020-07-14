@@ -7,6 +7,6 @@ class User(@SerializedName("user_id")
            @SerializedName("google_id")
            val googleId: String,
            @SerializedName("username")
-           val username: String,
+           val username: String?,
            @SerializedName("profile_image")
            val profileImage: String)

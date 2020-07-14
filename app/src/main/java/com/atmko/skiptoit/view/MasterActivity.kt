@@ -37,7 +37,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
     private var mPlaybackService: PlaybackService? = null
 
     private var viewModel: MasterActivityViewModel? = null
-    private var user: User? = null
+    var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
 

@@ -17,11 +17,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
@@ -149,14 +149,31 @@ class EpisodeFragment : Fragment() {
             setOnClickListener {
                 val masterActivity = (activity as MasterActivity)
                 if (masterActivity.isSignedIn()) {
-                    //todo
-                    Toast.makeText(requireContext(), "not yet implemented", Toast.LENGTH_SHORT).show()
-                    //launch create comment fragment
+                    masterActivity.user?.let {user->
+                        if (user.username == null) {
+                            promptForUsername()
+                        } else {
+                            navigateToCreateComment(user.username)
+                        }
+                    }
                 } else {
                     masterActivity.signIn()
                 }
             }
         }
+    }
+
+    private fun promptForUsername() {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToBottomSheet("Create a username")
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToCreateComment(username: String) {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationCrateComment(
+                podcastId, episodeId, username)
+        view?.findNavController()?.navigate(action)
     }
 
     private fun configureDetailExtrasSize() {
