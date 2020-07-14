@@ -22,6 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
@@ -35,7 +36,6 @@ const val EPISODE_FRAGMENT_KEY = "episode_fragment"
 const val SCRUBBER_ANIM_LENGTH: Long = 100
 const val SCRUBBER_HIDE_LENGTH: Long = 2000
 
-private const val IS_RESTORING_EPISODE_KEY = "is_restoring_episode"
 private const val SHOW_MORE_KEY = "show_more"
 
 private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
@@ -47,7 +47,8 @@ class EpisodeFragment : Fragment() {
     private val binding get() = _binding!!
 
     //fragment init variable
-    private var episodeId: String? = null
+    private lateinit var podcastId: String
+    private lateinit var episodeId: String
     private var isRestoringEpisode: Boolean = false
 
     private var mIsBound: Boolean = false
@@ -58,10 +59,11 @@ class EpisodeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            episodeId = it.getString(EPISODE_ID_KEY)
-            isRestoringEpisode = it.getBoolean(IS_RESTORING_EPISODE_KEY)
-        }
+
+        val args: EpisodeFragmentArgs by navArgs()
+        podcastId = args.podcastId
+        episodeId = args.episodeId
+        isRestoringEpisode = args.isRestoringEpisode
     }
 
     override fun onCreateView(
@@ -120,17 +122,6 @@ class EpisodeFragment : Fragment() {
             binding.playPanel.player = mPlaybackService?.player
             binding.playPanel.showController()
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(episodeId: String, isRestoringEpisode: Boolean) =
-            EpisodeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(EPISODE_ID_KEY, episodeId)
-                    putBoolean(IS_RESTORING_EPISODE_KEY, isRestoringEpisode)
-                }
-            }
     }
 
     private fun configureViews() {
@@ -250,6 +241,7 @@ class EpisodeFragment : Fragment() {
                         val sharedPrefs = activity?.getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
                         sharedPrefs?.let {
                             sharedPrefs.edit()
+                                .putString(PODCAST_ID_KEY, details.podcast?.id)
                                 .putString(EPISODE_ID_KEY, details.id)
                                 .putString(EPISODE_TITLE_KEY, details.title)
                                 .putString(EPISODE_DESCRIPTION_KEY, details.description)

@@ -30,7 +30,8 @@ class PodcastsService : PodcastsApi {
     }
 
     override fun getLastPlayedEpisode(prefs: SharedPreferences): Single<Episode> {
-        val id = prefs.getString(EPISODE_ID_KEY, "")
+        val podcastId = prefs.getString(PODCAST_ID_KEY, "")!!
+        val episodeId = prefs.getString(EPISODE_ID_KEY, "")
         val title = prefs.getString(EPISODE_TITLE_KEY, "")
         val description = prefs.getString(EPISODE_DESCRIPTION_KEY, "")
         val image = prefs.getString(EPISODE_IMAGE_KEY, "")
@@ -41,10 +42,10 @@ class PodcastsService : PodcastsApi {
         val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
 
         val podcast =
-            Podcast("", podcastTitle, "", "", "", 0)
+            Podcast(podcastId, podcastTitle, "", "", "", 0)
 
         val episode =
-            Episode(id, title,description, image, audio, publishDate, lengthInSeconds, podcast)
+            Episode(episodeId, title,description, image, audio, publishDate, lengthInSeconds, podcast)
 
         return Single.just(episode)
     }
