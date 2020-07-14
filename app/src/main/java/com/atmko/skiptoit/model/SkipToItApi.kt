@@ -5,6 +5,13 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface SkipToItApi {
+    @FormUrlEncoded
+    @POST("{podcast_id}/{episode_id}/comments")
+    fun createComment(@Path("podcast_id") podcastId: String,
+                      @Path("episode_id") episodeId: String,
+                      @Field("id_token") idToken: String,
+                      @Body comment: Comment): Single<Response<Void>>
+
     @GET("{podcast_id}/comments/page/{page}")
     fun getComments(@Path("podcast_id") podcastId: String,
                     @Path("page") page: Int): Single<List<Comment>>
