@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.BuildConfig
 import com.atmko.skiptoit.dependencyinjection.DaggerSkipToItApiComponent
 import com.atmko.skiptoit.model.SkipToItService
-import com.atmko.skiptoit.model.Token
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -96,12 +95,12 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     private fun handleSignInResult(googleSignInAccount: GoogleSignInAccount) {
         googleSignInAccount.let { account ->
             account.idToken?.let {
-                getUser(Token(it))
+                getUser(it)
             }
         }
     }
 
-    private fun getUser(token: Token) {
+    private fun getUser(token: String) {
         loading.value = true
         disposable.add(
             skipToItService.getUser(token)

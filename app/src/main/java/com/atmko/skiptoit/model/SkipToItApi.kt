@@ -1,16 +1,14 @@
 package com.atmko.skiptoit.model
 
 import io.reactivex.Single
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface SkipToItApi {
     @GET("{podcast_id}/comments/page/{page}")
     fun getComments(@Path("podcast_id") podcastId: String,
                     @Path("page") page: Int): Single<List<Comment>>
 
+    @FormUrlEncoded
     @POST("users/tokensignin")
-    fun getUser(@Body token: Token): Single<User>
+    fun getUser(@Field("id_token") idToken: String): Single<User>
 }
