@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -281,5 +282,20 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         val collapsedEpisodeTitle: TextView =
             binding.collapsedBottomSheet.findViewById(R.id.collapsedEpisodeTitle)
         collapsedEpisodeTitle.text = episodeTitle
+    }
+
+    override fun onBackPressed() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+            val currentDestination: NavDestination? =
+                findNavController(R.id.episode_nav_host_fragment).currentDestination
+            if (currentDestination?.id == R.id.navigation_episode) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                findNavController(R.id.episode_nav_host_fragment).navigateUp()
+            }
+        } else {
+            findNavController(R.id.base_nav_host_fragment).navigateUp()
+        }
     }
 }
