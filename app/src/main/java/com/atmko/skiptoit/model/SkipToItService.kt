@@ -2,6 +2,7 @@ package com.atmko.skiptoit.model
 
 import com.atmko.skiptoit.dependencyinjection.DaggerSkipToItApiComponent
 import io.reactivex.Single
+import retrofit2.Response
 import javax.inject.Inject
 
 class SkipToItService : SkipToItApi {
@@ -18,5 +19,9 @@ class SkipToItService : SkipToItApi {
 
     override fun getUser(idToken: String): Single<User> {
         return api.getUser(idToken)
+    }
+
+    override fun updateUsername(idToken: String, username: String): Single<Response<Void>> {
+        return api.updateUsername(idToken, username)
     }
 }

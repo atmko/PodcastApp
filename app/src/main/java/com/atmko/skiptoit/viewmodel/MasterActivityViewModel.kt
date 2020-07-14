@@ -19,6 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
+import retrofit2.Response
 import javax.inject.Inject
 
 const val REQUEST_CODE_SIGN_IN : Int = 547
@@ -82,7 +83,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                 val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
                 try {
                     val account: GoogleSignInAccount? = task.result
-                    account?.let { handleSignInResult(it) }
+                    account?.let { getUser() }
                 } catch (e: ApiException) {
                     e.printStackTrace()
                 }
@@ -92,34 +93,52 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
         }
     }
 
-    private fun handleSignInResult(googleSignInAccount: GoogleSignInAccount) {
-        googleSignInAccount.let { account ->
+    private fun getUser() {
+        getGoogleAccount()?.let { account ->
             account.idToken?.let {
-                getUser(it)
+                loading.value = true
+                disposable.add(
+                    skipToItService.getUser(it)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<User>() {
+                            override fun onSuccess(user: User?) {
+                                currentUser.value = user
+                                loadError.value = false
+                                loading.value = false
+                            }
+
+                            override fun onError(e: Throwable?) {
+                                loadError.value = true
+                                loading.value = false
+                            }
+                        })
+                )
             }
         }
     }
 
-    private fun getUser(token: String) {
-        loading.value = true
-        disposable.add(
-            skipToItService.getUser(token)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object: DisposableSingleObserver<User>() {
-                    override fun onSuccess(user: User?) {
-                        currentUser.value = user
-                        loadError.value = false
-                        loading.value = false
-                    }
+    public fun updateUsername(username: String) {
+        getGoogleAccount()?.let { account ->
+            account.idToken?.let {
+                loading.value = true
+                disposable.add(
+                    skipToItService.updateUsername(it, username)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object: DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                getUser()
+                            }
 
-                    override fun onError(e: Throwable?) {
-                        e?.printStackTrace()
-                        loadError.value = true
-                        loading.value = false
-                    }
-                })
-        )
+                            override fun onError(e: Throwable?) {
+                                loadError.value = true
+                                loading.value = false
+                            }
+                        })
+                )
+            }
+        }
     }
 
     override fun onCleared() {
