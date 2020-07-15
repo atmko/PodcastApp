@@ -235,6 +235,7 @@ sources, please visit " />
                     app:layout_constraintTop_toBottomOf="@id/commentsText" />
 
                 <include
+                    android:id="@+id/resultsFrameLayout"
                     layout="@layout/results_recycler_view"
                     android:layout_width="0dp"
                     android:layout_height="0dp"

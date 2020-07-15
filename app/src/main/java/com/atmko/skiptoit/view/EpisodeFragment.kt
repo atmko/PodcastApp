@@ -17,17 +17,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.view.adapters.CommentsAdapter
+import com.atmko.skiptoit.viewmodel.CommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 
@@ -42,7 +46,7 @@ private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
 private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
 private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
-class EpisodeFragment : Fragment() {
+class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
     private var _binding: FragmentEpisodeBinding? = null
     private val binding get() = _binding!!
 
@@ -56,6 +60,9 @@ class EpisodeFragment : Fragment() {
 
     private var episodeViewModel: EpisodeViewModel? = null
     private var episodeDetails: Episode? = null
+
+    private var commentsViewModel: CommentsViewModel? = null
+    private val commentsAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +86,8 @@ class EpisodeFragment : Fragment() {
 
         configureViews()
         configureValues(savedInstanceState)
-        configureViewModel()
+        configureEpisodeViewModel()
+        configureCommentsViewModel()
     }
 
     override fun onStart() {
@@ -161,6 +169,11 @@ class EpisodeFragment : Fragment() {
                 }
             }
         }
+
+        binding.resultsFrameLayout.resultsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = commentsAdapter
+        }
     }
 
     private fun promptForUsername() {
@@ -214,6 +227,10 @@ class EpisodeFragment : Fragment() {
             episodeViewModel = ViewModelProviders.of(this).get(EpisodeViewModel::class.java)
         }
 
+        if (commentsViewModel == null) {
+            commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
+        }
+
         if (savedInstanceState == null) {
             episodeId?.let {
                 if (isRestoringEpisode) {
@@ -221,6 +238,7 @@ class EpisodeFragment : Fragment() {
                 } else {
                     episodeViewModel?.refresh(it)
                 }
+                commentsViewModel?.getComments(podcastId, it, 0)
             }
             binding.showMore.tag = false
         } else {
@@ -228,7 +246,7 @@ class EpisodeFragment : Fragment() {
         }
     }
 
-    private fun configureViewModel() {
+    private fun configureEpisodeViewModel() {
         episodeViewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
             episodeDetails?.let {details ->
@@ -290,6 +308,35 @@ class EpisodeFragment : Fragment() {
                     if (it) View.VISIBLE else View.GONE
             }
         })
+    }
+
+    private fun configureCommentsViewModel() {
+        commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
+            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            commentsAdapter.updateComments(it)
+        })
+
+        commentsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+            isLoading?.let {
+                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
+                }
+            }
+        })
+
+        commentsViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+            isError.let {
+                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
+        })
+    }
+
+    override fun onItemClick(comment: Comment) {
+        context?.let { Toast.makeText(it, "Not Yet Implemented", Toast.LENGTH_SHORT).show() }
     }
 
     //todo consolidate with details show more methods
