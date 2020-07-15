@@ -36,7 +36,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
 
-    fun createComment(podcastId: String, episodeId: String, comment: Comment) {
+    fun createComment(podcastId: String, episodeId: String, comment: String) {
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
                 isCreated.value = false

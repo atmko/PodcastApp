@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
 import com.atmko.skiptoit.model.BODY_KEY
-import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
 
@@ -58,7 +57,7 @@ class CreateCommentFragment: Fragment() {
     private fun configureViews() {
         binding.createButton.apply {
             setOnClickListener {
-                val comment = Comment(binding.bodyEditText.text.toString())
+                val comment = binding.bodyEditText.text.toString()
                 viewModel?.createComment(podcastId, episodeId, comment)
             }
         }
