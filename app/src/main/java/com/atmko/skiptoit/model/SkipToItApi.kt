@@ -10,7 +10,7 @@ interface SkipToItApi {
     fun createComment(@Path("podcast_id") podcastId: String,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
-                      @Body comment: Comment): Single<Response<Void>>
+                      @Field("comment") comment: String): Single<Response<Void>>
 
     @GET("{podcast_id}/comments/page/{page}")
     fun getComments(@Path("podcast_id") podcastId: String,

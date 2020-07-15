@@ -14,7 +14,7 @@ class SkipToItService : SkipToItApi {
     }
 
     override fun createComment(podcastId: String, episodeId: String,
-                               idToken: String, comment: Comment): Single<Response<Void>> {
+                               idToken: String, comment: String): Single<Response<Void>> {
         return api.createComment(podcastId, episodeId, idToken, comment)
     }
 
