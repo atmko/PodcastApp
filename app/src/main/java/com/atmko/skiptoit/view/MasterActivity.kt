@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -282,6 +283,15 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         val collapsedEpisodeTitle: TextView =
             binding.collapsedBottomSheet.findViewById(R.id.collapsedEpisodeTitle)
         collapsedEpisodeTitle.text = episodeTitle
+    }
+
+    //hide soft keyboard and update keyboard visibility property
+    fun hideSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val imm: InputMethodManager =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     override fun onBackPressed() {

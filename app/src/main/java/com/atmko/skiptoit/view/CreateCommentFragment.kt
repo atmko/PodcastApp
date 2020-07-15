@@ -81,6 +81,7 @@ class CreateCommentFragment: Fragment() {
                 if (isCreated) {
                     val masterActivity: MasterActivity = (activity as MasterActivity)
                     masterActivity.onBackPressedDispatcher.onBackPressed()
+                    view?.let { view -> masterActivity.hideSoftKeyboard(view) }
                 }
             }
         })
