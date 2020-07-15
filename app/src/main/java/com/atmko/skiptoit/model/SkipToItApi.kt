@@ -12,8 +12,9 @@ interface SkipToItApi {
                       @Field("id_token") idToken: String,
                       @Field("comment") comment: String): Single<Response<Void>>
 
-    @GET("{podcast_id}/comments/page/{page}")
+    @GET("{podcast_id}/{episode_id}/comments/page/{page}")
     fun getComments(@Path("podcast_id") podcastId: String,
+                    @Path("episode_id") episodeId: String,
                     @Path("page") page: Int): Single<List<Comment>>
 
     @FormUrlEncoded

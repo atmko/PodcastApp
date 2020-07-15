@@ -62,10 +62,10 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
-    fun getComments(podcastId: String, page: Int) {
+    fun getComments(podcastId: String, episodeId: String, page: Int) {
         loading.value = true
         disposable.add(
-            podcastService.getComments(podcastId, page)
+            podcastService.getComments(podcastId, episodeId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
