@@ -54,7 +54,7 @@ class EpisodeFragment : Fragment() {
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
 
-    private var viewModel: EpisodeViewModel? = null
+    private var episodeViewModel: EpisodeViewModel? = null
     private var episodeDetails: Episode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -210,16 +210,16 @@ class EpisodeFragment : Fragment() {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this).get(EpisodeViewModel::class.java)
+        if (episodeViewModel == null) {
+            episodeViewModel = ViewModelProviders.of(this).get(EpisodeViewModel::class.java)
         }
 
         if (savedInstanceState == null) {
             episodeId?.let {
                 if (isRestoringEpisode) {
-                    viewModel?.restoreEpisode()
+                    episodeViewModel?.restoreEpisode()
                 } else {
-                    viewModel?.refresh(it)
+                    episodeViewModel?.refresh(it)
                 }
             }
             binding.showMore.tag = false
@@ -229,7 +229,7 @@ class EpisodeFragment : Fragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
+        episodeViewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
             episodeDetails?.let {details ->
                 //set expanded values
@@ -274,7 +274,7 @@ class EpisodeFragment : Fragment() {
             }
         })
 
-        viewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        episodeViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -284,7 +284,7 @@ class EpisodeFragment : Fragment() {
             }
         })
 
-        viewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        episodeViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
