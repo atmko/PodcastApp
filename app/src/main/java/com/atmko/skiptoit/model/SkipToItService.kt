@@ -13,6 +13,11 @@ class SkipToItService : SkipToItApi {
         DaggerSkipToItApiComponent.create().inject(this)
     }
 
+    override fun createComment(podcastId: String, episodeId: String,
+                               idToken: String, comment: Comment): Single<Response<Void>> {
+        return api.createComment(podcastId, episodeId, idToken, comment)
+    }
+
     override fun getComments(podcastId: String, page: Int): Single<List<Comment>> {
         return api.getComments(podcastId, page)
     }
