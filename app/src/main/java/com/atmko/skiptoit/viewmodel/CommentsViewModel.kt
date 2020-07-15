@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.dependencyinjection.DaggerSkipToItApiComponent
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.SkipToItService
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
@@ -30,26 +32,34 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         DaggerSkipToItApiComponent.create().inject(this)
     }
 
-    fun createComment(podcastId: String, episodeId: String, idToken: String, comment: Comment) {
-        isCreated.value = false
-        processing.value = true
-        disposable.add(
-            podcastService.createComment(podcastId, episodeId, idToken, comment)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object: DisposableSingleObserver<Response<Void>>() {
-                    override fun onSuccess(response: Response<Void>) {
-                        isCreated.value = response.isSuccessful
-                        createError.value = false
-                        processing.value = false
-                    }
+    fun getGoogleAccount(): GoogleSignInAccount? {
+        return GoogleSignIn.getLastSignedInAccount(getApplication())
+    }
 
-                    override fun onError(e: Throwable?) {
-                        createError.value = true
-                        processing.value = false
-                    }
-                })
-        )
+    fun createComment(podcastId: String, episodeId: String, comment: Comment) {
+        getGoogleAccount()?.let { account ->
+            account.idToken?.let {
+                isCreated.value = false
+                processing.value = true
+                disposable.add(
+                    podcastService.createComment(podcastId, episodeId, it, comment)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                isCreated.value = response.isSuccessful
+                                createError.value = false
+                                processing.value = false
+                            }
+
+                            override fun onError(e: Throwable?) {
+                                createError.value = true
+                                processing.value = false
+                            }
+                        })
+                )
+            }
+        }
     }
 
     fun getComments(podcastId: String, page: Int) {
