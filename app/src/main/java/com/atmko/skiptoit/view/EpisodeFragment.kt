@@ -314,6 +314,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
+            binding.commentCount.text = it.size.toString()
         })
 
         commentsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
