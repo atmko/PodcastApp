@@ -46,6 +46,44 @@ showed up 3 hours later anad the
 excuse  of why she was freshly
 bathed? The was out swimming..." />
 
+    <ImageButton
+        android:id="@+id/upVoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x3_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/reply"
+        android:src="@drawable/ic_up_vote"
+        app:layout_constraintBottom_toBottomOf="@id/upVotesCount"
+        app:layout_constraintStart_toEndOf="@id/profileImageView"
+        app:layout_constraintTop_toTopOf="@id/upVotesCount" />
+
+    <TextView
+        android:id="@+id/upVotesCount"
+        style="@style/Standard_Heading_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_weight="1"
+        android:textColor="@color/color_body_text"
+        android:textStyle="italic"
+        app:layout_constraintStart_toEndOf="@id/upVoteButton"
+        app:layout_constraintTop_toBottomOf="@id/body"
+        tools:text="100" />
+
+    <ImageButton
+        android:id="@+id/downVoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/reply"
+        android:src="@drawable/ic_down_vote"
+        app:layout_constraintBottom_toBottomOf="@id/upVotesCount"
+        app:layout_constraintStart_toEndOf="@id/upVotesCount"
+        app:layout_constraintTop_toTopOf="@id/upVotesCount" />
+
     <TextView
         android:id="@+id/replies"
         style="@style/Standard_Heading_Style"
@@ -54,11 +92,23 @@ bathed? The was out swimming..." />
         android:layout_marginStart="@dimen/x3_layout_margin"
         android:layout_marginTop="@dimen/x2_layout_margin"
         android:layout_marginEnd="@dimen/x2_layout_margin"
-        android:textColor="@color/colorAccent"
-        app:layout_constraintStart_toEndOf="@id/profileImageView"
-        app:layout_constraintTop_toBottomOf="@id/body"
         android:text="@string/replies_format"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintStart_toEndOf="@id/downVoteButton"
+        app:layout_constraintTop_toBottomOf="@id/body"
         tools:text="10 replies" />
+
+    <TextView
+        android:id="@+id/replyButton"
+        style="@style/Standard_Heading_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
+        android:text="@string/reply"
+        android:textColor="@color/color_body_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/body" />
 
     <FrameLayout
         style="@style/Divider_Style"
