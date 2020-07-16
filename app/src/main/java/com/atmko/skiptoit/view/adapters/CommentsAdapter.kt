@@ -47,6 +47,7 @@ class CommentsAdapter(
         val comment: Comment = comments[position]
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
+        holder.binding.votes.text = comment.votes.toString()
         comment.profileImage?.let { holder.binding.profileImageView.loadNetworkImage(it) }
     }
 

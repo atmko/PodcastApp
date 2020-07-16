@@ -9,5 +9,6 @@ class Comment(
     val commentId: String,
     val username: String,
     val body: String,
+    val votes: Int,
     @SerializedName("profile_image")
     val profileImage: String?)
