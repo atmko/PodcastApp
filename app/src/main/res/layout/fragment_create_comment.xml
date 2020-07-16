@@ -22,16 +22,13 @@
         android:layout_marginTop="@dimen/x2_layout_margin"
         app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
 
-    <EditText
+    <TextView
         android:id="@+id/quotedText"
         style="@style/Body_Excess_Style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x2_layout_margin"
         android:layout_marginBottom="@dimen/x2_layout_margin"
-        android:background="@null"
-        android:gravity="top"
-        android:hint="@string/comment"
         tools:text="I think the butler didn't"
         app:layout_constraintTop_toBottomOf="@id/divider_view" />
 
