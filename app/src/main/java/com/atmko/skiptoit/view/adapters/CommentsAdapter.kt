@@ -48,6 +48,8 @@ class CommentsAdapter(
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
         holder.binding.votes.text = comment.votes.toString()
+        holder.binding.replies.text =
+            String.format(holder.binding.replies.text.toString(), comment.replies.toString())
         comment.profileImage?.let { holder.binding.profileImageView.loadNetworkImage(it) }
     }
 
