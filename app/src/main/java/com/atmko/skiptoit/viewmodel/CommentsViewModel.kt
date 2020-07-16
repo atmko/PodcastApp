@@ -36,13 +36,13 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
 
-    fun createComment(podcastId: String, episodeId: String, comment: String) {
+    fun createComment(podcastId: String, parentId: String?, episodeId: String, comment: String) {
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    podcastService.createComment(podcastId, episodeId, it, comment)
+                    podcastService.createComment(podcastId, parentId, episodeId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {

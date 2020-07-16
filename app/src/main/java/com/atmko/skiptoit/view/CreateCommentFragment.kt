@@ -21,6 +21,7 @@ class CreateCommentFragment: Fragment() {
     private lateinit var username: String
     private lateinit var podcastId: String
     private lateinit var episodeId: String
+    private var parentId: String? = null
 
     private var viewModel: CommentsViewModel? = null
 
@@ -30,6 +31,7 @@ class CreateCommentFragment: Fragment() {
         val args: CreateCommentFragmentArgs by navArgs()
         podcastId = args.podcastId
         episodeId = args.episodeId
+        parentId = args.parentId
         username = args.username
     }
 
@@ -58,7 +60,7 @@ class CreateCommentFragment: Fragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-                viewModel?.createComment(podcastId, episodeId, comment)
+                viewModel?.createComment(podcastId, parentId, episodeId, comment)
             }
         }
     }

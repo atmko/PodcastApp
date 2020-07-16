@@ -185,7 +185,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
     private fun navigateToCreateComment(username: String) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, episodeId, username)
+                podcastId, null, episodeId, username)
         view?.findNavController()?.navigate(action)
     }
 

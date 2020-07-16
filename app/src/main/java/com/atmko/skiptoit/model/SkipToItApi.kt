@@ -8,6 +8,7 @@ interface SkipToItApi {
     @FormUrlEncoded
     @POST("{podcast_id}/{episode_id}/comments")
     fun createComment(@Path("podcast_id") podcastId: String,
+                      @Field("parent_id") parentId: String?,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
                       @Field("comment") comment: String): Single<Response<Void>>

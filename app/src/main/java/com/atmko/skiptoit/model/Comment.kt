@@ -7,6 +7,8 @@ const val BODY_KEY: String = "body"
 class Comment(
     @SerializedName("comment_id")
     val commentId: String,
+    @SerializedName("parent_id")
+    val parentId: String,
     val username: String,
     val body: String,
     val votes: Int,

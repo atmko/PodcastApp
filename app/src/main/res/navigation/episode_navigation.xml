@@ -41,6 +41,10 @@
             android:name="podcast_id"
             app:argType="string" />
         <argument
+            android:name="parent_id"
+            app:argType="string"
+            app:nullable="true"/>
+        <argument
             android:name="episode_id"
             app:argType="string" />
         <argument
