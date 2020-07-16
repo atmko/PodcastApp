@@ -54,12 +54,12 @@ bathed? The was out swimming..." />
         android:background="@null"
         android:contentDescription="@string/reply"
         android:src="@drawable/ic_up_vote"
-        app:layout_constraintBottom_toBottomOf="@id/upVotesCount"
+        app:layout_constraintBottom_toBottomOf="@id/votes"
         app:layout_constraintStart_toEndOf="@id/profileImageView"
-        app:layout_constraintTop_toTopOf="@id/upVotesCount" />
+        app:layout_constraintTop_toTopOf="@id/votes" />
 
     <TextView
-        android:id="@+id/upVotesCount"
+        android:id="@+id/votes"
         style="@style/Standard_Heading_Style"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -80,9 +80,9 @@ bathed? The was out swimming..." />
         android:background="@null"
         android:contentDescription="@string/reply"
         android:src="@drawable/ic_down_vote"
-        app:layout_constraintBottom_toBottomOf="@id/upVotesCount"
-        app:layout_constraintStart_toEndOf="@id/upVotesCount"
-        app:layout_constraintTop_toTopOf="@id/upVotesCount" />
+        app:layout_constraintBottom_toBottomOf="@id/votes"
+        app:layout_constraintStart_toEndOf="@id/votes"
+        app:layout_constraintTop_toTopOf="@id/votes" />
 
     <TextView
         android:id="@+id/replies"
