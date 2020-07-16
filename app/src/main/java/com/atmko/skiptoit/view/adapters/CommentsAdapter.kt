@@ -15,7 +15,7 @@ class CommentsAdapter(
     RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
     interface OnCommentItemClickListener {
-        fun onItemClick(comment: Comment)
+        fun onReplyButtonClick(commentId: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -32,19 +32,14 @@ class CommentsAdapter(
     }
 
     inner class CommentViewHolder(var binding: ItemCommentBinding) :
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        override fun onClick(v: View?) {
-            clickListener.onItemClick(comments[adapterPosition])
-        }
-    }
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment: Comment = comments[position]
+
+        holder.binding.replyButton.setOnClickListener {
+            clickListener.onReplyButtonClick(comment.commentId)
+        }
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
         holder.binding.votes.text = comment.votes.toString()

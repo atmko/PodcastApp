@@ -155,18 +155,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
         binding.addCommentButton.apply {
             setOnClickListener {
-                val masterActivity = (activity as MasterActivity)
-                if (masterActivity.isSignedIn()) {
-                    masterActivity.user?.let {user->
-                        if (user.username == null) {
-                            promptForUsername()
-                        } else {
-                            navigateToCreateComment(user.username)
-                        }
-                    }
-                } else {
-                    masterActivity.signIn()
-                }
+                attemptToCreateComment(null)
             }
         }
 
@@ -176,16 +165,31 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         }
     }
 
+    private fun attemptToCreateComment(parentId: String?) {
+        val masterActivity = (activity as MasterActivity)
+        if (masterActivity.isSignedIn()) {
+            masterActivity.user?.let {user->
+                if (user.username == null) {
+                    promptForUsername()
+                } else {
+                    navigateToCreateComment(user.username, parentId)
+                }
+            }
+        } else {
+            masterActivity.signIn()
+        }
+    }
+
     private fun promptForUsername() {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToBottomSheet("Create a username")
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToCreateComment(username: String) {
+    private fun navigateToCreateComment(username: String, parentId: String?) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, null, episodeId, username)
+                podcastId, parentId, episodeId, username)
         view?.findNavController()?.navigate(action)
     }
 
@@ -336,8 +340,8 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         })
     }
 
-    override fun onItemClick(comment: Comment) {
-        context?.let { Toast.makeText(it, "Not Yet Implemented", Toast.LENGTH_SHORT).show() }
+    override fun onReplyButtonClick(commentId: String) {
+        attemptToCreateComment(commentId)
     }
 
     //todo consolidate with details show more methods
