@@ -23,6 +23,27 @@
         app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
 
     <EditText
+        android:id="@+id/quotedText"
+        style="@style/Body_Excess_Style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="@string/comment"
+        tools:text="I think the butler didn't"
+        app:layout_constraintTop_toBottomOf="@id/divider_view" />
+
+    <View
+        android:id="@+id/quotedTextDivider"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toBottomOf="@id/quotedText" />
+
+    <EditText
         android:id="@+id/bodyEditText"
         style="@style/Body_Excess_Style"
         android:layout_width="match_parent"
@@ -32,8 +53,9 @@
         android:background="@null"
         android:gravity="top"
         android:hint="@string/comment"
+        tools:text="I don't think he did"
         app:layout_constraintBottom_toBottomOf="@id/divider_view2"
-        app:layout_constraintTop_toBottomOf="@id/divider_view" />
+        app:layout_constraintTop_toBottomOf="@id/quotedTextDivider" />
 
     <View
         android:id="@+id/divider_view2"
@@ -69,9 +91,9 @@
         layout="@layout/layout_error_and_loading"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
