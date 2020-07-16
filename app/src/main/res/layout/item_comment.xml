@@ -115,6 +115,6 @@ bathed? The was out swimming..." />
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_height"
         android:layout_marginTop="@dimen/x2_layout_margin"
-        app:layout_constraintTop_toBottomOf="@id/replies" />
+        app:layout_constraintTop_toBottomOf="@id/replyButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
