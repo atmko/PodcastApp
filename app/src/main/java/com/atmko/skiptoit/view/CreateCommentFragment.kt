@@ -63,6 +63,11 @@ class CreateCommentFragment: Fragment() {
                 viewModel?.createComment(podcastId, parentId, episodeId, comment)
             }
         }
+
+        if (parentId == null) {
+            binding.quotedText.visibility = View.GONE
+            binding.quotedTextDivider.visibility = View.GONE
+        }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
