@@ -22,6 +22,7 @@ class CreateCommentFragment: Fragment() {
     private lateinit var podcastId: String
     private lateinit var episodeId: String
     private var parentId: String? = null
+    private var quotedText: String? = null
 
     private var viewModel: CommentsViewModel? = null
 
@@ -32,6 +33,7 @@ class CreateCommentFragment: Fragment() {
         podcastId = args.podcastId
         episodeId = args.episodeId
         parentId = args.parentId
+        quotedText = args.quotedText
         username = args.username
     }
 
@@ -67,6 +69,8 @@ class CreateCommentFragment: Fragment() {
         if (parentId == null) {
             binding.quotedText.visibility = View.GONE
             binding.quotedTextDivider.visibility = View.GONE
+        } else{
+            binding.quotedText.text = quotedText
         }
     }
 

@@ -155,7 +155,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
         binding.addCommentButton.apply {
             setOnClickListener {
-                attemptToCreateComment(null)
+                attemptToCreateComment(null, null)
             }
         }
 
@@ -165,14 +165,14 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         }
     }
 
-    private fun attemptToCreateComment(parentId: String?) {
+    private fun attemptToCreateComment(parentId: String?, quotedText: String?) {
         val masterActivity = (activity as MasterActivity)
         if (masterActivity.isSignedIn()) {
             masterActivity.user?.let {user->
                 if (user.username == null) {
                     promptForUsername()
                 } else {
-                    navigateToCreateComment(user.username, parentId)
+                    navigateToCreateComment(user.username, parentId, quotedText)
                 }
             }
         } else {
@@ -186,10 +186,10 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToCreateComment(username: String, parentId: String?) {
+    private fun navigateToCreateComment(username: String, parentId: String?, quotedText: String?) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, parentId, episodeId, username)
+                podcastId, parentId, episodeId, quotedText, username)
         view?.findNavController()?.navigate(action)
     }
 
@@ -340,8 +340,8 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         })
     }
 
-    override fun onReplyButtonClick(commentId: String) {
-        attemptToCreateComment(commentId)
+    override fun onReplyButtonClick(commentId: String, quotedText: String?) {
+        attemptToCreateComment(commentId, quotedText)
     }
 
     //todo consolidate with details show more methods

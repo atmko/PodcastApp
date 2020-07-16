@@ -15,7 +15,7 @@ class CommentsAdapter(
     RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
     interface OnCommentItemClickListener {
-        fun onReplyButtonClick(commentId: String)
+        fun onReplyButtonClick(commentId: String, quotedText: String?)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -38,7 +38,7 @@ class CommentsAdapter(
         val comment: Comment = comments[position]
 
         holder.binding.replyButton.setOnClickListener {
-            clickListener.onReplyButtonClick(comment.commentId)
+            clickListener.onReplyButtonClick(comment.commentId, comment.body)
         }
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
