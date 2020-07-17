@@ -9,7 +9,7 @@
         layout="@layout/item_comment" />
 
     <include
-        android:id="@+id/resultsRecyclerView"
+        android:id="@+id/resultsFrameLayout"
         layout="@layout/results_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
