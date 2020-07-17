@@ -182,7 +182,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private fun promptForUsername() {
         val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToBottomSheet("Create a username")
+            .actionNavigationEpisodeToNavigationBottomSheet("Create a username")
         view?.findNavController()?.navigate(action)
     }
 
