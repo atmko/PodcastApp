@@ -56,6 +56,19 @@
             app:argType="string" />
     </fragment>
 
+    <fragment
+        android:id="@+id/navigation_replies"
+        android:name="com.atmko.skiptoit.view.RepliesFragment"
+        android:label="@string/title_replies"
+        tools:layout="@layout/fragment_replies">
+        <argument
+            android:name="comment_id"
+            app:argType="string" />
+        <argument
+            android:name="parent_id"
+            app:argType="string" />
+    </fragment>
+
     <dialog
         android:id="@+id/bottomSheet"
         android:name="com.atmko.skiptoit.view.ConfirmationFragment"
