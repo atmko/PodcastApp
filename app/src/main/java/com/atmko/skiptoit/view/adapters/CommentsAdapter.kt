@@ -16,6 +16,7 @@ class CommentsAdapter(
 
     interface OnCommentItemClickListener {
         fun onReplyButtonClick(commentId: String, quotedText: String?)
+        fun onRepliesButtonClick(comment: Comment)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -39,6 +40,9 @@ class CommentsAdapter(
 
         holder.binding.replyButton.setOnClickListener {
             clickListener.onReplyButtonClick(comment.commentId, comment.body)
+        }
+        holder.binding.replies.setOnClickListener {
+            clickListener.onRepliesButtonClick(comment)
         }
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body

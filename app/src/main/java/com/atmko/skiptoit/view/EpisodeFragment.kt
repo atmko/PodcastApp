@@ -344,6 +344,12 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         attemptToCreateComment(commentId, quotedText)
     }
 
+    override fun onRepliesButtonClick(comment: Comment) {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationReplies(comment.commentId, comment.parentId)
+        view?.findNavController()?.navigate(action)
+    }
+
     //todo consolidate with details show more methods
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {

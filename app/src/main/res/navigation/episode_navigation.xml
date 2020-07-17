@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_navigation_episode_to_navigation_bottomSheet"
             app:destination="@id/bottomSheet" />
+        <action
+            android:id="@+id/action_navigation_episode_to_navigation_replies"
+            app:destination="@id/navigation_replies" />
     </fragment>
 
     <fragment
