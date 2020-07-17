@@ -14,7 +14,7 @@ class RepliesFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var commentId: String
-    private lateinit var parentId: String
+    private var parentId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

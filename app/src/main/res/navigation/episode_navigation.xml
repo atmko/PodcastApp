@@ -69,7 +69,8 @@
             app:argType="string" />
         <argument
             android:name="parent_id"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true"/>
     </fragment>
 
     <dialog
