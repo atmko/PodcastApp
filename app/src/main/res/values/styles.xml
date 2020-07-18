@@ -34,6 +34,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="maxImageSize">@dimen/x8_layout_margin</item>
         <item name="android:layout_marginEnd">@dimen/fab_excess_margin</item>
+        <item name="tint">@null</item>
         <item name="android:layout_marginRight">@dimen/fab_excess_margin</item>
     </style>
 
