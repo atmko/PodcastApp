@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -67,6 +68,10 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
                 setupParentComment(comment)
             }
         }
+
+        if (savedInstanceState == null) {
+            viewModel?.getReplies(commentId, 0)
+        }
     }
 
     private fun setupParentComment(comment: Comment?) {
@@ -92,7 +97,30 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
     }
 
     private fun configureViewModel() {
+        viewModel?.repliesMap?.observe(viewLifecycleOwner, Observer { reliesMap ->
+            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            reliesMap?.get(commentId)?.let {
+                repliesAdapter.updateComments(viewModel!!.retrieveReplies(commentId))
+            }
+        })
 
+        viewModel?.repliesLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+            isLoading?.let {
+                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel?.repliesLoadError?.observe(viewLifecycleOwner, Observer { isError ->
+            isError.let {
+                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
+        })
     }
 
     override fun onReplyButtonClick(commentId: String, quotedText: String?) {

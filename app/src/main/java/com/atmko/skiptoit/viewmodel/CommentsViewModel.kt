@@ -109,6 +109,12 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         repliesMap.value = currentValue
     }
 
+    //helper method to access already saved replies
+    @Suppress("UNCHECKED_CAST")
+    fun retrieveReplies(commentId: String): List<Comment> {
+        return repliesMap.value!![commentId]!![1] as List<Comment>
+    }
+
     //helper method to access already saved parent comment
     @Suppress("UNCHECKED_CAST")
     fun retrieveParentComment(commentId: String): Comment {
