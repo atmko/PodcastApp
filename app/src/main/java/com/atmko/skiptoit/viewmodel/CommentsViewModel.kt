@@ -101,6 +101,11 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
+    //helper method to delete parent comment
+    fun removeParentComment(commentId: String) {
+        repliesMap.value?.remove(commentId)
+    }
+
     //helper method to save replies in repliesMap
     private fun insertReplies(parentId: String, replies: List<Comment>) {
         val currentValue = repliesMap.value
