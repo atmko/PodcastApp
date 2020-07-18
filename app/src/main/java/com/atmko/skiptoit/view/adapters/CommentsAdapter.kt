@@ -15,7 +15,7 @@ class CommentsAdapter(
     RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
     interface OnCommentItemClickListener {
-        fun onReplyButtonClick(commentId: String, quotedText: String?)
+        fun onReplyButtonClick(commentId: String, quotedText: String)
         fun onRepliesButtonClick(comment: Comment)
     }
 

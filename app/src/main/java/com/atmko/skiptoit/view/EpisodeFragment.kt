@@ -265,7 +265,7 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
                 } else {
                     episodeViewModel?.refresh(it)
                 }
-                commentsViewModel?.getComments(podcastId, it, 0)
+                commentsViewModel?.getComments(it, 0)
             }
             binding.showMore.tag = false
         } else {

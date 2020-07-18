@@ -6,19 +6,23 @@ import retrofit2.http.*
 
 interface SkipToItApi {
     @FormUrlEncoded
-    @POST("{podcast_id}/{episode_id}/comments")
+    @POST("comments/{podcast_id}/{episode_id}")
     fun createComment(@Path("podcast_id") podcastId: String,
-                      @Field("parent_id") parentId: String?,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
                       @Field("comment") comment: String): Single<Response<Void>>
 
-    @GET("{podcast_id}/{episode_id}/comments/page/{page}")
-    fun getComments(@Path("podcast_id") podcastId: String,
-                    @Path("episode_id") episodeId: String,
+    @GET("comments/{episode_id}/page/{page}")
+    fun getComments(@Path("episode_id") episodeId: String,
                     @Path("page") page: Int): Single<List<Comment>>
 
-    @GET("{podcast_id}/{episode_id}/comments/{parent_id}/page/{page}")
+    @FormUrlEncoded
+    @POST("replies/{parent_id}")
+    fun createReply(@Path("parent_id") parentId: String,
+                    @Field("id_token") idToken: String,
+                    @Field("comment") comment: String): Single<Response<Void>>
+
+    @GET("replies/{parent_id}/page/{page}")
     fun getReplies(@Path("parent_id") parentId: String,
                    @Path("page") page: Int): Single<List<Comment>>
 

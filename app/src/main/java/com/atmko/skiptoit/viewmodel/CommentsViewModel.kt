@@ -33,13 +33,13 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     val createError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun createComment(podcastId: String, parentId: String?, episodeId: String, comment: String) {
+    fun createComment(podcastId: String, episodeId: String, comment: String) {
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    podcastService.createComment(podcastId, parentId, episodeId, it, comment)
+                    podcastService.createComment(podcastId, episodeId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
@@ -63,10 +63,10 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun getComments(podcastId: String, episodeId: String, page: Int) {
+    fun getComments(episodeId: String, page: Int) {
         loading.value = true
         disposable.add(
-            podcastService.getComments(podcastId, episodeId, page)
+            podcastService.getComments(episodeId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
