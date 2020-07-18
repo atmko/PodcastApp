@@ -18,6 +18,10 @@ interface SkipToItApi {
                     @Path("episode_id") episodeId: String,
                     @Path("page") page: Int): Single<List<Comment>>
 
+    @GET("{podcast_id}/{episode_id}/comments/{parent_id}/page/{page}")
+    fun getReplies(@Path("parent_id") parentId: String,
+                   @Path("page") page: Int): Single<List<Comment>>
+
     @FormUrlEncoded
     @POST("users/tokensignin")
     fun getUser(@Field("id_token") idToken: String): Single<User>

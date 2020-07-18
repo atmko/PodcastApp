@@ -23,6 +23,10 @@ class SkipToItService : SkipToItApi {
         return api.getComments(podcastId, episodeId, page)
     }
 
+    override fun getReplies(parentId: String, page: Int): Single<List<Comment>> {
+        return api.getReplies(parentId, page)
+    }
+
     override fun getUser(idToken: String): Single<User> {
         return api.getUser(idToken)
     }
