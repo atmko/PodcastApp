@@ -87,6 +87,8 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     //live data value holds map of type (String : MutableList<Any>)
     //MutableList<Any> holds two items (Comment i.e parentComment and List<Comments> i.e replies)
     val repliesMap: MutableLiveData<HashMap<String, MutableList<Any>>> = MutableLiveData()
+    val repliesLoadError: MutableLiveData<Boolean> = MutableLiveData()
+    val repliesLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     //helper method to save parent comment
     fun saveParentComment(comment: Comment) {
@@ -99,10 +101,40 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
+    //helper method to save replies in repliesMap
+    private fun insertReplies(parentId: String, replies: List<Comment>) {
+        val currentValue = repliesMap.value
+        currentValue!![parentId]!![1] = replies
+
+        repliesMap.value = currentValue
+    }
+
     //helper method to access already saved parent comment
     @Suppress("UNCHECKED_CAST")
     fun retrieveParentComment(commentId: String): Comment {
         return repliesMap.value!![commentId]!![0] as Comment
+    }
+
+    //network call to get comment's replies
+    fun getReplies(commentId: String, page: Int) {
+        repliesLoading.value = true
+        disposable.add(
+            podcastService.getReplies(commentId, page)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
+                    override fun onSuccess(replies: List<Comment>) {
+                        insertReplies(commentId, replies)
+                        repliesLoadError.value = false
+                        repliesLoading.value = false
+                    }
+
+                    override fun onError(e: Throwable?) {
+                        repliesLoadError.value = true
+                        repliesLoading.value = false
+                    }
+                })
+        )
     }
 
     override fun onCleared() {
