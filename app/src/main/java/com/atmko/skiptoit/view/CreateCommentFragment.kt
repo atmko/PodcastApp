@@ -78,7 +78,9 @@ class CreateCommentFragment: Fragment() {
         binding.usernameTextView.text = username
 
         if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
+            activity?.let {
+                viewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+            }
         }
 
         if (savedInstanceState != null) {

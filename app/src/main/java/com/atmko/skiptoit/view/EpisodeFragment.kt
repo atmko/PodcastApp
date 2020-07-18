@@ -17,7 +17,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -232,7 +231,9 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         }
 
         if (commentsViewModel == null) {
-            commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel::class.java)
+            activity?.let {
+                commentsViewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+            }
         }
 
         if (savedInstanceState == null) {
