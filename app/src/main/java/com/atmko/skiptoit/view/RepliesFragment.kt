@@ -80,10 +80,10 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
             activity?.let {
                 viewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
             }
+        }
 
-            viewModel?.retrieveParentComment(commentId).let { comment ->
-                setupParentComment(comment)
-            }
+        viewModel?.retrieveParentComment(commentId).let { comment ->
+            setupParentComment(comment)
         }
 
         if (savedInstanceState == null) {
