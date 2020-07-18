@@ -16,17 +16,10 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class CommentsViewModel(application: Application): AndroidViewModel(application) {
-    val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     @Inject
     lateinit var podcastService: SkipToItService
     private val disposable: CompositeDisposable = CompositeDisposable()
-
-    val isCreated: MutableLiveData<Boolean> = MutableLiveData()
-    val createError: MutableLiveData<Boolean> = MutableLiveData()
-    val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         DaggerSkipToItApiComponent.create().inject(this)
@@ -35,6 +28,10 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     fun getGoogleAccount(): GoogleSignInAccount? {
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
+
+    val isCreated: MutableLiveData<Boolean> = MutableLiveData()
+    val createError: MutableLiveData<Boolean> = MutableLiveData()
+    val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     fun createComment(podcastId: String, parentId: String?, episodeId: String, comment: String) {
         getGoogleAccount()?.let { account ->
@@ -61,6 +58,10 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
             }
         }
     }
+
+    val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
+    val loadError: MutableLiveData<Boolean> = MutableLiveData()
+    val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getComments(podcastId: String, episodeId: String, page: Int) {
         loading.value = true
