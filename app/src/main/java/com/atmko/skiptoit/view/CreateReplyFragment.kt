@@ -8,28 +8,28 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
-import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
+import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
 
-class CreateCommentFragment: Fragment() {
+class CreateReplyFragment: Fragment() {
 
-    private var _binding: FragmentCreateCommentBinding? = null
+    private var _binding: FragmentCreateReplyBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var username: String
-    private lateinit var podcastId: String
-    private lateinit var episodeId: String
+    private lateinit var parentId: String
+    private lateinit var quotedText: String
 
     private var viewModel: CommentsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val args: CreateCommentFragmentArgs by navArgs()
-        podcastId = args.podcastId
-        episodeId = args.episodeId
+        val args: CreateReplyFragmentArgs by navArgs()
+        parentId = args.parentId
+        quotedText = args.quotedText
         username = args.username
     }
 
@@ -37,7 +37,7 @@ class CreateCommentFragment: Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
+        _binding = FragmentCreateReplyBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,9 +58,11 @@ class CreateCommentFragment: Fragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-                viewModel?.createComment(podcastId, episodeId, comment)
+//                viewModel?.createReply(parentId, comment)
             }
         }
+
+        binding.quotedText.text = quotedText
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {

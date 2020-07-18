@@ -171,7 +171,22 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
                 if (user.username == null) {
                     promptForUsername()
                 } else {
-                    navigateToCreateComment(user.username, parentId, quotedText)
+                    navigateToCreateComment(user.username)
+                }
+            }
+        } else {
+            masterActivity.signIn()
+        }
+    }
+
+    private fun attemptToReplyComment(parentId: String, quotedText: String) {
+        val masterActivity = (activity as MasterActivity)
+        if (masterActivity.isSignedIn()) {
+            masterActivity.user?.let {user->
+                if (user.username == null) {
+                    promptForUsername()
+                } else {
+                    navigateToReplyComment(user.username, parentId, quotedText)
                 }
             }
         } else {
@@ -185,10 +200,17 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToCreateComment(username: String, parentId: String?, quotedText: String?) {
+    private fun navigateToCreateComment(username: String) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, parentId, episodeId, quotedText, username)
+                podcastId, episodeId, username)
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationCreateReply(
+                parentId, quotedText, username)
         view?.findNavController()?.navigate(action)
     }
 
@@ -341,8 +363,8 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
         })
     }
 
-    override fun onReplyButtonClick(commentId: String, quotedText: String?) {
-        attemptToCreateComment(commentId, quotedText)
+    override fun onReplyButtonClick(commentId: String, quotedText: String) {
+        attemptToReplyComment(commentId, quotedText)
     }
 
     override fun onRepliesButtonClick(comment: Comment) {

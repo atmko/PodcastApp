@@ -15,12 +15,30 @@
         tools:text="slicky" />
 
     <View
-        android:id="@+id/quotedTextDivider"
+        android:id="@+id/divider_view"
         style="@style/Divider_Style"
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_height"
         android:layout_marginTop="@dimen/x2_layout_margin"
         app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
+
+    <TextView
+        android:id="@+id/quotedText"
+        style="@style/Body_Excess_Style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginBottom="@dimen/x2_layout_margin"
+        tools:text="I think the butler didn't"
+        app:layout_constraintTop_toBottomOf="@id/divider_view" />
+
+    <View
+        android:id="@+id/quotedTextDivider"
+        style="@style/Divider_Style"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/x2_layout_margin"
+        app:layout_constraintTop_toBottomOf="@id/quotedText" />
 
     <EditText
         android:id="@+id/bodyEditText"
