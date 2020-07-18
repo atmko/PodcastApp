@@ -86,9 +86,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
         outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
 
-        val isBottomSheetExpanded: Boolean =
-            bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
-        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
+        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded())
     }
 
     override fun onStop() {
@@ -230,6 +228,11 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         viewModel?.signOut(this)
     }
 
+    fun isBottomSheetExpanded(): Boolean {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
+    }
+
     fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
@@ -296,7 +299,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
 
     override fun onBackPressed() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if (isBottomSheetExpanded()) {
             val currentDestination: NavDestination? =
                 findNavController(R.id.episode_nav_host_fragment).currentDestination
             if (currentDestination?.id == R.id.navigation_episode) {
