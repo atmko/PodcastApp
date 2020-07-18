@@ -86,6 +86,9 @@
             android:id="@+id/action_navigation_replies_to_navigation_bottomSheet"
             app:destination="@id/bottomSheet" />
         <action
+            android:id="@+id/action_navigation_replies_to_navigation_replies"
+            app:destination="@id/navigation_replies" />
+        <action
             android:id="@+id/action_navigation_replies_to_navigation_create_reply"
             app:destination="@id/navigation_create_reply" />
     </fragment>

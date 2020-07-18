@@ -4,16 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.loadNetworkImage
@@ -98,9 +95,6 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
         binding.parentComment.replyButton.setOnClickListener {
             onReplyButtonClick(comment!!.commentId, comment.body)
         }
-        binding.parentComment.replies.setOnClickListener {
-            onRepliesButtonClick(comment!!)
-        }
         binding.parentComment.user.text = comment?.username
         binding.parentComment.body.text = comment?.body
         binding.parentComment.votes.text = comment?.votes.toString()
@@ -143,11 +137,42 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
         })
     }
 
-    override fun onReplyButtonClick(commentId: String, quotedText: String?) {
-        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+    private fun attemptToReplyComment(parentId: String, quotedText: String) {
+        val masterActivity = (activity as MasterActivity)
+        if (masterActivity.isSignedIn()) {
+            masterActivity.user?.let {user->
+                if (user.username == null) {
+                    promptForUsername()
+                } else {
+                    navigateToReplyComment(user.username, parentId, quotedText)
+                }
+            }
+        } else {
+            masterActivity.signIn()
+        }
+    }
+
+    private fun promptForUsername() {
+        val action = RepliesFragmentDirections
+            .actionNavigationRepliesToNavigationBottomSheet("Create a username")
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
+        val action = RepliesFragmentDirections
+            .actionNavigationRepliesToNavigationCreateReply(
+                parentId, quotedText, username)
+        view?.findNavController()?.navigate(action)
+    }
+
+    override fun onReplyButtonClick(commentId: String, quotedText: String) {
+        attemptToReplyComment(commentId, quotedText)
     }
 
     override fun onRepliesButtonClick(comment: Comment) {
-        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+        val action = RepliesFragmentDirections
+            .actionNavigationRepliesToNavigationReplies(comment.commentId, comment.parentId)
+        viewModel?.saveParentComment(comment)
+        view?.findNavController()?.navigate(action)
     }
 }
