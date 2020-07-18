@@ -10,6 +10,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -60,6 +61,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
         configureViewModel()
@@ -95,6 +97,28 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             unbindService(playbackServiceConnection)
         }
         mIsBound = false
+    }
+
+    private fun configureBaseBackButtonFunctionality() {
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isBottomSheetExpanded()) {
+                    val currentDestination: NavDestination? =
+                        findNavController(R.id.episode_nav_host_fragment).currentDestination
+                    if (currentDestination?.id == R.id.navigation_episode) {
+                        collapseBottomSheet()
+                    } else {
+                        findNavController(R.id.episode_nav_host_fragment).navigateUp()
+                    }
+                } else {
+                    if (!findNavController(R.id.base_nav_host_fragment).navigateUp()){
+                        finish()
+                    }
+                }
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this, callback)
     }
 
     private fun configureViews() {
@@ -304,20 +328,6 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             val imm: InputMethodManager =
                 view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
-    override fun onBackPressed() {
-        if (isBottomSheetExpanded()) {
-            val currentDestination: NavDestination? =
-                findNavController(R.id.episode_nav_host_fragment).currentDestination
-            if (currentDestination?.id == R.id.navigation_episode) {
-                collapseBottomSheet()
-            } else {
-                findNavController(R.id.episode_nav_host_fragment).navigateUp()
-            }
-        } else {
-            findNavController(R.id.base_nav_host_fragment).navigateUp()
         }
     }
 }
