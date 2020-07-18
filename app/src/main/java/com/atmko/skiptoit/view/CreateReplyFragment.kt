@@ -58,7 +58,7 @@ class CreateReplyFragment: Fragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-//                viewModel?.createReply(parentId, comment)
+                viewModel?.createReply(parentId, comment)
             }
         }
 

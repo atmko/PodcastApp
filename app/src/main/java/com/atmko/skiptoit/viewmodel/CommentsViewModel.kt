@@ -59,6 +59,32 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
+    fun createReply(parentId: String, comment: String) {
+        getGoogleAccount()?.let { account ->
+            account.idToken?.let {
+                isCreated.value = false
+                processing.value = true
+                disposable.add(
+                    podcastService.createReply(parentId, it, comment)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                isCreated.value = response.isSuccessful
+                                createError.value = false
+                                processing.value = false
+                            }
+
+                            override fun onError(e: Throwable?) {
+                                createError.value = true
+                                processing.value = false
+                            }
+                        })
+                )
+            }
+        }
+    }
+
     val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
