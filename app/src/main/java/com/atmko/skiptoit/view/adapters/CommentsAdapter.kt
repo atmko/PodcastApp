@@ -50,6 +50,7 @@ class CommentsAdapter(
         if (comment.replies != 0) {
             holder.binding.replies.text =
                 String.format(holder.binding.replies.text.toString(), comment.replies.toString())
+            holder.binding.replies.visibility = View.VISIBLE
         } else {
             holder.binding.replies.visibility = View.GONE
         }
