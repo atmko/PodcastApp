@@ -114,12 +114,12 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             }
 
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                expandBottomSheet()
                 binding.collapsedBottomSheet.visibility = View.GONE
                 binding.collapsedBottomSheet.alpha = 0f
                 binding.episodeFragmentFrameLayout.alpha = 1f
             } else {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                collapseBottomSheet()
                 binding.collapsedBottomSheet.visibility = View.VISIBLE
                 binding.collapsedBottomSheet.alpha = 1f
                 binding.episodeFragmentFrameLayout.alpha = 0f
@@ -233,6 +233,16 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
     }
 
+    private fun expandBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun collapseBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
     fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
@@ -256,7 +266,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             }
         })
 
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        expandBottomSheet()
     }
 
     private fun restoreEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
@@ -298,12 +308,11 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
     }
 
     override fun onBackPressed() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         if (isBottomSheetExpanded()) {
             val currentDestination: NavDestination? =
                 findNavController(R.id.episode_nav_host_fragment).currentDestination
             if (currentDestination?.id == R.id.navigation_episode) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                collapseBottomSheet()
             } else {
                 findNavController(R.id.episode_nav_host_fragment).navigateUp()
             }
