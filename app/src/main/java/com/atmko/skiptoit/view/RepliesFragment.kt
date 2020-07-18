@@ -4,15 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
 
-class RepliesFragment: Fragment() {
+class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
@@ -21,6 +24,7 @@ class RepliesFragment: Fragment() {
     private var parentId: String? = null
 
     private var viewModel: CommentsViewModel? = null
+    private val repliesAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +51,10 @@ class RepliesFragment: Fragment() {
     }
 
     private fun configureViews() {
-
+        binding.resultsFrameLayout.resultsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = repliesAdapter
+        }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
@@ -64,10 +71,10 @@ class RepliesFragment: Fragment() {
 
     private fun setupParentComment(comment: Comment?) {
         binding.parentComment.replyButton.setOnClickListener {
-
+            onReplyButtonClick(comment!!.commentId, comment.body)
         }
         binding.parentComment.replies.setOnClickListener {
-
+            onRepliesButtonClick(comment!!)
         }
         binding.parentComment.user.text = comment?.username
         binding.parentComment.body.text = comment?.body
@@ -86,5 +93,13 @@ class RepliesFragment: Fragment() {
 
     private fun configureViewModel() {
 
+    }
+
+    override fun onReplyButtonClick(commentId: String, quotedText: String?) {
+        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRepliesButtonClick(comment: Comment) {
+        Toast.makeText(context, "not yet implemented", Toast.LENGTH_SHORT).show()
     }
 }
