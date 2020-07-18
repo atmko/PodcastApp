@@ -84,6 +84,21 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         )
     }
 
+    //live data value holds map of type (String : MutableList<Any>)
+    //MutableList<Any> holds two items (Comment i.e parentComment and List<Comments> i.e replies)
+    val repliesMap: MutableLiveData<HashMap<String, MutableList<Any>>> = MutableLiveData()
+
+    //helper method to save parent comment
+    fun saveParentComment(comment: Comment) {
+        if (repliesMap.value != null) {
+            repliesMap.value!![comment.commentId] = mutableListOf(comment, listOf<Comment>())
+        } else {
+            val map = HashMap<String, MutableList<Any>>()
+            map[comment.commentId] = mutableListOf(comment, listOf<Comment>())
+            repliesMap.value = map
+        }
+    }
+
     override fun onCleared() {
         disposable.clear()
     }
