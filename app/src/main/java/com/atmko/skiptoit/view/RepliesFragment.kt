@@ -5,8 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
+import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.viewmodel.CommentsViewModel
 
 class RepliesFragment: Fragment() {
 
@@ -15,6 +19,8 @@ class RepliesFragment: Fragment() {
 
     private lateinit var commentId: String
     private var parentId: String? = null
+
+    private var viewModel: CommentsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +51,37 @@ class RepliesFragment: Fragment() {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
+        if (viewModel == null) {
+            activity?.let {
+                viewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+            }
 
+            viewModel?.retrieveParentComment(commentId).let { comment ->
+                setupParentComment(comment)
+            }
+        }
+    }
+
+    private fun setupParentComment(comment: Comment?) {
+        binding.parentComment.replyButton.setOnClickListener {
+
+        }
+        binding.parentComment.replies.setOnClickListener {
+
+        }
+        binding.parentComment.user.text = comment?.username
+        binding.parentComment.body.text = comment?.body
+        binding.parentComment.votes.text = comment?.votes.toString()
+        if (comment?.replies != 0) {
+            binding.parentComment.replies.text =
+                String.format(
+                    binding.parentComment.replies.text.toString(),
+                    comment?.replies.toString()
+                )
+        } else {
+            binding.parentComment.replies.visibility = View.GONE
+        }
+        comment?.profileImage?.let { binding.parentComment.profileImageView.loadNetworkImage(it) }
     }
 
     private fun configureViewModel() {

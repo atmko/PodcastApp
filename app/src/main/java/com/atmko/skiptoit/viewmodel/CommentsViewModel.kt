@@ -99,6 +99,12 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
+    //helper method to access already saved parent comment
+    @Suppress("UNCHECKED_CAST")
+    fun retrieveParentComment(commentId: String): Comment {
+        return repliesMap.value!![commentId]!![0] as Comment
+    }
+
     override fun onCleared() {
         disposable.clear()
     }
