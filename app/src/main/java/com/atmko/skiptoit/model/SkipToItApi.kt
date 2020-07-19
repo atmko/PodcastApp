@@ -35,4 +35,18 @@ interface SkipToItApi {
     fun updateUsername(
         @Field("id_token") idToken: String,
         @Field("username") username: String): Single<Response<Void>>
+
+    @FormUrlEncoded
+    @POST("subscriptions/{podcast_id}")
+    fun subscribeOrUnsubscribe(@Path("podcast_id") podcastId: String,
+                               @Field("id_token") idToken: String,
+                               @Field("subscribe") subscribe: Int): Single<Response<Void>>
+
+    @GET("subscriptions/{podcast_id}")
+    fun getSubscriptionStatus(@Path("podcast_id") podcastId: String,
+                              @Query("id_token") idToken: String): Single<Boolean>
+
+    @GET("subscriptions}")
+    fun getSubscriptions(@Query("id_token") idToken: String,
+                         @Query("page") page: Int): Single<List<Subscription>>
 }

@@ -39,4 +39,18 @@ class SkipToItService : SkipToItApi {
     override fun updateUsername(idToken: String, username: String): Single<Response<Void>> {
         return api.updateUsername(idToken, username)
     }
+
+    override fun subscribeOrUnsubscribe(podcastId: String,
+                                        idToken: String,
+                                        subscribe: Int): Single<Response<Void>> {
+        return api.subscribeOrUnsubscribe(podcastId, idToken, subscribe)
+    }
+
+    override fun getSubscriptionStatus(podcastId: String, idToken: String): Single<Boolean> {
+        return api.getSubscriptionStatus(podcastId, idToken)
+    }
+
+    override fun getSubscriptions(idToken: String, page: Int): Single<List<Subscription>> {
+        return api.getSubscriptions(idToken, page)
+    }
 }
