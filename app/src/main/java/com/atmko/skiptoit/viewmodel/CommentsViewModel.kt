@@ -18,7 +18,7 @@ import javax.inject.Inject
 class CommentsViewModel(application: Application): AndroidViewModel(application) {
 
     @Inject
-    lateinit var podcastService: SkipToItService
+    lateinit var skipToItService: SkipToItService
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
@@ -39,7 +39,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    podcastService.createComment(podcastId, episodeId, it, comment)
+                    skipToItService.createComment(podcastId, episodeId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
@@ -65,7 +65,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    podcastService.createReply(parentId, it, comment)
+                    skipToItService.createReply(parentId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
@@ -92,7 +92,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     fun getComments(episodeId: String, page: Int) {
         loading.value = true
         disposable.add(
-            podcastService.getComments(episodeId, page)
+            skipToItService.getComments(episodeId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
@@ -156,7 +156,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     fun getReplies(commentId: String, page: Int) {
         repliesLoading.value = true
         disposable.add(
-            podcastService.getReplies(commentId, page)
+            skipToItService.getReplies(commentId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
