@@ -3,6 +3,7 @@ package com.atmko.skiptoit.view.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
 
     interface OnPodcastItemClickListener {
         fun onItemClick(podcast: Podcast)
+        fun onSubscriptionToggle(podcast: Podcast)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastViewHolder {
@@ -36,6 +38,7 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
         val title: TextView = itemView.title
         val publisher: TextView = itemView.publisher
         val totalEpisodes: TextView = itemView.totalEpisodes
+        val toggleSubscriptionButton: ImageButton = itemView.toggleSubscriptionButton
 
         init {
             itemView.setOnClickListener(this)
@@ -53,6 +56,9 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
         holder.podcastImageView.loadNetworkImage(podcast.image)
         holder.totalEpisodes.text =
             String.format(holder.totalEpisodes.text.toString(), podcast.totalEpisodes)
+        holder.toggleSubscriptionButton.setOnClickListener {
+            clickListener.onSubscriptionToggle(podcast)
+        }
     }
 
     fun updatePodcasts(updatedPodcasts: List<Podcast>) {
