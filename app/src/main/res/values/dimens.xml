@@ -37,6 +37,7 @@
     <!--VIEW DIMENSIONS-->
     <dimen name="divider_height">2dp</dimen>
     <dimen name="comment_profile_image_size">40dp</dimen>
+    <dimen name="subscription_button_size">36dp</dimen>
     <dimen name="item_podcast_list_size">80dp</dimen>
     <dimen name="item_podcast_square_size">100dp</dimen>
     <dimen name="item_podcast_square_size_small">40dp</dimen>
