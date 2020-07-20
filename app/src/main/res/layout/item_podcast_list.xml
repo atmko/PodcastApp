@@ -26,7 +26,7 @@
         android:layout_marginEnd="@dimen/x2_layout_margin"
         android:lines="1"
         app:layout_constraintBottom_toTopOf="@id/publisher"
-        app:layout_constraintEnd_toStartOf="@+id/unsubscribeButton"
+        app:layout_constraintEnd_toStartOf="@+id/toggleSubscriptionButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
         app:layout_constraintTop_toTopOf="@id/podcastImageView"
         app:layout_constraintVertical_chainStyle="packed"
@@ -42,7 +42,7 @@
         android:layout_marginEnd="@dimen/x2_layout_margin"
         android:lines="1"
         app:layout_constraintBottom_toTopOf="@id/totalEpisodes"
-        app:layout_constraintEnd_toStartOf="@+id/unsubscribeButton"
+        app:layout_constraintEnd_toStartOf="@+id/toggleSubscriptionButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
         app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="True Crime Garage" />
@@ -58,13 +58,13 @@
         android:lines="1"
         android:text="@string/total_episodes_format"
         app:layout_constraintBottom_toBottomOf="@id/podcastImageView"
-        app:layout_constraintEnd_toStartOf="@+id/unsubscribeButton"
+        app:layout_constraintEnd_toStartOf="@+id/toggleSubscriptionButton"
         app:layout_constraintStart_toEndOf="@+id/podcastImageView"
         app:layout_constraintTop_toBottomOf="@+id/publisher"
         tools:text="325 Episodes" />
 
     <ImageButton
-        android:id="@+id/unsubscribeButton"
+        android:id="@+id/toggleSubscriptionButton"
         android:layout_width="@dimen/subscription_button_size"
         android:layout_height="@dimen/subscription_button_size"
         android:layout_marginEnd="@dimen/x6_layout_margin"
