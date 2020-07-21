@@ -1,6 +1,8 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -30,6 +32,8 @@ class LaunchFragment : Fragment(),
 
     private var _binding: FragmentLaunchBinding? = null
     private val binding get() = _binding!!
+
+    private var sharedPreferences: SharedPreferences? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -71,7 +75,11 @@ class LaunchFragment : Fragment(),
     }
 
     override fun onProviderInstalled() {
-
+        if (!isFirstSetUp()) {
+            startApp()
+        } else {
+            configureViewModel()
+        }
     }
 
     private fun configureViews() {
@@ -119,12 +127,30 @@ class LaunchFragment : Fragment(),
     }
 
     private fun configureValues() {
+        activity?.let {
+            sharedPreferences = it.getSharedPreferences(
+                LAUNCH_FRAGMENT_KEY,
+                Context.MODE_PRIVATE
+            )
+        }
+    }
+
+    private fun configureViewModel() {
+
     }
 
     private fun retryProviderInstall() {
         context?.let {
             ProviderInstaller.installIfNeededAsync(it, this)
         }
+    }
+
+    private fun isFirstSetUp(): Boolean {
+        return sharedPreferences!!.getBoolean(IS_FIRST_SETUP_KEY, true)
+    }
+
+    private fun startApp() {
+
     }
 
     private fun launchBrowserIntent(url: String) {
