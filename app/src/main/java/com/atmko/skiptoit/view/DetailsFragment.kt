@@ -17,6 +17,7 @@ import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
 import com.atmko.skiptoit.viewmodel.DetailsViewModel
+import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel
 
 private const val SHOW_MORE_KEY = "show_more"
 
@@ -29,8 +30,11 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
 
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
     private lateinit var podcastDetails: Podcast
-    private var viewModel: DetailsViewModel? = null
+
+    private var detailsViewModel: DetailsViewModel? = null
     private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
+
+    private var subscriptionsViewModel: SubscriptionsViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +56,8 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
 
         configureViews()
         configureValues(savedInstanceState)
-        configureViewModel()
+        configureDetailsViewModel()
+        configureSubscriptionsViewModel()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -84,20 +89,28 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this).get(DetailsViewModel::class.java)
+        if (detailsViewModel == null) {
+            detailsViewModel = ViewModelProviders.of(this).get(DetailsViewModel::class.java)
+        }
+
+        if (subscriptionsViewModel == null) {
+            subscriptionsViewModel =
+                ViewModelProviders.of(this).get(SubscriptionsViewModel::class.java)
+            subscriptionsViewModel!!.getSubscriptionStatus(podcastId)
         }
 
         if (savedInstanceState == null) {
-            podcastId?.let { viewModel?.refresh(it) }
+            //todo consider moving refresh to null check above
+            podcastId?.let { detailsViewModel?.refresh(it) }
             binding.showMore.tag = false
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
         }
     }
 
-    private fun configureViewModel() {
-        viewModel?.podcastDetails?.observe(viewLifecycleOwner, Observer { podcastDetails ->
+    private fun configureDetailsViewModel() {
+        //todo consider using assertion !! instead of null check ?
+        detailsViewModel?.podcastDetails?.observe(viewLifecycleOwner, Observer { podcastDetails ->
             resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
@@ -114,7 +127,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             }
         })
 
-        viewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        detailsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -125,10 +138,22 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
             }
         })
 
-        viewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        detailsViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
+            }
+        })
+    }
+
+    private fun configureSubscriptionsViewModel() {
+        subscriptionsViewModel!!.isSubscribed.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                binding.toggleSubscriptionButton
+                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribed_button))
+            } else {
+                binding.toggleSubscriptionButton
+                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribe_button))
             }
         })
     }
