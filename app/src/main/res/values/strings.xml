@@ -32,6 +32,7 @@
     <string name="search_text_box_hint">Search</string>
 
     <string name="title_activity_master">Master Activity</string>
+    <string name="title_launch">Launch</string>
     <string name="title_home">Home</string>
     <string name="title_subscriptions">Subscriptions</string>
     <string name="title_search">Search</string>
