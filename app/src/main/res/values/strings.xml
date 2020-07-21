@@ -50,11 +50,17 @@
     <string name="ok">OK</string>
     <string name="reply">reply</string>
 
+    <!--SNACK BAR MESSAGES-->
+    <string name="no_browser_error_message">No browser to launch page</string>
+    <!--SNACK BAR MESSAGES-->
+
     <!--LAUNCH ACTIVITY TEXT-->
     <string name="app_description">Social Network For Podcast Lovers</string>
     <string name="google_continue_text_literal">google sign in</string>
     <string name="guest_continue_text_literal">continue</string>
     <string name="accept_terms_text">By clicking continue, you are agreeing to our\nTerms of Use and Privacy Policy</string>
+    <string name="terms_url"></string>
+    <string name="privacy_url"></string>
     <!--LAUNCH ACTIVITY TEXT-->
 
     <string name="error_loading_subscriptions">Couldn\'t load data</string>
