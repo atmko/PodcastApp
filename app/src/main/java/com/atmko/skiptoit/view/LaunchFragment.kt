@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
@@ -149,8 +150,14 @@ class LaunchFragment : Fragment(),
         return sharedPreferences!!.getBoolean(IS_FIRST_SETUP_KEY, true)
     }
 
-    private fun startApp() {
+    private fun setIsFirstSetUpFalse() {
+        sharedPreferences!!.edit().putBoolean(IS_FIRST_SETUP_KEY, false).apply()
+    }
 
+    private fun startApp() {
+        setIsFirstSetUpFalse()
+        val action = LaunchFragmentDirections.actionNavigationLaunchToNavigationHome()
+        view?.findNavController()?.navigate(action)
     }
 
     private fun launchBrowserIntent(url: String) {
