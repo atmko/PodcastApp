@@ -15,6 +15,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
@@ -33,6 +35,8 @@ class LaunchFragment : Fragment(),
 
     private var _binding: FragmentLaunchBinding? = null
     private val binding get() = _binding!!
+
+    private var viewModel: MasterActivityViewModel? = null
 
     private var sharedPreferences: SharedPreferences? = null
 
@@ -128,6 +132,12 @@ class LaunchFragment : Fragment(),
     }
 
     private fun configureValues() {
+        if (viewModel == null) {
+            activity?.let {
+                viewModel = ViewModelProviders.of(it).get(MasterActivityViewModel::class.java)
+            }
+        }
+
         activity?.let {
             sharedPreferences = it.getSharedPreferences(
                 LAUNCH_FRAGMENT_KEY,
@@ -137,7 +147,19 @@ class LaunchFragment : Fragment(),
     }
 
     private fun configureViewModel() {
+        viewModel!!.messageEvent.setEventReceiver(this, this)
+        viewModel!!.currentUser.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                startApp()
+            }
+        })
 
+        viewModel!!.loadError.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                Snackbar.make(binding.topLayout,
+                    getString(R.string.couldnt_connect_to_server), Snackbar.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun retryProviderInstall() {
