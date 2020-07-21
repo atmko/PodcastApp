@@ -54,6 +54,10 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     }
 
     fun signIn(context: Context) {
+        if (getGoogleAccount() != null) {
+            getUser()
+            return
+        }
         val options: GoogleSignInOptions =
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(BuildConfig.googleServerId)
