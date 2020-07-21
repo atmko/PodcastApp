@@ -15,6 +15,7 @@
     <string name="content_description_skip_to_next_button">skip to next button</string>
     <string name="content_description_fast_forward_button">fast forward button</string>
     <string name="content_description_rewind_button">rewind button</string>
+    <string name="content_description_logo">logo</string>
 
     <string name="show_more">Show More</string>
     <string name="show_less">Show Less</string>
@@ -47,6 +48,13 @@
     <string name="username">username</string>
     <string name="ok">OK</string>
     <string name="reply">reply</string>
+
+    <!--LAUNCH ACTIVITY TEXT-->
+    <string name="app_description">Social Network For Podcast Lovers</string>
+    <string name="google_continue_text_literal">google sign in</string>
+    <string name="guest_continue_text_literal">continue</string>
+    <string name="accept_terms_text">By clicking continue, you are agreeing to our\nTerms of Use and Privacy Policy</string>
+    <!--LAUNCH ACTIVITY TEXT-->
 
     <string name="error_loading_subscriptions">Couldn\'t load data</string>
 

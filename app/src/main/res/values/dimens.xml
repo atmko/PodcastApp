@@ -35,6 +35,7 @@
     <!--TEXT DIMENSIONS-->
 
     <!--VIEW DIMENSIONS-->
+    <dimen name="splash_logo_size">72dp</dimen>
     <dimen name="divider_height">2dp</dimen>
     <dimen name="comment_profile_image_size">40dp</dimen>
     <dimen name="subscription_button_size">36dp</dimen>

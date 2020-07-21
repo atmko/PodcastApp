@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="MergeRootFrame">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".LaunchActivity"
+        tools:ignore="Overdraw">
+
+        <ImageView
+            android:src="@drawable/circular_mask"
+            android:id="@+id/logo_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/splash_logo_size"
+            android:layout_marginTop="@dimen/x10_layout_margin"
+            android:layout_marginStart="@dimen/text_excess_margin"
+            android:layout_marginEnd="@dimen/text_excess_margin"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/content_description_logo" />
+
+        <TextView
+            style="@style/Body_Excess_Style"
+            android:id="@+id/description_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x3_layout_margin"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/logo_image_view"
+            android:text="@string/app_description"
+            android:textSize="@dimen/headline_2_text_size"/>
+
+        <Button
+            android:id="@+id/google_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x1_layout_margin"
+            app:layout_constraintBottom_toTopOf="@id/guest_continue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/google_continue_text_literal"/>
+
+        <Button
+            android:id="@+id/guest_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x1_layout_margin"
+            app:layout_constraintBottom_toTopOf="@id/terms_text_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/guest_continue_text_literal"/>
+
+        <TextView
+            style="@style/Caption_Style"
+            android:id="@+id/terms_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x3_layout_margin"
+            android:layout_marginStart="@dimen/text_excess_margin"
+            android:layout_marginEnd="@dimen/text_excess_margin"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/accept_terms_text"
+            android:textSize="@dimen/caption_text_size"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
