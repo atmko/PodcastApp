@@ -151,6 +151,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         } else {
             if (viewModel == null) {
                 viewModel = ViewModelProviders.of(this).get(MasterActivityViewModel::class.java)
+                viewModel!!.getLastSignedInUser()
             }
 
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)

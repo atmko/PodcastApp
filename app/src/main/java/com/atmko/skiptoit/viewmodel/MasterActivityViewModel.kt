@@ -44,6 +44,15 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
         fun startActivityForResult(intent: Intent, requestCode: Int)
     }
 
+    fun getLastSignedInUser() {
+        if (getGoogleAccount() != null) {
+            getUser()
+            return
+        }
+
+        currentUser.value = null
+    }
+
     fun signIn(context: Context) {
         val options: GoogleSignInOptions =
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
