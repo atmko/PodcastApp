@@ -166,13 +166,12 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private fun attemptToCreateComment(parentId: String?, quotedText: String?) {
         val masterActivity = (activity as MasterActivity)
-        if (masterActivity.isSignedIn()) {
-            masterActivity.user?.let {user->
-                if (user.username == null) {
-                    promptForUsername()
-                } else {
-                    navigateToCreateComment(user.username)
-                }
+        val user: User? = masterActivity.user
+        if (user != null) {
+            if (user.username != null) {
+                navigateToCreateComment(user.username)
+            } else {
+                promptForUsername()
             }
         } else {
             masterActivity.signIn()
@@ -181,13 +180,12 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
         val masterActivity = (activity as MasterActivity)
-        if (masterActivity.isSignedIn()) {
-            masterActivity.user?.let {user->
-                if (user.username == null) {
-                    promptForUsername()
-                } else {
-                    navigateToReplyComment(user.username, parentId, quotedText)
-                }
+        val user: User? = masterActivity.user
+        if (user != null) {
+            if (user.username != null) {
+                navigateToReplyComment(user.username, parentId, quotedText)
+            } else {
+                promptForUsername()
             }
         } else {
             masterActivity.signIn()

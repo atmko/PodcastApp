@@ -238,13 +238,6 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         navView.setupWithNavController(navController)
     }
 
-    fun isSignedIn(): Boolean {
-        viewModel?.isSignedIn()?.let {
-            return it
-        }
-        return false
-    }
-
     fun signIn() {
         viewModel?.signIn(this)
     }

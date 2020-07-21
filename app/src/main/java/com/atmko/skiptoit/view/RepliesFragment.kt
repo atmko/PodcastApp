@@ -13,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
@@ -139,13 +140,12 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
         val masterActivity = (activity as MasterActivity)
-        if (masterActivity.isSignedIn()) {
-            masterActivity.user?.let {user->
-                if (user.username == null) {
-                    promptForUsername()
-                } else {
-                    navigateToReplyComment(user.username, parentId, quotedText)
-                }
+        val user: User? = masterActivity.user
+        if (user != null) {
+            if (user.username != null) {
+                navigateToReplyComment(user.username, parentId, quotedText)
+            } else {
+                promptForUsername()
             }
         } else {
             masterActivity.signIn()
