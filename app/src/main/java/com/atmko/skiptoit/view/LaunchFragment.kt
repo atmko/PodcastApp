@@ -36,6 +36,7 @@ class LaunchFragment : Fragment(),
     private var _binding: FragmentLaunchBinding? = null
     private val binding get() = _binding!!
 
+    private var isProviderUpdated = false
     private var viewModel: MasterActivityViewModel? = null
 
     private var sharedPreferences: SharedPreferences? = null
@@ -80,6 +81,7 @@ class LaunchFragment : Fragment(),
     }
 
     override fun onProviderInstalled() {
+        isProviderUpdated = true
         if (!isFirstSetUp()) {
             startApp()
         } else {
@@ -121,13 +123,17 @@ class LaunchFragment : Fragment(),
         binding.termsTextView.highlightColor = Color.TRANSPARENT
 
         binding.googleContinue.setOnClickListener {
-            Snackbar.make(binding.topLayout,
-                "Not yet implemented", Snackbar.LENGTH_SHORT).show()
+            if (isProviderUpdated) {
+                context?.let {context ->
+                    viewModel!!.signIn(context)
+                }
+            }
         }
 
         binding.guestContinue.setOnClickListener {
-            Snackbar.make(binding.topLayout,
-                "Not yet implemented", Snackbar.LENGTH_SHORT).show()
+            if (isProviderUpdated) {
+                startApp()
+            }
         }
     }
 
