@@ -8,6 +8,9 @@ import androidx.fragment.app.Fragment
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 
+const val LAUNCH_FRAGMENT_KEY = "launch_fragment"
+const val IS_FIRST_SETUP_KEY = "is_first_set_up"
+
 class LaunchFragment : Fragment(),
     MasterActivityViewModel.ViewNavigation {
 

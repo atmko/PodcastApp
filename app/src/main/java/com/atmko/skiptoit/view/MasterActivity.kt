@@ -257,6 +257,11 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
     }
 
+    fun showBottomPanels() {
+        binding.navView.visibility = View.VISIBLE
+        binding.bottomSheet.visibility = View.VISIBLE
+    }
+
     private fun expandBottomSheet() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
