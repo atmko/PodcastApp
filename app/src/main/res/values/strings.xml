@@ -52,6 +52,7 @@
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
+    <string name="couldnt_update_google_play_services">Couldn\'t update google play services</string>
     <!--SNACK BAR MESSAGES-->
 
     <!--LAUNCH ACTIVITY TEXT-->
