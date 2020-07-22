@@ -16,6 +16,9 @@ import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 import javax.inject.Inject
 
+const val STATUS_SUBSCRIBE = 1
+const val STATUS_UNSUBSCRIBE = 0
+
 class SubscriptionsViewModel(application: Application) : AndroidViewModel(application) {
 
     @Inject
@@ -34,17 +37,19 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
     val processError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun toggleSubscription(podcastId: String, subscribe: Int) {
+    fun toggleSubscription(podcastId: String) {
+        if (isSubscribed.value == null) return
+        val subscribeStatus = if (isSubscribed.value!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
                 processing.value = true
                 disposable.add(
-                    skipToItService.subscribeOrUnsubscribe(podcastId, it, subscribe)
+                    skipToItService.subscribeOrUnsubscribe(podcastId, it, subscribeStatus)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
-                                isSubscribed.value = subscribe.toBoolean()
+                                isSubscribed.value = subscribeStatus.toBoolean()
                                 processError.value = false
                                 processing.value = false
                             }
