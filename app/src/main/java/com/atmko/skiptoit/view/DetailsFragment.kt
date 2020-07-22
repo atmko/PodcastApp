@@ -86,6 +86,12 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
                 (activity as MasterActivity).onBackPressed()
             }
         }
+
+        binding.toggleSubscriptionButton.isEnabled = false
+
+        binding.toggleSubscriptionButton.setOnClickListener {
+            subscriptionsViewModel?.toggleSubscription(podcastId)
+        }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
@@ -155,6 +161,16 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
                 binding.toggleSubscriptionButton
                     .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribe_button))
             }
+        })
+
+        subscriptionsViewModel!!.processing.observe(viewLifecycleOwner, Observer { processing ->
+            processing?.let {
+                binding.toggleSubscriptionButton.isEnabled = !processing
+            }
+        })
+
+        subscriptionsViewModel!!.processError.observe(viewLifecycleOwner, Observer { processError ->
+
         })
     }
 
