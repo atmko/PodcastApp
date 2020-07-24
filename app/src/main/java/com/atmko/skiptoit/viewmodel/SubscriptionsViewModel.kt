@@ -2,10 +2,12 @@ package com.atmko.skiptoit.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.SkipToItApi
-import com.atmko.skiptoit.model.Subscription
+import com.atmko.skiptoit.model.SkipToItDatabase
 import com.atmko.skiptoit.util.toBoolean
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -89,33 +91,13 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    val subscriptions: MutableLiveData<List<Subscription>> = MutableLiveData()
+    var subscriptions: LiveData<List<Podcast>>? = null
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun getSubscriptions(page: Int) {
-        getGoogleAccount()?.let { account ->
-            account.idToken?.let {
-                loading.value = true
-                disposable.add(
-                    skipToItService.getSubscriptions(it, page)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<List<Subscription>>() {
-                            override fun onSuccess(result: List<Subscription>) {
-                                subscriptions.value = result
-                                loadError.value = false
-                                loading.value = false
-                            }
-
-                            override fun onError(e: Throwable?) {
-                                loadError.value = true
-                                loading.value = false
-                            }
-                        })
-                )
-            }
-        }
+    fun getSubscriptions() {
+        subscriptions = SkipToItDatabase.getInstance(getApplication())
+            .subscriptionsDao().getAllSubscriptions()
     }
 
     override fun onCleared() {
