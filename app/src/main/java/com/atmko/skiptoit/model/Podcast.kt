@@ -3,13 +3,15 @@ package com.atmko.skiptoit.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 const val PODCAST_ID_KEY = "podcast_id"
 const val PODCAST_TITLE_KEY = "podcast_title"
 
 @Entity(tableName = "subscriptions")
-class Podcast(@SerializedName("id") val id: String,
+class Podcast(@PrimaryKey
+              @SerializedName("id") val id: String,
               @SerializedName("title", alternate=["title_original"]) val title: String?,
               @SerializedName("publisher", alternate=["publisher_original"]) val publisher: String,
               val image: String,
