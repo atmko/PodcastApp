@@ -17,6 +17,7 @@ import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
 import com.atmko.skiptoit.viewmodel.DetailsViewModel
+import com.atmko.skiptoit.viewmodel.DetailsViewModelFactory
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel
 
 private const val SHOW_MORE_KEY = "show_more"
@@ -100,9 +101,11 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         }
 
         if (subscriptionsViewModel == null) {
-            subscriptionsViewModel =
-                ViewModelProviders.of(this).get(SubscriptionsViewModel::class.java)
-            subscriptionsViewModel!!.getSubscriptionStatus(podcastId)
+            context?.let {
+                val viewModelFactory = DetailsViewModelFactory(it, podcastDetails)
+                detailsViewModel = ViewModelProviders.of(this, viewModelFactory)
+                    .get(DetailsViewModel::class.java)
+            }
         }
 
         if (savedInstanceState == null) {
