@@ -3,9 +3,9 @@ package com.atmko.skiptoit.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.atmko.skiptoit.dependencyinjection.DaggerSkipToItApiComponent
+import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.SkipToItService
+import com.atmko.skiptoit.model.SkipToItApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -18,11 +18,11 @@ import javax.inject.Inject
 class CommentsViewModel(application: Application): AndroidViewModel(application) {
 
     @Inject
-    lateinit var skipToItService: SkipToItService
+    lateinit var skipToItService: SkipToItApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerSkipToItApiComponent.create().inject(this)
+        DaggerListenNotesApiComponent.create().inject(this)
     }
 
     fun getGoogleAccount(): GoogleSignInAccount? {

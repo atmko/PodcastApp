@@ -7,8 +7,8 @@ import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.BuildConfig
-import com.atmko.skiptoit.dependencyinjection.DaggerSkipToItApiComponent
-import com.atmko.skiptoit.model.SkipToItService
+import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.model.SkipToItApi
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -33,11 +33,11 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     @Inject
-    lateinit var skipToItService: SkipToItService
+    lateinit var skipToItService: SkipToItApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerSkipToItApiComponent.create().inject(this)
+        DaggerListenNotesApiComponent.create().inject(this)
     }
 
     interface ViewNavigation {

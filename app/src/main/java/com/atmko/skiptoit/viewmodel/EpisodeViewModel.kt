@@ -20,7 +20,7 @@ class EpisodeViewModel(application: Application): AndroidViewModel(application) 
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     @Inject
-    lateinit var podcastService: PodcastsService
+    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {

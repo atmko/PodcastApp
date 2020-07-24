@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.PodcastsService
+import com.atmko.skiptoit.model.PodcastsApi
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
@@ -22,7 +22,7 @@ class SearchViewModel: ViewModel() {
     val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     @Inject
-    lateinit var podcastService: PodcastsService
+    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {

@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.PodcastsService
+import com.atmko.skiptoit.model.PodcastsApi
 import com.atmko.skiptoit.model.SkipToItDatabase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -22,7 +22,7 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     @Inject
-    lateinit var podcastService: PodcastsService
+    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {

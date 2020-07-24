@@ -1,15 +1,17 @@
 package com.atmko.skiptoit.dependencyinjection
 
-import com.atmko.skiptoit.model.PodcastsService
-import com.atmko.skiptoit.viewmodel.DetailsViewModel
-import com.atmko.skiptoit.viewmodel.EpisodeViewModel
-import com.atmko.skiptoit.viewmodel.SearchViewModel
+import com.atmko.skiptoit.viewmodel.*
 import dagger.Component
 
 @Component(modules = [ListenNotesApiModule::class])
 interface ListenNotesApiComponent {
-    fun inject(service: PodcastsService)
+    //listen notes
     fun inject(service: SearchViewModel)
     fun inject(service: DetailsViewModel)
     fun inject(service: EpisodeViewModel)
+
+    //skip to it
+    fun inject(service: CommentsViewModel)
+    fun inject(service: SubscriptionsViewModel)
+    fun inject(service: MasterActivityViewModel)
 }
