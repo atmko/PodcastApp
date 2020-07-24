@@ -107,6 +107,11 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     private fun configureDetailsViewModel() {
+        observePodcastDetails()
+        observeSubscriptionStatus()
+    }
+
+    private fun observePodcastDetails() {
         //todo consider using assertion !! instead of null check ?
         viewModel?.podcastDetails?.observe(viewLifecycleOwner, Observer { podcastDetails ->
             resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
@@ -141,6 +146,28 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
             }
+        })
+    }
+
+    private fun observeSubscriptionStatus() {
+        viewModel!!.isSubscribed.observe(viewLifecycleOwner, Observer {
+            if (it) {
+                binding.toggleSubscriptionButton
+                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribed_button))
+            } else {
+                binding.toggleSubscriptionButton
+                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribe_button))
+            }
+        })
+
+        viewModel!!.processing.observe(viewLifecycleOwner, Observer { processing ->
+            processing?.let {
+                binding.toggleSubscriptionButton.isEnabled = !processing
+            }
+        })
+
+        viewModel!!.processError.observe(viewLifecycleOwner, Observer { processError ->
+
         })
     }
 
