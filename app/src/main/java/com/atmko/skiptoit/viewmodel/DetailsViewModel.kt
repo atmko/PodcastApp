@@ -62,6 +62,7 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
                 })
         )
     }
+
     fun toggleSubscription() {
         toggleRemoteSubscriptionStatus()
     }
