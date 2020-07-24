@@ -66,31 +66,6 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    fun getSubscriptionStatus(podcastId: String) {
-        getGoogleAccount()?.let { account ->
-            account.idToken?.let {
-                processing.value = true
-                disposable.add(
-                    skipToItService.getSubscriptionStatus(podcastId, it)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Boolean>() {
-                            override fun onSuccess(result: Boolean) {
-                                isSubscribed.value = result
-                                processError.value = false
-                                processing.value = false
-                            }
-
-                            override fun onError(e: Throwable?) {
-                                processError.value = true
-                                processing.value = false
-                            }
-                        })
-                )
-            }
-        }
-    }
-
     var subscriptions: LiveData<List<Podcast>>? = null
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
