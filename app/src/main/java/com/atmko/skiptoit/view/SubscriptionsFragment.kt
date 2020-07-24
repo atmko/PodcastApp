@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
@@ -18,8 +20,8 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var subscriptionsViewModel: SubscriptionsViewModel
-    private val podcastAdapter: PodcastAdapter =
+    private var viewModel: SubscriptionsViewModel? = null
+    private val subscriptionsAdapter: PodcastAdapter =
         PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -33,13 +35,29 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
+        configureValues()
+        configureDetailsViewModel()
     }
 
     private fun configureViews() {
         binding.resultsFrameLayout.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = podcastAdapter
+            adapter = subscriptionsAdapter
         }
+    }
+
+    private fun configureValues() {
+        if (viewModel == null) {
+            viewModel = ViewModelProviders.of(this).get(SubscriptionsViewModel::class.java)
+            viewModel!!.getSubscriptions()
+        }
+    }
+
+    private fun configureDetailsViewModel() {
+        viewModel!!.subscriptions?.observe(viewLifecycleOwner, Observer {
+            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            subscriptionsAdapter.updatePodcasts(it)
+        })
     }
 
     override fun onItemClick(podcast: Podcast) {
