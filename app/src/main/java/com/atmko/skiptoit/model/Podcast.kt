@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 const val PODCAST_ID_KEY = "podcast_id"
 const val PODCAST_TITLE_KEY = "podcast_title"
@@ -17,7 +18,7 @@ class Podcast(@PrimaryKey
               val image: String,
               val description: String,
               @ColumnInfo(name = "total_episodes")
-              @SerializedName("total_episodes") val totalEpisodes: Int) {
+              @SerializedName("total_episodes") val totalEpisodes: Int) : Serializable {
 
     @Ignore
     var episodes: List<Episode> = mutableListOf()

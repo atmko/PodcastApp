@@ -25,9 +25,6 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
-    //fragment init variable
-    private lateinit var podcastId: String
-
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
     private lateinit var podcastDetails: Podcast
 
@@ -38,7 +35,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         super.onCreate(savedInstanceState)
 
         val args: DetailsFragmentArgs by navArgs()
-        podcastId = args.podcastId
+        podcastDetails = args.podcast
     }
 
     override fun onCreateView(
@@ -102,7 +99,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
 
         if (savedInstanceState == null) {
             //todo consider moving refresh to null check above
-            podcastId?.let { viewModel?.refresh(it) }
+            viewModel!!.refresh(podcastDetails.id)
             binding.showMore.tag = false
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
@@ -176,6 +173,8 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     override fun onItemClick(episode: Episode) {
-        episode.id?.let { (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcastId, it) }
+        episode.id?.let {
+            (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcastDetails.id, it)
+        }
     }
 }

@@ -44,7 +44,7 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
 
     override fun onItemClick(podcast: Podcast) {
         val action = SubscriptionsFragmentDirections
-                .actionNavigationSubscriptionsToNavigationDetails(podcast.id)
+                .actionNavigationSubscriptionsToNavigationDetails(podcast)
         view?.findNavController()?.navigate(action)
     }
 

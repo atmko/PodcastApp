@@ -103,7 +103,7 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
     override fun onItemClick(podcast: Podcast) {
         val action =
-            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(podcast.id)
+            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(podcast)
         view?.findNavController()?.navigate(action)
     }
 

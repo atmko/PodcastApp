@@ -54,8 +54,8 @@
         android:label="@string/title_details"
         tools:layout="@layout/fragment_details">
         <argument
-            android:name="podcast_id"
-            app:argType="string" />
+            android:name="podcast"
+            app:argType="com.atmko.skiptoit.model.Podcast" />
     </fragment>
 
 </navigation>
