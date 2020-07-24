@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.model
 
-import android.content.SharedPreferences
 import com.atmko.skiptoit.BuildConfig
 import io.reactivex.Single
 import retrofit2.http.GET
@@ -25,6 +24,4 @@ interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("episodes/{episode_id}")
     fun getEpisodeDetails(@Path("episode_id") episodeId:String): Single<Episode>
-
-    fun getLastPlayedEpisode(prefs: SharedPreferences): Single<Episode>
 }
