@@ -2,7 +2,6 @@ package com.atmko.skiptoit.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.Podcast
@@ -35,7 +34,7 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
 
-    var subscriptions: MutableLiveData<List<Podcast>> = MutableLiveData()
+    val subscriptions: MutableLiveData<List<Podcast>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -48,20 +47,17 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                 .subscribeWith(object : DisposableSingleObserver<List<Podcast>>() {
                     override fun onSuccess(podcasts: List<Podcast>) {
                         subscriptions.value = podcasts
-                        processError.value = false
-                        processing.value = false
+                        loadError.value = false
+                        loading.value = false
                     }
 
                     override fun onError(e: Throwable) {
-                        processError.value = true
-                        processing.value = false
+                        loadError.value = true
+                        loading.value = false
                     }
                 })
         )
     }
-
-    val processError: MutableLiveData<Boolean> = MutableLiveData()
-    val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     fun unsubscribe(podcastId: String) {
         unsubscribeFromRemoteDatabase(podcastId)
@@ -70,7 +66,7 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
     private fun unsubscribeFromRemoteDatabase(podcastId: String) {
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
-                processing.value = true
+                loading.value = true
                 disposable.add(
                     skipToItService.subscribeOrUnsubscribe(podcastId, it, STATUS_UNSUBSCRIBE)
                         .subscribeOn(Schedulers.newThread())
@@ -80,14 +76,14 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                                 if (response.isSuccessful) {
                                     unsubscribeFromLocalDatabase(podcastId)
                                 } else {
-                                    processError.value = false
-                                    processing.value = false
+                                    loadError.value = false
+                                    loading.value = false
                                 }
                             }
 
                             override fun onError(e: Throwable) {
-                                processError.value = true
-                                processing.value = false
+                                loadError.value = true
+                                loading.value = false
                             }
                         })
                 )
@@ -101,8 +97,8 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                 .deleteSubscription(podcastId)
 
             AppExecutors.getInstance().mainThread().execute(Runnable {
-                processError.value = false
-                processing.value = false
+                loadError.value = false
+                loading.value = false
             })
         })
     }
