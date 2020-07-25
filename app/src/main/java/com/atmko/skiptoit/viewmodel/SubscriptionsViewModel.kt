@@ -8,7 +8,7 @@ import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.SkipToItApi
 import com.atmko.skiptoit.model.SkipToItDatabase
-import com.atmko.skiptoit.util.toBoolean
+import com.atmko.skiptoit.util.AppExecutors
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -39,21 +39,26 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
     val processError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun toggleSubscription(podcastId: String) {
-        if (isSubscribed.value == null) return
-        val subscribeStatus = if (isSubscribed.value!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
+    public fun unsubscribe(podcastId: String) {
+        unsubscribeFromRemoteDatabase(podcastId)
+    }
+
+    private fun unsubscribeFromRemoteDatabase(podcastId: String) {
         getGoogleAccount()?.let { account ->
             account.idToken?.let {
                 processing.value = true
                 disposable.add(
-                    skipToItService.subscribeOrUnsubscribe(podcastId, it, subscribeStatus)
+                    skipToItService.subscribeOrUnsubscribe(podcastId, it, STATUS_UNSUBSCRIBE)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
-                                isSubscribed.value = subscribeStatus.toBoolean()
-                                processError.value = false
-                                processing.value = false
+                                if (response.isSuccessful) {
+                                    unsubscribeFromLocalDatabase(podcastId)
+                                } else {
+                                    processError.value = false
+                                    processing.value = false
+                                }
                             }
 
                             override fun onError(e: Throwable?) {
@@ -64,6 +69,17 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                 )
             }
         }
+    }
+
+    private fun unsubscribeFromLocalDatabase(podcastId: String) {
+        AppExecutors.getInstance().diskIO().execute(Runnable {
+            SkipToItDatabase.getInstance(getApplication()).subscriptionsDao().deleteSubscription(podcastId)
+
+            AppExecutors.getInstance().mainThread().execute(Runnable {
+                processError.value = false
+                processing.value = false
+            })
+        })
     }
 
     var subscriptions: LiveData<List<Podcast>>? = null
