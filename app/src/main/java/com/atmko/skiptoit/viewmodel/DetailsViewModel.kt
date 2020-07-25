@@ -101,7 +101,7 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
             if (subscribeStatus == STATUS_SUBSCRIBE) {
                 skipToItDatabase.subscriptionsDao().createSubscription(podcast)
             } else {
-                skipToItDatabase.subscriptionsDao().deleteSubscription(podcast)
+                skipToItDatabase.subscriptionsDao().deleteSubscription(podcast.id)
             }
 
             AppExecutors.getInstance().mainThread().execute(Runnable {

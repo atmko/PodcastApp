@@ -14,6 +14,6 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions")
     fun getAllSubscriptions(): LiveData<List<Podcast>>
 
-    @Delete
-    fun deleteSubscription(podcast: Podcast)
+    @Query("DELETE FROM subscriptions WHERE id = :podcastId")
+    fun deleteSubscription(podcastId: String)
 }
