@@ -97,8 +97,7 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                 .deleteSubscription(podcastId)
 
             AppExecutors.getInstance().mainThread().execute(Runnable {
-                loadError.value = false
-                loading.value = false
+                getSubscriptions()
             })
         })
     }
