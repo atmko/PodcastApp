@@ -35,11 +35,19 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
 
-    val isSubscribed: MutableLiveData<Boolean> = MutableLiveData()
+    var subscriptions: LiveData<List<Podcast>>? = null
+    val loadError: MutableLiveData<Boolean> = MutableLiveData()
+    val loading: MutableLiveData<Boolean> = MutableLiveData()
+
+    fun getSubscriptions() {
+        subscriptions = SkipToItDatabase.getInstance(getApplication())
+            .subscriptionsDao().getAllSubscriptions()
+    }
+
     val processError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
-    public fun unsubscribe(podcastId: String) {
+    fun unsubscribe(podcastId: String) {
         unsubscribeFromRemoteDatabase(podcastId)
     }
 
@@ -73,22 +81,14 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
 
     private fun unsubscribeFromLocalDatabase(podcastId: String) {
         AppExecutors.getInstance().diskIO().execute(Runnable {
-            SkipToItDatabase.getInstance(getApplication()).subscriptionsDao().deleteSubscription(podcastId)
+            SkipToItDatabase.getInstance(getApplication()).subscriptionsDao()
+                .deleteSubscription(podcastId)
 
             AppExecutors.getInstance().mainThread().execute(Runnable {
                 processError.value = false
                 processing.value = false
             })
         })
-    }
-
-    var subscriptions: LiveData<List<Podcast>>? = null
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun getSubscriptions() {
-        subscriptions = SkipToItDatabase.getInstance(getApplication())
-            .subscriptionsDao().getAllSubscriptions()
     }
 
     override fun onCleared() {
