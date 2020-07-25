@@ -53,9 +53,26 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
     }
 
     private fun configureDetailsViewModel() {
-        viewModel!!.subscriptions?.observe(viewLifecycleOwner, Observer {
+        viewModel!!.subscriptions.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             subscriptionsAdapter.updatePodcasts(it)
+        })
+
+        viewModel!!.loading.observe(viewLifecycleOwner, Observer { isLoading ->
+            isLoading?.let {
+                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel!!.loadError.observe(viewLifecycleOwner, Observer { isError ->
+            isError.let {
+                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
         })
     }
 
