@@ -36,13 +36,13 @@ class SearchViewModel: ViewModel() {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
-                    override fun onSuccess(results: ApiResults?) {
-                        searchResults.value = results?.podcasts
+                    override fun onSuccess(results: ApiResults) {
+                        searchResults.value = results.podcasts
                         searchLoadError.value = false
                         searchLoading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         searchLoadError.value = true
                         searchLoading.value = false
                     }
@@ -57,13 +57,13 @@ class SearchViewModel: ViewModel() {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
-                    override fun onSuccess(results: ApiResults?) {
-                        genreResults.value = results?.podcasts
+                    override fun onSuccess(results: ApiResults) {
+                        genreResults.value = results.podcasts
                         genreLoadError.value = false
                         genreLoading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         genreLoadError.value = true
                         genreLoading.value = false
                     }

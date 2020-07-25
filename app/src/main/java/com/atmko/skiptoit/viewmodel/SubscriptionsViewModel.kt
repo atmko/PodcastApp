@@ -35,13 +35,29 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
         return GoogleSignIn.getLastSignedInAccount(getApplication())
     }
 
-    var subscriptions: LiveData<List<Podcast>>? = null
+    var subscriptions: MutableLiveData<List<Podcast>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getSubscriptions() {
-        subscriptions = SkipToItDatabase.getInstance(getApplication())
-            .subscriptionsDao().getAllSubscriptions()
+        disposable.add(
+            SkipToItDatabase.getInstance(getApplication()).subscriptionsDao()
+                .getAllSubscriptions()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<List<Podcast>>() {
+                    override fun onSuccess(podcasts: List<Podcast>) {
+                        subscriptions.value = podcasts
+                        processError.value = false
+                        processing.value = false
+                    }
+
+                    override fun onError(e: Throwable) {
+                        processError.value = true
+                        processing.value = false
+                    }
+                })
+        )
     }
 
     val processError: MutableLiveData<Boolean> = MutableLiveData()
@@ -69,7 +85,7 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
                                 }
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 processError.value = true
                                 processing.value = false
                             }

@@ -49,7 +49,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                                 processing.value = false
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 createError.value = true
                                 processing.value = false
                             }
@@ -75,7 +75,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                                 processing.value = false
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 createError.value = true
                                 processing.value = false
                             }
@@ -96,13 +96,13 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
-                    override fun onSuccess(comments: List<Comment>?) {
+                    override fun onSuccess(comments: List<Comment>) {
                         episodeComments.value = comments
                         loadError.value = false
                         loading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false
                     }
@@ -166,7 +166,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                         repliesLoading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         repliesLoadError.value = true
                         repliesLoading.value = false
                     }

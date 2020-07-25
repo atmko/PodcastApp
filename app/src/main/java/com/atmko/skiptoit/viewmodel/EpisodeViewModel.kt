@@ -35,13 +35,13 @@ class EpisodeViewModel(application: Application): AndroidViewModel(application) 
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<Episode>() {
-                    override fun onSuccess(episode: Episode?) {
+                    override fun onSuccess(episode: Episode) {
                         episodeDetails.value = episode
                         loadError.value = false
                         loading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false
                     }

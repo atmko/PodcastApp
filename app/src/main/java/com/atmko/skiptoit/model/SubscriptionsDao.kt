@@ -2,6 +2,7 @@ package com.atmko.skiptoit.model
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import io.reactivex.Single
 
 @Dao
 interface SubscriptionsDao {
@@ -12,7 +13,7 @@ interface SubscriptionsDao {
     fun isSubscribed(podcastId: String): LiveData<Boolean>
 
     @Query("SELECT * FROM subscriptions")
-    fun getAllSubscriptions(): LiveData<List<Podcast>>
+    fun getAllSubscriptions(): Single<List<Podcast>>
 
     @Query("DELETE FROM subscriptions WHERE id = :podcastId")
     fun deleteSubscription(podcastId: String)

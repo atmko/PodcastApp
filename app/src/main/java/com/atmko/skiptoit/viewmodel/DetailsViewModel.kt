@@ -49,13 +49,13 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<Podcast>() {
-                    override fun onSuccess(podcast: Podcast?) {
+                    override fun onSuccess(podcast: Podcast) {
                         podcastDetails.value = podcast
                         loadError.value = false
                         loading.value = false
                     }
 
-                    override fun onError(e: Throwable?) {
+                    override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false
                     }
@@ -86,7 +86,7 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
                                 }
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 processError.value = true
                                 processing.value = false
                             }

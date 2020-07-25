@@ -115,13 +115,13 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<User>() {
-                            override fun onSuccess(user: User?) {
+                            override fun onSuccess(user: User) {
                                 currentUser.value = user
                                 loadError.value = false
                                 loading.value = false
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 loadError.value = true
                                 loading.value = false
                             }
@@ -144,7 +144,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                                 getUser()
                             }
 
-                            override fun onError(e: Throwable?) {
+                            override fun onError(e: Throwable) {
                                 loadError.value = true
                                 loading.value = false
                             }
