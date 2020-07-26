@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,9 +36,33 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        if (isFirstSetup()) {
+            openLaunchFragment()
+            return
+        } else {
+            (activity as MasterActivity).showBottomPanels()
+        }
         defineViewModelValues()
         configureViews()
         configureDetailsViewModel()
+    }
+
+    private fun isFirstSetup(): Boolean {
+        activity?.let {
+            val sharedPreferences: SharedPreferences = it.getSharedPreferences(
+                LAUNCH_FRAGMENT_KEY,
+                Context.MODE_PRIVATE
+            )
+
+            return sharedPreferences.getBoolean(IS_FIRST_SETUP_KEY, true)
+        }
+
+        return true
+    }
+
+    private fun openLaunchFragment() {
+        val action = SubscriptionsFragmentDirections.actionNavigationSubscriptionsToNavigationLaunch()
+        view?.findNavController()?.navigate(action)
     }
 
     private fun defineViewModelValues() {

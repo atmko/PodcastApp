@@ -184,7 +184,7 @@ class LaunchFragment : Fragment(),
 
     private fun startApp() {
         setIsFirstSetUpFalse()
-        val action = LaunchFragmentDirections.actionNavigationLaunchToNavigationHome()
+        val action = LaunchFragmentDirections.actionNavigationLaunchToNavigationSubscriptions()
         view?.findNavController()?.navigate(action)
     }
 
