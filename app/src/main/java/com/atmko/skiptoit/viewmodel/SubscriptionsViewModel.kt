@@ -26,6 +26,9 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
     lateinit var skipToItService: SkipToItApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
+    //state save variables
+    var scrollPosition: Int = 0
+
     init {
         DaggerListenNotesApiComponent.create().inject(this)
     }
