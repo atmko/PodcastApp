@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
@@ -236,6 +237,15 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
             )
         )
         navView.setupWithNavController(navController)
+
+        navView.setOnNavigationItemReselectedListener(
+            object : BottomNavigationView.OnNavigationItemReselectedListener {
+            override fun onNavigationItemReselected(item: MenuItem) {
+                if (navView.selectedItemId != item.itemId) {
+                    onNavigationItemReselected(item)
+                }
+            }
+        })
     }
 
     fun signIn() {
