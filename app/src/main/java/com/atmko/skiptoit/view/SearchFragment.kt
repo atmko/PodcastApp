@@ -10,6 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
 import com.atmko.skiptoit.model.GENRE_ID_KEY
@@ -27,7 +29,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
     private var genreId: Int? = null
     private lateinit var genreName: String
-    private var viewModel: SearchViewModel? = null
+
+    private lateinit var viewModel: SearchViewModel
 
     companion object {
         @JvmStatic
@@ -58,9 +61,9 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
         configureViews()
 
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this).get(genreName, SearchViewModel::class.java)
-            genreId?.let { viewModel?.fetchPodcastsByGenre(it) }
+        viewModel = ViewModelProviders.of(parentFragment!!).get(genreName, SearchViewModel::class.java)
+        if (viewModel.genreResults.value == null) {
+            genreId?.let { viewModel.fetchPodcastsByGenre(it) }
         }
 
         configureViewModel()
@@ -70,16 +73,35 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
         binding.resultsRecyclerView.apply {
             layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
+            if (isSavedTab()) {
+                scrollToPosition((parentFragment as SearchParentFragment).getSavedScrollPosition())
+            }
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+
+                    val scrollPosition =
+                        (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                    (parentFragment as SearchParentFragment).saveScrollPosition(scrollPosition)
+                }
+            })
         }
     }
 
+    private fun isSavedTab(): Boolean {
+        val savedTabPosition = (parentFragment as SearchParentFragment).getSavedTabPosition()
+        val savedTabGenreId = resources.getIntArray(R.array.genre_ids)[savedTabPosition]
+        return savedTabGenreId == genreId
+    }
+
     fun configureViewModel() {
-        viewModel?.genreResults?.observe(viewLifecycleOwner, Observer {subscriptions ->
+        viewModel.genreResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }
         })
 
-        viewModel?.genreLoading?.observe(viewLifecycleOwner, Observer {isLoading ->
+        viewModel.genreLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility = if (it) View.VISIBLE else View.GONE
                 if (it) {
@@ -89,7 +111,7 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
             }
         })
 
-        viewModel?.genreLoadError?.observe(viewLifecycleOwner, Observer {isError ->
+        viewModel.genreLoadError.observe(viewLifecycleOwner, Observer { isError ->
             isError?.let {
                 binding.errorAndLoading.errorScreen.visibility = if (it) View.VISIBLE else View.GONE
             }

@@ -21,6 +21,10 @@ class SearchViewModel: ViewModel() {
     val genreLoadError: MutableLiveData<Boolean> = MutableLiveData()
     val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
 
+    //state save variables
+    var tabPosition: Int = 0
+    var scrollPosition: Int = 0
+
     @Inject
     lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()

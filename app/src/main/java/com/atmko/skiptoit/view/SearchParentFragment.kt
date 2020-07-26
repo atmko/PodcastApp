@@ -38,10 +38,9 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         configureViews()
-
-        viewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
-
+        configureValues()
         configureViewModel()
     }
 
@@ -72,8 +71,9 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
 
                 }
 
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    tab?.let { binding.searchViewPager.currentItem = tab.position  }
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    binding.searchViewPager.currentItem = tab.position
+                    saveTabPosition(tab.position)
                 }
             })
         }
@@ -119,13 +119,20 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
         }
     }
 
+    private fun configureValues() {
+        activity?.let {
+            viewModel = ViewModelProviders.of(it).get(SearchViewModel::class.java)
+        }
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
+    }
+
     fun configureViewModel() {
-        viewModel.searchResults.observe(viewLifecycleOwner, Observer {subscriptions ->
+        viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }
         })
 
-        viewModel.searchLoading.observe(viewLifecycleOwner, Observer {isLoading ->
+        viewModel.searchLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -136,11 +143,27 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
             }
         })
 
-        viewModel.searchLoadError.observe(viewLifecycleOwner, Observer {isError ->
+        viewModel.searchLoadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE }
         })
+    }
+
+    fun getSavedTabPosition(): Int {
+        return viewModel.tabPosition
+    }
+
+    fun saveTabPosition(tabPosition: Int) {
+        viewModel.tabPosition = tabPosition
+    }
+
+    fun saveScrollPosition(scrollPosition: Int) {
+        viewModel.scrollPosition = scrollPosition
+    }
+
+    fun getSavedScrollPosition(): Int {
+        return viewModel.scrollPosition
     }
 
     override fun onDestroy() {
