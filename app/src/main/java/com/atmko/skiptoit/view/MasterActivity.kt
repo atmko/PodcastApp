@@ -231,7 +231,6 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         // menu should be considered as top level destinations.
         AppBarConfiguration(
             setOf(
-                R.id.navigation_home,
                 R.id.navigation_subscriptions,
                 R.id.navigation_search
             )
@@ -240,12 +239,12 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
 
         navView.setOnNavigationItemReselectedListener(
             object : BottomNavigationView.OnNavigationItemReselectedListener {
-            override fun onNavigationItemReselected(item: MenuItem) {
-                if (navView.selectedItemId != item.itemId) {
-                    onNavigationItemReselected(item)
+                override fun onNavigationItemReselected(item: MenuItem) {
+                    if (navView.selectedItemId != item.itemId) {
+                        onNavigationItemReselected(item)
+                    }
                 }
-            }
-        })
+            })
     }
 
     fun signIn() {

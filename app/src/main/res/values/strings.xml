@@ -6,7 +6,6 @@
     <string name="content_description_subscribe_button">subscribe button</string>
     <string name="content_description_previous_episode">previous episode</string>
     <string name="content_description_next_episode">next episode</string>
-    <string name="content_description_home_button">home button</string>
     <string name="content_description_subscriptions_button">subscriptions button</string>
     <string name="content_description_search_button">search button</string>
     <string name="content_description_back_button">back button</string>
@@ -33,7 +32,6 @@
 
     <string name="title_activity_master">Master Activity</string>
     <string name="title_launch">Launch</string>
-    <string name="title_home">Home</string>
     <string name="title_subscriptions">Subscriptions</string>
     <string name="title_search">Search</string>
     <string name="title_details">Details</string>
