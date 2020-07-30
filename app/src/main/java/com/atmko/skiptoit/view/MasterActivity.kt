@@ -168,8 +168,89 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
 
     private fun configureViewModel() {
         viewModel?.messageEvent?.setEventReceiver(this, this)
+        observeUser()
+        observeRemoteDataFetching()
+        observeBatchPodcastFetching()
+        observeLocalBatchSaving()
+    }
+
+    private fun observeUser() {
         viewModel?.currentUser?.observe(this, Observer {
             user = it
+        })
+
+        viewModel!!.loading.observe(this, Observer { isLoading ->
+            isLoading?.let {
+                binding.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel!!.loadError.observe(this, Observer { isLoadError ->
+            isLoadError.let {
+                binding.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
+        })
+    }
+
+    private fun observeRemoteDataFetching() {
+        viewModel!!.remoteFetching.observe(this, Observer { isRemoteFetching ->
+            isRemoteFetching?.let {
+                binding.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel!!.remoteFetchError.observe(this, Observer { isRemoteFetchError ->
+            isRemoteFetchError.let {
+                binding.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
+        })
+    }
+
+    private fun observeBatchPodcastFetching() {
+        viewModel!!.batchFetching.observe(this, Observer { isBatchFetching ->
+            isBatchFetching?.let {
+                binding.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel!!.batchFetchError.observe(this, Observer { isBatchFetchError ->
+            isBatchFetchError.let {
+                binding.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
+        })
+    }
+
+    private fun observeLocalBatchSaving() {
+        viewModel!!.batchSavingLocally.observe(this, Observer { isBatchSavingLocally ->
+            isBatchSavingLocally?.let {
+                binding.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
+                }
+            }
+        })
+
+        viewModel!!.batchLocalSaveError.observe(this, Observer { isBatchLocalSaveError ->
+            isBatchLocalSaveError.let {
+                binding.errorAndLoading.errorScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
+            }
         })
     }
 
