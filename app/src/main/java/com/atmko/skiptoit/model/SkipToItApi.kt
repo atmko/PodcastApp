@@ -46,7 +46,6 @@ interface SkipToItApi {
     fun getSubscriptionStatus(@Path("podcast_id") podcastId: String,
                               @Query("id_token") idToken: String): Single<Boolean>
 
-    @GET("subscriptions}")
-    fun getSubscriptions(@Query("id_token") idToken: String,
-                         @Query("page") page: Int): Single<List<Subscription>>
+    @GET("subscriptions")
+    fun getSubscriptions(@Query("id_token") idToken: String): Single<List<Subscription>>
 }
