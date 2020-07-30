@@ -8,8 +8,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.BuildConfig
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
-import com.atmko.skiptoit.model.SkipToItApi
-import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -34,6 +34,8 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
 
     @Inject
     lateinit var skipToItService: SkipToItApi
+    @Inject
+    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
@@ -51,6 +53,8 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
         }
 
         currentUser.value = null
+        loadError.value = false
+        loading.value = false
     }
 
     fun signIn(context: Context) {
@@ -96,7 +100,10 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                 val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
                 try {
                     val account: GoogleSignInAccount? = task.result
-                    account?.let { getUser() }
+                    account?.let {
+                        getUser()
+                        restoreLocalData()
+                    }
                 } catch (e: ApiException) {
                     e.printStackTrace()
                 }
@@ -152,6 +159,93 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                 )
             }
         }
+    }
+
+    private fun restoreLocalData() {
+        getRemoteSubscriptions()
+    }
+
+    val remoteFetchError: MutableLiveData<Boolean> = MutableLiveData()
+    val remoteFetching: MutableLiveData<Boolean> = MutableLiveData()
+
+    fun getRemoteSubscriptions() {
+        getGoogleAccount()?.let { account ->
+            account.idToken?.let {
+                remoteFetching.value = true
+                disposable.add(
+                    skipToItService.getSubscriptions(it)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<List<Subscription>>() {
+                            override fun onSuccess(remoteSubscriptions: List<Subscription>) {
+                                getBatchPodcastData(remoteSubscriptions)
+                                remoteFetchError.value = false
+                                remoteFetching.value = false
+                            }
+
+                            override fun onError(e: Throwable) {
+                                remoteFetchError.value = true
+                                remoteFetching.value = false
+                            }
+                        })
+                )
+            }
+        }
+    }
+
+    val batchFetchError: MutableLiveData<Boolean> = MutableLiveData()
+    val batchFetching: MutableLiveData<Boolean> = MutableLiveData()
+
+    private fun getBatchPodcastData(subscriptions: List<Subscription>) {
+        batchFetching.value = true
+        disposable.add(
+            podcastService.getBatchPodcastMetadata(combinePodcastIds(subscriptions))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<ApiResults>() {
+                    override fun onSuccess(results: ApiResults) {
+                        saveToLocalDatabase(results.podcasts!!)
+                        batchFetchError.value = false
+                        batchFetching.value = false
+                    }
+
+                    override fun onError(e: Throwable) {
+                        batchFetchError.value = true
+                        batchFetching.value = false
+                    }
+                })
+        )
+    }
+
+    val batchLocalSaveError: MutableLiveData<Boolean> = MutableLiveData()
+    val batchSavingLocally: MutableLiveData<Boolean> = MutableLiveData()
+
+    private fun saveToLocalDatabase(podcasts: List<Podcast>) {
+        val skipToItDatabase = SkipToItDatabase.getInstance(getApplication())
+        AppExecutors.getInstance().diskIO().execute(Runnable {
+            for (podcast in podcasts) {
+                skipToItDatabase.subscriptionsDao().createSubscription(podcast)
+            }
+
+            AppExecutors.getInstance().mainThread().execute(Runnable {
+                batchLocalSaveError.value = false
+                batchSavingLocally.value = false
+            })
+        })
+    }
+
+    private fun combinePodcastIds(subscriptions: List<Subscription>): String {
+        val builder: StringBuilder = java.lang.StringBuilder()
+        var counter = 0
+        while (counter < subscriptions.size) {
+            builder.append(subscriptions[counter].listenNotesId)
+            if (counter != subscriptions.size - 1) {
+                builder.append(",")
+            }
+            counter += 1
+        }
+
+        return builder.toString()
     }
 
     override fun onCleared() {
