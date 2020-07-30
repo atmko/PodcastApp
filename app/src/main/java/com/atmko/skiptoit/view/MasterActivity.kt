@@ -123,6 +123,8 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
     }
 
     private fun configureViews() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
         configureBottomSheet()
         configureAppBar()
     }
@@ -152,7 +154,7 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         } else {
             if (viewModel == null) {
                 viewModel = ViewModelProviders.of(this).get(MasterActivityViewModel::class.java)
-                viewModel!!.getLastSignedInUser()
+                viewModel!!.getUser()
             }
 
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)

@@ -13,6 +13,7 @@ import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -46,31 +47,25 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
         fun startActivityForResult(intent: Intent, requestCode: Int)
     }
 
-    fun getLastSignedInUser() {
-        if (getGoogleAccount() != null) {
-            getUser()
-            return
-        }
-
-        currentUser.value = null
-        loadError.value = false
-        loading.value = false
-    }
-
     fun signIn(context: Context) {
         if (getGoogleAccount() != null) {
             getUser()
             return
         }
+
+        val client = getSignInClient(context)
+        val intent = client.signInIntent
+        messageEvent.sendEvent { startActivityForResult(intent, REQUEST_CODE_SIGN_IN) }
+    }
+
+    private fun getSignInClient(context: Context): GoogleSignInClient {
         val options: GoogleSignInOptions =
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(BuildConfig.googleServerId)
                 .requestEmail()
                 .build()
 
-        val client = GoogleSignIn.getClient(context, options)
-        val intent = client.signInIntent
-        messageEvent.sendEvent { startActivityForResult(intent, REQUEST_CODE_SIGN_IN) }
+        return GoogleSignIn.getClient(context, options)
     }
 
     fun signOut(context: Context) {
@@ -113,8 +108,8 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
         }
     }
 
-    private fun getUser() {
-        getGoogleAccount()?.let { account ->
+    fun getUser() {
+        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true
                 disposable.add(
@@ -135,11 +130,13 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                         })
                 )
             }
+        }.addOnFailureListener {
+            //todo show user a message
         }
     }
 
     public fun updateUsername(username: String) {
-        getGoogleAccount()?.let { account ->
+        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true
                 disposable.add(
@@ -158,6 +155,8 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                         })
                 )
             }
+        }.addOnFailureListener {
+            signIn(getApplication())
         }
     }
 
@@ -169,7 +168,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     val remoteFetching: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getRemoteSubscriptions() {
-        getGoogleAccount()?.let { account ->
+        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 remoteFetching.value = true
                 disposable.add(
@@ -190,6 +189,8 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                         })
                 )
             }
+        }.addOnFailureListener {
+            signIn(getApplication())
         }
     }
 
