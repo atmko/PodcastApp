@@ -2,10 +2,7 @@ package com.atmko.skiptoit.model
 
 import com.atmko.skiptoit.BuildConfig
 import io.reactivex.Single
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
@@ -24,4 +21,9 @@ interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("episodes/{episode_id}")
     fun getEpisodeDetails(@Path("episode_id") episodeId:String): Single<Episode>
+
+    @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
+    @FormUrlEncoded
+    @POST("podcasts")
+    fun getBatchPodcastMetadata(@Field("ids") combinedPodcastIds: String): Single<ApiResults>
 }
