@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.multidex.MultiDexApplication
+import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.util.AppExecutors
@@ -52,7 +53,7 @@ class EpisodeViewModel(application: Application): AndroidViewModel(application) 
     fun restoreEpisode() {
         loading.value = true
 
-        val application = getApplication<MultiDexApplication>()
+        val application = getApplication<SkipToItApplication>()
         val prefs = application
             .getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
 
