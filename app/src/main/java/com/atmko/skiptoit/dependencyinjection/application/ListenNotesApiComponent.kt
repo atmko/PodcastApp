@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.dependencyinjection
+package com.atmko.skiptoit.dependencyinjection.application
 
 import com.atmko.skiptoit.viewmodel.*
 import dagger.Component

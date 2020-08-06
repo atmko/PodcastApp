@@ -2,7 +2,7 @@ package com.atmko.skiptoit.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
