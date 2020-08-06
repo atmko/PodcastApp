@@ -7,7 +7,7 @@ import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
 import com.atmko.skiptoit.model.SkipToItApi
-import com.atmko.skiptoit.model.SkipToItDatabase
+import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers

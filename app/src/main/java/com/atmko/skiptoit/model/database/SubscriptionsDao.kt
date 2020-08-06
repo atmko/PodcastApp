@@ -1,7 +1,8 @@
-package com.atmko.skiptoit.model
+package com.atmko.skiptoit.model.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.atmko.skiptoit.model.Podcast
 import io.reactivex.Single
 
 @Dao

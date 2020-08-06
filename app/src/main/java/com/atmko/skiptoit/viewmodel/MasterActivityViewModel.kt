@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.BuildConfig
 import com.atmko.skiptoit.dependencyinjection.DaggerListenNotesApiComponent
 import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn

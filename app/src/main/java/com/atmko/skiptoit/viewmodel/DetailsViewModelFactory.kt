@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.SkipToItDatabase
+import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 class DetailsViewModelFactory(

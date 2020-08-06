@@ -1,9 +1,10 @@
-package com.atmko.skiptoit.model
+package com.atmko.skiptoit.model.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.atmko.skiptoit.model.Podcast
 
 @Database(entities = [Podcast::class], version = 1)
 abstract class SkipToItDatabase: RoomDatabase() {
