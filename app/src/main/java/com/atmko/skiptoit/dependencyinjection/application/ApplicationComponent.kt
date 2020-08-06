@@ -5,7 +5,9 @@ import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
 import com.atmko.skiptoit.viewmodel.*
 import dagger.Component
+import javax.inject.Singleton
 
+@Singleton
 @Component(modules = [ApplicationModule::class, ListenNotesApiModule::class])
 interface ApplicationComponent {
     fun inject(app: SkipToItApplication)
