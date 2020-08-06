@@ -3,7 +3,7 @@ package com.atmko.skiptoit.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.SkipToItApi
 import com.atmko.skiptoit.model.database.SkipToItDatabase
@@ -30,7 +30,7 @@ class SubscriptionsViewModel(application: Application) : AndroidViewModel(applic
     var scrollPosition: Int = 0
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
     }
 
     fun getGoogleAccount(): GoogleSignInAccount? {

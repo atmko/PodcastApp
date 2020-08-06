@@ -2,7 +2,7 @@ package com.atmko.skiptoit.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
@@ -30,7 +30,7 @@ class SearchViewModel: ViewModel() {
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
     }
 
     fun search(queryString: String) {

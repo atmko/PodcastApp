@@ -3,7 +3,7 @@ package com.atmko.skiptoit.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.SkipToItApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -22,7 +22,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
     }
 
     fun getGoogleAccount(): GoogleSignInAccount? {

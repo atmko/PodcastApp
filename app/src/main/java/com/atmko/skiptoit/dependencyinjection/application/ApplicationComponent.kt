@@ -4,7 +4,7 @@ import com.atmko.skiptoit.viewmodel.*
 import dagger.Component
 
 @Component(modules = [ListenNotesApiModule::class])
-interface ListenNotesApiComponent {
+interface ApplicationComponent {
     //listen notes
     fun inject(service: SearchViewModel)
     fun inject(service: DetailsViewModel)

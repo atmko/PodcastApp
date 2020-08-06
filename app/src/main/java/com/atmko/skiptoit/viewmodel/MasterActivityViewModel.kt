@@ -7,7 +7,7 @@ import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.BuildConfig
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
@@ -41,7 +41,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
     }
 
     interface ViewNavigation {

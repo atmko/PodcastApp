@@ -3,7 +3,7 @@ package com.atmko.skiptoit.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
 import com.atmko.skiptoit.model.SkipToItApi
@@ -36,7 +36,7 @@ class DetailsViewModel(private val googleSignInAccount: GoogleSignInAccount?,
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
         isSubscribed = skipToItDatabase.subscriptionsDao().isSubscribed(podcast.id)
         processError.value = false
         processing.value = false

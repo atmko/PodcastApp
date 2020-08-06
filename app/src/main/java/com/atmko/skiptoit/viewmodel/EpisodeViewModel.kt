@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.multidex.MultiDexApplication
-import com.atmko.skiptoit.dependencyinjection.application.DaggerListenNotesApiComponent
+import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.view.EPISODE_FRAGMENT_KEY
@@ -25,7 +25,7 @@ class EpisodeViewModel(application: Application): AndroidViewModel(application) 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     init {
-        DaggerListenNotesApiComponent.create().inject(this)
+        DaggerApplicationComponent.create().inject(this)
     }
 
     fun refresh(episodeId: String) {
