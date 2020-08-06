@@ -12,7 +12,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavDestination
@@ -26,6 +25,7 @@ import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.view.common.BaseActivity
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -33,7 +33,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
 
-class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigation {
+class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     private lateinit var binding: ActivityMasterBinding
 
     private var mIsBound: Boolean = false
@@ -61,6 +61,8 @@ class MasterActivity : AppCompatActivity(), MasterActivityViewModel.ViewNavigati
         super.onCreate(savedInstanceState)
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        getPresentationComponent().inject(this)
 
         configureBaseBackButtonFunctionality()
         configureViews()

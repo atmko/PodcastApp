@@ -1,6 +1,7 @@
 package com.atmko.skiptoit.dependencyinjection.application
 
 import com.atmko.skiptoit.SkipToItApplication
+import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
 import com.atmko.skiptoit.viewmodel.*
 import dagger.Component
@@ -9,7 +10,7 @@ import dagger.Component
 interface ApplicationComponent {
     fun inject(app: SkipToItApplication)
 
-    fun newPresentationComponent(presentationModule: PresentationModule)
+    fun newPresentationComponent(presentationModule: PresentationModule): PresentationComponent
 
     //listen notes
     fun inject(service: SearchViewModel)
