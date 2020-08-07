@@ -21,6 +21,7 @@ class ListenNotesApiModule {
     private val BASE_URL2 = "http://10.0.2.2:8080/api/v1/"
 
     @Provides
+    @Singleton
     @Named("listen_notes")
     fun providePodcastApi(): Retrofit {
         return Retrofit.Builder()
@@ -31,6 +32,7 @@ class ListenNotesApiModule {
     }
 
     @Provides
+    @Singleton
     @Named("skip_to_it")
     fun providePodcastApi2(): Retrofit {
         return Retrofit.Builder()
@@ -41,12 +43,14 @@ class ListenNotesApiModule {
     }
 
     @Provides
+    @Singleton
     fun providePodcastService(
         @Named("listen_notes")retrofit: Retrofit): PodcastsApi {
         return retrofit.create(PodcastsApi::class.java)
     }
 
     @Provides
+    @Singleton
     fun provideSkipToItApiService(
         @Named("skip_to_it")retrofit: Retrofit): SkipToItApi {
         return retrofit.create(SkipToItApi::class.java)
