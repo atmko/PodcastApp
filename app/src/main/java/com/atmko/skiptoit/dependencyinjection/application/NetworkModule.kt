@@ -16,7 +16,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-class ListenNotesApiModule {
+class NetworkModule {
     private val BASE_URL = "https://listen-api.listennotes.com/api/v2/"
     private val BASE_URL2 = "http://10.0.2.2:8080/api/v1/"
 

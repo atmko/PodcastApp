@@ -7,7 +7,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApplicationModule::class, ListenNotesApiModule::class, DatabaseModule::class])
+@Component(modules = [ApplicationModule::class, NetworkModule::class, DatabaseModule::class])
 interface ApplicationComponent {
     fun inject(app: SkipToItApplication)
 
