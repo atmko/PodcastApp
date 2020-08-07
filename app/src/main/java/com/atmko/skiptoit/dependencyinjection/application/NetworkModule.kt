@@ -17,15 +17,15 @@ import javax.inject.Singleton
 
 @Module
 class NetworkModule {
-    private val BASE_URL = "https://listen-api.listennotes.com/api/v2/"
-    private val BASE_URL2 = "http://10.0.2.2:8080/api/v1/"
+    private val BASE_URL_LISTEN_NOTES = "https://listen-api.listennotes.com/api/v2/"
+    private val BASE_URL_SKIP_TO_TI = "http://10.0.2.2:8080/api/v1/"
 
     @Provides
     @Singleton
     @Named("listen_notes")
     fun providePodcastApi(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BASE_URL_LISTEN_NOTES)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
@@ -36,7 +36,7 @@ class NetworkModule {
     @Named("skip_to_it")
     fun providePodcastApi2(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL2)
+            .baseUrl(BASE_URL_SKIP_TO_TI)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
