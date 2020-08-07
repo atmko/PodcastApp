@@ -14,12 +14,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
@@ -29,7 +29,7 @@ const val LAUNCH_FRAGMENT_KEY = "launch_fragment"
 const val IS_FIRST_SETUP_KEY = "is_first_set_up"
 private const val ERROR_DIALOG_REQUEST_CODE = 1
 
-class LaunchFragment : Fragment(),
+class LaunchFragment : BaseFragment(),
     ProviderInstaller.ProviderInstallListener,
     MasterActivityViewModel.ViewNavigation {
 
@@ -125,7 +125,7 @@ class LaunchFragment : Fragment(),
         binding.googleContinue.setOnClickListener {
             if (isProviderUpdated) {
                 context?.let {context ->
-                    viewModel!!.signIn(context)
+                    viewModel!!.signIn()
                 }
             }
         }

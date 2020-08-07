@@ -1,11 +1,11 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -18,9 +18,12 @@ import com.atmko.skiptoit.model.GENRE_ID_KEY
 import com.atmko.skiptoit.model.GENRE_NAME_KEY
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.SearchViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
-class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
+class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: ResultsRecyclerViewBinding? = null
     private val binding get() = _binding!!
 
@@ -30,6 +33,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var genreId: Int? = null
     private lateinit var genreName: String
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SearchViewModel
 
     companion object {
@@ -40,6 +45,12 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
                 this.putString(GENRE_NAME_KEY, genreName)
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +72,8 @@ class SearchFragment: Fragment(), PodcastAdapter.OnPodcastItemClickListener {
 
         configureViews()
 
-        viewModel = ViewModelProviders.of(parentFragment!!).get(genreName, SearchViewModel::class.java)
+        viewModel = ViewModelProviders.of(parentFragment!!,
+            viewModelFactory).get(genreName, SearchViewModel::class.java)
         if (viewModel.genreResults.value == null) {
             genreId?.let { viewModel.fetchPodcastsByGenre(it) }
         }

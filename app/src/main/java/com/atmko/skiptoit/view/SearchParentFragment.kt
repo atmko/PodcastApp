@@ -1,11 +1,11 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,17 +18,28 @@ import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.adapters.GenrePagerAdapter
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.SearchViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.material.tabs.TabLayout
+import javax.inject.Inject
 
-class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListener {
+class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
 
     private val podcastAdapter: PodcastAdapter =
         PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SearchViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -121,7 +132,8 @@ class SearchParentFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListen
 
     private fun configureValues() {
         activity?.let {
-            viewModel = ViewModelProviders.of(it).get(SearchViewModel::class.java)
+            viewModel = ViewModelProviders.of(it,
+                viewModelFactory).get(SearchViewModel::class.java)
         }
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
     }

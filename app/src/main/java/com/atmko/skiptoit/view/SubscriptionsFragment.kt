@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -16,15 +15,26 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
-class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListener {
+class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SubscriptionsViewModel
     private val subscriptionsAdapter: PodcastAdapter =
         PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -67,7 +77,8 @@ class SubscriptionsFragment : Fragment(), PodcastAdapter.OnPodcastItemClickListe
 
     private fun defineViewModelValues() {
         activity?.let {
-            viewModel = ViewModelProviders.of(it).get(SubscriptionsViewModel::class.java)
+            viewModel = ViewModelProviders.of(it,
+                viewModelFactory).get(SubscriptionsViewModel::class.java)
         }
 
         viewModel.getSubscriptions()

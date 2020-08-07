@@ -1,32 +1,31 @@
 package com.atmko.skiptoit.viewmodel
 
 import android.app.Activity
-import android.app.Application
-import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.atmko.skiptoit.BuildConfig
-import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
+import androidx.lifecycle.ViewModel
+import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.model.database.SkipToItDatabase
+import com.atmko.skiptoit.model.database.SubscriptionsDao
 import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.viewmodel.livedataextensions.LiveMessageEvent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
-import javax.inject.Inject
 
 const val REQUEST_CODE_SIGN_IN : Int = 547
 
-class MasterActivityViewModel(application: Application): AndroidViewModel(application) {
+class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
+                              private val podcastsApi: PodcastsApi,
+                              private val subscriptionsDao: SubscriptionsDao,
+                              private val googleSignInClient: GoogleSignInClient,
+                              private val application: SkipToItApplication): ViewModel() {
 
     val messageEvent = LiveMessageEvent<ViewNavigation>()
     val currentUser: MutableLiveData<User> = MutableLiveData()
@@ -34,47 +33,24 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
-    @Inject
-    lateinit var skipToItService: SkipToItApi
-    @Inject
-    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
-
-    init {
-        DaggerApplicationComponent.create().inject(this)
-    }
 
     interface ViewNavigation {
         fun startActivityForResult(intent: Intent, requestCode: Int)
     }
 
-    fun signIn(context: Context) {
+    fun signIn() {
         if (getGoogleAccount() != null) {
             getUser()
             return
         }
 
-        val client = getSignInClient(context)
-        val intent = client.signInIntent
+        val intent = googleSignInClient.signInIntent
         messageEvent.sendEvent { startActivityForResult(intent, REQUEST_CODE_SIGN_IN) }
     }
 
-    private fun getSignInClient(context: Context): GoogleSignInClient {
-        val options: GoogleSignInOptions =
-            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.googleServerId)
-                .requestEmail()
-                .build()
-
-        return GoogleSignIn.getClient(context, options)
-    }
-
-    fun signOut(context: Context) {
-        val gso =
-            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build()
-        GoogleSignIn.getClient(context, gso).signOut()
+    fun signOut() {
+        googleSignInClient.signOut()
         currentUser.value = null
     }
 
@@ -87,7 +63,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     }
 
     private fun getGoogleAccount(): GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(getApplication())
+        return GoogleSignIn.getLastSignedInAccount(application)
     }
 
     fun onRequestResultReceived(requestCode: Int, resultCode: Int, intent: Intent) {
@@ -110,11 +86,11 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     }
 
     fun getUser() {
-        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true
                 disposable.add(
-                    skipToItService.getUser(it)
+                    skipToItApi.getUser(it)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<User>() {
@@ -137,11 +113,11 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     }
 
     public fun updateUsername(username: String) {
-        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true
                 disposable.add(
-                    skipToItService.updateUsername(it, username)
+                    skipToItApi.updateUsername(it, username)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object: DisposableSingleObserver<Response<Void>>() {
@@ -157,7 +133,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                 )
             }
         }.addOnFailureListener {
-            signIn(getApplication())
+            signIn()
         }
     }
 
@@ -169,11 +145,11 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     val remoteFetching: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getRemoteSubscriptions() {
-        getSignInClient(getApplication()).silentSignIn().addOnSuccessListener { account ->
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 remoteFetching.value = true
                 disposable.add(
-                    skipToItService.getSubscriptions(it)
+                    skipToItApi.getSubscriptions(it)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<List<Subscription>>() {
@@ -191,7 +167,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
                 )
             }
         }.addOnFailureListener {
-            signIn(getApplication())
+            signIn()
         }
     }
 
@@ -201,7 +177,7 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     private fun getBatchPodcastData(subscriptions: List<Subscription>) {
         batchFetching.value = true
         disposable.add(
-            podcastService.getBatchPodcastMetadata(combinePodcastIds(subscriptions))
+            podcastsApi.getBatchPodcastMetadata(combinePodcastIds(subscriptions))
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<ApiResults>() {
@@ -223,10 +199,9 @@ class MasterActivityViewModel(application: Application): AndroidViewModel(applic
     val batchSavingLocally: MutableLiveData<Boolean> = MutableLiveData()
 
     private fun saveToLocalDatabase(podcasts: List<Podcast>) {
-        val skipToItDatabase = SkipToItDatabase.getInstance(getApplication())
         AppExecutors.getInstance().diskIO().execute(Runnable {
             for (podcast in podcasts) {
-                skipToItDatabase.subscriptionsDao().createSubscription(podcast)
+                subscriptionsDao.createSubscription(podcast)
             }
 
             AppExecutors.getInstance().mainThread().execute(Runnable {

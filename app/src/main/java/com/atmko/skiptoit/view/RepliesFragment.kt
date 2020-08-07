@@ -1,11 +1,11 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -16,9 +16,12 @@ import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
-class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
+class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
@@ -26,8 +29,16 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
     private lateinit var commentId: String
     private var parentId: String? = null
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: CommentsViewModel? = null
     private val repliesAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +90,8 @@ class RepliesFragment: Fragment(), CommentsAdapter.OnCommentItemClickListener {
     private fun configureValues(savedInstanceState: Bundle?) {
         if (viewModel == null) {
             activity?.let {
-                viewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+                viewModel = ViewModelProviders.of(it,
+                    viewModelFactory).get(CommentsViewModel::class.java)
             }
         }
 

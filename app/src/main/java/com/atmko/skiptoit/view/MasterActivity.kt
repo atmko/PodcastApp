@@ -27,8 +27,10 @@ import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.common.BaseActivity
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import javax.inject.Inject
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
@@ -39,6 +41,8 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: MasterActivityViewModel? = null
     var user: User? = null
 
@@ -155,7 +159,8 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             }
         } else {
             if (viewModel == null) {
-                viewModel = ViewModelProviders.of(this).get(MasterActivityViewModel::class.java)
+                viewModel = ViewModelProviders.of(this,
+                    viewModelFactory).get(MasterActivityViewModel::class.java)
                 viewModel!!.getUser()
             }
 
@@ -333,11 +338,11 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     fun signIn() {
-        viewModel?.signIn(this)
+        viewModel?.signIn()
     }
 
     fun signOut() {
-        viewModel?.signOut(this)
+        viewModel?.signOut()
     }
 
     fun isBottomSheetExpanded(): Boolean {

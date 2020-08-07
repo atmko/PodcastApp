@@ -1,19 +1,22 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
-class CreateCommentFragment: Fragment() {
+class CreateCommentFragment: BaseFragment() {
 
     private var _binding: FragmentCreateCommentBinding? = null
     private val binding get() = _binding!!
@@ -22,7 +25,15 @@ class CreateCommentFragment: Fragment() {
     private lateinit var podcastId: String
     private lateinit var episodeId: String
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: CommentsViewModel? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +79,8 @@ class CreateCommentFragment: Fragment() {
 
         if (viewModel == null) {
             activity?.let {
-                viewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+                viewModel = ViewModelProviders.of(it,
+                    viewModelFactory).get(CommentsViewModel::class.java)
             }
         }
 

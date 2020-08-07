@@ -18,7 +18,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -30,9 +29,12 @@ import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
+import javax.inject.Inject
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
 
@@ -45,7 +47,7 @@ private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
 private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
 private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
-class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
+class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
     private var _binding: FragmentEpisodeBinding? = null
     private val binding get() = _binding!!
 
@@ -57,11 +59,20 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private var episodeViewModel: EpisodeViewModel? = null
     private var episodeDetails: Episode? = null
 
     private var commentsViewModel: CommentsViewModel? = null
     private val commentsAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -247,12 +258,14 @@ class EpisodeFragment : Fragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (episodeViewModel == null) {
-            episodeViewModel = ViewModelProviders.of(this).get(EpisodeViewModel::class.java)
+            episodeViewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(EpisodeViewModel::class.java)
         }
 
         if (commentsViewModel == null) {
             activity?.let {
-                commentsViewModel = ViewModelProviders.of(it).get(CommentsViewModel::class.java)
+                commentsViewModel = ViewModelProviders.of(it,
+                    viewModelFactory).get(CommentsViewModel::class.java)
             }
         }
 

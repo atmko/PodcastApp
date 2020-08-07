@@ -2,7 +2,6 @@ package com.atmko.skiptoit.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
 import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
@@ -10,9 +9,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
 
-class SearchViewModel: ViewModel() {
+class SearchViewModel(private val podcastsApi: PodcastsApi): ViewModel() {
     val searchResults:MutableLiveData<List<Podcast>> = MutableLiveData()
     val searchLoadError: MutableLiveData<Boolean> = MutableLiveData()
     val searchLoading: MutableLiveData<Boolean> = MutableLiveData()
@@ -25,18 +23,12 @@ class SearchViewModel: ViewModel() {
     var tabPosition: Int = 0
     var scrollPosition: Int = 0
 
-    @Inject
-    lateinit var podcastService: PodcastsApi
     private val disposable: CompositeDisposable = CompositeDisposable()
-
-    init {
-        DaggerApplicationComponent.create().inject(this)
-    }
 
     fun search(queryString: String) {
         searchLoading.value = true
         disposable.add(
-            podcastService.searchPodcasts(queryString)
+            podcastsApi.searchPodcasts(queryString)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
@@ -57,7 +49,7 @@ class SearchViewModel: ViewModel() {
     fun fetchPodcastsByGenre(genreId: Int) {
         genreLoading.value = true
         disposable.add(
-            podcastService.getPodcastsByGenre(genreId)
+            podcastsApi.getPodcastsByGenre(genreId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {

@@ -1,9 +1,8 @@
 package com.atmko.skiptoit.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.atmko.skiptoit.dependencyinjection.application.DaggerApplicationComponent
+import androidx.lifecycle.ViewModel
+import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.SkipToItApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -13,20 +12,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
-import javax.inject.Inject
 
-class CommentsViewModel(application: Application): AndroidViewModel(application) {
+class CommentsViewModel(private val skipToItApi: SkipToItApi,
+                        private val application: SkipToItApplication): ViewModel() {
 
-    @Inject
-    lateinit var skipToItService: SkipToItApi
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    init {
-        DaggerApplicationComponent.create().inject(this)
-    }
-
     fun getGoogleAccount(): GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(getApplication())
+        return GoogleSignIn.getLastSignedInAccount(application)
     }
 
     val isCreated: MutableLiveData<Boolean> = MutableLiveData()
@@ -39,7 +32,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    skipToItService.createComment(podcastId, episodeId, it, comment)
+                    skipToItApi.createComment(podcastId, episodeId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
@@ -65,7 +58,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
                 isCreated.value = false
                 processing.value = true
                 disposable.add(
-                    skipToItService.createReply(parentId, it, comment)
+                    skipToItApi.createReply(parentId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
@@ -92,7 +85,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     fun getComments(episodeId: String, page: Int) {
         loading.value = true
         disposable.add(
-            skipToItService.getComments(episodeId, page)
+            skipToItApi.getComments(episodeId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {
@@ -156,7 +149,7 @@ class CommentsViewModel(application: Application): AndroidViewModel(application)
     fun getReplies(commentId: String, page: Int) {
         repliesLoading.value = true
         disposable.add(
-            skipToItService.getReplies(commentId, page)
+            skipToItApi.getReplies(commentId, page)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<List<Comment>>() {

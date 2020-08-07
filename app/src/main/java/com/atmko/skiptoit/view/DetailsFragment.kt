@@ -1,10 +1,10 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
@@ -16,20 +16,30 @@ import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
+import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.DetailsViewModel
-import com.atmko.skiptoit.viewmodel.DetailsViewModelFactory
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 private const val SHOW_MORE_KEY = "show_more"
 
-class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
+class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
     private lateinit var podcastDetails: Podcast
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: DetailsViewModel? = null
     private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,14 +94,13 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
         binding.toggleSubscriptionButton.isEnabled = false
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            viewModel?.toggleSubscription()
+            viewModel?.toggleSubscription(podcastDetails)
         }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (viewModel == null) {
             context?.let {
-                val viewModelFactory = DetailsViewModelFactory(it, podcastDetails)
                 viewModel = ViewModelProviders.of(this, viewModelFactory)
                     .get(DetailsViewModel::class.java)
             }
@@ -99,6 +108,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
 
         if (savedInstanceState == null) {
             //todo consider moving refresh to null check above
+            viewModel!!.loadSubscriptionstatus(podcastDetails.id)
             viewModel!!.refresh(podcastDetails.id)
             binding.showMore.tag = false
         } else {
@@ -150,7 +160,7 @@ class DetailsFragment : Fragment(), EpisodeAdapter.OnEpisodeItemClickListener {
     }
 
     private fun observeSubscriptionStatus() {
-        viewModel!!.isSubscribed.observe(viewLifecycleOwner, Observer {
+        viewModel!!.isSubscribed!!.observe(viewLifecycleOwner, Observer {
             if (it) {
                 binding.toggleSubscriptionButton
                     .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribed_button))
