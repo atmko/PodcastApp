@@ -9,10 +9,11 @@ import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.loadNetworkImage
 
 class CommentsAdapter(
-    var comments: ArrayList<Comment>,
     private val clickListener: OnCommentItemClickListener
 ) :
     RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
+
+    private val comments = arrayListOf<Comment>()
 
     interface OnCommentItemClickListener {
         fun onReplyButtonClick(commentId: String, quotedText: String)

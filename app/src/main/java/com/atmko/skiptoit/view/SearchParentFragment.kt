@@ -28,8 +28,8 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
 
-    private val podcastAdapter: PodcastAdapter =
-        PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
+    @Inject
+    lateinit var podcastAdapter: PodcastAdapter
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory

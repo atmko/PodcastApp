@@ -33,7 +33,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: DetailsViewModel? = null
-    private val episodeAdapter: EpisodeAdapter = EpisodeAdapter(arrayListOf(), this)
+
+    @Inject
+    lateinit var episodeAdapter: EpisodeAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

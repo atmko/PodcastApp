@@ -8,10 +8,10 @@ import com.atmko.skiptoit.databinding.ItemEpisodeBinding
 import com.atmko.skiptoit.model.Episode
 
 class EpisodeAdapter(
-    var episodes: ArrayList<Episode>,
     private val clickListener: OnEpisodeItemClickListener
-) :
-    RecyclerView.Adapter<EpisodeAdapter.EpisodeViewHolder>() {
+) : RecyclerView.Adapter<EpisodeAdapter.EpisodeViewHolder>() {
+
+    private val episodes = arrayListOf<Episode>()
 
     interface OnEpisodeItemClickListener {
         fun onItemClick(episode: Episode)

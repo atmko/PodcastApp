@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
@@ -27,8 +26,8 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SubscriptionsViewModel
-    private val subscriptionsAdapter: PodcastAdapter =
-        PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
+    @Inject
+    lateinit var subscriptionsAdapter: PodcastAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

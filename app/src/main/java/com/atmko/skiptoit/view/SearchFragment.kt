@@ -27,8 +27,8 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
     private var _binding: ResultsRecyclerViewBinding? = null
     private val binding get() = _binding!!
 
-    private val podcastAdapter: PodcastAdapter =
-        PodcastAdapter(arrayListOf(), R.layout.item_podcast_list, this)
+    @Inject
+    lateinit var podcastAdapter: PodcastAdapter
 
     private var genreId: Int? = null
     private lateinit var genreName: String

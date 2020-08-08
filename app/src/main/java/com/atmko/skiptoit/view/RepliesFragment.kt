@@ -32,7 +32,8 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: CommentsViewModel? = null
-    private val repliesAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
+    @Inject
+    lateinit var repliesAdapter: CommentsAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

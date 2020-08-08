@@ -66,7 +66,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private var episodeDetails: Episode? = null
 
     private var commentsViewModel: CommentsViewModel? = null
-    private val commentsAdapter: CommentsAdapter = CommentsAdapter(arrayListOf(), this)
+
+    @Inject
+    lateinit var commentsAdapter: CommentsAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

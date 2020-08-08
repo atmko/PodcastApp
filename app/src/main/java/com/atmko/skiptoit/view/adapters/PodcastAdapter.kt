@@ -7,14 +7,16 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.loadNetworkImage
 import kotlinx.android.synthetic.main.item_podcast_list.view.*
 import kotlinx.android.synthetic.main.item_podcast_square.view.podcastImageView
 
-class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResource: Int,
-                     private val clickListener: OnPodcastItemClickListener):
+class PodcastAdapter(private val clickListener: OnPodcastItemClickListener):
     RecyclerView.Adapter<PodcastAdapter.PodcastViewHolder>() {
+
+    val podcasts = arrayListOf<Podcast>()
 
     interface OnPodcastItemClickListener {
         fun onItemClick(podcast: Podcast)
@@ -24,7 +26,7 @@ class PodcastAdapter(var podcasts: ArrayList<Podcast>, private val layoutResourc
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastViewHolder {
         val view: View = LayoutInflater
             .from(parent.context)
-            .inflate(layoutResource, parent, false)
+            .inflate(R.layout.item_podcast_list, parent, false)
         return PodcastViewHolder(view)
     }
 

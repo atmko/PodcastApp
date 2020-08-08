@@ -3,7 +3,10 @@ package com.atmko.skiptoit.dependencyinjection.presentation
 import com.atmko.skiptoit.view.*
 import dagger.Subcomponent
 
-@Subcomponent(modules = [PresentationModule::class, ViewModelModule::class])
+@Subcomponent(modules = [
+    PresentationModule::class,
+    AdapterModule::class,
+    ViewModelModule::class])
 interface PresentationComponent {
     fun inject(masterActivity: MasterActivity)
 
