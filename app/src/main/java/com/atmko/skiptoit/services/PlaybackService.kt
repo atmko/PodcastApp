@@ -75,9 +75,7 @@ class PlaybackService: BaseService() {
         }
     }
 
-    fun play(context: Context) {
-        // Start the service
-        startService(Intent(context, PlaybackService::class.java))
+    fun play() {
         player?.playWhenReady = true // this song was paused so we don't need to reload it
 
         // Register BECOME_NOISY BroadcastReceiver

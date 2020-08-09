@@ -312,7 +312,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                     mPlaybackService?.prepareMediaForPlayback(Uri.parse(episodeDetails.audio), it)
 
                     if (!isRestoringEpisode) {
-                        mPlaybackService?.play(it)
+                        mPlaybackService?.play()
                         val sharedPrefs = activity?.getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
                         sharedPrefs?.let {
                             sharedPrefs.edit()
