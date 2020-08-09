@@ -35,7 +35,7 @@
 
         </service>
 
-        <receiver android:name="com.atmko.skiptoit.services.PlaybackService$BecomingNoisyReceiver" />
+        <receiver android:name=".services.BecomingNoisyReceiver" />
 
     </application>
 

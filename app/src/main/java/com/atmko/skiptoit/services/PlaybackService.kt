@@ -1,43 +1,42 @@
 package com.atmko.skiptoit.services
 
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
-import androidx.core.app.JobIntentService
-import androidx.core.graphics.drawable.toBitmap
 import com.atmko.skiptoit.R
-import com.atmko.skiptoit.view.MasterActivity
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Player
+import com.atmko.skiptoit.services.common.BaseService
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import javax.inject.Inject
 
 const val NOTIFICATION_CHANNEL_ID_PLAYBACK = "Playback Channel"
 const val NOTIFICATION_ID_PLAYBACK = 10
 const val REQUEST_CODE_LAUNCH_MASTER_ACTIVITY = 1
 
-class PlaybackService: JobIntentService() {
-    private var oldUri: Uri? = null
-    var player: SimpleExoPlayer? = null
-    private lateinit var playerNotificationManager: PlayerNotificationManager
+class PlaybackService: BaseService() {
 
     private var mBinder: PlaybackServiceBinder = PlaybackServiceBinder()
-    private val intentFilter: IntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-    private val noisyReceiver = BecomingNoisyReceiver()
+
+    @Inject
+    @JvmField
+    var player: SimpleExoPlayer? = null
+    @Inject
+    lateinit var playerNotificationManager: PlayerNotificationManager
+
+    @Inject
+    lateinit var intentFilter: IntentFilter
+    @Inject
+    lateinit var noisyReceiver: BecomingNoisyReceiver
+
+    private var oldUri: Uri? = null
 
     override fun onHandleWork(intent: Intent) {
 
@@ -45,21 +44,8 @@ class PlaybackService: JobIntentService() {
 
     override fun onCreate() {
         super.onCreate()
-        player = SimpleExoPlayer.Builder(baseContext).build()
-        player?.apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.CONTENT_TYPE_MUSIC)
-                    .build(), true)
-        }
+        getServiceComponent().inject(this)
 
-        playerNotificationManager = PlayerNotificationManager(
-            this,
-            NOTIFICATION_CHANNEL_ID_PLAYBACK,
-            NOTIFICATION_ID_PLAYBACK,
-            DescriptionAdapter(baseContext)
-        )
         playerNotificationManager.setPlayer(player)
     }
 
@@ -68,14 +54,6 @@ class PlaybackService: JobIntentService() {
         playerNotificationManager.setPlayer(null);
         player?.release()
         player = null
-    }
-
-    inner class BecomingNoisyReceiver: BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                player?.playWhenReady = false
-            }
-        }
     }
 
     fun prepareMediaForPlayback(uri: Uri?, context: Context) {
@@ -104,35 +82,6 @@ class PlaybackService: JobIntentService() {
 
         // Register BECOME_NOISY BroadcastReceiver
         registerReceiver(noisyReceiver, intentFilter)
-    }
-
-    private class DescriptionAdapter(val context: Context): PlayerNotificationManager.MediaDescriptionAdapter {
-        override fun createCurrentContentIntent(player: Player): PendingIntent? {
-            return PendingIntent.getActivity(
-                context,
-                REQUEST_CODE_LAUNCH_MASTER_ACTIVITY,
-                Intent(context, MasterActivity::class.java), 0
-            )
-        }
-
-        override fun getCurrentContentText(player: Player): CharSequence? {
-            return context.getString(R.string.app_name)
-        }
-
-        override fun getCurrentContentTitle(player: Player): CharSequence {
-            return context.getString(R.string.app_name)
-        }
-
-        override fun getCurrentLargeIcon(
-            player: Player,
-            callback: PlayerNotificationManager.BitmapCallback
-        ): Bitmap? {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                context.resources.getDrawable(R.drawable.ic_play_button_circular, null)?.toBitmap()
-            } else {
-                context.resources.getDrawable(R.drawable.ic_play_button_circular)?.toBitmap()
-            }
-        }
     }
 
     inner class PlaybackServiceBinder: Binder() {
