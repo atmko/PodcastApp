@@ -64,7 +64,7 @@ class CommentsAdapter(
             }
         }
 
-        holder.binding.votes.text = comment.votes.toString()
+        holder.binding.votes.text = comment.voteTally.toString()
 
         if (comment.replies != 0) {
             holder.binding.replies.text =
