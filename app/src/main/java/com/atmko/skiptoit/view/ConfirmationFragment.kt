@@ -10,12 +10,12 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
 import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.view.common.BaseFragment
+import com.atmko.skiptoit.view.common.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
-class ConfirmationFragment : BaseFragment() {
+class ConfirmationFragment : BaseBottomSheetDialogFragment() {
     private var _binding: FragmentConfirmationBinding? = null
     private val binding get() = _binding!!
 
