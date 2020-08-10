@@ -13,8 +13,13 @@ interface SkipToItApi {
                       @Field("comment") comment: String): Single<Response<Void>>
 
     @GET("comments/{episode_id}/page/{page}")
-    fun getComments(@Path("episode_id") episodeId: String,
-                    @Path("page") page: Int): Single<List<Comment>>
+    fun getCommentsUnauthenticated(@Path("episode_id") episodeId: String,
+                                   @Path("page") page: Int): Single<List<Comment>>
+
+    @GET("comments/{episode_id}/page/{page}")
+    fun getCommentsAuthenticated(@Path("episode_id") episodeId: String,
+                                 @Path("page") page: Int,
+                                 @Query("id_token") idToken: String): Single<List<Comment>>
 
     @FormUrlEncoded
     @POST("replies/{parent_id}")
@@ -23,8 +28,13 @@ interface SkipToItApi {
                     @Field("comment") comment: String): Single<Response<Void>>
 
     @GET("replies/{parent_id}/page/{page}")
-    fun getReplies(@Path("parent_id") parentId: String,
-                   @Path("page") page: Int): Single<List<Comment>>
+    fun getRepliesUnauthenticated(@Path("parent_id") parentId: String,
+                                  @Path("page") page: Int): Single<List<Comment>>
+
+    @GET("replies/{parent_id}/page/{page}")
+    fun getRepliesAuthenticated(@Path("parent_id") parentId: String,
+                                @Path("page") page: Int,
+                                @Query("id_token") idToken: String): Single<List<Comment>>
 
     @FormUrlEncoded
     @POST("users/tokensignin")
