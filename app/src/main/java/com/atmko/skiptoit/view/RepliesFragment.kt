@@ -111,7 +111,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         }
         binding.parentComment.user.text = comment?.username
         binding.parentComment.body.text = comment?.body
-        binding.parentComment.votes.text = comment?.votes.toString()
+        binding.parentComment.votes.text = comment?.voteTally.toString()
         if (comment?.replies != 0) {
             binding.parentComment.replies.text =
                 String.format(
