@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -22,16 +20,12 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    fun getGoogleAccount(): GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(application)
-    }
-
     val isCreated: MutableLiveData<Boolean> = MutableLiveData()
     val createError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     fun createComment(podcastId: String, episodeId: String, comment: String) {
-        getGoogleAccount()?.let { account ->
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 isCreated.value = false
                 processing.value = true
@@ -57,7 +51,7 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
     }
 
     fun createReply(parentId: String, comment: String) {
-        getGoogleAccount()?.let { account ->
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 isCreated.value = false
                 processing.value = true
