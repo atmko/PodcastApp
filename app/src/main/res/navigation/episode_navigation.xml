@@ -91,6 +91,11 @@
         <action
             android:id="@+id/action_navigation_replies_to_navigation_create_reply"
             app:destination="@id/navigation_create_reply" />
+        <action
+            android:id="@+id/action_navigation_replies_to_navigation_episode"
+            app:destination="@id/navigation_episode"
+            app:popUpTo="@id/navigation_replies"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <dialog

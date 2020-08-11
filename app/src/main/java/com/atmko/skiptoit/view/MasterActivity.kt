@@ -382,11 +382,22 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
                     bottomSheetBehavior.peekHeight =
                         binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
-                    val action = EpisodeFragmentDirections
-                        .actionNavigationEpisodeToNavigationEpisode(
-                            podcastId, episodeId, false)
-
-                    findNavController(R.id.episode_nav_host_fragment).navigate(action)
+                    when (findNavController(R.id.episode_nav_host_fragment).currentDestination?.id) {
+                        R.id.navigation_episode -> {
+                            findNavController(R.id.episode_nav_host_fragment).navigate(
+                                EpisodeFragmentDirections
+                                    .actionNavigationEpisodeToNavigationEpisode(
+                                        podcastId, episodeId, false)
+                            )
+                        }
+                        R.id.navigation_replies -> {
+                            findNavController(R.id.episode_nav_host_fragment).navigate(
+                                RepliesFragmentDirections
+                                    .actionNavigationRepliesToNavigationEpisode(
+                                        podcastId, episodeId, false)
+                            )
+                        }
+                    }
 
                     bottomSheetBehavior.removeBottomSheetCallback(this)
                 }
