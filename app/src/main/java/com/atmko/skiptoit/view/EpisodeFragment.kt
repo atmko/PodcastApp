@@ -387,6 +387,14 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         view?.findNavController()?.navigate(action)
     }
 
+    override fun onUpVoteClick(comment: Comment, position: Int) {
+        commentsViewModel?.onUpVoteClick(commentsAdapter, comment, position)
+    }
+
+    override fun onDownVoteClick(comment: Comment, position: Int) {
+        commentsViewModel?.onDownVoteClick(commentsAdapter, comment, position)
+    }
+
     //todo consolidate with details show more methods
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {

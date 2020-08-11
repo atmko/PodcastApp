@@ -1,10 +1,11 @@
 package com.atmko.skiptoit.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.SkipToItApplication
-import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.SkipToItApi
+import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -14,9 +15,10 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
+val TAG = CommentsViewModel::class.simpleName
 class CommentsViewModel(private val skipToItApi: SkipToItApi,
                         private val googleSignInClient: GoogleSignInClient,
-                        private val application: SkipToItApplication): ViewModel() {
+                        private val application: SkipToItApplication) : ViewModel() {
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
@@ -213,6 +215,91 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
+    fun onUpVoteClick(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
+        when (comment.voteWeight) {
+            VOTE_WEIGHT_UP_VOTE -> {
+                comment.voteWeight = VOTE_WEIGHT_NONE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_DOWN_VOTE
+                deleteCommentVote(comment)
+            }
+            VOTE_WEIGHT_NONE -> {
+                comment.voteWeight = VOTE_WEIGHT_UP_VOTE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_UP_VOTE
+                voteComment(comment, VOTE_WEIGHT_UP_VOTE)
+            }
+            else -> {
+                comment.voteWeight = VOTE_WEIGHT_UP_VOTE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_DOWN_VOTE_INVERT
+                voteComment(comment, VOTE_WEIGHT_UP_VOTE)
+            }
+        }
+
+        commentsAdapter.updateCommentVote(comment, position)
+    }
+
+    fun onDownVoteClick(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
+        when (comment.voteWeight) {
+            VOTE_WEIGHT_DOWN_VOTE -> {
+                comment.voteWeight = VOTE_WEIGHT_NONE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_UP_VOTE
+                deleteCommentVote(comment)
+            }
+            VOTE_WEIGHT_NONE -> {
+                comment.voteWeight = VOTE_WEIGHT_DOWN_VOTE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_DOWN_VOTE
+                voteComment(comment, VOTE_WEIGHT_DOWN_VOTE)
+            }
+            else -> {
+                comment.voteWeight = VOTE_WEIGHT_DOWN_VOTE
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_UP_VOTE_INVERT
+                voteComment(comment, VOTE_WEIGHT_DOWN_VOTE)
+            }
+        }
+
+        commentsAdapter.updateCommentVote(comment, position)
+    }
+
+    private fun voteComment(comment: Comment, voteWeight: Int) {
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
+            account.idToken?.let {
+                disposable.add(
+                    skipToItApi.voteComment(comment.commentId, voteWeight.toString(), it)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                Log.d(TAG, "Success")
+                            }
+
+                            override fun onError(e: Throwable) {
+                                e.printStackTrace()
+                            }
+                        })
+                )
+            }
+        }
+    }
+
+    private fun deleteCommentVote(comment: Comment) {
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
+            account.idToken?.let {
+                disposable.add(
+                    skipToItApi.deleteCommentVote(comment.commentId, it)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                Log.d(TAG, "Success")
+                            }
+
+                            override fun onError(e: Throwable) {
+                                e.printStackTrace()
+                            }
+                        })
+                )
+            }
+        }
+    }
 
     override fun onCleared() {
         disposable.clear()

@@ -12,8 +12,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
-import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
@@ -187,5 +186,13 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
             .actionNavigationRepliesToNavigationReplies(comment.commentId, comment.parentId)
         viewModel?.saveParentComment(comment)
         view?.findNavController()?.navigate(action)
+    }
+
+    override fun onUpVoteClick(comment: Comment, position: Int) {
+        viewModel?.onUpVoteClick(repliesAdapter, comment, position)
+    }
+
+    override fun onDownVoteClick(comment: Comment, position: Int) {
+        viewModel?.onDownVoteClick(repliesAdapter, comment, position)
     }
 }

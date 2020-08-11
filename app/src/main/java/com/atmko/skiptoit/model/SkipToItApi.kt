@@ -12,6 +12,16 @@ interface SkipToItApi {
                       @Field("id_token") idToken: String,
                       @Field("comment") comment: String): Single<Response<Void>>
 
+    @FormUrlEncoded
+    @POST("comments/vote/{comment_id}")
+    fun voteComment(@Path("comment_id") commentId: String,
+             @Field("vote_weight") voteWeight: String,
+             @Field("id_token") idToken: String): Single<Response<Void>>
+
+    @DELETE("comments/vote/{comment_id}")
+    fun deleteCommentVote(@Path("comment_id") commentId: String,
+                          @Query("id_token") it: String): Single<Response<Void>>
+
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsUnauthenticated(@Path("episode_id") episodeId: String,
                                    @Path("page") page: Int): Single<List<Comment>>

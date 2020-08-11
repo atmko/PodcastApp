@@ -21,6 +21,8 @@ class CommentsAdapter(
     interface OnCommentItemClickListener {
         fun onReplyButtonClick(commentId: String, quotedText: String)
         fun onRepliesButtonClick(comment: Comment)
+        fun onUpVoteClick(comment: Comment, position: Int)
+        fun onDownVoteClick(comment: Comment, position: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -48,15 +50,24 @@ class CommentsAdapter(
         holder.binding.replies.setOnClickListener {
             clickListener.onRepliesButtonClick(comment)
         }
+        holder.binding.upVoteButton.setOnClickListener {
+            clickListener.onUpVoteClick(comment, position)
+        }
+        holder.binding.downVoteButton.setOnClickListener {
+            clickListener.onDownVoteClick(comment, position)
+        }
+
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
 
         when (comment.voteWeight) {
             VOTE_WEIGHT_UP_VOTE -> {
                 holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote_color)
+                holder.binding.downVoteButton.setImageResource(R.drawable.ic_down_vote)
             }
             VOTE_WEIGHT_DOWN_VOTE -> {
                 holder.binding.downVoteButton.setImageResource(R.drawable.ic_down_vote_color)
+                holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote)
             }
             else -> {
                 holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote)
@@ -80,5 +91,10 @@ class CommentsAdapter(
         comments.clear()
         comments.addAll(updatedComments)
         notifyDataSetChanged()
+    }
+
+    fun updateCommentVote(commentUpdate: Comment, position: Int) {
+        comments[position] = commentUpdate
+        notifyItemChanged(position)
     }
 }
