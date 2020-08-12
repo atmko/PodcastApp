@@ -18,62 +18,6 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val isCreated: MutableLiveData<Boolean> = MutableLiveData()
-    val createError: MutableLiveData<Boolean> = MutableLiveData()
-    val processing: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun createComment(podcastId: String, episodeId: String, comment: String) {
-        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
-            account.idToken?.let {
-                isCreated.value = false
-                processing.value = true
-                disposable.add(
-                    skipToItApi.createComment(podcastId, episodeId, it, comment)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
-                            override fun onSuccess(response: Response<Void>) {
-                                isCreated.value = response.isSuccessful
-                                createError.value = false
-                                processing.value = false
-                            }
-
-                            override fun onError(e: Throwable) {
-                                createError.value = true
-                                processing.value = false
-                            }
-                        })
-                )
-            }
-        }
-    }
-
-    fun createReply(parentId: String, comment: String) {
-        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
-            account.idToken?.let {
-                isCreated.value = false
-                processing.value = true
-                disposable.add(
-                    skipToItApi.createReply(parentId, it, comment)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
-                            override fun onSuccess(response: Response<Void>) {
-                                isCreated.value = response.isSuccessful
-                                createError.value = false
-                                processing.value = false
-                            }
-
-                            override fun onError(e: Throwable) {
-                                createError.value = true
-                                processing.value = false
-                            }
-                        })
-                )
-            }
-        }
-    }
-
     val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()

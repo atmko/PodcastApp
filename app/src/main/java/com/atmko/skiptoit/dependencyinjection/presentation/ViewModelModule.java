@@ -7,6 +7,8 @@ import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
 import com.atmko.skiptoit.viewmodel.CommentsViewModel;
+import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
+import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
@@ -97,6 +99,22 @@ public class ViewModelModule {
     ViewModel provideCommentsViewModel(SkipToItApi skipToItApi,
                                        GoogleSignInClient googleSignInClient) {
         return new CommentsViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(CreateCommentViewModel.class)
+    ViewModel provideCreateCommentsViewModel(SkipToItApi skipToItApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new CreateCommentViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(CreateReplyViewModel.class)
+    ViewModel provideCreateReplyViewModel(SkipToItApi skipToItApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new CreateReplyViewModel(skipToItApi, googleSignInClient);
     }
 
     @Provides

@@ -13,6 +13,7 @@ import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.CreateReplyViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
@@ -27,7 +28,7 @@ class CreateReplyFragment: BaseFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CommentsViewModel? = null
+    private var viewModel: CreateReplyViewModel? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -82,7 +83,7 @@ class CreateReplyFragment: BaseFragment() {
         if (viewModel == null) {
             activity?.let {
                 viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CommentsViewModel::class.java)
+                    viewModelFactory).get(CreateReplyViewModel::class.java)
             }
         }
 
