@@ -46,6 +46,11 @@ interface SkipToItApi {
                                 @Path("page") page: Int,
                                 @Query("id_token") idToken: String): Single<List<Comment>>
 
+
+    @DELETE("comments/{comment_id}")
+    fun deleteComment(@Path("comment_id") commentId: String,
+                      @Query("id_token") it: String): Single<Response<Void>>
+
     @FormUrlEncoded
     @POST("users/tokensignin")
     fun getUser(@Field("id_token") idToken: String): Single<User>

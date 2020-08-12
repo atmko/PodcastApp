@@ -23,6 +23,7 @@ class CommentsAdapter(
         fun onRepliesButtonClick(comment: Comment)
         fun onUpVoteClick(comment: Comment, position: Int)
         fun onDownVoteClick(comment: Comment, position: Int)
+        fun onDeleteClick(comment: Comment, position: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -55,6 +56,9 @@ class CommentsAdapter(
         }
         holder.binding.downVoteButton.setOnClickListener {
             clickListener.onDownVoteClick(comment, position)
+        }
+        holder.binding.deleteButton.setOnClickListener {
+            clickListener.onDeleteClick(comment, position)
         }
 
         holder.binding.user.text = comment.username
@@ -96,5 +100,10 @@ class CommentsAdapter(
     fun updateChangedComment(commentUpdate: Comment, position: Int) {
         comments[position] = commentUpdate
         notifyItemChanged(position)
+    }
+
+    fun updateRemovedComment(position: Int) {
+        comments.removeAt(position)
+        notifyItemRemoved(position)
     }
 }
