@@ -98,6 +98,34 @@ bathed? The was out swimming..." />
         app:layout_constraintTop_toBottomOf="@id/body"
         tools:text="10 replies" />
 
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/x1_layout_margin"
+        android:layout_marginEnd="@dimen/x1_layout_margin"
+        android:layout_marginStart="@dimen/x3_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/edit_comment"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintBottom_toBottomOf="@id/votes"
+        app:layout_constraintEnd_toStartOf="@id/deleteButton"
+        app:layout_constraintTop_toTopOf="@id/votes" />
+
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/x1_layout_margin"
+        android:layout_marginEnd="@dimen/x1_layout_margin"
+        android:layout_marginStart="@dimen/x3_layout_margin"
+        android:background="@null"
+        android:contentDescription="@string/delete_comment"
+        android:src="@drawable/ic_delete"
+        app:layout_constraintBottom_toBottomOf="@id/votes"
+        app:layout_constraintEnd_toStartOf="@id/replyButton"
+        app:layout_constraintTop_toTopOf="@id/votes" />
+
     <TextView
         android:id="@+id/replyButton"
         style="@style/Standard_Heading_Style"

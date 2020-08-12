@@ -50,6 +50,8 @@
     <string name="username">username</string>
     <string name="ok">OK</string>
     <string name="reply">reply</string>
+    <string name="edit_comment">edit comment</string>
+    <string name="delete_comment">delete comment</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
