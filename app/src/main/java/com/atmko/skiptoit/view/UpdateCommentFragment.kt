@@ -103,7 +103,7 @@ class UpdateCommentFragment: BaseFragment() {
                 if (isCreated) {
                     val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
                     savedStateHandle?.set(
-                        RESULTS_KEY,
+                        EDIT_COMMENT_KEY,
                         listOf(binding.bodyEditText.text.toString(), commentAdapterPosition)
                     )
                     findNavController().navigateUp()

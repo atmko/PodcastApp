@@ -65,7 +65,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         configureViews()
         configureValues(savedInstanceState)
         configureViewModel()
-        configureResultsViewModel()
+        observeEditCommentLiveData()
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -152,10 +152,10 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         })
     }
 
-    private fun configureResultsViewModel() {
-        val resultsLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(RESULTS_KEY)
-        resultsLiveData?.observe(viewLifecycleOwner, Observer {
+    private fun observeEditCommentLiveData() {
+        val editCommentLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(EDIT_COMMENT_KEY)
+        editCommentLiveData?.observe(viewLifecycleOwner, Observer {
             repliesAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
         })
     }

@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import javax.inject.Inject
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
-const val RESULTS_KEY = "results"
+const val EDIT_COMMENT_KEY = "edit_comment"
 
 const val SCRUBBER_ANIM_LENGTH: Long = 100
 const val SCRUBBER_HIDE_LENGTH: Long = 2000
@@ -102,7 +102,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureValues(savedInstanceState)
         configureEpisodeViewModel()
         configureCommentsViewModel()
-        configureResultsViewModel()
+        observeEditCommentLiveData()
     }
 
     override fun onStart() {
@@ -398,10 +398,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         })
     }
 
-    private fun configureResultsViewModel() {
-        val resultsLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(RESULTS_KEY)
-        resultsLiveData?.observe(viewLifecycleOwner, Observer {
+    private fun observeEditCommentLiveData() {
+        val editCommentLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(EDIT_COMMENT_KEY)
+        editCommentLiveData?.observe(viewLifecycleOwner, Observer {
             commentsAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
         })
     }
