@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
@@ -64,6 +65,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         configureViews()
         configureValues(savedInstanceState)
         configureViewModel()
+        configureResultsViewModel()
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -150,6 +152,14 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         })
     }
 
+    private fun configureResultsViewModel() {
+        val resultsLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(RESULTS_KEY)
+        resultsLiveData?.observe(viewLifecycleOwner, Observer {
+            repliesAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
+        })
+    }
+
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
         val masterActivity = (activity as MasterActivity)
         val user: User? = masterActivity.user
@@ -158,6 +168,18 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
                 navigateToReplyComment(user.username, parentId, quotedText)
             } else {
                 promptForUsername()
+            }
+        } else {
+            masterActivity.signIn()
+        }
+    }
+
+    private fun attemptToUpdateReply(comment: Comment, position: Int) {
+        val masterActivity = (activity as MasterActivity)
+        val user: User? = masterActivity.user
+        if (user != null) {
+            if (user.username != null) {
+                navigateToUpdateReply(comment, user.username, position)
             }
         } else {
             masterActivity.signIn()
@@ -174,6 +196,14 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         val action = RepliesFragmentDirections
             .actionNavigationRepliesToNavigationCreateReply(
                 parentId, quotedText, username)
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToUpdateReply(comment: Comment, username: String, position: Int) {
+        val action = RepliesFragmentDirections
+            .actionNavigationEpisodeToNavigationUpdateReply(
+                comment.commentId, username, binding.parentComment.body.text.toString(),
+                comment.body, position)
         view?.findNavController()?.navigate(action)
     }
 
@@ -201,6 +231,6 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     override fun onEditClick(comment: Comment, position: Int) {
-
+        attemptToUpdateReply(comment, position)
     }
 }

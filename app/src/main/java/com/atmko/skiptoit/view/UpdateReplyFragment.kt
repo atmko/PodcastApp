@@ -7,27 +7,30 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
-class CreateReplyFragment: BaseFragment() {
+class UpdateReplyFragment: BaseFragment() {
 
     private var _binding: FragmentCreateReplyBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var commentId: String
     private lateinit var username: String
-    private lateinit var parentId: String
     private lateinit var quotedText: String
+    private lateinit var oldCommentBody: String
+    private var commentAdapterPosition: Int = 0
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CommentsViewModel? = null
+    private var viewModel: UpdateCommentViewModel? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -38,10 +41,12 @@ class CreateReplyFragment: BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val args: CreateReplyFragmentArgs by navArgs()
-        parentId = args.parentId
-        quotedText = args.quotedText
+        val args: UpdateReplyFragmentArgs by navArgs()
+        commentId = args.commentId
         username = args.username
+        quotedText = args.quotedText
+        oldCommentBody = args.oldCommentBody
+        commentAdapterPosition = args.commentAdapterPosition
     }
 
     override fun onCreateView(
@@ -67,11 +72,15 @@ class CreateReplyFragment: BaseFragment() {
 
     private fun configureViews() {
         binding.quotedText.text = quotedText
+        binding.bodyEditText.text = oldCommentBody.toEditable()
 
         binding.createButton.apply {
             setOnClickListener {
-                val comment = binding.bodyEditText.text.toString()
-                viewModel?.createReply(parentId, comment)
+                val masterActivity: MasterActivity = (activity as MasterActivity)
+                masterActivity.hideSoftKeyboard(requireView())
+
+                val commentBody = binding.bodyEditText.text.toString()
+                viewModel?.updateCommentBody(commentId, commentBody)
             }
         }
     }
@@ -82,7 +91,7 @@ class CreateReplyFragment: BaseFragment() {
         if (viewModel == null) {
             activity?.let {
                 viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CommentsViewModel::class.java)
+                    viewModelFactory).get(UpdateCommentViewModel::class.java)
             }
         }
 
@@ -92,12 +101,15 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.isCreated?.observe(viewLifecycleOwner, Observer { isCreated ->
+        viewModel?.isUpdated?.observe(viewLifecycleOwner, Observer { isCreated ->
             isCreated?.let {
                 if (isCreated) {
-                    val masterActivity: MasterActivity = (activity as MasterActivity)
-                    masterActivity.onBackPressedDispatcher.onBackPressed()
-                    view?.let { view -> masterActivity.hideSoftKeyboard(view) }
+                    val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
+                    savedStateHandle?.set(
+                        RESULTS_KEY,
+                        listOf(binding.bodyEditText.text.toString(), commentAdapterPosition)
+                    )
+                    findNavController().navigateUp()
                 }
             }
         })
@@ -112,7 +124,7 @@ class CreateReplyFragment: BaseFragment() {
             }
         })
 
-        viewModel?.createError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel?.updateError?.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE

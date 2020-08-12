@@ -43,6 +43,7 @@
     <string name="title_update_comment">update_comment</string>
     <string name="title_replies">replies</string>
     <string name="title_create_reply">create_reply</string>
+    <string name="title_update_reply">update_reply</string>
 
     <string name="comments">Comments</string>
     <string name="comment">Comment</string>

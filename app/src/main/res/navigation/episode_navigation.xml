@@ -93,6 +93,28 @@
     </fragment>
 
     <fragment
+        android:id="@+id/navigation_update_reply"
+        android:name="com.atmko.skiptoit.view.UpdateReplyFragment"
+        android:label="@string/title_update_reply"
+        tools:layout="@layout/fragment_create_reply">
+        <argument
+            android:name="comment_id"
+            app:argType="string" />
+        <argument
+            android:name="username"
+            app:argType="string" />
+        <argument
+            android:name="quoted_text"
+            app:argType="string" />
+        <argument
+            android:name="old_comment_body"
+            app:argType="string" />
+        <argument
+            android:name="comment_adapter_position"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_replies"
         android:name="com.atmko.skiptoit.view.RepliesFragment"
         android:label="@string/title_replies"
@@ -113,6 +135,9 @@
         <action
             android:id="@+id/action_navigation_replies_to_navigation_create_reply"
             app:destination="@id/navigation_create_reply" />
+        <action
+            android:id="@+id/action_navigation_episode_to_navigation_update_reply"
+            app:destination="@id/navigation_update_reply" />
         <action
             android:id="@+id/action_navigation_replies_to_navigation_episode"
             app:destination="@id/navigation_episode"
