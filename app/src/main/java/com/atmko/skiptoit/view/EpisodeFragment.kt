@@ -19,6 +19,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -33,6 +34,7 @@ import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
+import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import javax.inject.Inject
@@ -69,6 +71,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private var commentsViewModel: CommentsViewModel? = null
 
+    private lateinit var masterActivityViewModel: MasterActivityViewModel
+    private var user: User? = null
+
     @Inject
     lateinit var commentsAdapter: CommentsAdapter
 
@@ -103,6 +108,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureEpisodeViewModel()
         configureCommentsViewModel()
         observeEditCommentLiveData()
+        configureMasterActivityViewModel()
     }
 
     override fun onStart() {
@@ -170,7 +176,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
         binding.addCommentButton.apply {
             setOnClickListener {
-                attemptToCreateComment(null, null)
+                attemptToCreateComment()
             }
         }
 
@@ -180,50 +186,28 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
-    private fun attemptToCreateComment(parentId: String?, quotedText: String?) {
-        val masterActivity = (activity as MasterActivity)
-        val user: User? = masterActivity.user
+    private fun attemptToCreateComment() {
         if (user != null) {
-            if (user.username != null) {
-                navigateToCreateComment(user.username)
-            } else {
-                promptForUsername()
-            }
+            navigateToCreateComment(user!!.username!!)
         } else {
-            masterActivity.signIn()
+            masterActivityViewModel.signIn()
         }
     }
 
     private fun attemptToUpdateComment(comment: Comment, position: Int) {
-        val masterActivity = (activity as MasterActivity)
-        val user: User? = masterActivity.user
         if (user != null) {
-            if (user.username != null) {
-                navigateToUpdateComment(comment, user.username, position)
-            }
+            navigateToUpdateComment(comment, user!!.username!!, position)
         } else {
-            masterActivity.signIn()
+            masterActivityViewModel.signIn()
         }
     }
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        val masterActivity = (activity as MasterActivity)
-        val user: User? = masterActivity.user
         if (user != null) {
-            if (user.username != null) {
-                navigateToReplyComment(user.username, parentId, quotedText)
-            } else {
-                promptForUsername()
-            }
+            navigateToReplyComment(user!!.username!!, parentId, quotedText)
         } else {
-            masterActivity.signIn()
+            masterActivityViewModel.signIn()
         }
-    }
-
-    private fun promptForUsername() {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationBottomSheet("Create a username")
-        view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToCreateComment(username: String) {
@@ -292,6 +276,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                     viewModelFactory).get(CommentsViewModel::class.java)
             }
         }
+
+        //todo refactor other view models to follow this(with logic in view model)
+        masterActivityViewModel = ViewModelProvider(requireActivity(),
+            viewModelFactory).get(MasterActivityViewModel::class.java)
+        masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
             episodeId?.let {
@@ -403,6 +392,12 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(EDIT_COMMENT_KEY)
         editCommentLiveData?.observe(viewLifecycleOwner, Observer {
             commentsAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
+        })
+    }
+
+    private fun configureMasterActivityViewModel() {
+        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
+            user = it
         })
     }
 
