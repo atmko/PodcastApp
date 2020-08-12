@@ -40,30 +40,17 @@ class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
     }
 
     fun signIn() {
-        if (getGoogleAccount() != null) {
-            getUser()
-            return
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
+            account?.let { getUser() }
+        }.addOnFailureListener {
+            val intent = googleSignInClient.signInIntent
+            messageEvent.sendEvent { startActivityForResult(intent, REQUEST_CODE_SIGN_IN) }
         }
-
-        val intent = googleSignInClient.signInIntent
-        messageEvent.sendEvent { startActivityForResult(intent, REQUEST_CODE_SIGN_IN) }
     }
 
     fun signOut() {
         googleSignInClient.signOut()
         currentUser.value = null
-    }
-
-    fun isSignedIn(): Boolean {
-        return currentUser.value != null && isGoogleSignedIn()
-    }
-
-    private fun isGoogleSignedIn(): Boolean {
-        return getGoogleAccount() != null
-    }
-
-    private fun getGoogleAccount(): GoogleSignInAccount? {
-        return GoogleSignIn.getLastSignedInAccount(application)
     }
 
     fun onRequestResultReceived(requestCode: Int, resultCode: Int, intent: Intent) {
