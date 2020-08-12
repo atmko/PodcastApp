@@ -94,9 +94,8 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(CommentsViewModel.class)
     ViewModel provideCommentsViewModel(SkipToItApi skipToItApi,
-                                       GoogleSignInClient googleSignInClient,
-                                       SkipToItApplication application) {
-        return new CommentsViewModel(skipToItApi, googleSignInClient, application);
+                                       GoogleSignInClient googleSignInClient) {
+        return new CommentsViewModel(skipToItApi, googleSignInClient);
     }
 
     @Provides

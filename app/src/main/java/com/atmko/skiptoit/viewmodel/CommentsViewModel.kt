@@ -3,7 +3,6 @@ package com.atmko.skiptoit.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -15,8 +14,7 @@ import retrofit2.Response
 
 val TAG = CommentsViewModel::class.simpleName
 class CommentsViewModel(private val skipToItApi: SkipToItApi,
-                        private val googleSignInClient: GoogleSignInClient,
-                        private val application: SkipToItApplication) : ViewModel() {
+                        private val googleSignInClient: GoogleSignInClient) : ViewModel() {
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
