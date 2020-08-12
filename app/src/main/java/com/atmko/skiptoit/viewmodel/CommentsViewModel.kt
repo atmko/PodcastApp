@@ -226,7 +226,7 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
             }
         }
 
-        commentsAdapter.updateCommentVote(comment, position)
+        commentsAdapter.updateChangedComment(comment, position)
     }
 
     fun onDownVoteClick(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
@@ -248,7 +248,7 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
             }
         }
 
-        commentsAdapter.updateCommentVote(comment, position)
+        commentsAdapter.updateChangedComment(comment, position)
     }
 
     private fun voteComment(comment: Comment, voteWeight: Int) {

@@ -93,7 +93,7 @@ class CommentsAdapter(
         notifyDataSetChanged()
     }
 
-    fun updateCommentVote(commentUpdate: Comment, position: Int) {
+    fun updateChangedComment(commentUpdate: Comment, position: Int) {
         comments[position] = commentUpdate
         notifyItemChanged(position)
     }
