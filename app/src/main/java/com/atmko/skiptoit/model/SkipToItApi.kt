@@ -10,7 +10,7 @@ interface SkipToItApi {
     fun createComment(@Path("podcast_id") podcastId: String,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
-                      @Field("comment") comment: String): Single<Response<Void>>
+                      @Field("body") commentBody: String): Single<Response<Void>>
 
     @FormUrlEncoded
     @POST("comments/vote/{comment_id}")
@@ -35,7 +35,7 @@ interface SkipToItApi {
     @POST("replies/{parent_id}")
     fun createReply(@Path("parent_id") parentId: String,
                     @Field("id_token") idToken: String,
-                    @Field("comment") comment: String): Single<Response<Void>>
+                    @Field("body") comment: String): Single<Response<Void>>
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesUnauthenticated(@Path("parent_id") parentId: String,
