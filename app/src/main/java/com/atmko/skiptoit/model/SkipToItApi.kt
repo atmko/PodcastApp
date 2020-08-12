@@ -46,6 +46,11 @@ interface SkipToItApi {
                                 @Path("page") page: Int,
                                 @Query("id_token") idToken: String): Single<List<Comment>>
 
+    @FormUrlEncoded
+    @PUT("comments/{comment_id}")
+    fun updateCommentBody(@Path("comment_id") commentId: String,
+                          @Field("id_token") idToken: String,
+                          @Field("body") commentBody: String): Single<Response<Void>>
 
     @DELETE("comments/{comment_id}")
     fun deleteComment(@Path("comment_id") commentId: String,

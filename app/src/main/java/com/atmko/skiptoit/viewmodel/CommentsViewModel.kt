@@ -293,6 +293,29 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
+    fun updateCommentBody(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
+        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
+            account.idToken?.let {
+                disposable.add(
+                    skipToItApi.updateCommentBody(comment.commentId, it, comment.body)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
+                            override fun onSuccess(response: Response<Void>) {
+                                if (response.isSuccessful) {
+                                    commentsAdapter.updateChangedComment(comment, position)
+                                }
+                            }
+
+                            override fun onError(e: Throwable) {
+
+                            }
+                        })
+                )
+            }
+        }
+    }
+
     fun deleteComment(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
