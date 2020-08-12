@@ -28,6 +28,9 @@
             android:id="@+id/action_navigation_episode_to_navigation_crate_comment"
             app:destination="@id/navigation_create_comment" />
         <action
+            android:id="@+id/action_navigation_episode_to_navigation_update_comment"
+            app:destination="@id/navigation_update_comment" />
+        <action
             android:id="@+id/action_navigation_episode_to_navigation_create_reply"
             app:destination="@id/navigation_create_reply" />
         <action
@@ -52,6 +55,25 @@
         <argument
             android:name="username"
             app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_update_comment"
+        android:name="com.atmko.skiptoit.view.UpdateCommentFragment"
+        android:label="@string/title_update_comment"
+        tools:layout="@layout/fragment_create_comment">
+        <argument
+            android:name="comment_id"
+            app:argType="string" />
+        <argument
+            android:name="username"
+            app:argType="string" />
+        <argument
+            android:name="old_comment_body"
+            app:argType="string" />
+        <argument
+            android:name="comment_adapter_position"
+            app:argType="integer" />
     </fragment>
 
     <fragment

@@ -106,6 +106,11 @@ class CommentsAdapter(
         notifyItemChanged(position)
     }
 
+    fun updateChangedCommentBody(bodyUpdate: String, position: Int) {
+        comments[position].body = bodyUpdate
+        notifyItemChanged(position)
+    }
+
     fun updateRemovedComment(position: Int) {
         comments.removeAt(position)
         notifyItemRemoved(position)

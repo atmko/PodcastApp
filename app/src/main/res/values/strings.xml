@@ -40,6 +40,7 @@
     <string name="title_details">Details</string>
     <string name="title_episode">episode</string>
     <string name="title_create_comment">create_comment</string>
+    <string name="title_update_comment">update_comment</string>
     <string name="title_replies">replies</string>
     <string name="title_create_reply">create_reply</string>
 

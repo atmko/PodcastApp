@@ -21,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import javax.inject.Inject
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
+const val RESULTS_KEY = "results"
 
 const val SCRUBBER_ANIM_LENGTH: Long = 100
 const val SCRUBBER_HIDE_LENGTH: Long = 2000
@@ -100,6 +102,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureValues(savedInstanceState)
         configureEpisodeViewModel()
         configureCommentsViewModel()
+        configureResultsViewModel()
     }
 
     override fun onStart() {
@@ -191,6 +194,18 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
+    private fun attemptToUpdateComment(comment: Comment, position: Int) {
+        val masterActivity = (activity as MasterActivity)
+        val user: User? = masterActivity.user
+        if (user != null) {
+            if (user.username != null) {
+                navigateToUpdateComment(comment, user.username, position)
+            }
+        } else {
+            masterActivity.signIn()
+        }
+    }
+
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
         val masterActivity = (activity as MasterActivity)
         val user: User? = masterActivity.user
@@ -215,6 +230,13 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
                 podcastId, episodeId, username)
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToUpdateComment(comment: Comment, username: String, position: Int) {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationUpdateComment(
+                comment.commentId, username, comment.body, position)
         view?.findNavController()?.navigate(action)
     }
 
@@ -376,6 +398,14 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         })
     }
 
+    private fun configureResultsViewModel() {
+        val resultsLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(RESULTS_KEY)
+        resultsLiveData?.observe(viewLifecycleOwner, Observer {
+            commentsAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
+        })
+    }
+
     override fun onReplyButtonClick(commentId: String, quotedText: String) {
         attemptToReplyComment(commentId, quotedText)
     }
@@ -400,7 +430,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onEditClick(comment: Comment, position: Int) {
-
+        attemptToUpdateComment(comment, position)
     }
 
     //todo consolidate with details show more methods

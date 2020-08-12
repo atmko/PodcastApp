@@ -12,6 +12,7 @@ import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
+import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
@@ -96,6 +97,14 @@ public class ViewModelModule {
     ViewModel provideCommentsViewModel(SkipToItApi skipToItApi,
                                        GoogleSignInClient googleSignInClient) {
         return new CommentsViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(UpdateCommentViewModel.class)
+    ViewModel provideUpdateCommentsViewModel(SkipToItApi skipToItApi,
+                                       GoogleSignInClient googleSignInClient) {
+        return new UpdateCommentViewModel(skipToItApi, googleSignInClient);
     }
 
     @Provides

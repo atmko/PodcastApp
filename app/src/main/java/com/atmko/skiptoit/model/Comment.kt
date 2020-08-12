@@ -16,7 +16,7 @@ class Comment(
     @SerializedName("parent_id")
     val parentId: String,
     val username: String,
-    val body: String,
+    var body: String,
     @SerializedName("vote_tally")
     var voteTally: Int,
     @SerializedName("vote_weight")

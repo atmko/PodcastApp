@@ -20,4 +20,5 @@ interface PresentationComponent {
     fun inject(confirmationFragment: ConfirmationFragment)
     fun inject(createCommentFragment: CreateCommentFragment)
     fun inject(createReplyFragment: CreateReplyFragment)
+    fun inject(updateCommentFragment: UpdateCommentFragment)
 }
