@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.dependencyinjection.presentation;
 
+import android.content.SharedPreferences;
+
 import androidx.lifecycle.ViewModel;
 
 import com.atmko.skiptoit.SkipToItApplication;
@@ -24,6 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 
 import dagger.MapKey;
@@ -89,8 +92,8 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
     ViewModel provideEpisodeViewModel(PodcastsApi podcastApi,
-                                      SkipToItApplication application) {
-        return new EpisodeViewModel(podcastApi, application);
+                                      @Named("episode_fragment")SharedPreferences sharedPreferences) {
+        return new EpisodeViewModel(podcastApi, sharedPreferences);
     }
 
     @Provides
