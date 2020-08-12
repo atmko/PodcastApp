@@ -99,7 +99,7 @@ class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
-    public fun updateUsername(username: String) {
+    fun updateUsername(username: String) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true

@@ -12,7 +12,6 @@ import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CommentsViewModel
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
