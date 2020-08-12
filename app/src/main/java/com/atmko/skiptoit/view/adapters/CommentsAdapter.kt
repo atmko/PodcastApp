@@ -24,6 +24,7 @@ class CommentsAdapter(
         fun onUpVoteClick(comment: Comment, position: Int)
         fun onDownVoteClick(comment: Comment, position: Int)
         fun onDeleteClick(comment: Comment, position: Int)
+        fun onEditClick(comment: Comment, position: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -59,6 +60,9 @@ class CommentsAdapter(
         }
         holder.binding.deleteButton.setOnClickListener {
             clickListener.onDeleteClick(comment, position)
+        }
+        holder.binding.editButton.setOnClickListener {
+            clickListener.onEditClick(comment, position)
         }
 
         holder.binding.user.text = comment.username

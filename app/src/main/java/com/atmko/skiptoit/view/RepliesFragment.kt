@@ -199,4 +199,8 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     override fun onDeleteClick(comment: Comment, position: Int) {
         viewModel?.deleteComment(repliesAdapter, comment, position)
     }
+
+    override fun onEditClick(comment: Comment, position: Int) {
+
+    }
 }

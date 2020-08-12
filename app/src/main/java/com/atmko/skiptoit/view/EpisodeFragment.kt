@@ -399,6 +399,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         commentsViewModel?.deleteComment(commentsAdapter, comment, position)
     }
 
+    override fun onEditClick(comment: Comment, position: Int) {
+
+    }
+
     //todo consolidate with details show more methods
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
