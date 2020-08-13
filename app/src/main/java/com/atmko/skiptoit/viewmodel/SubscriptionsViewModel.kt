@@ -11,6 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subscribers.DisposableSubscriber
 import retrofit2.Response
 
 const val STATUS_SUBSCRIBE = 1
@@ -35,17 +36,21 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
                 .getAllSubscriptions()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<Podcast>>() {
-                    override fun onSuccess(podcasts: List<Podcast>) {
-                        subscriptions.value = podcasts
-                        loadError.value = false
-                        loading.value = false
-                    }
+                .subscribeWith(object : DisposableSubscriber<List<Podcast>>() {
 
                     override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false
                     }
+
+                    override fun onComplete() {
+
+                    }
+
+                    override fun onNext(podcasts: List<Podcast>?) {
+                        subscriptions.value = podcasts
+                        loadError.value = false
+                        loading.value = false                    }
                 })
         )
     }
