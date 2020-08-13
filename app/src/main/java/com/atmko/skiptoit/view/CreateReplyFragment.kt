@@ -80,10 +80,8 @@ class CreateReplyFragment: BaseFragment() {
         binding.usernameTextView.text = username
 
         if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CreateReplyViewModel::class.java)
-            }
+            viewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(CreateReplyViewModel::class.java)
         }
 
         if (savedInstanceState != null) {

@@ -78,10 +78,8 @@ class CreateCommentFragment: BaseFragment() {
         binding.usernameTextView.text = username
 
         if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CreateCommentViewModel::class.java)
-            }
+            viewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(CreateCommentViewModel::class.java)
         }
 
         if (savedInstanceState != null) {

@@ -86,10 +86,8 @@ class UpdateCommentFragment: BaseFragment() {
         binding.usernameTextView.text = username
 
         if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(UpdateCommentViewModel::class.java)
-            }
+            viewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(UpdateCommentViewModel::class.java)
         }
 
         if (savedInstanceState != null) {
