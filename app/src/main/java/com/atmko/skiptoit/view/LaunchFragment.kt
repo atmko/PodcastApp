@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.view
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -45,6 +46,12 @@ class LaunchFragment : BaseFragment(),
     private var masterActivityViewModel: MasterActivityViewModel? = null
 
     private lateinit var launchFragmentViewModel: LaunchFragmentViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

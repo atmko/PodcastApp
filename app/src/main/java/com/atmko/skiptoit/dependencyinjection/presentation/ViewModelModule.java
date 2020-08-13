@@ -13,6 +13,7 @@ import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
+import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
@@ -47,6 +48,13 @@ public class ViewModelModule {
     @Provides
     ViewModelFactory viewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> providerMap) {
         return new ViewModelFactory(providerMap);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(LaunchFragmentViewModel.class)
+    ViewModel provideLaunchFragmentViewModel(@Named("launch_fragment") SharedPreferences sharedPreferences) {
+        return new LaunchFragmentViewModel(sharedPreferences);
     }
 
     @Provides
