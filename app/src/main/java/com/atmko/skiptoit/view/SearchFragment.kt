@@ -30,7 +30,7 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
     @Inject
     lateinit var podcastAdapter: PodcastAdapter
 
-    private var genreId: Int? = null
+    private var genreId: Int = 0
     private lateinit var genreName: String
 
     @Inject
@@ -70,14 +70,13 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        configureViews()
-
-        viewModel = ViewModelProviders.of(parentFragment!!,
-            viewModelFactory).get(genreName, SearchViewModel::class.java)
-        if (viewModel.genreResults.value == null) {
-            genreId?.let { viewModel.fetchPodcastsByGenre(it) }
+        activity?.let {
+            viewModel = ViewModelProviders.of(it,
+                viewModelFactory).get(genreName, SearchViewModel::class.java)
+            viewModel.fetchPodcastsByGenre(genreId)
         }
 
+        configureViews()
         configureViewModel()
     }
 
@@ -86,7 +85,7 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
             layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
             if (isSavedTab()) {
-                scrollToPosition((parentFragment as SearchParentFragment).getSavedScrollPosition())
+                scrollToPosition(getSavedScrollPosition())
             }
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -95,10 +94,18 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
                     val scrollPosition =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
-                    (parentFragment as SearchParentFragment).saveScrollPosition(scrollPosition)
+                    saveScrollPosition(scrollPosition)
                 }
             })
         }
+    }
+
+    fun saveScrollPosition(scrollPosition: Int) {
+        viewModel.scrollPosition = scrollPosition
+    }
+
+    fun getSavedScrollPosition(): Int {
+        return viewModel.scrollPosition
     }
 
     private fun isSavedTab(): Boolean {
