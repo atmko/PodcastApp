@@ -73,6 +73,9 @@ class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
     }
 
     fun getUser() {
+        if (currentUser.value != null) {
+            return
+        }
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true
@@ -99,7 +102,7 @@ class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
-    public fun updateUsername(username: String) {
+    fun updateUsername(username: String) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 loading.value = true

@@ -1,19 +1,17 @@
 package com.atmko.skiptoit.viewmodel
 
-import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.util.AppExecutors
-import com.atmko.skiptoit.view.EPISODE_FRAGMENT_KEY
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class EpisodeViewModel(private val podcastsApi: PodcastsApi,
-                       private val application: SkipToItApplication): ViewModel() {
+                       private val prefs: SharedPreferences): ViewModel() {
     val episodeDetails:MutableLiveData<Episode> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
@@ -43,9 +41,6 @@ class EpisodeViewModel(private val podcastsApi: PodcastsApi,
 
     fun restoreEpisode() {
         loading.value = true
-
-        val prefs = application
-            .getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
 
         AppExecutors.getInstance().diskIO().execute(Runnable {
             val podcastId = prefs.getString(PODCAST_ID_KEY, "")!!

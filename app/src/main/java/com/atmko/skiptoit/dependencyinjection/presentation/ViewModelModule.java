@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.dependencyinjection.presentation;
 
+import android.content.SharedPreferences;
+
 import androidx.lifecycle.ViewModel;
 
 import com.atmko.skiptoit.SkipToItApplication;
@@ -7,9 +9,13 @@ import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
 import com.atmko.skiptoit.viewmodel.CommentsViewModel;
+import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
+import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
+import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
+import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel;
@@ -22,6 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 
 import dagger.MapKey;
@@ -42,6 +49,13 @@ public class ViewModelModule {
     @Provides
     ViewModelFactory viewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> providerMap) {
         return new ViewModelFactory(providerMap);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(LaunchFragmentViewModel.class)
+    ViewModel provideLaunchFragmentViewModel(@Named("launch_fragment") SharedPreferences sharedPreferences) {
+        return new LaunchFragmentViewModel(sharedPreferences);
     }
 
     @Provides
@@ -87,8 +101,8 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
     ViewModel provideEpisodeViewModel(PodcastsApi podcastApi,
-                                      SkipToItApplication application) {
-        return new EpisodeViewModel(podcastApi, application);
+                                      @Named("episode_fragment")SharedPreferences sharedPreferences) {
+        return new EpisodeViewModel(podcastApi, sharedPreferences);
     }
 
     @Provides
@@ -101,10 +115,33 @@ public class ViewModelModule {
 
     @Provides
     @IntoMap
+    @ViewModelKey(CreateCommentViewModel.class)
+    ViewModel provideCreateCommentsViewModel(SkipToItApi skipToItApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new CreateCommentViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(CreateReplyViewModel.class)
+    ViewModel provideCreateReplyViewModel(SkipToItApi skipToItApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new CreateReplyViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
     @ViewModelKey(UpdateCommentViewModel.class)
     ViewModel provideUpdateCommentsViewModel(SkipToItApi skipToItApi,
                                        GoogleSignInClient googleSignInClient) {
         return new UpdateCommentViewModel(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(SearchParentViewModel.class)
+    ViewModel provideSearchParentViewModel(PodcastsApi podcastApi) {
+        return new SearchParentViewModel(podcastApi);
     }
 
     @Provides

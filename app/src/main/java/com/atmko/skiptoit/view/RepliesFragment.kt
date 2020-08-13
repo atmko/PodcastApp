@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -18,6 +19,7 @@ import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
@@ -32,6 +34,10 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private var viewModel: CommentsViewModel? = null
+
+    private lateinit var masterActivityViewModel: MasterActivityViewModel
+    private var user: User? = null
+
     @Inject
     lateinit var repliesAdapter: CommentsAdapter
 
@@ -65,7 +71,8 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         configureViews()
         configureValues(savedInstanceState)
         configureViewModel()
-        configureResultsViewModel()
+        observeEditCommentLiveData()
+        configureMasterActivityViewModel()
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -100,6 +107,12 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         viewModel?.retrieveParentComment(commentId).let { comment ->
             setupParentComment(comment)
         }
+
+
+        //todo refactor other view models to follow this(with logic in view model)
+        masterActivityViewModel = ViewModelProvider(requireActivity(),
+            viewModelFactory).get(MasterActivityViewModel::class.java)
+        masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
             viewModel?.getReplies(commentId, 0)
@@ -152,44 +165,34 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         })
     }
 
-    private fun configureResultsViewModel() {
-        val resultsLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(RESULTS_KEY)
-        resultsLiveData?.observe(viewLifecycleOwner, Observer {
+    private fun observeEditCommentLiveData() {
+        val editCommentLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(EDIT_COMMENT_KEY)
+        editCommentLiveData?.observe(viewLifecycleOwner, Observer {
             repliesAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
         })
     }
 
+    private fun configureMasterActivityViewModel() {
+        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
+            user = it
+        })
+    }
+
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        val masterActivity = (activity as MasterActivity)
-        val user: User? = masterActivity.user
         if (user != null) {
-            if (user.username != null) {
-                navigateToReplyComment(user.username, parentId, quotedText)
-            } else {
-                promptForUsername()
-            }
+            navigateToReplyComment(user!!.username!!, parentId, quotedText)
         } else {
-            masterActivity.signIn()
+            masterActivityViewModel.signIn()
         }
     }
 
     private fun attemptToUpdateReply(comment: Comment, position: Int) {
-        val masterActivity = (activity as MasterActivity)
-        val user: User? = masterActivity.user
         if (user != null) {
-            if (user.username != null) {
-                navigateToUpdateReply(comment, user.username, position)
-            }
+            navigateToUpdateReply(comment, user!!.username!!, position)
         } else {
-            masterActivity.signIn()
+            masterActivityViewModel.signIn()
         }
-    }
-
-    private fun promptForUsername() {
-        val action = RepliesFragmentDirections
-            .actionNavigationRepliesToNavigationBottomSheet("Create a username")
-        view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {

@@ -12,7 +12,7 @@ import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.CreateCommentViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class CreateCommentFragment: BaseFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CommentsViewModel? = null
+    private var viewModel: CreateCommentViewModel? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,10 +78,8 @@ class CreateCommentFragment: BaseFragment() {
         binding.usernameTextView.text = username
 
         if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CommentsViewModel::class.java)
-            }
+            viewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(CreateCommentViewModel::class.java)
         }
 
         if (savedInstanceState != null) {

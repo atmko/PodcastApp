@@ -16,6 +16,7 @@ interface PresentationComponent {
     fun inject(detailsFragment: DetailsFragment)
     fun inject(episodeFragment: EpisodeFragment)
 
+    fun inject(launchFragment: LaunchFragment)
     fun inject(repliesFragment: RepliesFragment)
     fun inject(confirmationFragment: ConfirmationFragment)
     fun inject(createCommentFragment: CreateCommentFragment)

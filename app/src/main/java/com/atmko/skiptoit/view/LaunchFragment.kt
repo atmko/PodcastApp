@@ -2,7 +2,6 @@ package com.atmko.skiptoit.view
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -15,15 +14,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.view.common.BaseFragment
+import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
+import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar
+import javax.inject.Inject
 
 const val LAUNCH_FRAGMENT_KEY = "launch_fragment"
 const val IS_FIRST_SETUP_KEY = "is_first_set_up"
@@ -37,9 +40,18 @@ class LaunchFragment : BaseFragment(),
     private val binding get() = _binding!!
 
     private var isProviderUpdated = false
-    private var viewModel: MasterActivityViewModel? = null
 
-    private var sharedPreferences: SharedPreferences? = null
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+    private var masterActivityViewModel: MasterActivityViewModel? = null
+
+    private lateinit var launchFragmentViewModel: LaunchFragmentViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        getPresentationComponent().inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -82,10 +94,10 @@ class LaunchFragment : BaseFragment(),
 
     override fun onProviderInstalled() {
         isProviderUpdated = true
-        if (!isFirstSetUp()) {
+        if (!launchFragmentViewModel.isFirstSetUp()) {
             startApp()
         } else {
-            configureViewModel()
+            configureMasterActivityViewModel()
         }
     }
 
@@ -125,7 +137,7 @@ class LaunchFragment : BaseFragment(),
         binding.googleContinue.setOnClickListener {
             if (isProviderUpdated) {
                 context?.let {context ->
-                    viewModel!!.signIn()
+                    masterActivityViewModel!!.signIn()
                 }
             }
         }
@@ -138,29 +150,26 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun configureValues() {
-        if (viewModel == null) {
+        if (masterActivityViewModel == null) {
             activity?.let {
-                viewModel = ViewModelProviders.of(it).get(MasterActivityViewModel::class.java)
+                masterActivityViewModel = ViewModelProviders.of(it).get(MasterActivityViewModel::class.java)
             }
         }
 
-        activity?.let {
-            sharedPreferences = it.getSharedPreferences(
-                LAUNCH_FRAGMENT_KEY,
-                Context.MODE_PRIVATE
-            )
-        }
+        //todo: refactor other view models to follow this(with logic in view model)
+        launchFragmentViewModel = ViewModelProvider(requireActivity(),
+            viewModelFactory).get(LaunchFragmentViewModel::class.java)
     }
 
-    private fun configureViewModel() {
-        viewModel!!.messageEvent.setEventReceiver(this, this)
-        viewModel!!.currentUser.observe(viewLifecycleOwner, Observer {
+    private fun configureMasterActivityViewModel() {
+        masterActivityViewModel!!.messageEvent.setEventReceiver(this, this)
+        masterActivityViewModel!!.currentUser.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 startApp()
             }
         })
 
-        viewModel!!.loadError.observe(viewLifecycleOwner, Observer {
+        masterActivityViewModel!!.loadError.observe(viewLifecycleOwner, Observer {
             if (it) {
                 Snackbar.make(binding.topLayout,
                     getString(R.string.couldnt_connect_to_server), Snackbar.LENGTH_SHORT).show()
@@ -174,16 +183,8 @@ class LaunchFragment : BaseFragment(),
         }
     }
 
-    private fun isFirstSetUp(): Boolean {
-        return sharedPreferences!!.getBoolean(IS_FIRST_SETUP_KEY, true)
-    }
-
-    private fun setIsFirstSetUpFalse() {
-        sharedPreferences!!.edit().putBoolean(IS_FIRST_SETUP_KEY, false).apply()
-    }
-
     private fun startApp() {
-        setIsFirstSetUpFalse()
+        launchFragmentViewModel.setIsFirstSetUpFalse()
         val action = LaunchFragmentDirections.actionNavigationLaunchToNavigationSubscriptions()
         view?.findNavController()?.navigate(action)
     }

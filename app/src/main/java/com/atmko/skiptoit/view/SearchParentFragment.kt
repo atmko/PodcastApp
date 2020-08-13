@@ -19,7 +19,7 @@ import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.adapters.GenrePagerAdapter
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.SearchViewModel
+import com.atmko.skiptoit.viewmodel.SearchParentViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
@@ -33,7 +33,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: SearchViewModel
+    private lateinit var viewModel: SearchParentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -133,7 +133,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
     private fun configureValues() {
         activity?.let {
             viewModel = ViewModelProviders.of(it,
-                viewModelFactory).get(SearchViewModel::class.java)
+                viewModelFactory).get(SearchParentViewModel::class.java)
         }
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
     }
@@ -168,14 +168,6 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
     fun saveTabPosition(tabPosition: Int) {
         viewModel.tabPosition = tabPosition
-    }
-
-    fun saveScrollPosition(scrollPosition: Int) {
-        viewModel.scrollPosition = scrollPosition
-    }
-
-    fun getSavedScrollPosition(): Int {
-        return viewModel.scrollPosition
     }
 
     override fun onDestroy() {

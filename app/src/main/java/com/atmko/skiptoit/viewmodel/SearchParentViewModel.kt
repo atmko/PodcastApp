@@ -10,36 +10,32 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
-class SearchViewModel(private val podcastsApi: PodcastsApi): ViewModel() {
-
-    val genreResults:MutableLiveData<List<Podcast>> = MutableLiveData()
-    val genreLoadError: MutableLiveData<Boolean> = MutableLiveData()
-    val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
+class SearchParentViewModel(private val podcastsApi: PodcastsApi): ViewModel() {
+    val searchResults:MutableLiveData<List<Podcast>> = MutableLiveData()
+    val searchLoadError: MutableLiveData<Boolean> = MutableLiveData()
+    val searchLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     //state save variables
-    var scrollPosition: Int = 0
+    var tabPosition: Int = 0
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    fun fetchPodcastsByGenre(genreId: Int) {
-        if (genreResults.value != null) {
-            return
-        }
-        genreLoading.value = true
+    fun search(queryString: String) {
+        searchLoading.value = true
         disposable.add(
-            podcastsApi.getPodcastsByGenre(genreId)
+            podcastsApi.searchPodcasts(queryString)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
                     override fun onSuccess(results: ApiResults) {
-                        genreResults.value = results.podcasts
-                        genreLoadError.value = false
-                        genreLoading.value = false
+                        searchResults.value = results.podcasts
+                        searchLoadError.value = false
+                        searchLoading.value = false
                     }
 
                     override fun onError(e: Throwable) {
-                        genreLoadError.value = true
-                        genreLoading.value = false
+                        searchLoadError.value = true
+                        searchLoading.value = false
                     }
                 })
         )
