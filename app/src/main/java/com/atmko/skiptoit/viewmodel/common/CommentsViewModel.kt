@@ -1,10 +1,9 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.viewmodel.common
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -12,59 +11,14 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
-class CommentsViewModel(private val skipToItApi: SkipToItApi,
-                        private val googleSignInClient: GoogleSignInClient) : ViewModel() {
+open class CommentsViewModel(
+    private val skipToItApi: SkipToItApi,
+    private val googleSignInClient: GoogleSignInClient
+) : ViewModel() {
 
-    val TAG = CommentsViewModel::class.simpleName
+    val TAG = this::class.simpleName
 
     private val disposable: CompositeDisposable = CompositeDisposable()
-
-    val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun getComments(episodeId: String, page: Int) {
-        loading.value = true
-        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
-            account.idToken?.let {
-                disposable.add(
-                    skipToItApi.getCommentsAuthenticated(episodeId, page, it)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                            override fun onSuccess(comments: List<Comment>) {
-                                episodeComments.value = comments
-                                loadError.value = false
-                                loading.value = false
-                            }
-
-                            override fun onError(e: Throwable) {
-                                loadError.value = true
-                                loading.value = false
-                            }
-                        })
-                )
-            }
-        }.addOnFailureListener {
-            disposable.add(
-                skipToItApi.getCommentsUnauthenticated(episodeId, page)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                        override fun onSuccess(comments: List<Comment>) {
-                            episodeComments.value = comments
-                            loadError.value = false
-                            loading.value = false
-                        }
-
-                        override fun onError(e: Throwable) {
-                            loadError.value = true
-                            loading.value = false
-                        }
-                    })
-            )
-        }
-    }
 
     //updates to this reflect local comment changes and not server
     val localCommentVoteUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()

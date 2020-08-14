@@ -32,7 +32,7 @@ import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CommentsViewModel
+import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
@@ -69,7 +69,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private var episodeViewModel: EpisodeViewModel? = null
     private var episodeDetails: Episode? = null
 
-    private var commentsViewModel: CommentsViewModel? = null
+    private var parentCommentsViewModel: ParentCommentsViewModel? = null
 
     private lateinit var masterActivityViewModel: MasterActivityViewModel
     private var user: User? = null
@@ -213,21 +213,24 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private fun navigateToCreateComment(username: String) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, episodeId, username)
+                podcastId, episodeId, username
+            )
         view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToUpdateComment(comment: Comment, username: String, position: Int) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationUpdateComment(
-                comment.commentId, username, comment.body, position)
+                comment.commentId, username, comment.body, position
+            )
         view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationCreateReply(
-                parentId, quotedText, username)
+                parentId, quotedText, username
+            )
         view?.findNavController()?.navigate(action)
     }
 
@@ -266,18 +269,24 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (episodeViewModel == null) {
-            episodeViewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(EpisodeViewModel::class.java)
+            episodeViewModel = ViewModelProviders.of(
+                this,
+                viewModelFactory
+            ).get(EpisodeViewModel::class.java)
         }
 
-        if (commentsViewModel == null) {
-            commentsViewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(CommentsViewModel::class.java)
+        if (parentCommentsViewModel == null) {
+            parentCommentsViewModel = ViewModelProviders.of(
+                this,
+                viewModelFactory
+            ).get(ParentCommentsViewModel::class.java)
         }
 
         //todo refactor other view models to follow this(with logic in view model)
-        masterActivityViewModel = ViewModelProvider(requireActivity(),
-            viewModelFactory).get(MasterActivityViewModel::class.java)
+        masterActivityViewModel = ViewModelProvider(
+            requireActivity(),
+            viewModelFactory
+        ).get(MasterActivityViewModel::class.java)
         masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
@@ -287,7 +296,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 } else {
                     episodeViewModel?.refresh(it)
                 }
-                commentsViewModel?.getComments(it, 0)
+                parentCommentsViewModel?.getComments(it, 0)
             }
             binding.showMore.tag = false
         } else {
@@ -298,7 +307,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private fun configureEpisodeViewModel() {
         episodeViewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
-            episodeDetails?.let {details ->
+            episodeDetails?.let { details ->
                 //set expanded values
                 details.image?.let { binding.expandedPodcastImageView.loadNetworkImage(it) }
                 binding.expandedTitle.text = details.podcast?.title
@@ -314,7 +323,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 //set collapsed values
                 activity?.let {
                     (activity as MasterActivity)
-                        .setCollapsedSheetValues(details.image, details.podcast?.title, details.title)
+                        .setCollapsedSheetValues(
+                            details.image,
+                            details.podcast?.title,
+                            details.title
+                        )
                 }
 
                 context?.let {
@@ -322,7 +335,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
                     if (!isRestoringEpisode) {
                         mPlaybackService?.play()
-                        val sharedPrefs = activity?.getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
+                        val sharedPrefs = activity?.getSharedPreferences(
+                            EPISODE_FRAGMENT_KEY,
+                            Context.MODE_PRIVATE
+                        )
                         sharedPrefs?.let {
                             sharedPrefs.edit()
                                 .putString(PODCAST_ID_KEY, details.podcast?.id)
@@ -360,27 +376,31 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureCommentsViewModel() {
-        commentsViewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
-            localCommentVoteUpdate?.let {
-                commentsAdapter.updateChangedComment(
-                    it.comment, it.adapterPosition
-                )
-            }
-        })
+        parentCommentsViewModel?.localCommentVoteUpdate?.observe(
+            viewLifecycleOwner,
+            Observer { localCommentVoteUpdate ->
+                localCommentVoteUpdate?.let {
+                    commentsAdapter.updateChangedComment(
+                        it.comment, it.adapterPosition
+                    )
+                }
+            })
 
-        commentsViewModel?.deleteCommentUpdate?.observe(viewLifecycleOwner, Observer { deleteCommentUpdate ->
-            deleteCommentUpdate?.let {
-                commentsAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
-            }
-        })
+        parentCommentsViewModel?.deleteCommentUpdate?.observe(
+            viewLifecycleOwner,
+            Observer { deleteCommentUpdate ->
+                deleteCommentUpdate?.let {
+                    commentsAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
+                }
+            })
 
-        commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
+        parentCommentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
             binding.commentCount.text = it.size.toString()
         })
 
-        commentsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        parentCommentsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -391,7 +411,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        commentsViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        parentCommentsViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -424,15 +444,15 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onUpVoteClick(comment: Comment, position: Int) {
-        commentsViewModel?.onUpVoteClick(comment, position)
+        parentCommentsViewModel?.onUpVoteClick(comment, position)
     }
 
     override fun onDownVoteClick(comment: Comment, position: Int) {
-        commentsViewModel?.onDownVoteClick(comment, position)
+        parentCommentsViewModel?.onDownVoteClick(comment, position)
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
-        commentsViewModel?.deleteComment(comment, position)
+        parentCommentsViewModel?.deleteComment(comment, position)
     }
 
     override fun onEditClick(comment: Comment, position: Int) {
@@ -458,7 +478,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         val descriptionText = binding.description
         descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text = Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
+            descriptionText.text =
+                Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
         } else {
             descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }
@@ -471,7 +492,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         val descriptionText = binding.description
         descriptionText.maxLines = Int.MAX_VALUE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text = Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
+            descriptionText.text =
+                Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
         } else {
             descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }

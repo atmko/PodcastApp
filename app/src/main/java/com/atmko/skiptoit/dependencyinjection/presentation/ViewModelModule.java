@@ -8,7 +8,7 @@ import com.atmko.skiptoit.SkipToItApplication;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
-import com.atmko.skiptoit.viewmodel.CommentsViewModel;
+import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel;
 import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
@@ -102,16 +102,16 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
     ViewModel provideEpisodeViewModel(PodcastsApi podcastApi,
-                                      @Named("episode_fragment")SharedPreferences sharedPreferences) {
+                                      @Named("episode_fragment") SharedPreferences sharedPreferences) {
         return new EpisodeViewModel(podcastApi, sharedPreferences);
     }
 
     @Provides
     @IntoMap
-    @ViewModelKey(CommentsViewModel.class)
+    @ViewModelKey(ParentCommentsViewModel.class)
     ViewModel provideCommentsViewModel(SkipToItApi skipToItApi,
                                        GoogleSignInClient googleSignInClient) {
-        return new CommentsViewModel(skipToItApi, googleSignInClient);
+        return new ParentCommentsViewModel(skipToItApi, googleSignInClient);
     }
 
     @Provides
@@ -134,7 +134,7 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(CreateReplyViewModel.class)
     ViewModel provideCreateReplyViewModel(SkipToItApi skipToItApi,
-                                             GoogleSignInClient googleSignInClient) {
+                                          GoogleSignInClient googleSignInClient) {
         return new CreateReplyViewModel(skipToItApi, googleSignInClient);
     }
 
@@ -142,7 +142,7 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(UpdateCommentViewModel.class)
     ViewModel provideUpdateCommentsViewModel(SkipToItApi skipToItApi,
-                                       GoogleSignInClient googleSignInClient) {
+                                             GoogleSignInClient googleSignInClient) {
         return new UpdateCommentViewModel(skipToItApi, googleSignInClient);
     }
 

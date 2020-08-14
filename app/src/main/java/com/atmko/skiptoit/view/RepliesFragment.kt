@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 const val PARENT_COMMENT_POSITION = -1
 
-class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
+class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
@@ -97,15 +97,19 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(RepliesViewModel::class.java)
+            viewModel = ViewModelProviders.of(
+                this,
+                viewModelFactory
+            ).get(RepliesViewModel::class.java)
         }
 
         setupParentComment(parentComment)
 
         //todo refactor other view models to follow this(with logic in view model)
-        masterActivityViewModel = ViewModelProvider(requireActivity(),
-            viewModelFactory).get(MasterActivityViewModel::class.java)
+        masterActivityViewModel = ViewModelProvider(
+            requireActivity(),
+            viewModelFactory
+        ).get(MasterActivityViewModel::class.java)
         masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
@@ -160,27 +164,31 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     private fun configureViewModel() {
-        viewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
-            localCommentVoteUpdate?.let {
-                if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
-                    setupParentComment(localCommentVoteUpdate.comment)
-                } else {
-                    repliesAdapter.updateChangedComment(
-                        localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
-                    )
+        viewModel?.localCommentVoteUpdate?.observe(
+            viewLifecycleOwner,
+            Observer { localCommentVoteUpdate ->
+                localCommentVoteUpdate?.let {
+                    if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
+                        setupParentComment(localCommentVoteUpdate.comment)
+                    } else {
+                        repliesAdapter.updateChangedComment(
+                            localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
+                        )
+                    }
                 }
-            }
-        })
+            })
 
-        viewModel?.deleteCommentUpdate?.observe(viewLifecycleOwner, Observer { deleteCommentUpdate ->
-            deleteCommentUpdate?.let {
-                if (deleteCommentUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
-                    findNavController().navigateUp()
-                } else {
-                    repliesAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
+        viewModel?.deleteCommentUpdate?.observe(
+            viewLifecycleOwner,
+            Observer { deleteCommentUpdate ->
+                deleteCommentUpdate?.let {
+                    if (deleteCommentUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
+                        findNavController().navigateUp()
+                    } else {
+                        repliesAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
+                    }
                 }
-            }
-        })
+            })
 
         viewModel?.commentReplies?.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
@@ -241,7 +249,8 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
         val action = RepliesFragmentDirections
             .actionNavigationRepliesToNavigationCreateReply(
-                parentId, quotedText, username)
+                parentId, quotedText, username
+            )
         view?.findNavController()?.navigate(action)
     }
 
@@ -249,7 +258,8 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         val action = RepliesFragmentDirections
             .actionNavigationEpisodeToNavigationUpdateReply(
                 comment.commentId, username, binding.parentComment.body.text.toString(),
-                comment.body, position)
+                comment.body, position
+            )
         view?.findNavController()?.navigate(action)
     }
 
