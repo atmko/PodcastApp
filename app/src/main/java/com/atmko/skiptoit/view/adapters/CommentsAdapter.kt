@@ -3,6 +3,7 @@ package com.atmko.skiptoit.view.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ItemCommentBinding
@@ -68,28 +69,17 @@ class CommentsAdapter(
         holder.binding.user.text = comment.username
         holder.binding.body.text = comment.body
 
-        when (comment.voteWeight) {
-            VOTE_WEIGHT_UP_VOTE -> {
-                holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote_color)
-                holder.binding.downVoteButton.setImageResource(R.drawable.ic_down_vote)
-            }
-            VOTE_WEIGHT_DOWN_VOTE -> {
-                holder.binding.downVoteButton.setImageResource(R.drawable.ic_down_vote_color)
-                holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote)
-            }
-            else -> {
-                holder.binding.upVoteButton.setImageResource(R.drawable.ic_up_vote)
-                holder.binding.downVoteButton.setImageResource(R.drawable.ic_down_vote)
-            }
-        }
+        configureUpDownVoteButtonResource(
+            comment,
+            holder.binding.upVoteButton,
+            holder.binding.downVoteButton
+        )
 
-        if (comment.isUserComment) {
-            holder.binding.editButton.visibility = View.VISIBLE
-            holder.binding.deleteButton.visibility = View.VISIBLE
-        } else {
-            holder.binding.editButton.visibility = View.GONE
-            holder.binding.deleteButton.visibility = View.GONE
-        }
+        configureDeleteEditButtonVisibility(
+            comment,
+            holder.binding.editButton,
+            holder.binding.deleteButton
+        )
 
         holder.binding.votes.text = comment.voteTally.toString()
 
@@ -101,6 +91,41 @@ class CommentsAdapter(
             holder.binding.replies.visibility = View.GONE
         }
         comment.profileImage?.let { holder.binding.profileImageView.loadNetworkImage(it) }
+    }
+
+    fun configureUpDownVoteButtonResource(
+        comment: Comment,
+        upVoteButton: ImageButton,
+        downVoteButton: ImageButton
+    ) {
+        when (comment.voteWeight) {
+            VOTE_WEIGHT_UP_VOTE -> {
+                upVoteButton.setImageResource(R.drawable.ic_up_vote_color)
+                downVoteButton.setImageResource(R.drawable.ic_down_vote)
+            }
+            VOTE_WEIGHT_DOWN_VOTE -> {
+                downVoteButton.setImageResource(R.drawable.ic_down_vote_color)
+                upVoteButton.setImageResource(R.drawable.ic_up_vote)
+            }
+            else -> {
+                upVoteButton.setImageResource(R.drawable.ic_up_vote)
+                downVoteButton.setImageResource(R.drawable.ic_down_vote)
+            }
+        }
+    }
+
+    fun configureDeleteEditButtonVisibility(
+        comment: Comment,
+        editButton: ImageButton,
+        deleteButton: ImageButton
+    ) {
+        if (comment.isUserComment) {
+            editButton.visibility = View.VISIBLE
+            deleteButton.visibility = View.VISIBLE
+        } else {
+            editButton.visibility = View.GONE
+            deleteButton.visibility = View.GONE
+        }
     }
 
     fun updateComments(updatedComments: List<Comment>) {

@@ -113,36 +113,50 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         }
     }
 
-    private fun setupParentComment(comment: Comment?) {
+    private fun setupParentComment(comment: Comment) {
         binding.parentComment.replyButton.setOnClickListener {
-            onReplyButtonClick(comment!!.commentId, comment.body)
+            onReplyButtonClick(comment.commentId, comment.body)
         }
         binding.parentComment.upVoteButton.setOnClickListener {
-            onUpVoteClick(comment!!, PARENT_COMMENT_POSITION)
+            onUpVoteClick(comment, PARENT_COMMENT_POSITION)
         }
         binding.parentComment.downVoteButton.setOnClickListener {
-            onDownVoteClick(comment!!, PARENT_COMMENT_POSITION)
+            onDownVoteClick(comment, PARENT_COMMENT_POSITION)
         }
         binding.parentComment.deleteButton.setOnClickListener {
-            onDeleteClick(comment!!, PARENT_COMMENT_POSITION)
+            onDeleteClick(comment, PARENT_COMMENT_POSITION)
         }
         binding.parentComment.editButton.setOnClickListener {
-            onEditClick(comment!!, PARENT_COMMENT_POSITION)
+            onEditClick(comment, PARENT_COMMENT_POSITION)
         }
 
-        binding.parentComment.user.text = comment?.username
-        binding.parentComment.body.text = comment?.body
-        binding.parentComment.votes.text = comment?.voteTally.toString()
-        if (comment?.replies != 0) {
+        repliesAdapter
+            .configureUpDownVoteButtonResource(
+                comment,
+                binding.parentComment.upVoteButton,
+                binding.parentComment.downVoteButton
+            )
+
+        repliesAdapter
+            .configureDeleteEditButtonVisibility(
+                comment,
+                binding.parentComment.editButton,
+                binding.parentComment.deleteButton
+            )
+
+        binding.parentComment.user.text = comment.username
+        binding.parentComment.body.text = comment.body
+        binding.parentComment.votes.text = comment.voteTally.toString()
+        if (comment.replies != 0) {
             binding.parentComment.replies.text =
                 String.format(
                     binding.parentComment.replies.text.toString(),
-                    comment?.replies.toString()
+                    comment.replies.toString()
                 )
         } else {
             binding.parentComment.replies.visibility = View.GONE
         }
-        comment?.profileImage?.let { binding.parentComment.profileImageView.loadNetworkImage(it) }
+        comment.profileImage?.let { binding.parentComment.profileImageView.loadNetworkImage(it) }
     }
 
     private fun configureViewModel() {
