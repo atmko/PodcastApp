@@ -23,6 +23,8 @@ import com.atmko.skiptoit.viewmodel.RepliesViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
+const val PARENT_COMMENT_POSITION = -1
+
 class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
 
     private var _binding: FragmentRepliesBinding? = null
@@ -115,6 +117,13 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         binding.parentComment.replyButton.setOnClickListener {
             onReplyButtonClick(comment!!.commentId, comment.body)
         }
+        binding.parentComment.upVoteButton.setOnClickListener {
+            onUpVoteClick(comment!!, PARENT_COMMENT_POSITION)
+        }
+        binding.parentComment.downVoteButton.setOnClickListener {
+            onDownVoteClick(comment!!, PARENT_COMMENT_POSITION)
+        }
+
         binding.parentComment.user.text = comment?.username
         binding.parentComment.body.text = comment?.body
         binding.parentComment.votes.text = comment?.voteTally.toString()
@@ -131,6 +140,16 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     private fun configureViewModel() {
+        viewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
+            if (localCommentVoteUpdate[1] == PARENT_COMMENT_POSITION) {
+                setupParentComment(localCommentVoteUpdate[0] as Comment)
+            } else {
+                repliesAdapter.updateChangedComment(
+                    localCommentVoteUpdate[0] as Comment, localCommentVoteUpdate[1] as Int
+                )
+            }
+        })
+
         viewModel?.commentReplies?.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             replies?.let {
@@ -213,11 +232,11 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     override fun onUpVoteClick(comment: Comment, position: Int) {
-        viewModel?.onUpVoteClick(repliesAdapter, comment, position)
+        viewModel?.onUpVoteClick(comment, position)
     }
 
     override fun onDownVoteClick(comment: Comment, position: Int) {
-        viewModel?.onDownVoteClick(repliesAdapter, comment, position)
+        viewModel?.onDownVoteClick(comment, position)
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
