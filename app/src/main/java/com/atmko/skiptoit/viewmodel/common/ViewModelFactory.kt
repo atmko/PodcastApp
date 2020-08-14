@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.viewmodel.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

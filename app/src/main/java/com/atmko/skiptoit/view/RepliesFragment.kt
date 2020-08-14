@@ -20,7 +20,7 @@ import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.RepliesViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
 const val PARENT_COMMENT_POSITION = -1

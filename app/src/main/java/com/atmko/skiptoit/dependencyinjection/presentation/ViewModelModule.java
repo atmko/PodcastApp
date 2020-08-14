@@ -20,7 +20,7 @@ import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel;
-import com.atmko.skiptoit.viewmodel.ViewModelFactory;
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;

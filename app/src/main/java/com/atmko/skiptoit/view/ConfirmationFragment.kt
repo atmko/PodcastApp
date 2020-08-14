@@ -12,7 +12,7 @@ import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.view.common.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
 class ConfirmationFragment : BaseBottomSheetDialogFragment() {

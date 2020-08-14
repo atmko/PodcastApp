@@ -27,7 +27,7 @@ import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.common.BaseActivity
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject

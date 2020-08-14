@@ -15,7 +15,7 @@ import com.atmko.skiptoit.model.BodyUpdate
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
 class UpdateReplyFragment: BaseFragment() {

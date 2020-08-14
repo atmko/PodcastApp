@@ -22,7 +22,7 @@ import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar

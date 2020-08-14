@@ -20,7 +20,7 @@ import com.atmko.skiptoit.view.adapters.GenrePagerAdapter
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.SearchParentViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 

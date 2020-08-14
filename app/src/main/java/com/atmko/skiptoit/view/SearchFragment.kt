@@ -20,7 +20,7 @@ import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.SearchViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
 class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {

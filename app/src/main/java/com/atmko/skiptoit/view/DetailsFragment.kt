@@ -18,7 +18,7 @@ import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.DetailsViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
 private const val SHOW_MORE_KEY = "show_more"

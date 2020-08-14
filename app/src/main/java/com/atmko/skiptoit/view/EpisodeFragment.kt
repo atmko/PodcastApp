@@ -35,7 +35,7 @@ import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.ViewModelFactory
+import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import javax.inject.Inject
 
