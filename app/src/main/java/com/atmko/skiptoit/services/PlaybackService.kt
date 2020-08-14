@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.services
 
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
@@ -56,13 +55,13 @@ class PlaybackService: BaseService() {
         player = null
     }
 
-    fun prepareMediaForPlayback(uri: Uri?, context: Context) {
+    fun prepareMediaForPlayback(uri: Uri?) {
         uri?.let {
             if (uri != oldUri) {
                 // Produces DataSource instances through which media data is loaded.
                 val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                    context,
-                    Util.getUserAgent(context, getString(R.string.app_name))
+                    this,
+                    Util.getUserAgent(this, getString(R.string.app_name))
                 )
                 // This is the MediaSource representing the media to be played.
                 val audioSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
