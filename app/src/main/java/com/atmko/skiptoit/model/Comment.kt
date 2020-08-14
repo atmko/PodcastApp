@@ -1,6 +1,7 @@
 package com.atmko.skiptoit.model
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 const val BODY_KEY: String = "body"
 
@@ -25,4 +26,4 @@ class Comment(
     var voteWeight: Int,
     val replies: Int,
     @SerializedName("profile_image")
-    val profileImage: String?)
+    val profileImage: String?) : Serializable

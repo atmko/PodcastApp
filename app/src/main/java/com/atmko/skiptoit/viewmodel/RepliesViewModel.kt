@@ -12,54 +12,55 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
-class CommentsViewModel(private val skipToItApi: SkipToItApi,
-                        private val googleSignInClient: GoogleSignInClient) : ViewModel() {
+class RepliesViewModel(private val skipToItApi: SkipToItApi,
+                       private val googleSignInClient: GoogleSignInClient) : ViewModel() {
 
-    val TAG = CommentsViewModel::class.simpleName
+    val TAG = RepliesViewModel::class.simpleName
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val episodeComments:MutableLiveData<List<Comment>> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
+    val commentReplies: MutableLiveData<List<Comment>> = MutableLiveData()
+    val repliesLoadError: MutableLiveData<Boolean> = MutableLiveData()
+    val repliesLoading: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun getComments(episodeId: String, page: Int) {
-        loading.value = true
+    //network call to get comment's replies
+    fun getReplies(commentId: String, page: Int) {
+        repliesLoading.value = true
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 disposable.add(
-                    skipToItApi.getCommentsAuthenticated(episodeId, page, it)
+                    skipToItApi.getRepliesAuthenticated(commentId, page, it)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                            override fun onSuccess(comments: List<Comment>) {
-                                episodeComments.value = comments
-                                loadError.value = false
-                                loading.value = false
+                            override fun onSuccess(replies: List<Comment>) {
+                                commentReplies.value = replies
+                                repliesLoadError.value = false
+                                repliesLoading.value = false
                             }
 
                             override fun onError(e: Throwable) {
-                                loadError.value = true
-                                loading.value = false
+                                repliesLoadError.value = true
+                                repliesLoading.value = false
                             }
                         })
                 )
             }
         }.addOnFailureListener {
             disposable.add(
-                skipToItApi.getCommentsUnauthenticated(episodeId, page)
+                skipToItApi.getRepliesUnauthenticated(commentId, page)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                        override fun onSuccess(comments: List<Comment>) {
-                            episodeComments.value = comments
-                            loadError.value = false
-                            loading.value = false
+                        override fun onSuccess(replies: List<Comment>) {
+                            commentReplies.value = replies
+                            repliesLoadError.value = false
+                            repliesLoading.value = false
                         }
 
                         override fun onError(e: Throwable) {
-                            loadError.value = true
-                            loading.value = false
+                            repliesLoadError.value = true
+                            repliesLoading.value = false
                         }
                     })
             )

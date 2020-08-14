@@ -407,8 +407,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onRepliesButtonClick(comment: Comment) {
         val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationReplies(comment.commentId, comment.parentId)
-        commentsViewModel?.saveParentComment(comment)
+            .actionNavigationEpisodeToNavigationReplies(comment)
         view?.findNavController()?.navigate(action)
     }
 

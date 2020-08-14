@@ -18,8 +18,8 @@ import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CommentsViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
+import com.atmko.skiptoit.viewmodel.RepliesViewModel
 import com.atmko.skiptoit.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
@@ -28,12 +28,11 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var commentId: String
-    private var parentId: String? = null
+    private lateinit var parentComment: Comment
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CommentsViewModel? = null
+    private var viewModel: RepliesViewModel? = null
 
     private lateinit var masterActivityViewModel: MasterActivityViewModel
     private var user: User? = null
@@ -51,8 +50,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         super.onCreate(savedInstanceState)
 
         val args: RepliesFragmentArgs by navArgs()
-        commentId = args.commentId
-        parentId = args.parentId
+        parentComment = args.parentComment
 
         configureBaseBackButtonFunctionality()
     }
@@ -80,7 +78,6 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
             override fun handleOnBackPressed() {
                 val masterActivity = (activity as MasterActivity)
                 if (masterActivity.isBottomSheetExpanded()) {
-                    viewModel?.removeParentComment(commentId)
                     view?.findNavController()?.navigateUp()
                 }
             }
@@ -98,16 +95,11 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     private fun configureValues(savedInstanceState: Bundle?) {
         if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CommentsViewModel::class.java)
-            }
+            viewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(RepliesViewModel::class.java)
         }
 
-        viewModel?.retrieveParentComment(commentId).let { comment ->
-            setupParentComment(comment)
-        }
-
+        setupParentComment(parentComment)
 
         //todo refactor other view models to follow this(with logic in view model)
         masterActivityViewModel = ViewModelProvider(requireActivity(),
@@ -115,7 +107,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
-            viewModel?.getReplies(commentId, 0)
+            viewModel?.getReplies(parentComment.commentId, 0)
         }
     }
 
@@ -139,10 +131,10 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     private fun configureViewModel() {
-        viewModel?.repliesMap?.observe(viewLifecycleOwner, Observer { reliesMap ->
+        viewModel?.commentReplies?.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
-            reliesMap?.get(commentId)?.let {
-                repliesAdapter.updateComments(viewModel!!.retrieveReplies(commentId))
+            replies?.let {
+                repliesAdapter.updateComments(replies)
             }
         })
 
@@ -216,8 +208,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     override fun onRepliesButtonClick(comment: Comment) {
         val action = RepliesFragmentDirections
-            .actionNavigationRepliesToNavigationReplies(comment.commentId, comment.parentId)
-        viewModel?.saveParentComment(comment)
+            .actionNavigationRepliesToNavigationReplies(comment)
         view?.findNavController()?.navigate(action)
     }
 
