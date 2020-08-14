@@ -362,6 +362,12 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureCommentsViewModel() {
+        commentsViewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
+            commentsAdapter.updateChangedComment(
+                localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
+            )
+        })
+
         commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
@@ -412,11 +418,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onUpVoteClick(comment: Comment, position: Int) {
-        commentsViewModel?.onUpVoteClick(commentsAdapter, comment, position)
+        commentsViewModel?.onUpVoteClick(comment, position)
     }
 
     override fun onDownVoteClick(comment: Comment, position: Int) {
-        commentsViewModel?.onDownVoteClick(commentsAdapter, comment, position)
+        commentsViewModel?.onDownVoteClick(comment, position)
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
