@@ -157,7 +157,10 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
-    fun deleteComment(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
+    //updates to this reflect local comment changes and not server
+    val deleteCommentUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
+
+    fun deleteComment(comment: Comment, position: Int) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 disposable.add(
@@ -167,7 +170,8 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
                                 if (response.isSuccessful) {
-                                    commentsAdapter.updateRemovedComment(position)
+                                    deleteCommentUpdate.value = CommentUpdate(comment, position)
+                                    deleteCommentUpdate.value = null
                                 }
                             }
 

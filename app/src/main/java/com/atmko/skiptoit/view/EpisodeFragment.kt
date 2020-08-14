@@ -368,6 +368,12 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
+        commentsViewModel?.deleteCommentUpdate?.observe(viewLifecycleOwner, Observer { deleteCommentUpdate ->
+            deleteCommentUpdate?.let {
+                commentsAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
+            }
+        })
+
         commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
@@ -426,7 +432,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
-        commentsViewModel?.deleteComment(commentsAdapter, comment, position)
+        commentsViewModel?.deleteComment(comment, position)
     }
 
     override fun onEditClick(comment: Comment, position: Int) {

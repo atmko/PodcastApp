@@ -152,6 +152,16 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
             }
         })
 
+        viewModel?.deleteCommentUpdate?.observe(viewLifecycleOwner, Observer { deleteCommentUpdate ->
+            deleteCommentUpdate?.let {
+                if (deleteCommentUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
+                    findNavController().navigateUp()
+                } else {
+                    repliesAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
+                }
+            }
+        })
+
         viewModel?.commentReplies?.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             replies?.let {
@@ -242,7 +252,7 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
-        viewModel?.deleteComment(repliesAdapter, comment, position)
+        viewModel?.deleteComment(comment, position)
     }
 
     override fun onEditClick(comment: Comment, position: Int) {

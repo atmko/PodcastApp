@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -158,7 +157,10 @@ class RepliesViewModel(private val skipToItApi: SkipToItApi,
         }
     }
 
-    fun deleteComment(commentsAdapter: CommentsAdapter, comment: Comment, position: Int) {
+    //updates to this reflect local comment changes and not server
+    val deleteCommentUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
+
+    fun deleteComment(comment: Comment, position: Int) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 disposable.add(
@@ -168,7 +170,8 @@ class RepliesViewModel(private val skipToItApi: SkipToItApi,
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
                                 if (response.isSuccessful) {
-                                    commentsAdapter.updateRemovedComment(position)
+                                    deleteCommentUpdate.value = CommentUpdate(comment, position)
+                                    deleteCommentUpdate.value = null
                                 }
                             }
 
