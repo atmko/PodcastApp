@@ -147,7 +147,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             mIsBound = true
             mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
-            mPlaybackService!!.prepareMediaForPlayback(Uri.parse(episodeDetails?.audio))
+            episodeDetails?.let {
+                mPlaybackService!!.prepareMediaForPlayback(Uri.parse(it.audio))
+            }
             binding.playPanel.player = mPlaybackService?.player
             binding.playPanel.showController()
         }
