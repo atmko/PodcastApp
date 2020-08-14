@@ -123,6 +123,12 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
         binding.parentComment.downVoteButton.setOnClickListener {
             onDownVoteClick(comment!!, PARENT_COMMENT_POSITION)
         }
+        binding.parentComment.deleteButton.setOnClickListener {
+            onDeleteClick(comment!!, PARENT_COMMENT_POSITION)
+        }
+        binding.parentComment.editButton.setOnClickListener {
+            onEditClick(comment!!, PARENT_COMMENT_POSITION)
+        }
 
         binding.parentComment.user.text = comment?.username
         binding.parentComment.body.text = comment?.body
