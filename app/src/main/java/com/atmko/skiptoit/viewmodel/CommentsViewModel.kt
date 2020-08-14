@@ -89,6 +89,7 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
         }
 
         localCommentVoteUpdate.value = CommentUpdate(comment, position)
+        localCommentVoteUpdate.value = null
     }
 
     fun onDownVoteClick(comment: Comment, position: Int) {
@@ -111,6 +112,7 @@ class CommentsViewModel(private val skipToItApi: SkipToItApi,
         }
 
         localCommentVoteUpdate.value = CommentUpdate(comment, position)
+        localCommentVoteUpdate.value = null
     }
 
     private fun voteComment(comment: Comment, voteWeight: Int) {

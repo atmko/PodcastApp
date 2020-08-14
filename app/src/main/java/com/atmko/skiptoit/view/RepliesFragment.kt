@@ -141,12 +141,14 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     private fun configureViewModel() {
         viewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
-            if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
-                setupParentComment(localCommentVoteUpdate.comment)
-            } else {
-                repliesAdapter.updateChangedComment(
-                    localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
-                )
+            localCommentVoteUpdate?.let {
+                if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
+                    setupParentComment(localCommentVoteUpdate.comment)
+                } else {
+                    repliesAdapter.updateChangedComment(
+                        localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
+                    )
+                }
             }
         })
 

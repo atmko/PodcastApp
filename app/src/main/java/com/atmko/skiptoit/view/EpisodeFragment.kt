@@ -271,10 +271,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
 
         if (commentsViewModel == null) {
-            activity?.let {
-                commentsViewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(CommentsViewModel::class.java)
-            }
+            commentsViewModel = ViewModelProviders.of(this,
+                viewModelFactory).get(CommentsViewModel::class.java)
         }
 
         //todo refactor other view models to follow this(with logic in view model)
@@ -363,9 +361,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private fun configureCommentsViewModel() {
         commentsViewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
-            commentsAdapter.updateChangedComment(
-                localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
-            )
+            localCommentVoteUpdate?.let {
+                commentsAdapter.updateChangedComment(
+                    it.comment, it.adapterPosition
+                )
+            }
         })
 
         commentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
