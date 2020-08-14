@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
@@ -30,7 +30,7 @@ class UpdateCommentFragment: BaseFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: UpdateCommentViewModel? = null
+    private lateinit var viewModel: UpdateCommentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,7 +78,7 @@ class UpdateCommentFragment: BaseFragment() {
                 masterActivity.hideSoftKeyboard(requireView())
 
                 val commentBody = binding.bodyEditText.text.toString()
-                viewModel?.updateCommentBody(commentId, BodyUpdate(commentBody, commentAdapterPosition))
+                viewModel.updateCommentBody(commentId, BodyUpdate(commentBody, commentAdapterPosition))
             }
         }
     }
@@ -86,10 +86,8 @@ class UpdateCommentFragment: BaseFragment() {
     private fun configureValues(savedInstanceState: Bundle?) {
         binding.usernameTextView.text = username
 
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(UpdateCommentViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this,
+            viewModelFactory).get(UpdateCommentViewModel::class.java)
 
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
@@ -97,13 +95,13 @@ class UpdateCommentFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.bodyUpdateLiveData?.observe(viewLifecycleOwner, Observer { bodyUpdate ->
+        viewModel.bodyUpdateLiveData.observe(viewLifecycleOwner, Observer { bodyUpdate ->
             val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
             savedStateHandle?.set(BODY_UPDATE_KEY, bodyUpdate)
             findNavController().navigateUp()
         })
 
-        viewModel?.processing?.observe(viewLifecycleOwner, Observer { isProcessing ->
+        viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->
             isProcessing?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -113,7 +111,7 @@ class UpdateCommentFragment: BaseFragment() {
             }
         })
 
-        viewModel?.updateError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.updateError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
 import com.atmko.skiptoit.model.BODY_KEY
@@ -27,7 +27,7 @@ class CreateCommentFragment: BaseFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CreateCommentViewModel? = null
+    private lateinit var viewModel: CreateCommentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,7 +69,7 @@ class CreateCommentFragment: BaseFragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-                viewModel?.createComment(podcastId, episodeId, comment)
+                viewModel.createComment(podcastId, episodeId, comment)
             }
         }
     }
@@ -77,10 +77,8 @@ class CreateCommentFragment: BaseFragment() {
     private fun configureValues(savedInstanceState: Bundle?) {
         binding.usernameTextView.text = username
 
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(CreateCommentViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this,
+            viewModelFactory).get(CreateCommentViewModel::class.java)
 
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
@@ -88,7 +86,7 @@ class CreateCommentFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.isCreated?.observe(viewLifecycleOwner, Observer { isCreated ->
+        viewModel.isCreated.observe(viewLifecycleOwner, Observer { isCreated ->
             isCreated?.let {
                 if (isCreated) {
                     val masterActivity: MasterActivity = (activity as MasterActivity)
@@ -98,7 +96,7 @@ class CreateCommentFragment: BaseFragment() {
             }
         })
 
-        viewModel?.processing?.observe(viewLifecycleOwner, Observer { isProcessing ->
+        viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->
             isProcessing?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -108,7 +106,7 @@ class CreateCommentFragment: BaseFragment() {
             }
         })
 
-        viewModel?.createError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.createError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE

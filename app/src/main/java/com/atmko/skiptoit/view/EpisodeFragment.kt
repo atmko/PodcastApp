@@ -20,7 +20,6 @@ import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -66,10 +65,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
-    private var episodeViewModel: EpisodeViewModel? = null
+    private lateinit var episodeViewModel: EpisodeViewModel
     private var episodeDetails: Episode? = null
 
-    private var parentCommentsViewModel: ParentCommentsViewModel? = null
+    private lateinit var parentCommentsViewModel: ParentCommentsViewModel
 
     private lateinit var masterActivityViewModel: MasterActivityViewModel
     private var user: User? = null
@@ -263,42 +262,38 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 STATUS_BAR_IDENTIFIER_TYPE, STATUS_BAR_IDENTIFIER_PACKAGE
             )
         if (resourceId > 0) {
-            result = resources.getDimensionPixelSize(resourceId);
+            result = resources.getDimensionPixelSize(resourceId)
         }
         return result
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        if (episodeViewModel == null) {
-            episodeViewModel = ViewModelProviders.of(
-                this,
-                viewModelFactory
-            ).get(EpisodeViewModel::class.java)
+        episodeViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(EpisodeViewModel::class.java)
+
+        if (isRestoringEpisode) {
+            episodeViewModel.restoreEpisode()
+        } else {
+            episodeViewModel.refresh(episodeId)
         }
 
-        if (parentCommentsViewModel == null) {
-            parentCommentsViewModel = ViewModelProviders.of(
-                this,
-                viewModelFactory
-            ).get(ParentCommentsViewModel::class.java)
-        }
+        parentCommentsViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(ParentCommentsViewModel::class.java)
 
-        //todo refactor other view models to follow this(with logic in view model)
+        parentCommentsViewModel.getComments(episodeId, 0)
+
         masterActivityViewModel = ViewModelProvider(
             requireActivity(),
             viewModelFactory
         ).get(MasterActivityViewModel::class.java)
+
         masterActivityViewModel.getUser()
 
         if (savedInstanceState == null) {
-            episodeId?.let {
-                if (isRestoringEpisode) {
-                    episodeViewModel?.restoreEpisode()
-                } else {
-                    episodeViewModel?.refresh(it)
-                }
-                parentCommentsViewModel?.getComments(it, 0)
-            }
             binding.showMore.tag = false
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
@@ -306,7 +301,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureEpisodeViewModel() {
-        episodeViewModel?.episodeDetails?.observe(viewLifecycleOwner, Observer { episodeDetails ->
+        episodeViewModel.episodeDetails.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
             episodeDetails?.let { details ->
                 //set expanded values
@@ -358,7 +353,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        episodeViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        episodeViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -368,7 +363,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        episodeViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        episodeViewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -377,7 +372,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureCommentsViewModel() {
-        parentCommentsViewModel?.localCommentVoteUpdate?.observe(
+        parentCommentsViewModel.localCommentVoteUpdate.observe(
             viewLifecycleOwner,
             Observer { localCommentVoteUpdate ->
                 localCommentVoteUpdate?.let {
@@ -387,7 +382,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        parentCommentsViewModel?.deleteCommentUpdate?.observe(
+        parentCommentsViewModel.deleteCommentUpdate.observe(
             viewLifecycleOwner,
             Observer { deleteCommentUpdate ->
                 deleteCommentUpdate?.let {
@@ -395,13 +390,13 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        parentCommentsViewModel?.episodeComments?.observe(viewLifecycleOwner, Observer {
+        parentCommentsViewModel.episodeComments.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
             binding.commentCount.text = it.size.toString()
         })
 
-        parentCommentsViewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        parentCommentsViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -412,7 +407,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        parentCommentsViewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        parentCommentsViewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -445,15 +440,15 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onUpVoteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel?.onUpVoteClick(comment, position)
+        parentCommentsViewModel.onUpVoteClick(comment, position)
     }
 
     override fun onDownVoteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel?.onDownVoteClick(comment, position)
+        parentCommentsViewModel.onDownVoteClick(comment, position)
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel?.deleteComment(comment, position)
+        parentCommentsViewModel.deleteComment(comment, position)
     }
 
     override fun onEditClick(comment: Comment, position: Int) {

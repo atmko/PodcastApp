@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
@@ -27,7 +27,7 @@ class CreateReplyFragment: BaseFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: CreateReplyViewModel? = null
+    private lateinit var viewModel: CreateReplyViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -71,7 +71,7 @@ class CreateReplyFragment: BaseFragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-                viewModel?.createReply(parentId, comment)
+                viewModel.createReply(parentId, comment)
             }
         }
     }
@@ -79,10 +79,8 @@ class CreateReplyFragment: BaseFragment() {
     private fun configureValues(savedInstanceState: Bundle?) {
         binding.usernameTextView.text = username
 
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(this,
-                viewModelFactory).get(CreateReplyViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this,
+            viewModelFactory).get(CreateReplyViewModel::class.java)
 
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
@@ -90,7 +88,7 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.isCreated?.observe(viewLifecycleOwner, Observer { isCreated ->
+        viewModel.isCreated.observe(viewLifecycleOwner, Observer { isCreated ->
             isCreated?.let {
                 if (isCreated) {
                     val masterActivity: MasterActivity = (activity as MasterActivity)
@@ -100,7 +98,7 @@ class CreateReplyFragment: BaseFragment() {
             }
         })
 
-        viewModel?.processing?.observe(viewLifecycleOwner, Observer { isProcessing ->
+        viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->
             isProcessing?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -110,7 +108,7 @@ class CreateReplyFragment: BaseFragment() {
             }
         })
 
-        viewModel?.createError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.createError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE

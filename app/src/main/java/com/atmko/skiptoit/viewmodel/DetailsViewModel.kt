@@ -36,6 +36,9 @@ class DetailsViewModel(private val skipToItApi: SkipToItApi,
     }
 
     fun refresh(podcastId: String) {
+        if (podcastDetails.value != null) {
+            return
+        }
         loading.value = true
         disposable.add(
             podcastsApi.getDetails(podcastId)

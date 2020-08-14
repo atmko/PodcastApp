@@ -31,13 +31,15 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getSubscriptions() {
+        if (subscriptions.value != null) {
+            return
+        }
         disposable.add(
             subscriptionsDao
                 .getAllSubscriptions()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSubscriber<List<Podcast>>() {
-
                     override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
@@ -32,7 +32,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: DetailsViewModel? = null
+    private lateinit var viewModel: DetailsViewModel
 
     @Inject
     lateinit var episodeAdapter: EpisodeAdapter
@@ -96,22 +96,17 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.toggleSubscriptionButton.isEnabled = false
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            viewModel?.toggleSubscription(podcastDetails)
+            viewModel.toggleSubscription(podcastDetails)
         }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        if (viewModel == null) {
-            context?.let {
-                viewModel = ViewModelProviders.of(this, viewModelFactory)
-                    .get(DetailsViewModel::class.java)
-            }
-        }
+        viewModel = ViewModelProvider(this, viewModelFactory)
+            .get(DetailsViewModel::class.java)
+        viewModel.loadSubscriptionstatus(podcastDetails.id)
+        viewModel.refresh(podcastDetails.id)
 
         if (savedInstanceState == null) {
-            //todo consider moving refresh to null check above
-            viewModel!!.loadSubscriptionstatus(podcastDetails.id)
-            viewModel!!.refresh(podcastDetails.id)
             binding.showMore.tag = false
         } else {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
@@ -125,7 +120,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     private fun observePodcastDetails() {
         //todo consider using assertion !! instead of null check ?
-        viewModel?.podcastDetails?.observe(viewLifecycleOwner, Observer { podcastDetails ->
+        viewModel.podcastDetails.observe(viewLifecycleOwner, Observer { podcastDetails ->
             resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             this.podcastDetails = podcastDetails
             this.podcastDetails.let {
@@ -142,7 +137,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             }
         })
 
-        viewModel?.loading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -153,7 +148,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             }
         })
 
-        viewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -162,7 +157,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     private fun observeSubscriptionStatus() {
-        viewModel!!.isSubscribed!!.observe(viewLifecycleOwner, Observer {
+        viewModel.isSubscribed!!.observe(viewLifecycleOwner, Observer {
             if (it) {
                 binding.toggleSubscriptionButton
                     .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribed_button))
@@ -172,13 +167,13 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             }
         })
 
-        viewModel!!.processing.observe(viewLifecycleOwner, Observer { processing ->
+        viewModel.processing.observe(viewLifecycleOwner, Observer { processing ->
             processing?.let {
                 binding.toggleSubscriptionButton.isEnabled = !processing
             }
         })
 
-        viewModel!!.processError.observe(viewLifecycleOwner, Observer { processError ->
+        viewModel.processError.observe(viewLifecycleOwner, Observer { processError ->
 
         })
     }

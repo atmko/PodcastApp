@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
@@ -132,13 +132,13 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
     private fun configureValues() {
         activity?.let {
-            viewModel = ViewModelProviders.of(it,
+            viewModel = ViewModelProvider(it,
                 viewModelFactory).get(SearchParentViewModel::class.java)
         }
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
     }
 
-    fun configureViewModel() {
+    private fun configureViewModel() {
         viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }

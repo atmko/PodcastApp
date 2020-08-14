@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -34,7 +33,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: RepliesViewModel? = null
+    private lateinit var repliesViewModel: RepliesViewModel
 
     private lateinit var masterActivityViewModel: MasterActivityViewModel
     private var user: User? = null
@@ -69,7 +68,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
         configureViewModel()
         observeEditCommentLiveData()
         configureMasterActivityViewModel()
@@ -95,26 +94,22 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        if (viewModel == null) {
-            viewModel = ViewModelProviders.of(
-                this,
-                viewModelFactory
-            ).get(RepliesViewModel::class.java)
-        }
-
+    private fun configureValues() {
         setupParentComment(parentComment)
 
-        //todo refactor other view models to follow this(with logic in view model)
+        repliesViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(RepliesViewModel::class.java)
+
+        repliesViewModel.getReplies(parentComment.commentId, 0)
+
         masterActivityViewModel = ViewModelProvider(
             requireActivity(),
             viewModelFactory
         ).get(MasterActivityViewModel::class.java)
-        masterActivityViewModel.getUser()
 
-        if (savedInstanceState == null) {
-            viewModel?.getReplies(parentComment.commentId, 0)
-        }
+        masterActivityViewModel.getUser()
     }
 
     private fun setupParentComment(comment: Comment) {
@@ -164,7 +159,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureViewModel() {
-        viewModel?.localCommentVoteUpdate?.observe(
+        repliesViewModel.localCommentVoteUpdate.observe(
             viewLifecycleOwner,
             Observer { localCommentVoteUpdate ->
                 localCommentVoteUpdate?.let {
@@ -178,7 +173,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        viewModel?.deleteCommentUpdate?.observe(
+        repliesViewModel.deleteCommentUpdate.observe(
             viewLifecycleOwner,
             Observer { deleteCommentUpdate ->
                 deleteCommentUpdate?.let {
@@ -190,14 +185,14 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        viewModel?.commentReplies?.observe(viewLifecycleOwner, Observer { replies ->
+        repliesViewModel.commentReplies.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             replies?.let {
                 repliesAdapter.updateComments(replies)
             }
         })
 
-        viewModel?.repliesLoading?.observe(viewLifecycleOwner, Observer { isLoading ->
+        repliesViewModel.repliesLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -208,7 +203,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        viewModel?.repliesLoadError?.observe(viewLifecycleOwner, Observer { isError ->
+        repliesViewModel.repliesLoadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -274,15 +269,15 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onUpVoteClick(comment: Comment, position: Int) {
-        viewModel?.onUpVoteClick(comment, position)
+        repliesViewModel.onUpVoteClick(comment, position)
     }
 
     override fun onDownVoteClick(comment: Comment, position: Int) {
-        viewModel?.onDownVoteClick(comment, position)
+        repliesViewModel.onDownVoteClick(comment, position)
     }
 
     override fun onDeleteClick(comment: Comment, position: Int) {
-        viewModel?.deleteComment(comment, position)
+        repliesViewModel.deleteComment(comment, position)
     }
 
     override fun onEditClick(comment: Comment, position: Int) {

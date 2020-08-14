@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
 import com.atmko.skiptoit.model.User
@@ -23,7 +23,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: MasterActivityViewModel? = null
+    private lateinit var viewModel: MasterActivityViewModel
     private var user: User? = null
 
     override fun onAttach(context: Context) {
@@ -51,7 +51,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
         configureViewModel()
     }
 
@@ -59,28 +59,26 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
         binding.messageTextView.text = message
         binding.confirmationButton.apply {
             setOnClickListener {
-                viewModel?.updateUsername(binding.usernameEditText.text.toString())
+                viewModel.updateUsername(binding.usernameEditText.text.toString())
             }
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        if (viewModel == null) {
-            activity?.let {
-                viewModel = ViewModelProviders.of(it,
-                    viewModelFactory).get(MasterActivityViewModel::class.java)
-            }
+    private fun configureValues() {
+        activity?.let {
+            viewModel = ViewModelProvider(it,
+                viewModelFactory).get(MasterActivityViewModel::class.java)
         }
     }
 
     private fun configureViewModel() {
-        viewModel?.currentUser?.observe(viewLifecycleOwner, Observer {currentUser->
+        viewModel.currentUser.observe(viewLifecycleOwner, Observer {currentUser->
             if (user != null && currentUser != null) {
                 activity?.supportFragmentManager?.beginTransaction()?.remove(this)
             }
         })
 
-        viewModel?.loading?.observe(viewLifecycleOwner, Observer { isProcessing ->
+        viewModel.loading.observe(viewLifecycleOwner, Observer { isProcessing ->
             isProcessing?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -90,7 +88,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
             }
         })
 
-        viewModel?.loadError?.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE

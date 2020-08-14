@@ -19,6 +19,9 @@ class EpisodeViewModel(private val podcastsApi: PodcastsApi,
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     fun refresh(episodeId: String) {
+        if (episodeDetails.value != null) {
+            return
+        }
         loading.value = true
         disposable.add(
             podcastsApi.getEpisodeDetails(episodeId)
@@ -40,8 +43,10 @@ class EpisodeViewModel(private val podcastsApi: PodcastsApi,
     }
 
     fun restoreEpisode() {
+        if (episodeDetails.value != null) {
+            return
+        }
         loading.value = true
-
         AppExecutors.getInstance().diskIO().execute(Runnable {
             val podcastId = prefs.getString(PODCAST_ID_KEY, "")!!
             val episodeId = prefs.getString(EPISODE_ID_KEY, "")

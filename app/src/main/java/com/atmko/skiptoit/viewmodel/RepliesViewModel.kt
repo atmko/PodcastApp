@@ -23,6 +23,9 @@ class RepliesViewModel(
 
     //network call to get comment's replies
     fun getReplies(commentId: String, page: Int) {
+        if (commentReplies.value != null) {
+            return
+        }
         repliesLoading.value = true
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {

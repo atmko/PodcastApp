@@ -13,7 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -43,7 +43,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var viewModel: MasterActivityViewModel? = null
+    private lateinit var viewModel: MasterActivityViewModel
     var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
@@ -84,7 +84,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        data?.let { viewModel?.onRequestResultReceived(requestCode, resultCode, it) }
+        data?.let { viewModel.onRequestResultReceived(requestCode, resultCode, it) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -136,6 +136,10 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
+        viewModel = ViewModelProvider(this,
+            viewModelFactory).get(MasterActivityViewModel::class.java)
+        viewModel.getUser()
+
         if (savedInstanceState != null) {
             val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
 
@@ -158,12 +162,6 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
                 binding.episodeFragmentFrameLayout.alpha = 0f
             }
         } else {
-            if (viewModel == null) {
-                viewModel = ViewModelProviders.of(this,
-                    viewModelFactory).get(MasterActivityViewModel::class.java)
-                viewModel!!.getUser()
-            }
-
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
             episodePrefs?.let {
                 val podcastId = episodePrefs.getString(PODCAST_ID_KEY, "")
@@ -176,7 +174,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun configureViewModel() {
-        viewModel?.messageEvent?.setEventReceiver(this, this)
+        viewModel.messageEvent.setEventReceiver(this, this)
         observeUser()
         observeRemoteDataFetching()
         observeBatchPodcastFetching()
@@ -184,11 +182,11 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun observeUser() {
-        viewModel?.currentUser?.observe(this, Observer {
+        viewModel.currentUser.observe(this, Observer {
             user = it
         })
 
-        viewModel!!.loading.observe(this, Observer { isLoading ->
+        viewModel.loading.observe(this, Observer { isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -198,7 +196,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             }
         })
 
-        viewModel!!.loadError.observe(this, Observer { isLoadError ->
+        viewModel.loadError.observe(this, Observer { isLoadError ->
             isLoadError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -207,7 +205,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun observeRemoteDataFetching() {
-        viewModel!!.remoteFetching.observe(this, Observer { isRemoteFetching ->
+        viewModel.remoteFetching.observe(this, Observer { isRemoteFetching ->
             isRemoteFetching?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -217,7 +215,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             }
         })
 
-        viewModel!!.remoteFetchError.observe(this, Observer { isRemoteFetchError ->
+        viewModel.remoteFetchError.observe(this, Observer { isRemoteFetchError ->
             isRemoteFetchError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -226,7 +224,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun observeBatchPodcastFetching() {
-        viewModel!!.batchFetching.observe(this, Observer { isBatchFetching ->
+        viewModel.batchFetching.observe(this, Observer { isBatchFetching ->
             isBatchFetching?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -236,7 +234,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             }
         })
 
-        viewModel!!.batchFetchError.observe(this, Observer { isBatchFetchError ->
+        viewModel.batchFetchError.observe(this, Observer { isBatchFetchError ->
             isBatchFetchError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -245,7 +243,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     private fun observeLocalBatchSaving() {
-        viewModel!!.batchSavingLocally.observe(this, Observer { isBatchSavingLocally ->
+        viewModel.batchSavingLocally.observe(this, Observer { isBatchSavingLocally ->
             isBatchSavingLocally?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -255,7 +253,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             }
         })
 
-        viewModel!!.batchLocalSaveError.observe(this, Observer { isBatchLocalSaveError ->
+        viewModel.batchLocalSaveError.observe(this, Observer { isBatchLocalSaveError ->
             isBatchLocalSaveError.let {
                 binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -338,11 +336,11 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     }
 
     fun signIn() {
-        viewModel?.signIn()
+        viewModel.signIn()
     }
 
     fun signOut() {
-        viewModel?.signOut()
+        viewModel.signOut()
     }
 
     fun isBottomSheetExpanded(): Boolean {

@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
@@ -43,7 +42,7 @@ class LaunchFragment : BaseFragment(),
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private var masterActivityViewModel: MasterActivityViewModel? = null
+    private lateinit var masterActivityViewModel: MasterActivityViewModel
 
     private lateinit var launchFragmentViewModel: LaunchFragmentViewModel
 
@@ -53,8 +52,10 @@ class LaunchFragment : BaseFragment(),
         getPresentationComponent().inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentLaunchBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -107,15 +108,15 @@ class LaunchFragment : BaseFragment(),
         val spannableString = SpannableString(binding.termsTextView.text.toString())
         val termsClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-                launchBrowserIntent(getString(R.string.terms_url));
+                launchBrowserIntent(getString(R.string.terms_url))
             }
         }
         val privacyClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
-                launchBrowserIntent(getString(R.string.privacy_url));
+                launchBrowserIntent(getString(R.string.privacy_url))
             }
         }
-        val clickableSpans: IntArray  = resources.getIntArray(R.array.terms_clickable_spans);
+        val clickableSpans: IntArray = resources.getIntArray(R.array.terms_clickable_spans)
 
         spannableString.setSpan(
             termsClickableSpan,
@@ -136,9 +137,7 @@ class LaunchFragment : BaseFragment(),
 
         binding.googleContinue.setOnClickListener {
             if (isProviderUpdated) {
-                context?.let {context ->
-                    masterActivityViewModel!!.signIn()
-                }
+                masterActivityViewModel.signIn()
             }
         }
 
@@ -150,29 +149,31 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun configureValues() {
-        if (masterActivityViewModel == null) {
-            activity?.let {
-                masterActivityViewModel = ViewModelProviders.of(it).get(MasterActivityViewModel::class.java)
-            }
+        activity?.let {
+            masterActivityViewModel =
+                ViewModelProvider(it).get(MasterActivityViewModel::class.java)
         }
 
-        //todo: refactor other view models to follow this(with logic in view model)
-        launchFragmentViewModel = ViewModelProvider(requireActivity(),
-            viewModelFactory).get(LaunchFragmentViewModel::class.java)
+        launchFragmentViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(LaunchFragmentViewModel::class.java)
     }
 
     private fun configureMasterActivityViewModel() {
-        masterActivityViewModel!!.messageEvent.setEventReceiver(this, this)
-        masterActivityViewModel!!.currentUser.observe(viewLifecycleOwner, Observer {
+        masterActivityViewModel.messageEvent.setEventReceiver(this, this)
+        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 startApp()
             }
         })
 
-        masterActivityViewModel!!.loadError.observe(viewLifecycleOwner, Observer {
+        masterActivityViewModel.loadError.observe(viewLifecycleOwner, Observer {
             if (it) {
-                Snackbar.make(binding.topLayout,
-                    getString(R.string.couldnt_connect_to_server), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    binding.topLayout,
+                    getString(R.string.couldnt_connect_to_server), Snackbar.LENGTH_SHORT
+                ).show()
             }
         })
     }
@@ -194,10 +195,12 @@ class LaunchFragment : BaseFragment(),
         val intent = Intent(Intent.ACTION_VIEW, webPage)
         activity?.let {
             if (intent.resolveActivity(it.packageManager) != null) {
-                startActivity(intent);
-            } else  {
-                Snackbar.make(binding.topLayout,
-                    R.string.no_browser_error_message, Snackbar.LENGTH_SHORT).show()
+                startActivity(intent)
+            } else {
+                Snackbar.make(
+                    binding.topLayout,
+                    R.string.no_browser_error_message, Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
     }

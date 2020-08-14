@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +23,7 @@ import com.atmko.skiptoit.viewmodel.SearchViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
-class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
+class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: ResultsRecyclerViewBinding? = null
     private val binding get() = _binding!!
 
@@ -61,8 +61,10 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = ResultsRecyclerViewBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -71,10 +73,13 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
         super.onActivityCreated(savedInstanceState)
 
         activity?.let {
-            viewModel = ViewModelProviders.of(it,
-                viewModelFactory).get(genreName, SearchViewModel::class.java)
-            viewModel.fetchPodcastsByGenre(genreId)
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(genreName, SearchViewModel::class.java)
         }
+
+        viewModel.fetchPodcastsByGenre(genreId)
 
         configureViews()
         configureViewModel()
@@ -82,7 +87,8 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
 
     fun configureViews() {
         binding.resultsRecyclerView.apply {
-            layoutManager = GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
+            layoutManager =
+                GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
             if (isSavedTab()) {
                 scrollToPosition(getSavedScrollPosition())
@@ -104,7 +110,7 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
         viewModel.scrollPosition = scrollPosition
     }
 
-    fun getSavedScrollPosition(): Int {
+    private fun getSavedScrollPosition(): Int {
         return viewModel.scrollPosition
     }
 
@@ -114,7 +120,7 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
         return savedTabGenreId == genreId
     }
 
-    fun configureViewModel() {
+    private fun configureViewModel() {
         viewModel.genreResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsRecyclerView.visibility = View.VISIBLE
             subscriptions?.let { podcastAdapter.updatePodcasts(it) }
@@ -122,7 +128,8 @@ class SearchFragment: BaseFragment(), PodcastAdapter.OnPodcastItemClickListener 
 
         viewModel.genreLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
-                binding.errorAndLoading.loadingScreen.visibility = if (it) View.VISIBLE else View.GONE
+                binding.errorAndLoading.loadingScreen.visibility =
+                    if (it) View.VISIBLE else View.GONE
                 if (it) {
                     binding.errorAndLoading.errorScreen.visibility = View.GONE
                     binding.resultsRecyclerView.visibility = View.GONE
