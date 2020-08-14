@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
+import com.atmko.skiptoit.model.BodyUpdate
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel
@@ -80,7 +81,7 @@ class UpdateReplyFragment: BaseFragment() {
                 masterActivity.hideSoftKeyboard(requireView())
 
                 val commentBody = binding.bodyEditText.text.toString()
-                viewModel?.updateCommentBody(commentId, commentBody)
+                viewModel?.updateCommentBody(commentId, BodyUpdate(commentBody, commentAdapterPosition))
             }
         }
     }
@@ -99,17 +100,10 @@ class UpdateReplyFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel?.isUpdated?.observe(viewLifecycleOwner, Observer { isCreated ->
-            isCreated?.let {
-                if (isCreated) {
-                    val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
-                    savedStateHandle?.set(
-                        EDIT_COMMENT_KEY,
-                        listOf(binding.bodyEditText.text.toString(), commentAdapterPosition)
-                    )
-                    findNavController().navigateUp()
-                }
-            }
+        viewModel?.bodyUpdateLiveData?.observe(viewLifecycleOwner, Observer { bodyUpdate ->
+            val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
+            savedStateHandle?.set(BODY_UPDATE_KEY, bodyUpdate)
+            findNavController().navigateUp()
         })
 
         viewModel?.processing?.observe(viewLifecycleOwner, Observer { isProcessing ->

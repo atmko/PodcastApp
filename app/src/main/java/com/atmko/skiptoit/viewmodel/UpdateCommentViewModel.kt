@@ -17,20 +17,22 @@ class UpdateCommentViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val isUpdated: MutableLiveData<Boolean> = MutableLiveData()
+    val bodyUpdateLiveData: MutableLiveData<BodyUpdate> = MutableLiveData()
     val updateError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun updateCommentBody(commentId: String, commentBody: String) {
+    fun updateCommentBody(commentId: String, bodyUpdate: BodyUpdate) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 disposable.add(
-                    skipToItApi.updateCommentBody(commentId, it, commentBody)
+                    skipToItApi.updateCommentBody(commentId, it, bodyUpdate.body)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
-                                isUpdated.value = response.isSuccessful
+                                if (response.isSuccessful) {
+                                    bodyUpdateLiveData.value = bodyUpdate
+                                }
                                 updateError.value = false
                                 processing.value = false
                             }

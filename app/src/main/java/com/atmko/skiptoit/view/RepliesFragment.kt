@@ -141,11 +141,11 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     private fun configureViewModel() {
         viewModel?.localCommentVoteUpdate?.observe(viewLifecycleOwner, Observer { localCommentVoteUpdate ->
-            if (localCommentVoteUpdate[1] == PARENT_COMMENT_POSITION) {
-                setupParentComment(localCommentVoteUpdate[0] as Comment)
+            if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
+                setupParentComment(localCommentVoteUpdate.comment)
             } else {
                 repliesAdapter.updateChangedComment(
-                    localCommentVoteUpdate[0] as Comment, localCommentVoteUpdate[1] as Int
+                    localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
                 )
             }
         })
@@ -178,9 +178,9 @@ class RepliesFragment: BaseFragment(), CommentsAdapter.OnCommentItemClickListene
 
     private fun observeEditCommentLiveData() {
         val editCommentLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<List<Any>>(EDIT_COMMENT_KEY)
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<BodyUpdate>(BODY_UPDATE_KEY)
         editCommentLiveData?.observe(viewLifecycleOwner, Observer {
-            repliesAdapter.updateChangedCommentBody(it[0] as String, it[1] as Int)
+            repliesAdapter.updateChangedCommentBody(it.body, it.adapterPosition)
         })
     }
 

@@ -68,7 +68,7 @@ class RepliesViewModel(private val skipToItApi: SkipToItApi,
     }
 
     //updates to this reflect local comment changes and not server
-    val localCommentVoteUpdate: MutableLiveData<List<Any>> = MutableLiveData()
+    val localCommentVoteUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
 
     fun onUpVoteClick(comment: Comment, position: Int) {
         when (comment.voteWeight) {
@@ -89,7 +89,7 @@ class RepliesViewModel(private val skipToItApi: SkipToItApi,
             }
         }
 
-        localCommentVoteUpdate.value = listOf(comment, position)
+        localCommentVoteUpdate.value = CommentUpdate(comment, position)
     }
 
     fun onDownVoteClick(comment: Comment, position: Int) {
@@ -111,7 +111,7 @@ class RepliesViewModel(private val skipToItApi: SkipToItApi,
             }
         }
 
-        localCommentVoteUpdate.value = listOf(comment, position)
+        localCommentVoteUpdate.value = CommentUpdate(comment, position)
     }
 
     private fun voteComment(comment: Comment, voteWeight: Int) {
