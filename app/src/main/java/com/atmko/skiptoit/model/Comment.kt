@@ -19,6 +19,8 @@ class Comment(
     var body: String,
     @SerializedName("vote_tally")
     var voteTally: Int,
+    @SerializedName("is_user_comment")
+    val isUserComment: Boolean,
     @SerializedName("vote_weight")
     var voteWeight: Int,
     val replies: Int,

@@ -83,6 +83,14 @@ class CommentsAdapter(
             }
         }
 
+        if (comment.isUserComment) {
+            holder.binding.editButton.visibility = View.VISIBLE
+            holder.binding.deleteButton.visibility = View.VISIBLE
+        } else {
+            holder.binding.editButton.visibility = View.GONE
+            holder.binding.deleteButton.visibility = View.GONE
+        }
+
         holder.binding.votes.text = comment.voteTally.toString()
 
         if (comment.replies != 0) {
