@@ -97,11 +97,11 @@
         <item name="android:layout_marginRight">@dimen/list_excess_margin</item>
     </style>
 
-    <style name="List_Item_Style">
-        <item name="android:layout_marginStart">@dimen/list_margin</item>
-        <item name="android:layout_marginLeft">@dimen/list_margin</item>
-        <item name="android:layout_marginEnd">@dimen/list_margin</item>
-        <item name="android:layout_marginRight">@dimen/list_margin</item>
+    <style name="Double_Column_List_Item_Style">
+        <item name="android:layout_marginStart">@dimen/double_column_list_excess_margin</item>
+        <item name="android:layout_marginLeft">@dimen/double_column_list_excess_margin</item>
+        <item name="android:layout_marginEnd">@dimen/double_column_list_excess_margin</item>
+        <item name="android:layout_marginRight">@dimen/double_column_list_excess_margin</item>
     </style>
 
     <style name="style_standard_search_box">
