@@ -159,11 +159,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private fun observeSubscriptionStatus() {
         viewModel.isSubscribed!!.observe(viewLifecycleOwner, Observer {
             if (it) {
-                binding.toggleSubscriptionButton
-                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribed_button))
+                binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
             } else {
-                binding.toggleSubscriptionButton
-                    .setImageDrawable(resources.getDrawable(R.drawable.ic_subscribe_button))
+                binding.toggleSubscriptionButton.setText(R.string.subscribe)
             }
         })
 

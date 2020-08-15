@@ -54,6 +54,9 @@
     <string name="reply">reply</string>
     <string name="edit_comment">edit comment</string>
     <string name="delete_comment">delete comment</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="unsubscribe">Unsubscribe</string>
+    <string name="play">Play</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
