@@ -5,6 +5,5 @@
     <dimen name="list_excess_margin">240dp</dimen>
     <dimen name="text_excess_margin">240dp</dimen>
     <dimen name="search_bar_excess_margin">240dp</dimen>
-    <dimen name="fab_excess_margin">168dp</dimen>
     <!--MARGINS-->
 </resources>
