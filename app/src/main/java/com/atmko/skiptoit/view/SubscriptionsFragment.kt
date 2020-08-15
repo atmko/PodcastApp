@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
@@ -83,7 +85,8 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     private fun configureViews() {
         binding.resultsFrameLayout.resultsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager =
+                GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = subscriptionsAdapter
             scrollToPosition(viewModel.scrollPosition)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
