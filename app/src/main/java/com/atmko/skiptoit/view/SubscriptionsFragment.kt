@@ -48,8 +48,6 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         if (isFirstSetup()) {
             openLaunchFragment()
             return
-        } else {
-            (activity as MasterActivity).showBottomPanels()
         }
         defineViewModelValues()
         configureViews()

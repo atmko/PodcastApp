@@ -103,8 +103,6 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun configureViews() {
-        (activity as MasterActivity).hideBottomPanels()
-
         val spannableString = SpannableString(binding.termsTextView.text.toString())
         val termsClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {

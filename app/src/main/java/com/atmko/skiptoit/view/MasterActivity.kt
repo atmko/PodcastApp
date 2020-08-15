@@ -68,6 +68,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
         getPresentationComponent().inject(this)
 
+        configureBaseNavigationChangedListener()
         configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
@@ -104,6 +105,17 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             unbindService(playbackServiceConnection)
         }
         mIsBound = false
+    }
+
+    private fun configureBaseNavigationChangedListener() {
+        findNavController(R.id.base_nav_host_fragment)
+            .addOnDestinationChangedListener{navController , destination, arguments ->
+                if (destination.id == R.id.navigation_launch) {
+                    hideBottomPanels()
+                } else if (!isBottomPanelsShown()){
+                    showBottomPanels()
+                }
+            }
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -348,12 +360,17 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
     }
 
-    fun showBottomPanels() {
+    private fun isBottomPanelsShown(): Boolean {
+        return binding.navView.visibility == View.VISIBLE ||
+                binding.bottomSheet.visibility == View.VISIBLE
+    }
+
+    private fun showBottomPanels() {
         binding.navView.visibility = View.VISIBLE
         binding.bottomSheet.visibility = View.VISIBLE
     }
 
-    fun hideBottomPanels() {
+    private fun hideBottomPanels() {
         binding.navView.visibility = View.GONE
         binding.bottomSheet.visibility = View.GONE
     }
