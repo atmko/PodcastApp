@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.IBinder
 import android.view.MenuItem
@@ -68,6 +69,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
         getPresentationComponent().inject(this)
 
+        configureOrientationRestrictions()
         configureBaseNavigationChangedListener()
         configureBaseBackButtonFunctionality()
         configureViews()
@@ -105,6 +107,12 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             unbindService(playbackServiceConnection)
         }
         mIsBound = false
+    }
+
+    private fun configureOrientationRestrictions() {
+        if (resources.getBoolean(R.bool.isPhone)) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
     }
 
     private fun configureBaseNavigationChangedListener() {
