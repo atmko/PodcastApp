@@ -22,6 +22,9 @@ class ParentCommentsViewModel(
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getComments(episodeId: String, page: Int) {
+        if (episodeComments.value != null) {
+            return
+        }
         loading.value = true
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
