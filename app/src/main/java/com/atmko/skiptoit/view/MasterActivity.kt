@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
@@ -41,6 +42,8 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
+
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -337,13 +340,15 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         val navController = findNavController(R.id.base_nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        AppBarConfiguration(
+        appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_subscriptions,
                 R.id.navigation_search
             )
         )
         navView.setupWithNavController(navController)
+
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setOnNavigationItemReselectedListener(
             object : BottomNavigationView.OnNavigationItemReselectedListener {
