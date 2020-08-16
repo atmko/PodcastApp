@@ -467,4 +467,9 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
             imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
 }

@@ -4,27 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/subscriptionsText"
-        style="@style/Large_Heading_Style"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/x2_layout_margin"
-        android:layout_marginTop="@dimen/x2_layout_margin"
-        android:layout_marginEnd="@dimen/x2_layout_margin"
-        android:text="@string/subscriptions"
-        android:textColor="@color/color_body_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <FrameLayout
         android:id="@+id/divider"
         style="@style/Divider_Style"
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_height"
-        android:layout_marginTop="@dimen/x2_layout_margin"
-        app:layout_constraintTop_toBottomOf="@id/subscriptionsText" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/resultsFrameLayout"

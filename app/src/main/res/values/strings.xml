@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PodcastApp</string>
+    <string name="app_name">Skip To It</string>
 
     <string name="notification_channel_playback">Playback Channel</string>
     <string name="channel_description_playback">Channel for playback notification</string>

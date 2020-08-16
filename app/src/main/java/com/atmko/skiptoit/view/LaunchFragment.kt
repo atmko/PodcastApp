@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -103,6 +104,8 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun configureViews() {
+        (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+
         val spannableString = SpannableString(binding.termsTextView.text.toString())
         val termsClickableSpan: ClickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {

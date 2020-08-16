@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -88,6 +89,8 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureViews() {
+        (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
         binding.resultsFrameLayout.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = repliesAdapter
