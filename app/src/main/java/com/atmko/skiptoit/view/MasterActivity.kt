@@ -462,6 +462,15 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         }
     }
 
+    //show soft keyboard and update keyboard visibility property
+    fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val imm: InputMethodManager =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

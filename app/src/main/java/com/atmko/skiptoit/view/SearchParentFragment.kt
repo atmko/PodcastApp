@@ -100,16 +100,16 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
         }
 
         //configure search box
-        binding.toolbar.searchBox.apply {
+        binding.toolbar.searchBox.searchBox.apply {
             setOnEditorActionListener { view, actionId, event ->
                 val queryString : String = view.text.toString()
                 if (queryString != "") {
+                    (activity as MasterActivity).hideSoftKeyboard(this)
                     binding.tabLayout.visibility = View.GONE
                     binding.searchViewPager.visibility = View.GONE
                     binding.presetSearchDivider.visibility = View.GONE
 
                     binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
-                    binding.manualSearchDivider.visibility = View.VISIBLE
 
                     viewModel.search(queryString)
                 }
@@ -118,18 +118,17 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
             }
         }
 
-        binding.toolbar.cancelSearchButton.apply {
+        binding.toolbar.searchImageButton.apply {
             setOnClickListener {
-                binding.toolbar.searchBox.text = "".toEditable()
-
-                binding.tabLayout.visibility = View.VISIBLE
-                binding.searchViewPager.visibility = View.VISIBLE
-                binding.presetSearchDivider.visibility = View.VISIBLE
-
-                binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
-                binding.manualSearchDivider.visibility = View.GONE
-
-                podcastAdapter.podcasts.clear()
+                if (isSearchBarShown()) {
+                    (activity as MasterActivity).hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
+                    clearManualSearchData()
+                    hideManualSearchState()
+                    showPresetSearchState()
+                } else {
+                    showManualSearchBar()
+                    (activity as MasterActivity).showSoftKeyboard(binding.toolbar.searchBox.searchBox)
+                }
             }
         }
 
@@ -138,6 +137,34 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
             layoutManager = LinearLayoutManager(context)
             adapter = podcastAdapter
         }
+    }
+
+    private fun isSearchBarShown(): Boolean {
+        return binding.toolbar.searchBox.searchBox.visibility == View.VISIBLE
+    }
+
+    private fun clearManualSearchData() {
+        binding.toolbar.searchBox.searchBox.text = "".toEditable()
+        podcastAdapter.podcasts.clear()
+    }
+
+    private fun showPresetSearchState() {
+        binding.toolbar.titleTextView.visibility = View.VISIBLE
+        binding.tabLayout.visibility = View.VISIBLE
+        binding.searchViewPager.visibility = View.VISIBLE
+        binding.presetSearchDivider.visibility = View.VISIBLE
+    }
+
+    private fun hideManualSearchState() {
+        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
+        binding.toolbar.searchBox.searchBox.visibility = View.GONE
+        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_manual_search)
+    }
+
+    private fun showManualSearchBar() {
+        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_cancel_search)
+        binding.toolbar.searchBox.searchBox.visibility = View.VISIBLE
+        binding.toolbar.titleTextView.visibility = View.GONE
     }
 
     private fun configureValues() {
