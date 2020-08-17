@@ -13,7 +13,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
-import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.BodyUpdate
+import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
@@ -62,6 +64,12 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     ): View? {
         _binding = FragmentRepliesBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        configureToolbar(binding.toolbar.toolbar)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentSearchParentBinding
@@ -45,6 +46,15 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
                               savedInstanceState: Bundle?): View? {
         _binding = FragmentSearchParentBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val navController = findNavController()
+
+        binding.toolbar.titleTextView.text = navController.currentDestination!!.label
+        configureToolbar(binding.toolbar.toolbar)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

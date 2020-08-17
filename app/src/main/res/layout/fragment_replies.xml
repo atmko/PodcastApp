@@ -5,8 +5,16 @@
     android:layout_height="match_parent">
 
     <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_general"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <include
         android:id="@+id/parentComment"
-        layout="@layout/item_comment" />
+        layout="@layout/item_comment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
     <include
         android:id="@+id/resultsFrameLayout"

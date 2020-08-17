@@ -1,11 +1,16 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="Toolbar_Theme" parent="Theme.AppCompat.Light">
+        <item name="titleTextColor">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
     </style>
 
     <style name="Image_Style">
@@ -91,14 +96,22 @@
     <style name="style_standard_search_box">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginRight">@dimen/x2_layout_margin</item>
-        <item name="android:layout_marginEnd">@dimen/x2_layout_margin</item>
+        <item name="android:layout_marginTop">@dimen/x1_layout_margin</item>
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginRight">@dimen/x1_layout_margin</item>
+        <item name="android:layout_marginEnd">@dimen/x1_layout_margin</item>
+        <item name="android:layout_marginBottom">@dimen/x1_layout_margin</item>
         <item name="android:hint">@string/search_text_box_hint</item>
-        <item name="android:padding">@dimen/x2_layout_margin</item>
+        <item name="android:textColorHint">@color/colorTextHintColor</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:paddingLeft">@dimen/search_box_padding</item>
+        <item name="android:paddingStart">@dimen/search_box_padding</item>
+        <item name="android:paddingRight">@dimen/search_box_padding</item>
+        <item name="android:paddingEnd">@dimen/search_box_padding</item>
         <item name="android:inputType">text</item>
-        <item name="android:textColor">@color/color_body_text</item>
         <item name="android:textCursorDrawable">@drawable/toolbar_search_box_cursor</item>
-        <item name="android:background">@null</item>
+        <item name="android:background">@drawable/search_background</item>
         <item name="android:imeOptions">actionSearch|flagNoExtractUi|flagNoFullscreen</item>
     </style>
 

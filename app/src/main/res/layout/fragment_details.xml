@@ -1,103 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context=".view.MasterActivity">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_general"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        tools:context=".view.MasterActivity">
 
-        <ImageView
-            android:id="@+id/podcastImageView"
-            style="@style/Podcast_Feature_Image_Style"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/x2_layout_margin"
-            android:contentDescription="@string/content_description_podcast_feature_image"
-            app:layout_constraintBottom_toBottomOf="@id/playButton"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintStart_toStartOf="@+id/title"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/toggleSubscriptionButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x4_layout_margin"
-            android:text="@string/subscribe"
-            android:textAllCaps="false"
-            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-            app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
+            <ImageView
+                android:id="@+id/podcastImageView"
+                style="@style/Podcast_Feature_Image_Style"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/x2_layout_margin"
+                android:contentDescription="@string/content_description_podcast_feature_image"
+                app:layout_constraintBottom_toBottomOf="@id/playButton"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="@+id/title"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/playButton"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x4_layout_margin"
-            android:text="@string/play"
-            android:textAllCaps="false"
-            app:icon="@drawable/ic_play_button_sharp"
-            app:layout_constraintStart_toEndOf="@+id/podcastImageView"
-            app:layout_constraintTop_toBottomOf="@+id/toggleSubscriptionButton" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toggleSubscriptionButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x4_layout_margin"
+                android:text="@string/subscribe"
+                android:textAllCaps="false"
+                app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+                app:layout_constraintTop_toTopOf="@+id/podcastImageView" />
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/Large_Heading_Excess_Style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/x2_layout_margin"
-            android:lines="1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playButton"
-            tools:text="True Crime Garage" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/playButton"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x4_layout_margin"
+                android:text="@string/play"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_play_button_sharp"
+                app:layout_constraintStart_toEndOf="@+id/podcastImageView"
+                app:layout_constraintTop_toBottomOf="@+id/toggleSubscriptionButton" />
 
-        <TextView
-            android:id="@+id/description"
-            style="@style/Body_Excess_Style"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/x2_layout_margin"
-            android:lines="@integer/max_lines_details_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            tools:text="Each week Nic and the Captain fire up the true
+            <TextView
+                android:id="@+id/title"
+                style="@style/Large_Heading_Excess_Style"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x2_layout_margin"
+                android:lines="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/playButton"
+                tools:text="True Crime Garage" />
+
+            <TextView
+                android:id="@+id/description"
+                style="@style/Body_Excess_Style"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x2_layout_margin"
+                android:lines="@integer/max_lines_details_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                tools:text="Each week Nic and the Captain fire up the true
 crime garage flying ship fueled with beer, great
 discussion and listener participation. The" />
 
-        <TextView
-            android:id="@+id/showMore"
-            style="@style/Body_Excess_Style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/x2_layout_margin"
-            android:text="@string/show_more"
-            android:textColor="@color/colorAccent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/description" />
+            <TextView
+                android:id="@+id/showMore"
+                style="@style/Body_Excess_Style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x2_layout_margin"
+                android:text="@string/show_more"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/description" />
 
-        <!--this frame layout isn't redundant, its used in height calculation-->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/showMore">
-
-            <!--height is handled programmatically-->
-            <include
-                android:id="@+id/include_details_extras"
-                layout="@layout/tab_layout"
+            <!--this frame layout isn't redundant, its used in height calculation-->
+            <FrameLayout
                 android:layout_width="match_parent"
-                tools:layout_height="300dp" />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/showMore">
 
-        </FrameLayout>
+                <!--height is handled programmatically-->
+                <include
+                    android:id="@+id/include_details_extras"
+                    layout="@layout/tab_layout"
+                    android:layout_width="match_parent"
+                    tools:layout_height="300dp" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
 
-</androidx.core.widget.NestedScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
