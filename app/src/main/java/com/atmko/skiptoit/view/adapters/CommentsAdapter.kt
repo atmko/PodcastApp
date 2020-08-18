@@ -45,7 +45,7 @@ class CommentsAdapter(
         RecyclerView.ViewHolder(binding.root)
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        val comment: Comment = comments[position]
+        val comment: Comment = comments[holder.adapterPosition]
 
         holder.binding.replyButton.setOnClickListener {
             clickListener.onReplyButtonClick(comment.commentId, comment.body)
@@ -54,16 +54,16 @@ class CommentsAdapter(
             clickListener.onRepliesButtonClick(comment)
         }
         holder.binding.upVoteButton.setOnClickListener {
-            clickListener.onUpVoteClick(comment, position)
+            clickListener.onUpVoteClick(comment, holder.adapterPosition)
         }
         holder.binding.downVoteButton.setOnClickListener {
-            clickListener.onDownVoteClick(comment, position)
+            clickListener.onDownVoteClick(comment, holder.adapterPosition)
         }
         holder.binding.deleteButton.setOnClickListener {
-            clickListener.onDeleteClick(comment, position)
+            clickListener.onDeleteClick(comment, holder.adapterPosition)
         }
         holder.binding.editButton.setOnClickListener {
-            clickListener.onEditClick(comment, position)
+            clickListener.onEditClick(comment, holder.adapterPosition)
         }
 
         holder.binding.user.text = comment.username
