@@ -17,7 +17,7 @@ class ParentCommentsViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val episodeComments: MutableLiveData<List<Comment>> = MutableLiveData()
+    val episodeComments: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -32,8 +32,8 @@ class ParentCommentsViewModel(
                     skipToItApi.getCommentsAuthenticated(episodeId, page, it)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                            override fun onSuccess(comments: List<Comment>) {
+                        .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
+                            override fun onSuccess(comments: ArrayList<Comment>) {
                                 episodeComments.value = comments
                                 loadError.value = false
                                 loading.value = false
@@ -51,8 +51,8 @@ class ParentCommentsViewModel(
                 skipToItApi.getCommentsUnauthenticated(episodeId, page)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                        override fun onSuccess(comments: List<Comment>) {
+                    .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
+                        override fun onSuccess(comments: ArrayList<Comment>) {
                             episodeComments.value = comments
                             loadError.value = false
                             loading.value = false
@@ -65,6 +65,14 @@ class ParentCommentsViewModel(
                     })
             )
         }
+    }
+
+    fun addComment(comment: Comment) {
+        episodeComments.value?.add(comment)
+    }
+
+    fun removeComment(position: Int) {
+        episodeComments.value?.removeAt(position)
     }
 
     override fun onCleared() {

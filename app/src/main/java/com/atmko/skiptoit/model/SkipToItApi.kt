@@ -10,7 +10,7 @@ interface SkipToItApi {
     fun createComment(@Path("podcast_id") podcastId: String,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
-                      @Field("body") commentBody: String): Single<Response<Void>>
+                      @Field("body") commentBody: String): Single<Comment>
 
     @FormUrlEncoded
     @POST("comments/vote/{comment_id}")
@@ -24,27 +24,27 @@ interface SkipToItApi {
 
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsUnauthenticated(@Path("episode_id") episodeId: String,
-                                   @Path("page") page: Int): Single<List<Comment>>
+                                   @Path("page") page: Int): Single<ArrayList<Comment>>
 
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsAuthenticated(@Path("episode_id") episodeId: String,
                                  @Path("page") page: Int,
-                                 @Query("id_token") idToken: String): Single<List<Comment>>
+                                 @Query("id_token") idToken: String): Single<ArrayList<Comment>>
 
     @FormUrlEncoded
     @POST("replies/{parent_id}")
     fun createReply(@Path("parent_id") parentId: String,
                     @Field("id_token") idToken: String,
-                    @Field("body") comment: String): Single<Response<Void>>
+                    @Field("body") comment: String): Single<Comment>
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesUnauthenticated(@Path("parent_id") parentId: String,
-                                  @Path("page") page: Int): Single<List<Comment>>
+                                  @Path("page") page: Int): Single<ArrayList<Comment>>
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesAuthenticated(@Path("parent_id") parentId: String,
                                 @Path("page") page: Int,
-                                @Query("id_token") idToken: String): Single<List<Comment>>
+                                @Query("id_token") idToken: String): Single<ArrayList<Comment>>
 
     @FormUrlEncoded
     @PUT("comments/{comment_id}")

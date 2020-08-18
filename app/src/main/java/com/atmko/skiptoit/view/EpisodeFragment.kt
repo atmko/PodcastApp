@@ -106,6 +106,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureValues(savedInstanceState)
         configureEpisodeViewModel()
         configureCommentsViewModel()
+        observeCreateCommentLiveData()
         observeEditCommentLiveData()
         configureMasterActivityViewModel()
     }
@@ -388,6 +389,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             viewLifecycleOwner,
             Observer { deleteCommentUpdate ->
                 deleteCommentUpdate?.let {
+                    parentCommentsViewModel.removeComment(deleteCommentUpdate.adapterPosition)
                     commentsAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
                 }
             })
@@ -415,6 +417,25 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                     if (it) View.VISIBLE else View.GONE
             }
         })
+    }
+
+    private fun observeCreateCommentLiveData() {
+        val createCommentLiveData = findNavController()
+            .currentBackStackEntry?.savedStateHandle?.getLiveData<Comment>(CREATED_COMMENT_KEY)
+
+        val createCommentObserver = object : Observer<Comment> {
+            override fun onChanged(comment: Comment) {
+                parentCommentsViewModel.addComment(comment)
+                commentsAdapter.addComment(comment)
+
+                createCommentLiveData!!.removeObserver(this)
+
+                findNavController()
+                    .currentBackStackEntry?.savedStateHandle?.remove<Comment>(CREATED_COMMENT_KEY)
+            }
+        }
+
+        createCommentLiveData?.observe(viewLifecycleOwner, createCommentObserver)
     }
 
     private fun observeEditCommentLiveData() {

@@ -17,7 +17,7 @@ class RepliesViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val commentReplies: MutableLiveData<List<Comment>> = MutableLiveData()
+    val commentReplies: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
     val repliesLoadError: MutableLiveData<Boolean> = MutableLiveData()
     val repliesLoading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -33,8 +33,8 @@ class RepliesViewModel(
                     skipToItApi.getRepliesAuthenticated(commentId, page, it)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                            override fun onSuccess(replies: List<Comment>) {
+                        .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
+                            override fun onSuccess(replies: ArrayList<Comment>) {
                                 commentReplies.value = replies
                                 repliesLoadError.value = false
                                 repliesLoading.value = false
@@ -52,8 +52,8 @@ class RepliesViewModel(
                 skipToItApi.getRepliesUnauthenticated(commentId, page)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : DisposableSingleObserver<List<Comment>>() {
-                        override fun onSuccess(replies: List<Comment>) {
+                    .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
+                        override fun onSuccess(replies: ArrayList<Comment>) {
                             commentReplies.value = replies
                             repliesLoadError.value = false
                             repliesLoading.value = false
@@ -66,6 +66,14 @@ class RepliesViewModel(
                     })
             )
         }
+    }
+
+    fun addComment(comment: Comment) {
+        commentReplies.value?.add(comment)
+    }
+
+    fun removeComment(position: Int) {
+        commentReplies.value?.removeAt(position)
     }
 
     override fun onCleared() {

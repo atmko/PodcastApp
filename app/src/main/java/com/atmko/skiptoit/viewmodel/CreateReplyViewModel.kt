@@ -8,7 +8,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Response
 
 class CreateReplyViewModel(
     private val skipToItApi: SkipToItApi,
@@ -17,22 +16,21 @@ class CreateReplyViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val isCreated: MutableLiveData<Boolean> = MutableLiveData()
+    val createdReply: MutableLiveData<Comment> = MutableLiveData()
     val createError: MutableLiveData<Boolean> = MutableLiveData()
     val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     fun createReply(parentId: String, comment: String) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
-                isCreated.value = false
                 processing.value = true
                 disposable.add(
                     skipToItApi.createReply(parentId, it, comment)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
-                            override fun onSuccess(response: Response<Void>) {
-                                isCreated.value = response.isSuccessful
+                        .subscribeWith(object : DisposableSingleObserver<Comment>() {
+                            override fun onSuccess(reply: Comment) {
+                                createdReply.value = reply
                                 createError.value = false
                                 processing.value = false
                             }

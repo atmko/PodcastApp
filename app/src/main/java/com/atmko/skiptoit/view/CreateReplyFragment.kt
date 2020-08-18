@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
@@ -15,6 +16,8 @@ import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
+
+const val CREATED_REPLY_KEY = "create_reply"
 
 class CreateReplyFragment: BaseFragment() {
 
@@ -94,13 +97,15 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel.isCreated.observe(viewLifecycleOwner, Observer { isCreated ->
-            isCreated?.let {
-                if (isCreated) {
-                    val masterActivity: MasterActivity = (activity as MasterActivity)
-                    masterActivity.onBackPressedDispatcher.onBackPressed()
-                    view?.let { view -> masterActivity.hideSoftKeyboard(view) }
-                }
+        viewModel.createdReply.observe(viewLifecycleOwner, Observer { createdReply ->
+            createdReply?.let {
+                val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
+                savedStateHandle?.set(CREATED_REPLY_KEY, createdReply)
+
+                val masterActivity: MasterActivity = (activity as MasterActivity)
+                masterActivity.onBackPressedDispatcher.onBackPressed()
+
+                view?.let { view -> masterActivity.hideSoftKeyboard(view) }
             }
         })
 

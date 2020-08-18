@@ -144,6 +144,11 @@ class CommentsAdapter(
         notifyItemChanged(position)
     }
 
+    fun addComment(comment: Comment) {
+        comments.add(comment)
+        notifyItemInserted(comments.size - 1)
+    }
+
     fun updateRemovedComment(position: Int) {
         comments.removeAt(position)
         notifyItemRemoved(position)
