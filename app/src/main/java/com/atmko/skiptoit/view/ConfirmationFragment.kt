@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
 import com.atmko.skiptoit.model.User
@@ -72,9 +73,9 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
     }
 
     private fun configureViewModel() {
-        viewModel.currentUser.observe(viewLifecycleOwner, Observer {currentUser->
-            if (user != null && currentUser != null) {
-                activity?.supportFragmentManager?.beginTransaction()?.remove(this)
+        viewModel.currentUser.observe(viewLifecycleOwner, Observer { currentUser->
+            if (currentUser != null) {
+                findNavController().navigateUp()
             }
         })
 
