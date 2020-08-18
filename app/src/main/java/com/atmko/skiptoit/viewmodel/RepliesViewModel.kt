@@ -17,13 +17,12 @@ class RepliesViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val commentReplies: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
     val repliesLoadError: MutableLiveData<Boolean> = MutableLiveData()
     val repliesLoading: MutableLiveData<Boolean> = MutableLiveData()
 
     //network call to get comment's replies
     fun getReplies(commentId: String, page: Int) {
-        if (commentReplies.value != null) {
+        if (retrievedComments.value != null) {
             return
         }
         repliesLoading.value = true
@@ -35,7 +34,7 @@ class RepliesViewModel(
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
                             override fun onSuccess(replies: ArrayList<Comment>) {
-                                commentReplies.value = replies
+                                retrievedComments.value = replies
                                 repliesLoadError.value = false
                                 repliesLoading.value = false
                             }
@@ -54,7 +53,7 @@ class RepliesViewModel(
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
                         override fun onSuccess(replies: ArrayList<Comment>) {
-                            commentReplies.value = replies
+                            retrievedComments.value = replies
                             repliesLoadError.value = false
                             repliesLoading.value = false
                         }
@@ -66,14 +65,6 @@ class RepliesViewModel(
                     })
             )
         }
-    }
-
-    fun addComment(comment: Comment) {
-        commentReplies.value?.add(comment)
-    }
-
-    fun removeComment(position: Int) {
-        commentReplies.value?.removeAt(position)
     }
 
     override fun onCleared() {

@@ -195,7 +195,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        repliesViewModel.commentReplies.observe(viewLifecycleOwner, Observer { replies ->
+        repliesViewModel.retrievedComments.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             replies?.let {
                 repliesAdapter.updateComments(replies)

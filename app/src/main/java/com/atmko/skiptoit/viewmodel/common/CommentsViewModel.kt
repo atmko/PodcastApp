@@ -20,6 +20,8 @@ open class CommentsViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
+    val retrievedComments: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
+
     //updates to this reflect local comment changes and not server
     val localCommentVoteUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
 
@@ -136,6 +138,14 @@ open class CommentsViewModel(
                 )
             }
         }
+    }
+
+    fun addComment(comment: Comment) {
+        retrievedComments.value?.add(comment)
+    }
+
+    fun removeComment(position: Int) {
+        retrievedComments.value?.removeAt(position)
     }
 
     override fun onCleared() {

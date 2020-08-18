@@ -17,12 +17,11 @@ class ParentCommentsViewModel(
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val episodeComments: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getComments(episodeId: String, page: Int) {
-        if (episodeComments.value != null) {
+        if (retrievedComments.value != null) {
             return
         }
         loading.value = true
@@ -34,7 +33,7 @@ class ParentCommentsViewModel(
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
                             override fun onSuccess(comments: ArrayList<Comment>) {
-                                episodeComments.value = comments
+                                retrievedComments.value = comments
                                 loadError.value = false
                                 loading.value = false
                             }
@@ -53,7 +52,7 @@ class ParentCommentsViewModel(
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(object : DisposableSingleObserver<ArrayList<Comment>>() {
                         override fun onSuccess(comments: ArrayList<Comment>) {
-                            episodeComments.value = comments
+                            retrievedComments.value = comments
                             loadError.value = false
                             loading.value = false
                         }
@@ -65,14 +64,6 @@ class ParentCommentsViewModel(
                     })
             )
         }
-    }
-
-    fun addComment(comment: Comment) {
-        episodeComments.value?.add(comment)
-    }
-
-    fun removeComment(position: Int) {
-        episodeComments.value?.removeAt(position)
     }
 
     override fun onCleared() {

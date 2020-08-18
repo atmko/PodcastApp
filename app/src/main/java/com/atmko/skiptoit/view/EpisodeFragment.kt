@@ -394,7 +394,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 }
             })
 
-        parentCommentsViewModel.episodeComments.observe(viewLifecycleOwner, Observer {
+        parentCommentsViewModel.retrievedComments.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             commentsAdapter.updateComments(it)
             binding.commentCount.text = it.size.toString()
