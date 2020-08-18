@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
-import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.view.common.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
@@ -25,7 +24,6 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: MasterActivityViewModel
-    private var user: User? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
