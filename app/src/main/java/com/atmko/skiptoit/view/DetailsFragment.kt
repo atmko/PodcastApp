@@ -93,8 +93,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             toggleFullOrLimitedDescription()
         }
 
-        binding.toggleSubscriptionButton.isEnabled = false
-
         binding.toggleSubscriptionButton.setOnClickListener {
             viewModel.toggleSubscription(podcastDetails)
         }
@@ -106,6 +104,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         viewModel.loadSubscriptionstatus(podcastDetails.id)
         viewModel.refresh(podcastDetails.id)
 
+        binding.toggleSubscriptionButton.isEnabled = false
         if (savedInstanceState == null) {
             binding.showMore.tag = false
         } else {

@@ -75,8 +75,7 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureViews() {
-        binding.quotedText.text = quotedText
-
+        //todo: add cancel button click functionality
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
@@ -86,11 +85,11 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        binding.usernameTextView.text = username
-
         viewModel = ViewModelProvider(this,
             viewModelFactory).get(CreateReplyViewModel::class.java)
 
+        binding.usernameTextView.text = username
+        binding.quotedText.text = quotedText
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
         }

@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
+import com.atmko.skiptoit.model.USERNAME_KEY
+import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
@@ -50,12 +52,17 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
+        configureValues(savedInstanceState)
         configureViewModel()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString(USERNAME_KEY, binding.usernameEditText.text.toString())
+    }
+
     private fun configureViews() {
-        binding.messageTextView.text = message
         binding.confirmationButton.apply {
             setOnClickListener {
                 viewModel.updateUsername(binding.usernameEditText.text.toString())
@@ -63,10 +70,16 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment() {
         }
     }
 
-    private fun configureValues() {
+    private fun configureValues(savedInstanceState: Bundle?) {
         activity?.let {
             viewModel = ViewModelProvider(it,
                 viewModelFactory).get(MasterActivityViewModel::class.java)
+        }
+
+        binding.messageTextView.text = message
+        if (savedInstanceState != null) {
+            binding.usernameEditText.text =
+                savedInstanceState.getString(USERNAME_KEY)?.toEditable()
         }
     }
 

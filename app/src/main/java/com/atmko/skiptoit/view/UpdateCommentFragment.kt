@@ -76,8 +76,6 @@ class UpdateCommentFragment: BaseFragment() {
     }
 
     private fun configureViews() {
-        binding.bodyEditText.text = oldCommentBody.toEditable()
-
         binding.createButton.apply {
             setOnClickListener {
                 val masterActivity: MasterActivity = (activity as MasterActivity)
@@ -90,13 +88,14 @@ class UpdateCommentFragment: BaseFragment() {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        binding.usernameTextView.text = username
-
         viewModel = ViewModelProvider(this,
             viewModelFactory).get(UpdateCommentViewModel::class.java)
 
+        binding.usernameTextView.text = username
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
+        } else {
+            binding.bodyEditText.text = oldCommentBody.toEditable()
         }
     }
 

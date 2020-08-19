@@ -298,10 +298,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
         masterActivityViewModel.getUser()
 
-        if (savedInstanceState == null) {
-            binding.showMore.tag = false
-        } else {
+        if (savedInstanceState != null) {
             binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
+        } else {
+            binding.showMore.tag = false
         }
     }
 

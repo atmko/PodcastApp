@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 const val BODY_KEY: String = "body"
+const val USERNAME_KEY = "username"
 
 const val VOTE_WEIGHT_NONE: Int = 0
 const val VOTE_WEIGHT_UP_VOTE: Int = 1

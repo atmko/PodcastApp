@@ -25,6 +25,9 @@ import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
+const val IS_SEARCH_BOX_VISIBLE_KEY = "is_search_box_visible"
+const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
+
 class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
@@ -35,6 +38,8 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SearchParentViewModel
+
+    private var isKeyboardVisible = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -61,8 +66,15 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
+        configureValues(savedInstanceState)
         configureViewModel()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putBoolean(IS_SEARCH_BOX_VISIBLE_KEY, isSearchBarShown())
+        outState.putBoolean(IS_KEYBOARD_VISIBLE_KEY, isKeyboardVisible)
     }
 
     fun configureViews() {
@@ -121,13 +133,13 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
         binding.toolbar.searchImageButton.apply {
             setOnClickListener {
                 if (isSearchBarShown()) {
-                    (activity as MasterActivity).hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
+                    hideKeyboard()
                     clearManualSearchData()
                     hideManualSearchState()
                     showPresetSearchState()
                 } else {
                     showManualSearchBar()
-                    (activity as MasterActivity).showSoftKeyboard(binding.toolbar.searchBox.searchBox)
+                    showKeyboard()
                 }
             }
         }
@@ -137,6 +149,16 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
             layoutManager = LinearLayoutManager(context)
             adapter = podcastAdapter
         }
+    }
+
+    private fun showKeyboard() {
+        (activity as MasterActivity).showSoftKeyboard(binding.toolbar.searchBox.searchBox)
+        isKeyboardVisible = true
+    }
+
+    private fun hideKeyboard() {
+        (activity as MasterActivity).hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
+        isKeyboardVisible = false
     }
 
     private fun isSearchBarShown(): Boolean {
@@ -167,12 +189,30 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
         binding.toolbar.titleTextView.visibility = View.GONE
     }
 
-    private fun configureValues() {
+    private fun configureValues(savedInstanceState: Bundle?) {
         activity?.let {
             viewModel = ViewModelProvider(it,
                 viewModelFactory).get(SearchParentViewModel::class.java)
         }
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
+
+        if (savedInstanceState != null) {
+            val isSearchBoxVisible = savedInstanceState.getBoolean(IS_SEARCH_BOX_VISIBLE_KEY)
+            if (isSearchBoxVisible) {
+                showManualSearchBar()
+            } else {
+                clearManualSearchData()
+                hideManualSearchState()
+                showPresetSearchState()
+            }
+
+            val isKeyboardVisible = savedInstanceState.getBoolean(IS_KEYBOARD_VISIBLE_KEY)
+            if (isKeyboardVisible) {
+                showKeyboard()
+            } else {
+                hideKeyboard()
+            }
+        }
     }
 
     private fun configureViewModel() {

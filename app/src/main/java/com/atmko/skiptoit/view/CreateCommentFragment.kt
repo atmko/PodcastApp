@@ -84,11 +84,10 @@ class CreateCommentFragment: BaseFragment() {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        binding.usernameTextView.text = username
-
         viewModel = ViewModelProvider(this,
             viewModelFactory).get(CreateCommentViewModel::class.java)
 
+        binding.usernameTextView.text = username
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
         }

@@ -156,6 +156,7 @@ class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
+        //todo
         context?.let { Toast.makeText(it, "not yet implemented", Toast.LENGTH_SHORT).show() }
     }
 }
