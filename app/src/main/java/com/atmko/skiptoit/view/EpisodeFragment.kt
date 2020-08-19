@@ -76,6 +76,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     @Inject
     lateinit var commentsAdapter: CommentsAdapter
 
+    private var showMore: Boolean = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -131,7 +133,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
+
+        outState.putBoolean(SHOW_MORE_KEY, showMore)
     }
 
     //todo nullify binding in on destroy view instead of on destroy
@@ -299,9 +302,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         masterActivityViewModel.getUser()
 
         if (savedInstanceState != null) {
-            binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
-        } else {
-            binding.showMore.tag = false
+            showMore = savedInstanceState.getBoolean(SHOW_MORE_KEY)
         }
     }
 
@@ -315,7 +316,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 binding.expandedEpisodeTitle.text = details.title
                 binding.title.text = details.title
 
-                if (binding.showMore.tag as Boolean) {
+                if (showMore) {
                     showFullDescription()
                 } else {
                     showLimitedDescription()
@@ -483,19 +484,16 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     //todo consolidate with details show more methods
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
-        val showMoreText = binding.showMore
-        if (showMoreText.tag == false) {
+        if (!showMore) {
             showFullDescription()
-            showMoreText.tag = true
         } else {
             showLimitedDescription()
-            showMoreText.tag = false
         }
+        showMore = !showMore
     }
 
     //todo consolidate with details show more methods
     private fun showLimitedDescription() {
-        val showMoreText = binding.showMore
         val descriptionText = binding.description
         descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -504,12 +502,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         } else {
             descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }
-        showMoreText.text = getString(R.string.show_more)
+        binding.showMore.text = getString(R.string.show_more)
     }
 
     //todo consolidate with details show more methods
     private fun showFullDescription() {
-        val showMoreText = binding.showMore
         val descriptionText = binding.description
         descriptionText.maxLines = Int.MAX_VALUE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -518,6 +515,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         } else {
             descriptionText.text = Html.fromHtml(episodeDetails?.description)
         }
-        showMoreText.text = getString(R.string.show_less)
+        binding.showMore.text = getString(R.string.show_less)
     }
 }
