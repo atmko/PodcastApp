@@ -247,8 +247,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         val includeDetailsExtras: ConstraintLayout? =
             view?.findViewById(R.id.playPanelConstraintLayout)
 
+        val sideMargins = resources.getDimension(R.dimen.list_excess_margin).toInt() * 2
+
         //get total weightedWidth
-        val weightedWidth: Int = pixelWidth
+        val weightedWidth: Int = pixelWidth - sideMargins
 
         val detailExtrasParams = FrameLayout.LayoutParams(
             weightedWidth, pixelHeight - pixelStatusBarHeight
