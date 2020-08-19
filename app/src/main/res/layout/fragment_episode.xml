@@ -151,10 +151,11 @@ sources, please visit " />
 
         <TextView
             android:id="@+id/showMore"
-            style="@style/Body_Excess_Style"
+            style="@style/Body_Style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/x2_layout_margin"
+            android:layout_marginStart="@dimen/x2_layout_margin"
             android:text="@string/show_more"
             android:textColor="@color/colorAccent"
             app:layout_constraintStart_toStartOf="parent"
