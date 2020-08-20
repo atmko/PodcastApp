@@ -1,9 +1,7 @@
 package com.atmko.skiptoit.view
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +15,8 @@ import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.util.showFullText
+import com.atmko.skiptoit.util.showLimitedText
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.DetailsViewModel
@@ -129,9 +129,12 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
                 binding.title.text = it.title
 
                 if (showMore) {
-                    showFullDescription()
+                    binding.description.showFullText(podcastDetails.description)
+                    binding.showMore.text = getString(R.string.show_less)
                 } else {
-                    showLimitedDescription()
+                    val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+                    binding.description.showLimitedText(maxLines, podcastDetails.description)
+                    binding.showMore.text = getString(R.string.show_more)
                 }
 
                 binding.podcastImageView.loadNetworkImage(podcastDetails.image)
@@ -181,35 +184,14 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
         if (!showMore) {
-            showFullDescription()
+            binding.description.showFullText(podcastDetails.description)
+            binding.showMore.text = getString(R.string.show_less)
         } else {
-            showLimitedDescription()
+            val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            binding.description.showLimitedText(maxLines, podcastDetails.description)
+            binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
-    }
-
-    private fun showLimitedDescription() {
-        val descriptionText = binding.description
-        descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text =
-                Html.fromHtml(podcastDetails.description, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            descriptionText.text = Html.fromHtml(podcastDetails.description)
-        }
-        binding.showMore.text = getString(R.string.show_more)
-    }
-
-    private fun showFullDescription() {
-        val descriptionText = binding.description
-        descriptionText.maxLines = Int.MAX_VALUE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text =
-                Html.fromHtml(podcastDetails.description, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            descriptionText.text = Html.fromHtml(podcastDetails.description)
-        }
-        binding.showMore.text = getString(R.string.show_less)
     }
 
     override fun onItemClick(episode: Episode) {

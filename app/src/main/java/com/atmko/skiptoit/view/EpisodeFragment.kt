@@ -6,11 +6,9 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Resources
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
-import android.text.Html
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +27,8 @@ import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.util.showFullText
+import com.atmko.skiptoit.util.showLimitedText
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
@@ -317,9 +317,12 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 binding.title.text = details.title
 
                 if (showMore) {
-                    showFullDescription()
+                    binding.description.showFullText(details.description)
+                    binding.showMore.text = getString(R.string.show_less)
                 } else {
-                    showLimitedDescription()
+                    val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+                    binding.description.showLimitedText(maxLines, details.description)
+                    binding.showMore.text = getString(R.string.show_more)
                 }
 
                 //set collapsed values
@@ -481,40 +484,16 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         attemptToUpdateComment(comment, position)
     }
 
-    //todo consolidate with details show more methods
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
         if (!showMore) {
-            showFullDescription()
+            binding.description.showFullText(episodeDetails?.description)
+            binding.showMore.text = getString(R.string.show_less)
         } else {
-            showLimitedDescription()
+            val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            binding.description.showLimitedText(maxLines, episodeDetails?.description)
+            binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
-    }
-
-    //todo consolidate with details show more methods
-    private fun showLimitedDescription() {
-        val descriptionText = binding.description
-        descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text =
-                Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            descriptionText.text = Html.fromHtml(episodeDetails?.description)
-        }
-        binding.showMore.text = getString(R.string.show_more)
-    }
-
-    //todo consolidate with details show more methods
-    private fun showFullDescription() {
-        val descriptionText = binding.description
-        descriptionText.maxLines = Int.MAX_VALUE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            descriptionText.text =
-                Html.fromHtml(episodeDetails?.description, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            descriptionText.text = Html.fromHtml(episodeDetails?.description)
-        }
-        binding.showMore.text = getString(R.string.show_less)
     }
 }
