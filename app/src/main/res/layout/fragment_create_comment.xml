@@ -8,7 +8,7 @@
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/usernameTextView"
@@ -29,17 +29,19 @@
 
     <EditText
         android:id="@+id/bodyEditText"
-        style="@style/Body_Excess_Style"
+        style="@style/Body_Style"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="@dimen/x2_layout_margin"
         android:layout_marginTop="@dimen/x2_layout_margin"
+        android:layout_marginEnd="@dimen/x2_layout_margin"
         android:layout_marginBottom="@dimen/x2_layout_margin"
         android:background="@null"
         android:gravity="top"
         android:hint="@string/comment"
-        tools:text="I don't think he did"
         app:layout_constraintBottom_toBottomOf="@id/divider_view2"
-        app:layout_constraintTop_toBottomOf="@id/quotedTextDivider" />
+        app:layout_constraintTop_toBottomOf="@id/quotedTextDivider"
+        tools:text="I don't think he did" />
 
     <View
         android:id="@+id/divider_view2"
