@@ -1,7 +1,9 @@
 package com.atmko.skiptoit.view
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +38,8 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     @Inject
     lateinit var episodeAdapter: EpisodeAdapter
+
+    private var showMore: Boolean = false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -74,7 +78,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(SHOW_MORE_KEY, (binding.showMore.tag as Boolean))
+        outState.putBoolean(SHOW_MORE_KEY, showMore)
     }
 
     override fun onDestroy() {
@@ -105,10 +109,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         viewModel.refresh(podcastDetails.id)
 
         binding.toggleSubscriptionButton.isEnabled = false
-        if (savedInstanceState == null) {
-            binding.showMore.tag = false
-        } else {
-            binding.showMore.tag = savedInstanceState.get(SHOW_MORE_KEY)
+
+        if (savedInstanceState != null) {
+            showMore = savedInstanceState.getBoolean(SHOW_MORE_KEY)
         }
     }
 
@@ -125,7 +128,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             this.podcastDetails.let {
                 binding.title.text = it.title
 
-                if (binding.showMore.tag as Boolean) {
+                if (showMore) {
                     showFullDescription()
                 } else {
                     showLimitedDescription()
@@ -177,30 +180,36 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
-        val showMoreText = binding.showMore
-        if (showMoreText.tag == false) {
+        if (!showMore) {
             showFullDescription()
-            showMoreText.tag = true
         } else {
             showLimitedDescription()
-            showMoreText.tag = false
         }
+        showMore = !showMore
     }
 
     private fun showLimitedDescription() {
-        val showMoreText = binding.showMore
         val descriptionText = binding.description
         descriptionText.maxLines = resources.getInteger(R.integer.max_lines_details_description)
-        descriptionText.text = podcastDetails.description
-        showMoreText.text = getString(R.string.show_more)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            descriptionText.text =
+                Html.fromHtml(podcastDetails.description, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            descriptionText.text = Html.fromHtml(podcastDetails.description)
+        }
+        binding.showMore.text = getString(R.string.show_more)
     }
 
     private fun showFullDescription() {
-        val showMoreText = binding.showMore
         val descriptionText = binding.description
         descriptionText.maxLines = Int.MAX_VALUE
-        descriptionText.text = podcastDetails.description
-        showMoreText.text = getString(R.string.show_less)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            descriptionText.text =
+                Html.fromHtml(podcastDetails.description, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            descriptionText.text = Html.fromHtml(podcastDetails.description)
+        }
+        binding.showMore.text = getString(R.string.show_less)
     }
 
     override fun onItemClick(episode: Episode) {
