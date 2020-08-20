@@ -75,7 +75,15 @@ class CreateReplyFragment: BaseFragment() {
     }
 
     private fun configureViews() {
-        //todo: add cancel button click functionality
+        binding.cancelButton.apply {
+            setOnClickListener {
+                val masterActivity: MasterActivity = (activity as MasterActivity)
+                masterActivity.onBackPressedDispatcher.onBackPressed()
+
+                masterActivity.hideSoftKeyboard(requireView())
+            }
+        }
+
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
