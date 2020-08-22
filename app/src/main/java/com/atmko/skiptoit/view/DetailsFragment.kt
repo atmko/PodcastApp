@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
@@ -59,6 +60,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        configureBottomMargin()
         return binding.root
     }
 
@@ -79,6 +81,12 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SHOW_MORE_KEY, showMore)
+    }
+
+    private fun configureBottomMargin() {
+        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
+        binding.root.layoutParams = newLayoutParams
     }
 
     override fun onDestroy() {

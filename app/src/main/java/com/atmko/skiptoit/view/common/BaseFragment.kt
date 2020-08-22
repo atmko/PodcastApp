@@ -12,6 +12,7 @@ import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
+import com.atmko.skiptoit.view.MasterActivity
 
 open class BaseFragment : Fragment() {
 
@@ -42,5 +43,10 @@ open class BaseFragment : Fragment() {
             )
         )
         toolbar.setupWithNavController(navController, appBarConfiguration)
+    }
+
+    fun getBaseFragmentBottomMargin(): Int {
+        val masterActivity = (activity as MasterActivity)
+        return masterActivity.bottomSheetPeekHeight() + masterActivity.navBarHeight()
     }
 }

@@ -160,9 +160,8 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         viewModel.getUser()
 
         if (savedInstanceState != null) {
-            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
+                val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
                 binding.navView.post {
                     bottomSheetBehavior.peekHeight =
                         binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
@@ -357,19 +356,42 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         viewModel.signOut()
     }
 
+    fun navBarHeight(): Int {
+        return if (isNavViewShown()) {
+            resources.getDimension(R.dimen.bottom_sheet_peek_height).toInt()
+        } else {
+            0
+        }
+    }
+
+    fun bottomSheetPeekHeight(): Int {
+        return if (isBottomSheetShown()) {
+            resources.getDimension(R.dimen.bottom_sheet_peek_height).toInt()
+        } else {
+            0
+        }
+    }
+
     fun isBottomSheetExpanded(): Boolean {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
     }
 
     private fun isBottomPanelsShown(): Boolean {
-        return binding.navView.visibility == View.VISIBLE ||
-                binding.bottomSheet.visibility == View.VISIBLE
+        return isNavViewShown() || isBottomSheetShown()
     }
 
     private fun showBottomPanels() {
         binding.navView.visibility = View.VISIBLE
         binding.bottomSheet.visibility = View.VISIBLE
+    }
+
+    private fun isNavViewShown(): Boolean {
+        return binding.navView.visibility == View.VISIBLE
+    }
+
+    private fun isBottomSheetShown(): Boolean {
+        return binding.bottomSheet.visibility == View.VISIBLE
     }
 
     private fun hideBottomPanels() {

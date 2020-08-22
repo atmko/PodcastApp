@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -41,6 +42,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         _binding = FragmentSubscriptionsBinding.inflate(inflater, container, false)
+        configureBottomMargin()
         return binding.root
     }
 
@@ -60,6 +62,12 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         defineViewModelValues()
         configureViews()
         configureDetailsViewModel()
+    }
+
+    private fun configureBottomMargin() {
+        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
+        binding.root.layoutParams = newLayoutParams
     }
 
     private fun isFirstSetup(): Boolean {

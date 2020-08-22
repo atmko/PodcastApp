@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -50,6 +51,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         _binding = FragmentSearchParentBinding.inflate(inflater, container, false)
+        configureBottomMargin()
         return binding.root
     }
 
@@ -75,6 +77,12 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
         outState.putBoolean(IS_SEARCH_BOX_VISIBLE_KEY, isSearchBarShown())
         outState.putBoolean(IS_KEYBOARD_VISIBLE_KEY, isKeyboardVisible)
+    }
+
+    private fun configureBottomMargin() {
+        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
+        binding.root.layoutParams = newLayoutParams
     }
 
     fun configureViews() {
