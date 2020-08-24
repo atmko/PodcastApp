@@ -19,7 +19,7 @@ class DatabaseModule  {
 
     @Provides
     @Singleton
-    fun provideClientCacheDatabase(application: SkipToItApplication): SkipToItDatabase {
+    fun provideSkipToItDatabase(application: SkipToItApplication): SkipToItDatabase {
         return Room.databaseBuilder(
                 application,
                 SkipToItDatabase::class.java,
