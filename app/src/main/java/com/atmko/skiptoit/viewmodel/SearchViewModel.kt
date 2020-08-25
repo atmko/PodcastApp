@@ -7,7 +7,6 @@ import androidx.paging.PagedList
 import com.atmko.skiptoit.viewmodel.datasource.GenrePodcastDataSource
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory
-import java.util.concurrent.Executors
 
 class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {
 
@@ -31,7 +30,6 @@ class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) :
         dataSourceFactory.setTypeClass(GenrePodcastDataSource::class.java)
         (dataSourceFactory.getDataSource() as GenrePodcastDataSource).genreId = genreId
         genreResults = LivePagedListBuilder<Int, Podcast>(dataSourceFactory, config)
-            .setFetchExecutor(Executors.newFixedThreadPool(5))
             .build()
     }
 
