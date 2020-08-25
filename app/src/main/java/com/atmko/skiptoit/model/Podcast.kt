@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.model
 
+import androidx.recyclerview.widget.DiffUtil
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -29,4 +30,25 @@ class Podcast(@PrimaryKey
             this(id, title, publisher, image, description, totalEpisodes) {
         this.episodes = episodes
     }
+    
+    class PodcastDiffCallback : DiffUtil.ItemCallback<Podcast>() {
+        override fun areItemsTheSame(oldItem: Podcast, newItem: Podcast): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Podcast, newItem: Podcast): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Podcast) return false
+        return id == other.id
+                && title == other.title
+                && publisher == other.publisher
+                && image == other.image
+                && description == other.description
+                && totalEpisodes == other.totalEpisodes
+    }
+
 }

@@ -69,7 +69,6 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
         configureViews()
         configureValues(savedInstanceState)
-        configureViewModel()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -132,6 +131,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
                     binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
 
                     viewModel.search(queryString)
+                    configureViewModel()
                 }
 
                 true
@@ -175,7 +175,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
     private fun clearManualSearchData() {
         binding.toolbar.searchBox.searchBox.text = "".toEditable()
-        podcastAdapter.podcasts.clear()
+        podcastAdapter.submitList(null)
     }
 
     private fun showPresetSearchState() {
@@ -226,10 +226,10 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
     private fun configureViewModel() {
         viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
-            subscriptions?.let { podcastAdapter.updatePodcasts(it) }
+            subscriptions?.let { podcastAdapter.submitList(it) }
         })
 
-        viewModel.searchLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.getSearchLoading().observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -240,7 +240,7 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
             }
         })
 
-        viewModel.searchLoadError.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.getSearchLoadError().observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE }

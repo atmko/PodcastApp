@@ -1,51 +1,45 @@
 package com.atmko.skiptoit.viewmodel
 
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.model.ApiResults
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import com.atmko.skiptoit.viewmodel.datasource.GenrePodcastDataSource
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.PodcastsApi
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
+import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory
+import java.util.concurrent.Executors
 
-class SearchViewModel(private val podcastsApi: PodcastsApi): ViewModel() {
+class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {
 
-    val genreResults:MutableLiveData<List<Podcast>> = MutableLiveData()
-    val genreLoadError: MutableLiveData<Boolean> = MutableLiveData()
-    val genreLoading: MutableLiveData<Boolean> = MutableLiveData()
+    private val pageSize = 20
+    private val setInitialLoadSizeHint = 40
+
+    lateinit var genreResults: LiveData<PagedList<Podcast>>
 
     //state save variables
     var scrollPosition: Int = 0
 
-    private val disposable: CompositeDisposable = CompositeDisposable()
-
     fun fetchPodcastsByGenre(genreId: Int) {
-        if (genreResults.value != null) {
+        if (this::genreResults.isInitialized && genreResults.value != null) {
             return
         }
-        genreLoading.value = true
-        disposable.add(
-            podcastsApi.getPodcastsByGenre(genreId)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
-                    override fun onSuccess(results: ApiResults) {
-                        genreResults.value = results.podcasts
-                        genreLoadError.value = false
-                        genreLoading.value = false
-                    }
 
-                    override fun onError(e: Throwable) {
-                        genreLoadError.value = true
-                        genreLoading.value = false
-                    }
-                })
-        )
+        val config = PagedList.Config.Builder()
+            .setPageSize(pageSize)
+            .setInitialLoadSizeHint(setInitialLoadSizeHint)
+            .build()
+        dataSourceFactory.setTypeClass(GenrePodcastDataSource::class.java)
+        (dataSourceFactory.getDataSource() as GenrePodcastDataSource).genreId = genreId
+        genreResults = LivePagedListBuilder<Int, Podcast>(dataSourceFactory, config)
+            .setFetchExecutor(Executors.newFixedThreadPool(5))
+            .build()
     }
 
-    override fun onCleared() {
-        disposable.clear()
+    fun getGenreLoading(): LiveData<Boolean> {
+        return (dataSourceFactory.getDataSource() as GenrePodcastDataSource).loading
+    }
+
+    fun getGenreLoadError(): LiveData<Boolean> {
+        return (dataSourceFactory.getDataSource() as GenrePodcastDataSource).loadError
     }
 }

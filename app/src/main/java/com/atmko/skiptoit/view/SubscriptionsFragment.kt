@@ -119,7 +119,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     private fun configureDetailsViewModel() {
         viewModel.subscriptions.observe(viewLifecycleOwner, Observer {
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
-            subscriptionsAdapter.updatePodcasts(it)
+            subscriptionsAdapter.submitList(it)
         })
 
         viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->

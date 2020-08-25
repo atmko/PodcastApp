@@ -2,16 +2,17 @@ package com.atmko.skiptoit.model
 
 import com.atmko.skiptoit.BuildConfig
 import io.reactivex.Single
+import retrofit2.Call
 import retrofit2.http.*
 
 interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
-    @GET("best_podcasts?age=1&region=us&safe_mode=0")
-    fun getPodcastsByGenre(@Query("genre_id") genreId:Int): Single<ApiResults>
+    @GET("best_podcasts?region=us&safe_mode=0")
+    fun getPodcastsByGenre(@Query("genre_id") genreId:Int, @Query("page") page: Int): Call<ApiResults>
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("typeahead?show_podcasts=1&show_genres=0&safe_mode=0")
-    fun searchPodcasts(@Query("q") queryString:String): Single<ApiResults>
+    fun searchPodcasts(@Query("q") queryString:String, @Query("page") page: Int): Call<ApiResults>
 
     //todo rename to getPodcastDetails
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")

@@ -2,6 +2,8 @@ package com.atmko.skiptoit.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
+import androidx.paging.toFlowable
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.SkipToItApi
 import com.atmko.skiptoit.model.database.SubscriptionsDao
@@ -26,7 +28,7 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
     //state save variables
     var scrollPosition: Int = 0
 
-    val subscriptions: MutableLiveData<List<Podcast>> = MutableLiveData()
+    val subscriptions: MutableLiveData<PagedList<Podcast>> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -36,10 +38,10 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
         }
         disposable.add(
             subscriptionsDao
-                .getAllSubscriptions()
+                .getAllSubscriptions().toFlowable(20, 1)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSubscriber<List<Podcast>>() {
+                .subscribeWith(object : DisposableSubscriber<PagedList<Podcast>>() {
                     override fun onError(e: Throwable) {
                         loadError.value = true
                         loading.value = false
@@ -49,10 +51,11 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
 
                     }
 
-                    override fun onNext(podcasts: List<Podcast>?) {
+                    override fun onNext(podcasts: PagedList<Podcast>) {
                         subscriptions.value = podcasts
                         loadError.value = false
-                        loading.value = false                    }
+                        loading.value = false
+                    }
                 })
         )
     }

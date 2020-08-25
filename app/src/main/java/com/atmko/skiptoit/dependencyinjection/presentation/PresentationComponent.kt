@@ -6,7 +6,8 @@ import dagger.Subcomponent
 @Subcomponent(modules = [
     PresentationModule::class,
     AdapterModule::class,
-    ViewModelModule::class])
+    ViewModelModule::class,
+    PagingModule::class])
 interface PresentationComponent {
     fun inject(masterActivity: MasterActivity)
 

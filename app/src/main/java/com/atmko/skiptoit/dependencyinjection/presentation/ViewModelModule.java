@@ -8,13 +8,14 @@ import com.atmko.skiptoit.SkipToItApplication;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
-import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel;
+import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
+import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel;
 import com.atmko.skiptoit.viewmodel.RepliesViewModel;
 import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
@@ -47,6 +48,7 @@ public class ViewModelModule {
         Class<? extends ViewModel> value();
     }
 
+    //todo consider making singleton
     @Provides
     ViewModelFactory viewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> providerMap) {
         return new ViewModelFactory(providerMap);
@@ -149,14 +151,14 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(SearchParentViewModel.class)
-    ViewModel provideSearchParentViewModel(PodcastsApi podcastApi) {
-        return new SearchParentViewModel(podcastApi);
+    ViewModel provideSearchParentViewModel(PodcastDataSourceFactory podcastDataSourceFactory) {
+        return new SearchParentViewModel(podcastDataSourceFactory);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(SearchViewModel.class)
-    ViewModel provideSearchViewModel(PodcastsApi podcastApi) {
-        return new SearchViewModel(podcastApi);
+    ViewModel provideSearchViewModel(PodcastDataSourceFactory podcastDataSourceFactory) {
+        return new SearchViewModel(podcastDataSourceFactory);
     }
 }

@@ -123,10 +123,10 @@ class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener
     private fun configureViewModel() {
         viewModel.genreResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.resultsRecyclerView.visibility = View.VISIBLE
-            subscriptions?.let { podcastAdapter.updatePodcasts(it) }
+            subscriptions?.let { podcastAdapter.submitList(it) }
         })
 
-        viewModel.genreLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.getGenreLoading().observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -137,7 +137,7 @@ class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener
             }
         })
 
-        viewModel.genreLoadError.observe(viewLifecycleOwner, Observer { isError ->
+        viewModel.getGenreLoadError().observe(viewLifecycleOwner, Observer { isError ->
             isError?.let {
                 binding.errorAndLoading.errorScreen.visibility = if (it) View.VISIBLE else View.GONE
             }

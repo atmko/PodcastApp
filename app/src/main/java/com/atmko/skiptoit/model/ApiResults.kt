@@ -2,7 +2,8 @@ package com.atmko.skiptoit.model
 
 import com.google.gson.annotations.SerializedName
 
-class ApiResults {
+class ApiResults(
     @SerializedName("podcasts")
-    val podcasts: List<Podcast>? = null
-}
+    val podcasts: List<Podcast>,
+    @SerializedName("has_next")
+    val hasNext: Boolean)

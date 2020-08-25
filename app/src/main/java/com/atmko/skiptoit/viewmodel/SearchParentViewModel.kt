@@ -1,47 +1,41 @@
 package com.atmko.skiptoit.viewmodel
 
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.model.ApiResults
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.PodcastsApi
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
+import com.atmko.skiptoit.viewmodel.datasource.QueryPodcastDataSource
+import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory
+import java.util.concurrent.Executors
 
-class SearchParentViewModel(private val podcastsApi: PodcastsApi): ViewModel() {
-    val searchResults:MutableLiveData<List<Podcast>> = MutableLiveData()
-    val searchLoadError: MutableLiveData<Boolean> = MutableLiveData()
-    val searchLoading: MutableLiveData<Boolean> = MutableLiveData()
+class SearchParentViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {
+
+    private val pageSize = 20
+    private val setInitialLoadSizeHint = 40
+
+    lateinit var searchResults: LiveData<PagedList<Podcast>>
 
     //state save variables
     var tabPosition: Int = 0
 
-    private val disposable: CompositeDisposable = CompositeDisposable()
-
     fun search(queryString: String) {
-        searchLoading.value = true
-        disposable.add(
-            podcastsApi.searchPodcasts(queryString)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object: DisposableSingleObserver<ApiResults>() {
-                    override fun onSuccess(results: ApiResults) {
-                        searchResults.value = results.podcasts
-                        searchLoadError.value = false
-                        searchLoading.value = false
-                    }
-
-                    override fun onError(e: Throwable) {
-                        searchLoadError.value = true
-                        searchLoading.value = false
-                    }
-                })
-        )
+        val config = PagedList.Config.Builder()
+            .setPageSize(pageSize)
+            .setInitialLoadSizeHint(setInitialLoadSizeHint)
+            .build()
+        dataSourceFactory.setTypeClass(QueryPodcastDataSource::class.java)
+        (dataSourceFactory.getDataSource() as QueryPodcastDataSource).queryString = queryString
+        searchResults = LivePagedListBuilder<Int, Podcast>(dataSourceFactory, config)
+            .setFetchExecutor(Executors.newFixedThreadPool(5))
+            .build()
     }
 
-    override fun onCleared() {
-        disposable.clear()
+    fun getSearchLoading(): LiveData<Boolean> {
+        return (dataSourceFactory.getDataSource() as QueryPodcastDataSource).loading
+    }
+
+    fun getSearchLoadError(): LiveData<Boolean> {
+        return (dataSourceFactory.getDataSource() as QueryPodcastDataSource).loadError
     }
 }
