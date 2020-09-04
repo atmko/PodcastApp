@@ -1,6 +1,8 @@
 package com.atmko.skiptoit.model
 
 import io.reactivex.Single
+import retrofit2.Call
+
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -24,12 +26,12 @@ interface SkipToItApi {
 
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsUnauthenticated(@Path("episode_id") episodeId: String,
-                                   @Path("page") page: Int): Single<ArrayList<Comment>>
+                                   @Path("page") page: Int): Call<CommentResults>
 
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsAuthenticated(@Path("episode_id") episodeId: String,
                                  @Path("page") page: Int,
-                                 @Query("id_token") idToken: String): Single<ArrayList<Comment>>
+                                 @Query("id_token") idToken: String): Call<CommentResults>
 
     @FormUrlEncoded
     @POST("replies/{parent_id}")
@@ -39,12 +41,12 @@ interface SkipToItApi {
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesUnauthenticated(@Path("parent_id") parentId: String,
-                                  @Path("page") page: Int): Single<ArrayList<Comment>>
+                                  @Path("page") page: Int): Call<CommentResults>
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesAuthenticated(@Path("parent_id") parentId: String,
                                 @Path("page") page: Int,
-                                @Query("id_token") idToken: String): Single<ArrayList<Comment>>
+                                @Query("id_token") idToken: String): Call<CommentResults>
 
     @FormUrlEncoded
     @PUT("comments/{comment_id}")

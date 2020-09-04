@@ -9,11 +9,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
-import com.atmko.skiptoit.model.BodyUpdate
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.util.loadNetworkImage
@@ -23,8 +21,6 @@ import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.RepliesViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
-
-const val PARENT_COMMENT_POSITION = -1
 
 class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
 
@@ -78,8 +74,6 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureViews()
         configureValues()
         configureViewModel()
-        observeCreateCommentLiveData()
-        observeEditCommentLiveData()
         configureMasterActivityViewModel()
     }
 
@@ -111,7 +105,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             viewModelFactory
         ).get(RepliesViewModel::class.java)
 
-        repliesViewModel.getReplies(parentComment.commentId, 0)
+        repliesViewModel.getReplies(parentComment.commentId)
 
         masterActivityViewModel = ViewModelProvider(
             requireActivity(),
@@ -126,16 +120,16 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             onReplyButtonClick(comment.commentId, comment.body)
         }
         binding.parentComment.upVoteButton.setOnClickListener {
-            onUpVoteClick(comment, PARENT_COMMENT_POSITION)
+            onUpVoteClick(comment)
         }
         binding.parentComment.downVoteButton.setOnClickListener {
-            onDownVoteClick(comment, PARENT_COMMENT_POSITION)
+            onDownVoteClick(comment)
         }
         binding.parentComment.deleteButton.setOnClickListener {
-            onDeleteClick(comment, PARENT_COMMENT_POSITION)
+            onDeleteClick(comment)
         }
         binding.parentComment.editButton.setOnClickListener {
-            onEditClick(comment, PARENT_COMMENT_POSITION)
+            onEditClick(comment)
         }
 
         repliesAdapter
@@ -168,41 +162,15 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureViewModel() {
-        repliesViewModel.localCommentVoteUpdate.observe(
-            viewLifecycleOwner,
-            Observer { localCommentVoteUpdate ->
-                localCommentVoteUpdate?.let {
-                    if (localCommentVoteUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
-                        setupParentComment(localCommentVoteUpdate.comment)
-                    } else {
-                        repliesAdapter.updateChangedComment(
-                            localCommentVoteUpdate.comment, localCommentVoteUpdate.adapterPosition
-                        )
-                    }
-                }
-            })
-
-        repliesViewModel.deleteCommentUpdate.observe(
-            viewLifecycleOwner,
-            Observer { deleteCommentUpdate ->
-                deleteCommentUpdate?.let {
-                    if (deleteCommentUpdate.adapterPosition == PARENT_COMMENT_POSITION) {
-                        findNavController().navigateUp()
-                    } else {
-                        repliesViewModel.removeComment(deleteCommentUpdate.adapterPosition)
-                        repliesAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
-                    }
-                }
-            })
-
-        repliesViewModel.retrievedComments.observe(viewLifecycleOwner, Observer { replies ->
+        repliesViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer { replies ->
             binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             replies?.let {
-                repliesAdapter.updateComments(replies)
+                repliesAdapter.submitList(replies)
+                repliesAdapter.notifyDataSetChanged()
             }
         })
 
-        repliesViewModel.repliesLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+        repliesViewModel.getCommentLoading().observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -213,38 +181,11 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        repliesViewModel.repliesLoadError.observe(viewLifecycleOwner, Observer { isError ->
+        repliesViewModel.getCommentError().observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
             }
-        })
-    }
-
-    private fun observeCreateCommentLiveData() {
-        val createCommentLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<Comment>(CREATED_REPLY_KEY)
-
-        val createCommentObserver = object : Observer<Comment> {
-            override fun onChanged(comment: Comment) {
-                repliesViewModel.addComment(comment)
-                repliesAdapter.addComment(comment)
-
-                createCommentLiveData!!.removeObserver(this)
-
-                findNavController()
-                    .currentBackStackEntry?.savedStateHandle?.remove<Comment>(CREATED_REPLY_KEY)
-            }
-        }
-
-        createCommentLiveData?.observe(viewLifecycleOwner, createCommentObserver)
-    }
-
-    private fun observeEditCommentLiveData() {
-        val editCommentLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<BodyUpdate>(BODY_UPDATE_KEY)
-        editCommentLiveData?.observe(viewLifecycleOwner, Observer {
-            repliesAdapter.updateChangedCommentBody(it.body, it.adapterPosition)
         })
     }
 
@@ -262,9 +203,9 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
-    private fun attemptToUpdateReply(comment: Comment, position: Int) {
+    private fun attemptToUpdateReply(comment: Comment) {
         if (user != null) {
-            navigateToUpdateReply(comment, user!!.username!!, position)
+            navigateToUpdateReply(comment, user!!.username!!)
         } else {
             masterActivityViewModel.signIn()
         }
@@ -278,11 +219,10 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToUpdateReply(comment: Comment, username: String, position: Int) {
+    private fun navigateToUpdateReply(comment: Comment, username: String) {
         val action = RepliesFragmentDirections
             .actionNavigationEpisodeToNavigationUpdateReply(
-                comment.commentId, username, binding.parentComment.body.text.toString(),
-                comment.body, position
+                comment.commentId, username, binding.parentComment.body.text.toString()
             )
         view?.findNavController()?.navigate(action)
     }
@@ -297,19 +237,19 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         view?.findNavController()?.navigate(action)
     }
 
-    override fun onUpVoteClick(comment: Comment, position: Int) {
-        repliesViewModel.onUpVoteClick(comment, position)
+    override fun onUpVoteClick(comment: Comment) {
+        repliesViewModel.onUpVoteClick(comment)
     }
 
-    override fun onDownVoteClick(comment: Comment, position: Int) {
-        repliesViewModel.onDownVoteClick(comment, position)
+    override fun onDownVoteClick(comment: Comment) {
+        repliesViewModel.onDownVoteClick(comment)
     }
 
-    override fun onDeleteClick(comment: Comment, position: Int) {
-        repliesViewModel.deleteComment(comment, position)
+    override fun onDeleteClick(comment: Comment) {
+        repliesViewModel.deleteComment(comment)
     }
 
-    override fun onEditClick(comment: Comment, position: Int) {
-        attemptToUpdateReply(comment, position)
+    override fun onEditClick(comment: Comment) {
+        attemptToUpdateReply(comment)
     }
 }

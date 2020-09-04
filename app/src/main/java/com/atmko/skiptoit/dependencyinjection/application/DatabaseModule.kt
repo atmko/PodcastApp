@@ -2,6 +2,8 @@ package com.atmko.skiptoit.dependencyinjection.application
 
 import androidx.room.Room
 import com.atmko.skiptoit.SkipToItApplication
+import com.atmko.skiptoit.model.database.CommentDao
+import com.atmko.skiptoit.model.database.CommentPageTrackerDao
 import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.model.database.SubscriptionsDao
 import dagger.Module
@@ -15,6 +17,18 @@ class DatabaseModule  {
     @Singleton
     fun provideSubscriptionsDao(database: SkipToItDatabase): SubscriptionsDao {
         return database.subscriptionsDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommentsDao(database: SkipToItDatabase): CommentDao {
+        return database.commentDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommentsPageTrackerDao(database: SkipToItDatabase): CommentPageTrackerDao {
+        return database.commentPageTrackerDao()
     }
 
     @Provides

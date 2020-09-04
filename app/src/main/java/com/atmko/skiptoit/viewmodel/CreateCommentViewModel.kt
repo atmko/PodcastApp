@@ -3,6 +3,8 @@ package com.atmko.skiptoit.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.SkipToItDatabase
+import com.atmko.skiptoit.util.AppExecutors
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -11,7 +13,8 @@ import io.reactivex.schedulers.Schedulers
 
 class CreateCommentViewModel(
     private val skipToItApi: SkipToItApi,
-    private val googleSignInClient: GoogleSignInClient
+    private val googleSignInClient: GoogleSignInClient,
+    private val skipToItDatabase: SkipToItDatabase
 ) : ViewModel() {
 
     private val disposable: CompositeDisposable = CompositeDisposable()
@@ -30,9 +33,18 @@ class CreateCommentViewModel(
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Comment>() {
                             override fun onSuccess(comment: Comment) {
-                                createdComment.value = comment
-                                createError.value = false
-                                processing.value = false
+
+                                AppExecutors.getInstance().diskIO().execute {
+                                    val lastPageTracker =
+                                        getLastCommentPageTrackerForEpisode(episodeId)
+                                    if (lastPageTracker != null && lastPageTracker.nextPage == null) {
+                                        deleteCommentPage(episodeId, lastPageTracker.page)
+                                    }
+
+                                    createdComment.postValue(comment)
+                                    createError.postValue(false)
+                                    processing.postValue(false)
+                                }
                             }
 
                             override fun onError(e: Throwable) {
@@ -43,6 +55,21 @@ class CreateCommentViewModel(
                 )
             }
         }
+    }
+
+    private fun getLastCommentPageTrackerForEpisode(episodeId: String): CommentPageTracker? {
+        val lastCommentInEpisode = skipToItDatabase.commentDao().getLastComment(episodeId)
+        lastCommentInEpisode?.let {
+            return skipToItDatabase.commentPageTrackerDao()
+                .getCommentPageTracker(lastCommentInEpisode.commentId)
+        }
+        return null
+    }
+
+    private fun deleteCommentPage(episodeId: String, page: Int) {
+        val pageComments = skipToItDatabase.commentPageTrackerDao()
+            .getCommentsInPage(episodeId, page)
+        skipToItDatabase.commentDao().deleteComments(pageComments)
     }
 
     override fun onCleared() {

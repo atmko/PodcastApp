@@ -182,8 +182,8 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         } else {
             val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
             episodePrefs?.let {
-                val podcastId = episodePrefs.getString(PODCAST_ID_KEY, "")
-                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, "")
+                val podcastId = episodePrefs.getString(PODCAST_ID_KEY, null)
+                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, null)
                 if (episodeId != null && podcastId !== null) {
                     restoreEpisodeIntoBottomSheet(podcastId, episodeId)
                 }

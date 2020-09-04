@@ -1,9 +1,13 @@
 package com.atmko.skiptoit.viewmodel.common
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
 import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.CommentDao
+import com.atmko.skiptoit.util.AppExecutors
+import com.atmko.skiptoit.viewmodel.paging.CommentBoundaryCallback
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -11,21 +15,26 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
+const val pageSize = 20
+const val  enablePlaceholders = true
+const val  maxSize = 60
+const val  prefetchDistance = 5
+const val  initialLoadSize = 40
+
 open class CommentsViewModel(
     private val skipToItApi: SkipToItApi,
-    private val googleSignInClient: GoogleSignInClient
+    private val googleSignInClient: GoogleSignInClient,
+    private val commentDao: CommentDao,
+    private val commentBoundaryCallback: CommentBoundaryCallback
 ) : ViewModel() {
 
     val TAG = this::class.simpleName
 
-    private val disposable: CompositeDisposable = CompositeDisposable()
+    val disposable: CompositeDisposable = CompositeDisposable()
 
-    val retrievedComments: MutableLiveData<ArrayList<Comment>> = MutableLiveData()
+    var retrievedComments: LiveData<PagedList<Comment>>? = null
 
-    //updates to this reflect local comment changes and not server
-    val localCommentVoteUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
-
-    fun onUpVoteClick(comment: Comment, position: Int) {
+    fun onUpVoteClick(comment: Comment) {
         when (comment.voteWeight) {
             VOTE_WEIGHT_UP_VOTE -> {
                 comment.voteWeight = VOTE_WEIGHT_NONE
@@ -43,12 +52,9 @@ open class CommentsViewModel(
                 voteComment(comment, VOTE_WEIGHT_UP_VOTE)
             }
         }
-
-        localCommentVoteUpdate.value = CommentUpdate(comment, position)
-        localCommentVoteUpdate.value = null
     }
 
-    fun onDownVoteClick(comment: Comment, position: Int) {
+    fun onDownVoteClick(comment: Comment) {
         when (comment.voteWeight) {
             VOTE_WEIGHT_DOWN_VOTE -> {
                 comment.voteWeight = VOTE_WEIGHT_NONE
@@ -66,9 +72,6 @@ open class CommentsViewModel(
                 voteComment(comment, VOTE_WEIGHT_DOWN_VOTE)
             }
         }
-
-        localCommentVoteUpdate.value = CommentUpdate(comment, position)
-        localCommentVoteUpdate.value = null
     }
 
     private fun voteComment(comment: Comment, voteWeight: Int) {
@@ -80,7 +83,14 @@ open class CommentsViewModel(
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
-                                Log.d(TAG, "Success")
+                                if (response.isSuccessful) {
+                                    AppExecutors.getInstance().diskIO().execute {
+                                        commentDao.updateComment(comment)
+                                        Log.d("VOTE SUCCESS: ", comment.voteWeight.toString())
+                                    }
+                                } else {
+                                    Log.d(TAG, "Failure")
+                                }
                             }
 
                             override fun onError(e: Throwable) {
@@ -101,7 +111,14 @@ open class CommentsViewModel(
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
-                                Log.d(TAG, "Success")
+                                if (response.isSuccessful) {
+                                    AppExecutors.getInstance().diskIO().execute {
+                                        commentDao.updateComment(comment)
+                                        Log.d("DELETE SUCCESS: ", comment.voteWeight.toString())
+                                    }
+                                } else {
+                                    Log.d(TAG, "Failure")
+                                }
                             }
 
                             override fun onError(e: Throwable) {
@@ -113,10 +130,7 @@ open class CommentsViewModel(
         }
     }
 
-    //updates to this reflect local comment changes and not server
-    val deleteCommentUpdate: MutableLiveData<CommentUpdate> = MutableLiveData()
-
-    fun deleteComment(comment: Comment, position: Int) {
+    fun deleteComment(comment: Comment) {
         googleSignInClient.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 disposable.add(
@@ -126,8 +140,12 @@ open class CommentsViewModel(
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
                             override fun onSuccess(response: Response<Void>) {
                                 if (response.isSuccessful) {
-                                    deleteCommentUpdate.value = CommentUpdate(comment, position)
-                                    deleteCommentUpdate.value = null
+                                    AppExecutors.getInstance().diskIO().execute {
+                                        commentDao.deleteComments(listOf(comment))
+                                        Log.d(TAG, "Success")
+                                    }
+                                } else {
+                                    Log.d(TAG, "Failure")
                                 }
                             }
 
@@ -140,12 +158,12 @@ open class CommentsViewModel(
         }
     }
 
-    fun addComment(comment: Comment) {
-        retrievedComments.value?.add(comment)
+    fun getCommentLoading(): LiveData<Boolean> {
+        return commentBoundaryCallback.loading
     }
 
-    fun removeComment(position: Int) {
-        retrievedComments.value?.removeAt(position)
+    fun getCommentError(): LiveData<Boolean> {
+        return commentBoundaryCallback.loadError
     }
 
     override fun onCleared() {

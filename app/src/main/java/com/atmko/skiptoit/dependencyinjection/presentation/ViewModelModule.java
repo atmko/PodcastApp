@@ -3,12 +3,16 @@ package com.atmko.skiptoit.dependencyinjection.presentation;
 import android.content.SharedPreferences;
 
 import androidx.lifecycle.ViewModel;
+import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.SkipToItApplication;
+import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
+import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.model.SkipToItApi;
+import com.atmko.skiptoit.model.database.CommentDao;
+import com.atmko.skiptoit.model.database.SkipToItDatabase;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
-import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.CreateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
@@ -21,6 +25,7 @@ import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel;
+import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
@@ -111,41 +116,52 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(ParentCommentsViewModel.class)
-    ViewModel provideCommentsViewModel(SkipToItApi skipToItApi,
-                                       GoogleSignInClient googleSignInClient) {
-        return new ParentCommentsViewModel(skipToItApi, googleSignInClient);
+    ViewModel provideParentCommentsViewModel(GoogleSignInClient googleSignInClient,
+                                             SkipToItApi skipToItApi,
+                                             CommentDao commentDao,
+                                             ParentCommentBoundaryCallback parentCommentMediator,
+                                             PagedList.Config pagedListConfig) {
+        return new ParentCommentsViewModel(
+                googleSignInClient, skipToItApi, commentDao, parentCommentMediator, pagedListConfig);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(RepliesViewModel.class)
-    ViewModel provideRepliesViewModel(SkipToItApi skipToItApi,
-                                      GoogleSignInClient googleSignInClient) {
-        return new RepliesViewModel(skipToItApi, googleSignInClient);
+    ViewModel provideRepliesViewModel(GoogleSignInClient googleSignInClient,
+                                      SkipToItApi skipToItApi,
+                                      CommentDao commentDao,
+                                      ReplyCommentBoundaryCallback replyCommentMediator,
+                                      PagedList.Config pagedListConfig) {
+        return new RepliesViewModel(
+                googleSignInClient, skipToItApi, commentDao, replyCommentMediator, pagedListConfig);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(CreateCommentViewModel.class)
     ViewModel provideCreateCommentsViewModel(SkipToItApi skipToItApi,
-                                             GoogleSignInClient googleSignInClient) {
-        return new CreateCommentViewModel(skipToItApi, googleSignInClient);
+                                             GoogleSignInClient googleSignInClient,
+                                             SkipToItDatabase skipToItDatabase) {
+        return new CreateCommentViewModel(skipToItApi, googleSignInClient, skipToItDatabase);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(CreateReplyViewModel.class)
     ViewModel provideCreateReplyViewModel(SkipToItApi skipToItApi,
-                                          GoogleSignInClient googleSignInClient) {
-        return new CreateReplyViewModel(skipToItApi, googleSignInClient);
+                                          GoogleSignInClient googleSignInClient,
+                                          SkipToItDatabase skipToItDatabase) {
+        return new CreateReplyViewModel(skipToItApi, googleSignInClient, skipToItDatabase);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(UpdateCommentViewModel.class)
     ViewModel provideUpdateCommentsViewModel(SkipToItApi skipToItApi,
-                                             GoogleSignInClient googleSignInClient) {
-        return new UpdateCommentViewModel(skipToItApi, googleSignInClient);
+                                             GoogleSignInClient googleSignInClient,
+                                             CommentDao commentDao) {
+        return new UpdateCommentViewModel(skipToItApi, googleSignInClient, commentDao);
     }
 
     @Provides

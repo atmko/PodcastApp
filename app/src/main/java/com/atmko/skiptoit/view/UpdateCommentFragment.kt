@@ -10,8 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
-import com.atmko.skiptoit.model.BODY_KEY
-import com.atmko.skiptoit.model.BodyUpdate
+import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel
@@ -25,8 +24,8 @@ class UpdateCommentFragment: BaseFragment() {
 
     private lateinit var commentId: String
     private lateinit var username: String
-    private lateinit var oldCommentBody: String
-    private var commentAdapterPosition: Int = 0
+
+    private lateinit var comment: Comment
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -44,8 +43,6 @@ class UpdateCommentFragment: BaseFragment() {
         val args: UpdateCommentFragmentArgs by navArgs()
         commentId = args.commentId
         username = args.username
-        oldCommentBody = args.oldCommentBody
-        commentAdapterPosition = args.commentAdapterPosition
     }
 
     override fun onCreateView(
@@ -66,13 +63,8 @@ class UpdateCommentFragment: BaseFragment() {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
         configureViewModel()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(BODY_KEY, binding.bodyEditText.text.toString())
     }
 
     private fun configureViews() {
@@ -86,33 +78,40 @@ class UpdateCommentFragment: BaseFragment() {
         }
 
         binding.createButton.apply {
+            isEnabled = false
             setOnClickListener {
                 val masterActivity: MasterActivity = (activity as MasterActivity)
                 masterActivity.hideSoftKeyboard(requireView())
 
-                val commentBody = binding.bodyEditText.text.toString()
-                viewModel.updateCommentBody(commentId, BodyUpdate(commentBody, commentAdapterPosition))
+                val updatedBody = binding.bodyEditText.text.toString()
+                viewModel.updateCommentBody(updatedBody)
             }
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this,
+    private fun configureValues() {
+        viewModel = ViewModelProvider(
+            this,
             viewModelFactory).get(UpdateCommentViewModel::class.java)
 
+        viewModel.loadComment(commentId)
+
         binding.usernameTextView.text = username
-        if (savedInstanceState != null) {
-            binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
-        } else {
-            binding.bodyEditText.text = oldCommentBody.toEditable()
-        }
     }
 
     private fun configureViewModel() {
-        viewModel.bodyUpdateLiveData.observe(viewLifecycleOwner, Observer { bodyUpdate ->
-            val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
-            savedStateHandle?.set(BODY_UPDATE_KEY, bodyUpdate)
-            findNavController().navigateUp()
+        viewModel.isUpdated.observe(viewLifecycleOwner, Observer { isUpdated ->
+            isUpdated?.let {
+                findNavController().navigateUp()
+            }
+        })
+
+        viewModel.commentLiveData.observe(viewLifecycleOwner, Observer { comment ->
+            comment?.let {
+                this.comment = comment
+                binding.bodyEditText.text = comment.body.toEditable()
+                binding.createButton.isEnabled = true
+            }
         })
 
         viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->

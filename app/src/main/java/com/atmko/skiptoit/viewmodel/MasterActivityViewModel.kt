@@ -190,6 +190,7 @@ class MasterActivityViewModel(private val skipToItApi: SkipToItApi,
     val batchSavingLocally: MutableLiveData<Boolean> = MutableLiveData()
 
     private fun saveToLocalDatabase(podcasts: List<Podcast>) {
+        //todo inject app executors
         AppExecutors.getInstance().diskIO().execute(Runnable {
             for (podcast in podcasts) {
                 subscriptionsDao.createSubscription(podcast)

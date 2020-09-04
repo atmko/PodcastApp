@@ -19,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
@@ -31,15 +30,14 @@ import com.atmko.skiptoit.util.showFullText
 import com.atmko.skiptoit.util.showLimitedText
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
+import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import javax.inject.Inject
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
-const val BODY_UPDATE_KEY = "body_update"
 
 const val SCRUBBER_ANIM_LENGTH: Long = 100
 const val SCRUBBER_HIDE_LENGTH: Long = 2000
@@ -51,6 +49,7 @@ private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
 private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
 class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
+
     private var _binding: FragmentEpisodeBinding? = null
     private val binding get() = _binding!!
 
@@ -104,13 +103,13 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        configureViews()
-        configureValues(savedInstanceState)
-        configureEpisodeViewModel()
-        configureCommentsViewModel()
-        observeCreateCommentLiveData()
-        observeEditCommentLiveData()
-        configureMasterActivityViewModel()
+        if (podcastId != "" && episodeId != "") {
+            configureViews()
+            configureValues(savedInstanceState)
+            configureEpisodeViewModel()
+            configureMasterActivityViewModel()
+            configureCommentsViewModel()
+        }
     }
 
     override fun onStart() {
@@ -200,9 +199,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
-    private fun attemptToUpdateComment(comment: Comment, position: Int) {
+    private fun attemptToUpdateComment(comment: Comment) {
         if (user != null) {
-            navigateToUpdateComment(comment, user!!.username!!, position)
+            navigateToUpdateComment(comment, user!!.username!!)
         } else {
             masterActivityViewModel.signIn()
         }
@@ -224,10 +223,10 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToUpdateComment(comment: Comment, username: String, position: Int) {
+    private fun navigateToUpdateComment(comment: Comment, username: String) {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationUpdateComment(
-                comment.commentId, username, comment.body, position
+                comment.commentId, username
             )
         view?.findNavController()?.navigate(action)
     }
@@ -292,7 +291,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             viewModelFactory
         ).get(ParentCommentsViewModel::class.java)
 
-        parentCommentsViewModel.getComments(episodeId, 0)
+        parentCommentsViewModel.getComments(episodeId)
 
         masterActivityViewModel = ViewModelProvider(
             requireActivity(),
@@ -381,32 +380,12 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureCommentsViewModel() {
-        parentCommentsViewModel.localCommentVoteUpdate.observe(
-            viewLifecycleOwner,
-            Observer { localCommentVoteUpdate ->
-                localCommentVoteUpdate?.let {
-                    commentsAdapter.updateChangedComment(
-                        it.comment, it.adapterPosition
-                    )
-                }
-            })
-
-        parentCommentsViewModel.deleteCommentUpdate.observe(
-            viewLifecycleOwner,
-            Observer { deleteCommentUpdate ->
-                deleteCommentUpdate?.let {
-                    parentCommentsViewModel.removeComment(deleteCommentUpdate.adapterPosition)
-                    commentsAdapter.updateRemovedComment(deleteCommentUpdate.adapterPosition)
-                }
-            })
-
-        parentCommentsViewModel.retrievedComments.observe(viewLifecycleOwner, Observer {
-            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
-            commentsAdapter.updateComments(it)
-            binding.commentCount.text = it.size.toString()
+        parentCommentsViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer {
+            commentsAdapter.submitList(it)
+            commentsAdapter.notifyDataSetChanged()
         })
 
-        parentCommentsViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
+        parentCommentsViewModel.getCommentLoading().observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
                 binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
@@ -417,38 +396,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }
         })
 
-        parentCommentsViewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
+        parentCommentsViewModel.getCommentError().observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
                 binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
             }
-        })
-    }
-
-    private fun observeCreateCommentLiveData() {
-        val createCommentLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<Comment>(CREATED_COMMENT_KEY)
-
-        val createCommentObserver = object : Observer<Comment> {
-            override fun onChanged(comment: Comment) {
-                parentCommentsViewModel.addComment(comment)
-                commentsAdapter.addComment(comment)
-
-                createCommentLiveData!!.removeObserver(this)
-
-                findNavController()
-                    .currentBackStackEntry?.savedStateHandle?.remove<Comment>(CREATED_COMMENT_KEY)
-            }
-        }
-
-        createCommentLiveData?.observe(viewLifecycleOwner, createCommentObserver)
-    }
-
-    private fun observeEditCommentLiveData() {
-        val editCommentLiveData = findNavController()
-            .currentBackStackEntry?.savedStateHandle?.getLiveData<BodyUpdate>(BODY_UPDATE_KEY)
-        editCommentLiveData?.observe(viewLifecycleOwner, Observer {
-            commentsAdapter.updateChangedCommentBody(it.body, it.adapterPosition)
         })
     }
 
@@ -468,20 +420,20 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         view?.findNavController()?.navigate(action)
     }
 
-    override fun onUpVoteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel.onUpVoteClick(comment, position)
+    override fun onUpVoteClick(comment: Comment) {
+        parentCommentsViewModel.onUpVoteClick(comment)
     }
 
-    override fun onDownVoteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel.onDownVoteClick(comment, position)
+    override fun onDownVoteClick(comment: Comment) {
+        parentCommentsViewModel.onDownVoteClick(comment)
     }
 
-    override fun onDeleteClick(comment: Comment, position: Int) {
-        parentCommentsViewModel.deleteComment(comment, position)
+    override fun onDeleteClick(comment: Comment) {
+        parentCommentsViewModel.deleteComment(comment)
     }
 
-    override fun onEditClick(comment: Comment, position: Int) {
-        attemptToUpdateComment(comment, position)
+    override fun onEditClick(comment: Comment) {
+        attemptToUpdateComment(comment)
     }
 
     //limit long / short description text

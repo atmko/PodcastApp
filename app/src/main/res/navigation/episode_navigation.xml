@@ -12,13 +12,16 @@
         tools:layout="@layout/fragment_episode">
         <argument
             android:name="podcast_id"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue=""/>
         <argument
             android:name="episode_id"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue=""/>
         <argument
             android:name="is_restoring_episode"
-            app:argType="boolean" />
+            app:argType="boolean"
+            android:defaultValue="false"/>
         <action
             android:id="@+id/action_navigation_episode_to_navigation_episode"
             app:destination="@id/navigation_episode"
@@ -68,12 +71,6 @@
         <argument
             android:name="username"
             app:argType="string" />
-        <argument
-            android:name="old_comment_body"
-            app:argType="string" />
-        <argument
-            android:name="comment_adapter_position"
-            app:argType="integer" />
     </fragment>
 
     <fragment
@@ -106,12 +103,6 @@
         <argument
             android:name="quoted_text"
             app:argType="string" />
-        <argument
-            android:name="old_comment_body"
-            app:argType="string" />
-        <argument
-            android:name="comment_adapter_position"
-            app:argType="integer" />
     </fragment>
 
     <fragment

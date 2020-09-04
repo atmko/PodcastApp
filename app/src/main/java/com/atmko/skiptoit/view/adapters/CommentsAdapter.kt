@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ItemCommentBinding
@@ -15,17 +16,15 @@ import com.atmko.skiptoit.util.loadNetworkImage
 class CommentsAdapter(
     private val clickListener: OnCommentItemClickListener
 ) :
-    RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
-
-    private val comments = arrayListOf<Comment>()
+    PagedListAdapter<Comment, CommentsAdapter.CommentViewHolder>(Comment.CommentDiffCallback()) {
 
     interface OnCommentItemClickListener {
         fun onReplyButtonClick(commentId: String, quotedText: String)
         fun onRepliesButtonClick(comment: Comment)
-        fun onUpVoteClick(comment: Comment, position: Int)
-        fun onDownVoteClick(comment: Comment, position: Int)
-        fun onDeleteClick(comment: Comment, position: Int)
-        fun onEditClick(comment: Comment, position: Int)
+        fun onUpVoteClick(comment: Comment)
+        fun onDownVoteClick(comment: Comment)
+        fun onDeleteClick(comment: Comment)
+        fun onEditClick(comment: Comment)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -37,16 +36,12 @@ class CommentsAdapter(
         )
     }
 
-    override fun getItemCount(): Int {
-        return comments.size
-    }
-
     inner class CommentViewHolder(var binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        val comment: Comment = comments[holder.adapterPosition]
-
+        if (position >= itemCount) return
+        val comment: Comment = getItem(position) ?: return
         holder.binding.replyButton.setOnClickListener {
             clickListener.onReplyButtonClick(comment.commentId, comment.body)
         }
@@ -54,16 +49,16 @@ class CommentsAdapter(
             clickListener.onRepliesButtonClick(comment)
         }
         holder.binding.upVoteButton.setOnClickListener {
-            clickListener.onUpVoteClick(comment, holder.adapterPosition)
+            clickListener.onUpVoteClick(comment)
         }
         holder.binding.downVoteButton.setOnClickListener {
-            clickListener.onDownVoteClick(comment, holder.adapterPosition)
+            clickListener.onDownVoteClick(comment)
         }
         holder.binding.deleteButton.setOnClickListener {
-            clickListener.onDeleteClick(comment, holder.adapterPosition)
+            clickListener.onDeleteClick(comment)
         }
         holder.binding.editButton.setOnClickListener {
-            clickListener.onEditClick(comment, holder.adapterPosition)
+            clickListener.onEditClick(comment)
         }
 
         holder.binding.user.text = comment.username
@@ -126,31 +121,5 @@ class CommentsAdapter(
             editButton.visibility = View.GONE
             deleteButton.visibility = View.GONE
         }
-    }
-
-    fun updateComments(updatedComments: List<Comment>) {
-        comments.clear()
-        comments.addAll(updatedComments)
-        notifyDataSetChanged()
-    }
-
-    fun updateChangedComment(commentUpdate: Comment, position: Int) {
-        comments[position] = commentUpdate
-        notifyItemChanged(position)
-    }
-
-    fun updateChangedCommentBody(bodyUpdate: String, position: Int) {
-        comments[position].body = bodyUpdate
-        notifyItemChanged(position)
-    }
-
-    fun addComment(comment: Comment) {
-        comments.add(comment)
-        notifyItemInserted(comments.size - 1)
-    }
-
-    fun updateRemovedComment(position: Int) {
-        comments.removeAt(position)
-        notifyItemRemoved(position)
     }
 }
