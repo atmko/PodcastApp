@@ -15,12 +15,6 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
-const val pageSize = 20
-const val  enablePlaceholders = true
-const val  maxSize = 60
-const val  prefetchDistance = 5
-const val  initialLoadSize = 40
-
 open class CommentsViewModel(
     private val skipToItApi: SkipToItApi,
     private val googleSignInClient: GoogleSignInClient,
@@ -30,7 +24,15 @@ open class CommentsViewModel(
 
     val TAG = this::class.simpleName
 
-    val disposable: CompositeDisposable = CompositeDisposable()
+    companion object {
+        const val pageSize = 20
+        const val  enablePlaceholders = true
+        const val  maxSize = 60
+        const val  prefetchDistance = 5
+        const val  initialLoadSize = 40
+    }
+
+    private val disposable: CompositeDisposable = CompositeDisposable()
 
     var retrievedComments: LiveData<PagedList<Comment>>? = null
 

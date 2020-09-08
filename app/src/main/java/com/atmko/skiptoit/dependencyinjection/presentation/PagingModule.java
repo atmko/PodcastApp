@@ -2,15 +2,18 @@ package com.atmko.skiptoit.dependencyinjection.presentation;
 
 import androidx.paging.PagedList;
 
-import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
-import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SkipToItDatabase;
+import com.atmko.skiptoit.viewmodel.DetailsViewModel;
+import com.atmko.skiptoit.viewmodel.common.CommentsViewModel;
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.datasource.GenrePodcastDataSource;
 import com.atmko.skiptoit.viewmodel.datasource.PodcastDataSource;
 import com.atmko.skiptoit.viewmodel.datasource.QueryPodcastDataSource;
+import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
+import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
+import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -19,18 +22,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 
 import dagger.MapKey;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
-
-import static com.atmko.skiptoit.viewmodel.common.CommentsViewModelKt.enablePlaceholders;
-import static com.atmko.skiptoit.viewmodel.common.CommentsViewModelKt.initialLoadSize;
-import static com.atmko.skiptoit.viewmodel.common.CommentsViewModelKt.maxSize;
-import static com.atmko.skiptoit.viewmodel.common.CommentsViewModelKt.pageSize;
-import static com.atmko.skiptoit.viewmodel.common.CommentsViewModelKt.prefetchDistance;
 
 @Module
 public class PagingModule {
@@ -64,27 +62,46 @@ public class PagingModule {
     }
 
     @Provides
-    ParentCommentBoundaryCallback provideParentCommentMediator(GoogleSignInClient googleSignInClient,
-                                                       SkipToItApi skipToItApi,
-                                                       SkipToItDatabase skipToItDatabase) {
+    EpisodeBoundaryCallback provideReplyEpisodeBoundaryCallback(PodcastsApi podcastsApi,
+                                                                SkipToItDatabase skipToItDatabase) {
+        return new EpisodeBoundaryCallback(podcastsApi, skipToItDatabase);
+    }
+
+    @Provides
+    ParentCommentBoundaryCallback provideParentCommentBoundaryCallback(GoogleSignInClient googleSignInClient,
+                                                                       SkipToItApi skipToItApi,
+                                                                       SkipToItDatabase skipToItDatabase) {
         return new ParentCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase);
     }
 
     @Provides
-    ReplyCommentBoundaryCallback provideReplyCommentMediator(GoogleSignInClient googleSignInClient,
-                                                     SkipToItApi skipToItApi,
-                                                     SkipToItDatabase skipToItDatabase) {
+    ReplyCommentBoundaryCallback provideReplyCommentBoundaryCallback(GoogleSignInClient googleSignInClient,
+                                                                     SkipToItApi skipToItApi,
+                                                                     SkipToItDatabase skipToItDatabase) {
         return new ReplyCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase);
     }
 
     @Provides
-    PagedList.Config providePagingListConfig() {
+    @Named("episodes")
+    PagedList.Config provideEpisodePagingListConfig() {
         return new PagedList.Config.Builder()
-                .setPageSize(pageSize)
-                .setPrefetchDistance(prefetchDistance)
-                .setEnablePlaceholders(enablePlaceholders)
-                .setInitialLoadSizeHint(initialLoadSize)
-                .setMaxSize(maxSize)
+                .setPageSize(DetailsViewModel.pageSize)
+                .setPrefetchDistance(DetailsViewModel.prefetchDistance)
+                .setEnablePlaceholders(DetailsViewModel.enablePlaceholders)
+                .setInitialLoadSizeHint(DetailsViewModel.initialLoadSize)
+                .setMaxSize(DetailsViewModel.maxSize)
+                .build();
+    }
+
+    @Provides
+    @Named("comments")
+    PagedList.Config provideCommentPagingListConfig() {
+        return new PagedList.Config.Builder()
+                .setPageSize(CommentsViewModel.pageSize)
+                .setPrefetchDistance(CommentsViewModel.prefetchDistance)
+                .setEnablePlaceholders(CommentsViewModel.enablePlaceholders)
+                .setInitialLoadSizeHint(CommentsViewModel.initialLoadSize)
+                .setMaxSize(CommentsViewModel.maxSize)
                 .build();
     }
 }

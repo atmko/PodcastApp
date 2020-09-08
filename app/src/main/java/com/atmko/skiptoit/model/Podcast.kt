@@ -3,7 +3,6 @@ package com.atmko.skiptoit.model
 import androidx.recyclerview.widget.DiffUtil
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
@@ -20,16 +19,6 @@ class Podcast(@PrimaryKey
               val description: String,
               @ColumnInfo(name = "total_episodes")
               @SerializedName("total_episodes") val totalEpisodes: Int) : Serializable {
-
-    @Ignore
-    var episodes: List<Episode> = mutableListOf()
-
-    @Ignore
-    constructor(id: String, title: String, publisher: String, image: String, description: String,
-                totalEpisodes: Int, episodes: List<Episode>):
-            this(id, title, publisher, image, description, totalEpisodes) {
-        this.episodes = episodes
-    }
     
     class PodcastDiffCallback : DiffUtil.ItemCallback<Podcast>() {
         override fun areItemsTheSame(oldItem: Podcast, newItem: Podcast): Boolean {
@@ -50,5 +39,4 @@ class Podcast(@PrimaryKey
                 && description == other.description
                 && totalEpisodes == other.totalEpisodes
     }
-
 }

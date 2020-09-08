@@ -10,6 +10,10 @@ open class CommentBoundaryCallback(
     private val skipToItDatabase: SkipToItDatabase
 ): PagedList.BoundaryCallback<Comment>() {
 
+    val loadTypeRefresh = 0
+    val loadTypeAppend = 1
+    val loadTypePrepend = -1
+
     lateinit var param: String
     var startPage: Int = 1
 

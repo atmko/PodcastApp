@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.SkipToItApplication;
+import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
 import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
@@ -97,12 +98,16 @@ public class ViewModelModule {
     ViewModel provideDetailsViewModel(SkipToItApi skipToItApi,
                                       PodcastsApi podcastApi,
                                       GoogleSignInClient googleSignInClient,
-                                      SubscriptionsDao subscriptionsDao) {
+                                      SkipToItDatabase skipToItDatabase,
+                                      EpisodeBoundaryCallback episodeBoundaryCallback,
+                                      @Named("episodes") PagedList.Config pagedListConfig) {
         return new DetailsViewModel(
                 skipToItApi,
                 podcastApi,
                 googleSignInClient,
-                subscriptionsDao);
+                skipToItDatabase,
+                episodeBoundaryCallback,
+                pagedListConfig);
     }
 
     @Provides
@@ -120,7 +125,7 @@ public class ViewModelModule {
                                              SkipToItApi skipToItApi,
                                              CommentDao commentDao,
                                              ParentCommentBoundaryCallback parentCommentMediator,
-                                             PagedList.Config pagedListConfig) {
+                                             @Named("comments") PagedList.Config pagedListConfig) {
         return new ParentCommentsViewModel(
                 googleSignInClient, skipToItApi, commentDao, parentCommentMediator, pagedListConfig);
     }
@@ -132,7 +137,7 @@ public class ViewModelModule {
                                       SkipToItApi skipToItApi,
                                       CommentDao commentDao,
                                       ReplyCommentBoundaryCallback replyCommentMediator,
-                                      PagedList.Config pagedListConfig) {
+                                      @Named("comments") PagedList.Config pagedListConfig) {
         return new RepliesViewModel(
                 googleSignInClient, skipToItApi, commentDao, replyCommentMediator, pagedListConfig);
     }

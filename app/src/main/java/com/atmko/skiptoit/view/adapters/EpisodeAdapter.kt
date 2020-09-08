@@ -1,17 +1,15 @@
 package com.atmko.skiptoit.view.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.databinding.ItemEpisodeBinding
 import com.atmko.skiptoit.model.Episode
 
 class EpisodeAdapter(
     private val clickListener: OnEpisodeItemClickListener
-) : RecyclerView.Adapter<EpisodeAdapter.EpisodeViewHolder>() {
-
-    private val episodes = arrayListOf<Episode>()
+) : PagedListAdapter<Episode, EpisodeAdapter.EpisodeViewHolder>(Episode.EpisodeDiffCallback()) {
 
     interface OnEpisodeItemClickListener {
         fun onItemClick(episode: Episode)
@@ -26,32 +24,18 @@ class EpisodeAdapter(
         )
     }
 
-    override fun getItemCount(): Int {
-        return episodes.size
-    }
-
     inner class EpisodeViewHolder(var binding: ItemEpisodeBinding) :
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        override fun onClick(v: View?) {
-            clickListener.onItemClick(episodes[adapterPosition])
-        }
-    }
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onBindViewHolder(holder: EpisodeViewHolder, position: Int) {
-        val episode: Episode = episodes[position]
+        if (position >= itemCount) return
+        val episode: Episode = getItem(position) ?: return
+
+        holder.binding.topLayout.setOnClickListener {
+            clickListener.onItemClick(episode)
+        }
         holder.binding.title.text = episode.title
         holder.binding.date.text = episode.getFormattedPublishDate()
         holder.binding.length.text = episode.getFormattedAudioLength()
-    }
-
-    fun updateEpisodes(updatedEpisodes: List<Episode>) {
-        episodes.clear()
-        episodes.addAll(updatedEpisodes)
-        notifyDataSetChanged()
     }
 }

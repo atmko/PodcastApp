@@ -16,6 +16,7 @@ import com.atmko.skiptoit.databinding.FragmentDetailsBinding
 import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
+import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.util.showFullText
 import com.atmko.skiptoit.util.showLimitedText
@@ -32,7 +33,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private val binding get() = _binding!!
 
     private lateinit var resultsFrameLayout: ResultsRecyclerViewBinding
-    private lateinit var podcastDetails: Podcast
+    private lateinit var podcast: Podcast
+
+    private lateinit var podcastDetails: PodcastDetails
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -53,7 +56,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onCreate(savedInstanceState)
 
         val args: DetailsFragmentArgs by navArgs()
-        podcastDetails = args.podcast
+        podcast = args.podcast
     }
 
     override fun onCreateView(
@@ -109,15 +112,16 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            viewModel.toggleSubscription(podcastDetails)
+            viewModel.toggleSubscription(podcast)
         }
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailsViewModel::class.java)
-        viewModel.loadSubscriptionstatus(podcastDetails.id)
-        viewModel.refresh(podcastDetails.id)
+        viewModel.loadSubscriptionStatus(podcast.id)
+        viewModel.refresh(podcast.id)
+        viewModel.getEpisodes(podcast.id)
 
         binding.toggleSubscriptionButton.isEnabled = false
 
@@ -149,21 +153,22 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         viewModel.podcastDetails.observe(viewLifecycleOwner, Observer { podcastDetails ->
             resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
             this.podcastDetails = podcastDetails
-            this.podcastDetails.let {
-                binding.title.text = it.title
+            binding.title.text = podcastDetails.title
 
-                if (showMore) {
-                    binding.description.showFullText(podcastDetails.description)
-                    binding.showMore.text = getString(R.string.show_less)
-                } else {
-                    val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-                    binding.description.showLimitedText(maxLines, podcastDetails.description)
-                    binding.showMore.text = getString(R.string.show_more)
-                }
-
-                binding.podcastImageView.loadNetworkImage(podcastDetails.image)
-                episodeAdapter.updateEpisodes(it.episodes)
+            if (showMore) {
+                binding.description.showFullText(podcastDetails.description)
+                binding.showMore.text = getString(R.string.show_less)
+            } else {
+                val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+                binding.description.showLimitedText(maxLines, podcastDetails.description)
+                binding.showMore.text = getString(R.string.show_more)
             }
+
+            binding.podcastImageView.loadNetworkImage(podcastDetails.image)
+        })
+
+        viewModel.episodes!!.observe(viewLifecycleOwner, Observer { episodes ->
+            episodeAdapter.submitList(episodes)
         })
 
         viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
@@ -208,19 +213,17 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
         if (!showMore) {
-            binding.description.showFullText(podcastDetails.description)
+            binding.description.showFullText(podcast.description)
             binding.showMore.text = getString(R.string.show_less)
         } else {
             val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-            binding.description.showLimitedText(maxLines, podcastDetails.description)
+            binding.description.showLimitedText(maxLines, podcast.description)
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
     }
 
     override fun onItemClick(episode: Episode) {
-        episode.id?.let {
-            (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcastDetails.id, it)
-        }
+        (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcast.id, episode.episodeId)
     }
 }

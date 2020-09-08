@@ -63,7 +63,7 @@ class EpisodeViewModel(private val podcastsApi: PodcastsApi,
                 Podcast(podcastId, podcastTitle, "", "", "", 0)
 
             val episode =
-                Episode(episodeId, title,description, image, audio, publishDate, lengthInSeconds, podcast)
+                Episode(episodeId!!, title,description, image, audio, publishDate, lengthInSeconds, podcast)
 
             AppExecutors.getInstance().mainThread().execute(Runnable {
                 episodeDetails.value = episode

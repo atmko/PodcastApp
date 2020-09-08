@@ -3,11 +3,12 @@ package com.atmko.skiptoit.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.PodcastsApi
-import com.atmko.skiptoit.model.SkipToItApi
-import com.atmko.skiptoit.model.database.SubscriptionsDao
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
+import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -15,12 +16,24 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Response
 
-class DetailsViewModel(private val skipToItApi: SkipToItApi,
-                       private val podcastsApi: PodcastsApi,
-                       private val googleSignInClient: GoogleSignInClient,
-                       private val subscriptionsDao: SubscriptionsDao): ViewModel() {
+class DetailsViewModel(
+    private val skipToItApi: SkipToItApi,
+    private val podcastsApi: PodcastsApi,
+    private val googleSignInClient: GoogleSignInClient,
+    private val skipToItDatabase: SkipToItDatabase,
+    private val episodeBoundaryCallback: EpisodeBoundaryCallback,
+    private val pagedListConfig: PagedList.Config
+) : ViewModel() {
 
-    val podcastDetails:MutableLiveData<Podcast> = MutableLiveData()
+    companion object {
+        const val pageSize = 10
+        const val enablePlaceholders = true
+        const val maxSize = 60
+        const val prefetchDistance = 5
+        const val initialLoadSize = 30
+    }
+
+    val podcastDetails: MutableLiveData<PodcastDetails> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -44,8 +57,8 @@ class DetailsViewModel(private val skipToItApi: SkipToItApi,
             podcastsApi.getDetails(podcastId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<Podcast>() {
-                    override fun onSuccess(podcast: Podcast) {
+                .subscribeWith(object : DisposableSingleObserver<PodcastDetails>() {
+                    override fun onSuccess(podcast: PodcastDetails) {
                         podcastDetails.value = podcast
                         loadError.value = false
                         loading.value = false
@@ -59,8 +72,27 @@ class DetailsViewModel(private val skipToItApi: SkipToItApi,
         )
     }
 
-    public fun loadSubscriptionstatus(podcastId: String) {
-        isSubscribed = subscriptionsDao.isSubscribed(podcastId)
+    var episodes: LiveData<PagedList<Episode>>? = null
+
+    fun getEpisodes(podcastId: String) {
+        if (episodes != null
+            && episodes!!.value != null
+            && !episodes!!.value!!.isEmpty()
+        ) {
+            return
+        }
+
+        episodeBoundaryCallback.param = podcastId
+        val dataSourceFactory = skipToItDatabase.episodeDao().getAllEpisodes(podcastId)
+        val pagedListBuilder =
+            LivePagedListBuilder<Int, Episode>(dataSourceFactory, pagedListConfig)
+        pagedListBuilder.setInitialLoadKey(1)
+        pagedListBuilder.setBoundaryCallback(episodeBoundaryCallback)
+        episodes = pagedListBuilder.build()
+    }
+
+    fun loadSubscriptionStatus(podcastId: String) {
+        isSubscribed = skipToItDatabase.subscriptionsDao().isSubscribed(podcastId)
     }
 
     fun toggleSubscription(podcast: Podcast) {
@@ -99,9 +131,9 @@ class DetailsViewModel(private val skipToItApi: SkipToItApi,
     private fun toggleLocalSubscriptionStatus(podcast: Podcast, subscribeStatus: Int) {
         AppExecutors.getInstance().diskIO().execute(Runnable {
             if (subscribeStatus == STATUS_SUBSCRIBE) {
-                subscriptionsDao.createSubscription(podcast)
+                skipToItDatabase.subscriptionsDao().createSubscription(podcast)
             } else {
-                subscriptionsDao.deleteSubscription(podcast.id)
+                skipToItDatabase.subscriptionsDao().deleteSubscription(podcast.id)
             }
 
             AppExecutors.getInstance().mainThread().execute(Runnable {

@@ -8,20 +8,31 @@ import retrofit2.http.*
 interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("best_podcasts?region=us&safe_mode=0")
-    fun getPodcastsByGenre(@Query("genre_id") genreId:Int, @Query("page") page: Int): Call<ApiResults>
+    fun getPodcastsByGenre(
+        @Query("genre_id") genreId: Int,
+        @Query("page") page: Int
+    ): Call<ApiResults>
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("typeahead?show_podcasts=1&show_genres=0&safe_mode=0")
-    fun searchPodcasts(@Query("q") queryString:String, @Query("page") page: Int): Call<ApiResults>
+    fun searchPodcasts(@Query("q") queryString: String, @Query("page") page: Int): Call<ApiResults>
 
     //todo rename to getPodcastDetails
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("podcasts/{podcast_id}?next_episode_pub_date=0000000000000&sort=recent_first")
-    fun getDetails(@Path("podcast_id") podcastId:String): Single<Podcast>
+    fun getDetails(@Path("podcast_id") podcastId: String): Single<PodcastDetails>
+
+    //todo rename to getPodcastDetails
+    @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
+    @GET("podcasts/{podcast_id}?sort=recent_first")
+    fun getEpisodes(
+        @Path("podcast_id") podcastId: String,
+        @Query("next_episode_pub_date") nextEpisodePubDate: Long?
+    ): Call<PodcastDetails>
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("episodes/{episode_id}")
-    fun getEpisodeDetails(@Path("episode_id") episodeId:String): Single<Episode>
+    fun getEpisodeDetails(@Path("episode_id") episodeId: String): Single<Episode>
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @FormUrlEncoded

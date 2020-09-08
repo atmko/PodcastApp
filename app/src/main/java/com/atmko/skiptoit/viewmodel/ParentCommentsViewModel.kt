@@ -9,6 +9,7 @@ import com.atmko.skiptoit.model.database.CommentDao
 import com.atmko.skiptoit.viewmodel.common.CommentsViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 
+//todo rename mediator to boundary callback
 class ParentCommentsViewModel(
     googleSignInClient: GoogleSignInClient,
     skipToItApi: SkipToItApi,

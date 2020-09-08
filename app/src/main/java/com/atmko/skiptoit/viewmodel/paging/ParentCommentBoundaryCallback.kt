@@ -17,7 +17,7 @@ class ParentCommentBoundaryCallback(
     override fun onZeroItemsLoaded() {
         Log.d("REFRESHING","REFRESHING")
         AppExecutors.getInstance().diskIO().execute {
-            requestPage(0, startPage)
+            requestPage(loadTypeRefresh, startPage)
         }
     }
 
@@ -27,7 +27,7 @@ class ParentCommentBoundaryCallback(
             val bottomItemTracker: CommentPageTracker = getCommentPageTracker(itemAtEnd.commentId)
             val nextPage = bottomItemTracker.nextPage
             nextPage?.let {
-                requestPage(it, nextPage)
+                requestPage(loadTypeAppend, nextPage)
             }
         }
     }
@@ -38,7 +38,7 @@ class ParentCommentBoundaryCallback(
             val topItemTracker: CommentPageTracker = getCommentPageTracker(itemAtFront.commentId)
             val prevPage = topItemTracker.prevPage
             prevPage?.let {
-                requestPage(it, prevPage)
+                requestPage(loadTypePrepend, prevPage)
             }
         }
     }
@@ -80,7 +80,7 @@ class ParentCommentBoundaryCallback(
     ): CommentResults {
         skipToItDatabase.beginTransaction()
         try {
-            if (loadType == 0) {
+            if (loadType == loadTypeRefresh) {
                 skipToItDatabase.commentDao().deleteAllComments()
             }
 
