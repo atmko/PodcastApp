@@ -2,6 +2,7 @@ package com.atmko.skiptoit.view.common
 
 import android.content.res.Resources
 import android.util.DisplayMetrics
+import android.view.View
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
+import com.atmko.skiptoit.view.MasterActivity
 
 private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
 private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
@@ -50,6 +52,11 @@ open class BaseFragment : Fragment() {
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
+    fun getBaseFragmentBottomMargin(): Int {
+        val masterActivity = (activity as MasterActivity)
+        return masterActivity.bottomSheetPeekHeight() + masterActivity.navBarHeight()
+    }
+
     fun getScreenWidth(): Int {
         val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
         return displayMetrics.widthPixels
@@ -58,6 +65,10 @@ open class BaseFragment : Fragment() {
     fun getScreenHeight(): Int {
         val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
         return displayMetrics.heightPixels
+    }
+
+    fun getExtrasHeight(): Int {
+        return getScreenHeight() - (getStatusBarHeight() + getToolbarHeight() + getBaseFragmentBottomMargin() )
     }
 
     fun getStatusBarHeight(): Int {
@@ -72,5 +83,12 @@ open class BaseFragment : Fragment() {
             result = resources.getDimensionPixelSize(resourceId)
         }
         return result
+    }
+
+    private fun getToolbarHeight(): Int {
+        requireView().findViewById<View>(R.id.toolbar)?.let {
+                return requireView().findViewById<View>(R.id.toolbar).height
+        }
+        return 0
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -95,7 +96,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     private fun configureViews() {
-        resultsFrameLayout = binding.includeDetailsExtras.resultsFrameLayout
+        configureDetailExtrasSize()
+
+        resultsFrameLayout = binding.resultsFrameLayout
         resultsFrameLayout.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = episodeAdapter
@@ -126,6 +129,19 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private fun configureDetailsViewModel() {
         observePodcastDetails()
         observeSubscriptionStatus()
+    }
+
+    private fun configureDetailExtrasSize() {
+        requireView().post {
+            val includeDetailsExtras: ConstraintLayout? =
+                view?.findViewById(R.id.details_extras)
+
+            val detailExtrasParams = FrameLayout.LayoutParams(
+                getScreenWidth(), getExtrasHeight()
+            )
+
+            includeDetailsExtras?.layoutParams = detailExtrasParams
+        }
     }
 
     private fun observePodcastDetails() {

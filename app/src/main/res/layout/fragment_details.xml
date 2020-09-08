@@ -100,11 +100,38 @@ discussion and listener participation. The" />
                 app:layout_constraintTop_toBottomOf="@id/showMore">
 
                 <!--height is handled programmatically-->
-                <include
-                    android:id="@+id/include_details_extras"
-                    layout="@layout/tab_layout"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/details_extras"
                     android:layout_width="match_parent"
-                    tools:layout_height="300dp" />
+                    android:layout_height="300dp">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tabLayout"
+                        style="@style/Tab_Style"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/actionBarSize"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tabMode="fixed">
+
+                        <!--TODO these are for test purposes only. apply programmatically instead-->
+                        <com.google.android.material.tabs.TabItem
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/episodes" />
+
+                    </com.google.android.material.tabs.TabLayout>
+
+                    <include
+                        android:id="@+id/resultsFrameLayout"
+                        layout="@layout/results_recycler_view"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </FrameLayout>
 
