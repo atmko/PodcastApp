@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.view.common
 
+import android.content.res.Resources
+import android.util.DisplayMetrics
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -12,7 +14,10 @@ import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
-import com.atmko.skiptoit.view.MasterActivity
+
+private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
+private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
+private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
 open class BaseFragment : Fragment() {
 
@@ -45,8 +50,27 @@ open class BaseFragment : Fragment() {
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
-    fun getBaseFragmentBottomMargin(): Int {
-        val masterActivity = (activity as MasterActivity)
-        return masterActivity.bottomSheetPeekHeight() + masterActivity.navBarHeight()
+    fun getScreenWidth(): Int {
+        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
+        return displayMetrics.widthPixels
+    }
+
+    fun getScreenHeight(): Int {
+        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
+        return displayMetrics.heightPixels
+    }
+
+    fun getStatusBarHeight(): Int {
+        var result = 0
+        val resourceId: Int =
+            resources.getIdentifier(
+                STATUS_BAR_IDENTIFIER,
+                STATUS_BAR_IDENTIFIER_TYPE,
+                STATUS_BAR_IDENTIFIER_PACKAGE
+            )
+        if (resourceId > 0) {
+            result = resources.getDimensionPixelSize(resourceId)
+        }
+        return result
     }
 }

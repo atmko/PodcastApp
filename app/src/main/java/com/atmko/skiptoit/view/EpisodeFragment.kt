@@ -4,12 +4,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,10 +41,6 @@ const val SCRUBBER_ANIM_LENGTH: Long = 100
 const val SCRUBBER_HIDE_LENGTH: Long = 2000
 
 private const val SHOW_MORE_KEY = "show_more"
-
-private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
-private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
-private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
 class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
 
@@ -240,38 +234,19 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureDetailExtrasSize() {
-        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
-        val pixelHeight: Int = displayMetrics.heightPixels
-        val pixelWidth: Int = displayMetrics.widthPixels
-
-        val pixelStatusBarHeight: Int = getStatusBarHeight()
-
         val includeDetailsExtras: ConstraintLayout? =
             view?.findViewById(R.id.playPanelConstraintLayout)
 
         val sideMargins = resources.getDimension(R.dimen.list_excess_margin).toInt() * 2
 
         //get total weightedWidth
-        val weightedWidth: Int = pixelWidth - sideMargins
+        val weightedWidth: Int = getScreenWidth() - sideMargins
 
         val detailExtrasParams = FrameLayout.LayoutParams(
-            weightedWidth, pixelHeight - pixelStatusBarHeight
+            weightedWidth, getScreenHeight() - getStatusBarHeight()
         )
 
         includeDetailsExtras?.layoutParams = detailExtrasParams
-    }
-
-    private fun getStatusBarHeight(): Int {
-        var result = 0
-        val resourceId: Int =
-            resources.getIdentifier(
-                STATUS_BAR_IDENTIFIER,
-                STATUS_BAR_IDENTIFIER_TYPE, STATUS_BAR_IDENTIFIER_PACKAGE
-            )
-        if (resourceId > 0) {
-            result = resources.getDimensionPixelSize(resourceId)
-        }
-        return result
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
@@ -346,7 +321,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                         sharedPrefs?.let {
                             sharedPrefs.edit()
                                 .putString(PODCAST_ID_KEY, details.podcast?.id)
-                                .putString(EPISODE_ID_KEY, details.id)
+                                .putString(EPISODE_ID_KEY, details.episodeId)
                                 .putString(EPISODE_TITLE_KEY, details.title)
                                 .putString(EPISODE_DESCRIPTION_KEY, details.description)
                                 .putString(EPISODE_IMAGE_KEY, details.image)
