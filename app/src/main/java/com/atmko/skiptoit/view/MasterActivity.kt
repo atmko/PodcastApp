@@ -28,9 +28,11 @@ import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.common.BaseActivity
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.google.android.exoplayer2.Player
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
@@ -48,6 +50,24 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
     private var navBarOriginalYPosition: Float? = null
 
+    private val playbackListeners = ArrayList<PlayerListener>()
+
+    interface PlayerListener {
+        fun onPlaybackStateChanged(isPlaying: Boolean)
+    }
+
+    fun registerPlaybackListener(playbackListener: PlayerListener) {
+        playbackListeners.add(playbackListener)
+    }
+
+    fun unregisterPlaybackListener(playbackListener: PlayerListener) {
+        playbackListeners.remove(playbackListener)
+    }
+
+    fun togglePlayPause() {
+        mPlaybackService?.togglePlayPause()
+    }
+
     private val playbackServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             mIsBound = false
@@ -56,7 +76,15 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             mIsBound = true
             mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
-            binding.collapsedBottomSheet.player = mPlaybackService?.player
+            binding.collapsedBottomSheet.player = mPlaybackService!!.player
+            mPlaybackService!!.player!!.addListener(object: Player.EventListener {
+                override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                    super.onPlayerStateChanged(playWhenReady, playbackState)
+                    for (listener in playbackListeners) {
+                        listener.onPlaybackStateChanged(playWhenReady)
+                    }
+                }
+            })
             binding.collapsedBottomSheet.showController()
         }
     }

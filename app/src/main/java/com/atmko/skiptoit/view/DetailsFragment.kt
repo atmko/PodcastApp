@@ -1,6 +1,7 @@
 package com.atmko.skiptoit.view
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -28,7 +29,9 @@ import javax.inject.Inject
 
 private const val SHOW_MORE_KEY = "show_more"
 
-class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener {
+class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener,
+    MasterActivity.PlayerListener {
+
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
@@ -82,20 +85,30 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         configureDetailsViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as MasterActivity).registerPlaybackListener(this)
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SHOW_MORE_KEY, showMore)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as MasterActivity).unregisterPlaybackListener(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     private fun configureBottomMargin() {
         val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
     }
 
     private fun configureViews() {
@@ -107,12 +120,34 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             adapter = episodeAdapter
         }
 
+        binding.playButton.setOnClickListener {
+            (activity as MasterActivity).togglePlayPause()
+        }
+
         binding.showMore.setOnClickListener {
             toggleFullOrLimitedDescription()
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
             viewModel.toggleSubscription(podcast)
+        }
+    }
+
+    private fun updatePlayButtonIcon(isPlaying: Boolean) {
+        if (isPlaying) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp, null)
+            } else {
+                binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp)
+            }
+            binding.playButton.text = getString(R.string.pause)
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.playButton.icon = resources.getDrawable(R.drawable.ic_play_button_sharp, null)
+            } else {
+                binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp)
+            }
+            binding.playButton.text = getString(R.string.play)
         }
     }
 
@@ -221,6 +256,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
+    }
+
+    override fun onPlaybackStateChanged(isPlaying: Boolean) {
+        updatePlayButtonIcon(isPlaying)
     }
 
     override fun onItemClick(episode: Episode) {

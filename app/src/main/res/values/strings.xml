@@ -57,6 +57,7 @@
     <string name="subscribe">Subscribe</string>
     <string name="unsubscribe">Unsubscribe</string>
     <string name="play">Play</string>
+    <string name="pause">Pause</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>

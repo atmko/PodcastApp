@@ -81,6 +81,12 @@ class PlaybackService: BaseService() {
         registerReceiver(noisyReceiver, intentFilter)
     }
 
+    fun togglePlayPause() {
+        player?.let {
+            it.playWhenReady = !it.isPlaying
+        }
+    }
+
     inner class PlaybackServiceBinder: Binder() {
         fun getService(): PlaybackService {
             return this@PlaybackService
