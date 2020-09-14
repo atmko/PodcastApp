@@ -5,6 +5,7 @@ import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.tasks.Tasks
 
 class ReplyCommentBoundaryCallback(
     private val googleSignInClient: GoogleSignInClient,
@@ -44,7 +45,7 @@ class ReplyCommentBoundaryCallback(
     }
 
     private fun requestPage(requestType: Int, loadKey: Int) {
-        val googleSignInAccount = googleSignInClient.silentSignIn().result
+        val googleSignInAccount = Tasks.await(googleSignInClient.silentSignIn())
         val commentResultCall =
             if (googleSignInAccount != null && googleSignInAccount.idToken != null) {
                 skipToItApi.getRepliesAuthenticated(

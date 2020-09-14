@@ -60,6 +60,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private lateinit var episodeViewModel: EpisodeViewModel
     private var episodeDetails: Episode? = null
+    private var nextEpisodeDetails: Episode? = null
+    private var prevEpisodeDetails: Episode? = null
 
     private lateinit var parentCommentsViewModel: ParentCommentsViewModel
 
@@ -169,6 +171,26 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             }, SCRUBBER_HIDE_LENGTH)
         }
 
+        binding.nextEpisodeButton.apply {
+            isEnabled = false
+            setOnClickListener {
+                (activity as MasterActivity).loadEpisodeIntoBottomSheet(
+                    podcastId,
+                    nextEpisodeDetails!!.episodeId
+                )
+            }
+        }
+
+        binding.previousEpisodeButton.apply {
+            isEnabled = false
+            setOnClickListener {
+                (activity as MasterActivity).loadEpisodeIntoBottomSheet(
+                    podcastId,
+                    prevEpisodeDetails!!.episodeId
+                )
+            }
+        }
+
         binding.showMore.setOnClickListener {
             toggleFullOrLimitedDescription()
         }
@@ -255,6 +277,8 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             viewModelFactory
         ).get(EpisodeViewModel::class.java)
 
+        episodeViewModel.clearPodcastCache(podcastId)
+
         if (isRestoringEpisode) {
             episodeViewModel.restoreEpisode()
         } else {
@@ -284,6 +308,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         episodeViewModel.episodeDetails.observe(viewLifecycleOwner, Observer { episodeDetails ->
             this.episodeDetails = episodeDetails
             episodeDetails?.let { details ->
+
+                observeNextAndPrevEpisodes()
+
                 //set expanded values
                 details.image?.let { binding.expandedPodcastImageView.loadNetworkImage(it) }
                 binding.expandedTitle.text = details.podcast?.title
@@ -354,22 +381,38 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         })
     }
 
+    private fun observeNextAndPrevEpisodes() {
+        episodeViewModel.fetchNextEpisode(podcastId, episodeDetails!!)
+        episodeViewModel.nextEpisode!!.observe(viewLifecycleOwner, Observer {
+            nextEpisodeDetails = it
+            binding.nextEpisodeButton.isEnabled = it != null
+        })
+
+        episodeViewModel.fetchPrevEpisode(episodeDetails!!)
+        episodeViewModel.prevEpisode!!.observe(viewLifecycleOwner, Observer {
+            prevEpisodeDetails = it
+            binding.previousEpisodeButton.isEnabled = it != null
+        })
+    }
+
     private fun configureCommentsViewModel() {
         parentCommentsViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer {
             commentsAdapter.submitList(it)
             commentsAdapter.notifyDataSetChanged()
         })
 
-        parentCommentsViewModel.getCommentLoading().observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
-                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
+        parentCommentsViewModel.getCommentLoading()
+            .observe(viewLifecycleOwner, Observer { isLoading ->
+                isLoading?.let {
+                    binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                        if (it) View.VISIBLE else View.GONE
+                    if (it) {
+                        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                            View.GONE
+                        binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
+                    }
                 }
-            }
-        })
+            })
 
         parentCommentsViewModel.getCommentError().observe(viewLifecycleOwner, Observer { isError ->
             isError.let {

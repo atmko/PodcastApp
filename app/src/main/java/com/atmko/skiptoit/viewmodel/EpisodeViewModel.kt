@@ -1,22 +1,41 @@
 package com.atmko.skiptoit.viewmodel
 
 import android.content.SharedPreferences
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
-class EpisodeViewModel(private val podcastsApi: PodcastsApi,
-                       private val prefs: SharedPreferences): ViewModel() {
-    val episodeDetails:MutableLiveData<Episode> = MutableLiveData()
+class EpisodeViewModel(
+    private val podcastsApi: PodcastsApi,
+    private val skipToItDatabase: SkipToItDatabase,
+    private val prefs: SharedPreferences
+) : ViewModel() {
+
+    private val tag = this::class.simpleName
+
+    val episodeDetails: MutableLiveData<Episode> = MutableLiveData()
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     private val disposable: CompositeDisposable = CompositeDisposable()
+
+    //if new podcast, erase previously played podcast's episodes from cache
+    fun clearPodcastCache(currentPodcastId: String) {
+        val lastPlayedPodcastId = prefs.getString(PODCAST_ID_KEY, "")
+        if (lastPlayedPodcastId != null && lastPlayedPodcastId != currentPodcastId) {
+            AppExecutors.getInstance().diskIO().execute {
+                skipToItDatabase.episodeDao().deletePodcastEpisodes(lastPlayedPodcastId)
+            }
+        }
+    }
 
     fun refresh(episodeId: String) {
         if (episodeDetails.value != null) {
@@ -63,14 +82,77 @@ class EpisodeViewModel(private val podcastsApi: PodcastsApi,
                 Podcast(podcastId, podcastTitle, "", "", "", 0)
 
             val episode =
-                Episode(episodeId!!, title,description, image, audio, publishDate, lengthInSeconds, podcast)
+                Episode(
+                    episodeId!!,
+                    title,
+                    description,
+                    image,
+                    audio,
+                    publishDate,
+                    lengthInSeconds,
+                    podcast
+                )
 
-            AppExecutors.getInstance().mainThread().execute(Runnable {
+            episode.podcastId = podcast.id
+
+            AppExecutors.getInstance().mainThread().execute {
                 episodeDetails.value = episode
                 loadError.value = false
                 loading.value = false
-            })
+            }
         })
+    }
+
+    var nextEpisode: LiveData<Episode?>? = null
+    var prevEpisode: LiveData<Episode?>? = null
+
+    fun fetchNextEpisode(podcastId: String, episode: Episode) {
+        if (nextEpisode != null && nextEpisode!!.value != null) {
+            return
+        }
+        nextEpisode =
+            skipToItDatabase.episodeDao().getNextEpisode(episode.episodeId, episode.publishDate)
+        if (nextEpisode!!.value == null) {
+            AppExecutors.getInstance().diskIO().execute {
+                fetchNextEpisodesFromRemote(podcastId, episode.publishDate)
+            }
+        }
+    }
+
+    fun fetchPrevEpisode(episode: Episode) {
+        if (prevEpisode != null && prevEpisode!!.value != null) {
+            return
+        }
+        prevEpisode =
+            skipToItDatabase.episodeDao().getPrevEpisode(episode.episodeId, episode.publishDate)
+    }
+
+    private fun fetchNextEpisodesFromRemote(podcastId: String, episodePublishDate: Long) {
+        val episodeResultCall = podcastsApi.getEpisodes(podcastId, episodePublishDate)
+
+        val response = episodeResultCall.execute()
+        if (response.isSuccessful) {
+            Log.d(tag, "isSuccessful")
+            val body: PodcastDetails = response.body()!!
+            onEpisodeFetchCallback(body)
+        } else {
+            Log.d(tag, "!isSuccessful")
+        }
+    }
+
+    private fun onEpisodeFetchCallback(
+        podcastDetails: PodcastDetails
+    ) {
+        skipToItDatabase.beginTransaction()
+        try {
+            val episodes = podcastDetails.episodes
+            for (i in episodes) {
+                i.podcastId = podcastDetails.id
+            }
+
+        } finally {
+            skipToItDatabase.endTransaction()
+        }
     }
 
     override fun onCleared() {

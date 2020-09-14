@@ -114,8 +114,9 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
     ViewModel provideEpisodeViewModel(PodcastsApi podcastApi,
+                                      SkipToItDatabase skipToItDatabase,
                                       @Named("episode_fragment") SharedPreferences sharedPreferences) {
-        return new EpisodeViewModel(podcastApi, sharedPreferences);
+        return new EpisodeViewModel(podcastApi, skipToItDatabase, sharedPreferences);
     }
 
     @Provides

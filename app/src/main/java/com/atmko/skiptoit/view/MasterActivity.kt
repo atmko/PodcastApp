@@ -437,7 +437,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
+    fun loadEpisodeIntoCollapsedBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -449,22 +449,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
                     bottomSheetBehavior.peekHeight =
                         binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
-                    when (findNavController(R.id.episode_nav_host_fragment).currentDestination?.id) {
-                        R.id.navigation_episode -> {
-                            findNavController(R.id.episode_nav_host_fragment).navigate(
-                                EpisodeFragmentDirections
-                                    .actionNavigationEpisodeToNavigationEpisode(
-                                        podcastId, episodeId, false)
-                            )
-                        }
-                        R.id.navigation_replies -> {
-                            findNavController(R.id.episode_nav_host_fragment).navigate(
-                                RepliesFragmentDirections
-                                    .actionNavigationRepliesToNavigationEpisode(
-                                        podcastId, episodeId, false)
-                            )
-                        }
-                    }
+                    loadEpisodeIntoBottomSheet(podcastId, episodeId)
 
                     bottomSheetBehavior.removeBottomSheetCallback(this)
                 }
@@ -472,6 +457,25 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         })
 
         expandBottomSheet()
+    }
+
+    fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
+        when (findNavController(R.id.episode_nav_host_fragment).currentDestination?.id) {
+            R.id.navigation_episode -> {
+                findNavController(R.id.episode_nav_host_fragment).navigate(
+                    EpisodeFragmentDirections
+                        .actionNavigationEpisodeToNavigationEpisode(
+                            podcastId, episodeId, false)
+                )
+            }
+            R.id.navigation_replies -> {
+                findNavController(R.id.episode_nav_host_fragment).navigate(
+                    RepliesFragmentDirections
+                        .actionNavigationRepliesToNavigationEpisode(
+                            podcastId, episodeId, false)
+                )
+            }
+        }
     }
 
     private fun restoreEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {

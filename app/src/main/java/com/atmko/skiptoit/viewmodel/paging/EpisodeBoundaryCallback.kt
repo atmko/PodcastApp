@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.viewmodel.paging
 
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
@@ -9,7 +10,8 @@ import com.atmko.skiptoit.util.AppExecutors
 
 class EpisodeBoundaryCallback(
     private val podcastsApi: PodcastsApi,
-    private val skipToItDatabase: SkipToItDatabase
+    private val skipToItDatabase: SkipToItDatabase,
+    private val prefs: SharedPreferences
 ): PagedList.BoundaryCallback<Episode>() {
 
     private val tag = this::class.simpleName
@@ -67,7 +69,8 @@ class EpisodeBoundaryCallback(
         skipToItDatabase.beginTransaction()
         try {
             if (loadType == loadTypeRefresh) {
-                skipToItDatabase.episodeDao().deleteAllEpisodes()
+                val lastPlayedPodcastId = prefs.getString(PODCAST_ID_KEY, "")!!
+                skipToItDatabase.episodeDao().deleteAllEpisodesExceptNowPlaying(lastPlayedPodcastId)
             }
 
             val episodes = podcastDetails.episodes

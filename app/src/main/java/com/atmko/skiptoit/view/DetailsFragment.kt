@@ -263,6 +263,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun onItemClick(episode: Episode) {
-        (activity as MasterActivity).loadEpisodeIntoBottomSheet(podcast.id, episode.episodeId)
+        (activity as MasterActivity).loadEpisodeIntoCollapsedBottomSheet(podcast.id, episode.episodeId)
     }
 }

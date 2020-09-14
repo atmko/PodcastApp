@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.dependencyinjection.presentation;
 
+import android.content.SharedPreferences;
+
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.model.PodcastsApi;
@@ -63,8 +65,9 @@ public class PagingModule {
 
     @Provides
     EpisodeBoundaryCallback provideReplyEpisodeBoundaryCallback(PodcastsApi podcastsApi,
-                                                                SkipToItDatabase skipToItDatabase) {
-        return new EpisodeBoundaryCallback(podcastsApi, skipToItDatabase);
+                                                                SkipToItDatabase skipToItDatabase,
+                                                                @Named("episode_fragment") SharedPreferences sharedPreferences) {
+        return new EpisodeBoundaryCallback(podcastsApi, skipToItDatabase, sharedPreferences);
     }
 
     @Provides

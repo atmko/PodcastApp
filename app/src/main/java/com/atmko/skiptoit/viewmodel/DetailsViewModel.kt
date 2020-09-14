@@ -83,7 +83,7 @@ class DetailsViewModel(
         }
 
         episodeBoundaryCallback.param = podcastId
-        val dataSourceFactory = skipToItDatabase.episodeDao().getAllEpisodes(podcastId)
+        val dataSourceFactory = skipToItDatabase.episodeDao().getAllEpisodesForPodcast(podcastId)
         val pagedListBuilder =
             LivePagedListBuilder<Int, Episode>(dataSourceFactory, pagedListConfig)
         pagedListBuilder.setInitialLoadKey(1)
