@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.dependencyinjection.presentation
 
+import com.atmko.skiptoit.createcomment.CreateCommentFragment
 import com.atmko.skiptoit.updatecomment.UpdateCommentFragment
 import com.atmko.skiptoit.updatecomment.UpdateReplyFragment
 import com.atmko.skiptoit.view.*

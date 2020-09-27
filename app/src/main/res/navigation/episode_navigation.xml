@@ -46,7 +46,7 @@
 
     <fragment
         android:id="@+id/navigation_create_comment"
-        android:name="com.atmko.skiptoit.view.CreateCommentFragment"
+        android:name="com.atmko.skiptoit.createcomment.CreateCommentFragment"
         android:label="@string/title_create_comment"
         tools:layout="@layout/fragment_create_comment">
         <argument

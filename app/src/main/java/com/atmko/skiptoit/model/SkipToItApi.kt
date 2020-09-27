@@ -12,7 +12,7 @@ interface SkipToItApi {
     fun createComment(@Path("podcast_id") podcastId: String,
                       @Path("episode_id") episodeId: String,
                       @Field("id_token") idToken: String,
-                      @Field("body") commentBody: String): Single<Comment>
+                      @Field("body") commentBody: String): Call<Comment>
 
     @FormUrlEncoded
     @POST("comments/vote/{comment_id}")
