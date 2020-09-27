@@ -1,29 +1,31 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.updatecomment
 
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
+import com.atmko.skiptoit.R
+import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel
+import com.atmko.skiptoit.view.MasterActivity
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class UpdateCommentFragment: BaseFragment() {
+class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener {
 
-    private var _binding: FragmentCreateCommentBinding? = null
+    private var _binding: FragmentCreateReplyBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var commentId: String
     private lateinit var username: String
+    private lateinit var quotedText: String
 
     private lateinit var comment: Comment
 
@@ -40,16 +42,22 @@ class UpdateCommentFragment: BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val args: UpdateCommentFragmentArgs by navArgs()
+        val args: UpdateReplyFragmentArgs by navArgs()
         commentId = args.commentId
         username = args.username
+        quotedText = args.quotedText
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.registerListener(this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCreateCommentBinding.inflate(inflater, container, false)
+        _binding = FragmentCreateReplyBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -64,7 +72,11 @@ class UpdateCommentFragment: BaseFragment() {
 
         configureViews()
         configureValues()
-        configureViewModel()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.unregisterListener(this)
     }
 
     private fun configureViews() {
@@ -84,7 +96,7 @@ class UpdateCommentFragment: BaseFragment() {
                 masterActivity.hideSoftKeyboard(requireView())
 
                 val updatedBody = binding.bodyEditText.text.toString()
-                viewModel.updateCommentBody(updatedBody)
+                viewModel.updateCommentBodyAndNotify(updatedBody)
             }
         }
     }
@@ -92,43 +104,46 @@ class UpdateCommentFragment: BaseFragment() {
     private fun configureValues() {
         viewModel = ViewModelProvider(
             this,
-            viewModelFactory).get(UpdateCommentViewModel::class.java)
+            viewModelFactory
+        ).get(UpdateCommentViewModel::class.java)
 
-        viewModel.loadComment(commentId)
+        viewModel.getCachedCommentAndNotify(commentId)
 
         binding.usernameTextView.text = username
+        binding.quotedText.text = quotedText
     }
 
-    private fun configureViewModel() {
-        viewModel.isUpdated.observe(viewLifecycleOwner, Observer { isUpdated ->
-            isUpdated?.let {
-                findNavController().navigateUp()
-            }
-        })
+    override fun notifyProcessing() {
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
 
-        viewModel.commentLiveData.observe(viewLifecycleOwner, Observer { comment ->
-            comment?.let {
-                this.comment = comment
-                binding.bodyEditText.text = comment.body.toEditable()
-                binding.createButton.isEnabled = true
-            }
-        })
+    override fun onLoadComment(fetchedComment: Comment) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
-        viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->
-            isProcessing?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
+        this.comment = fetchedComment
+        binding.bodyEditText.text = comment.body.toEditable()
+        binding.createButton.isEnabled = true
+    }
 
-        viewModel.updateError.observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
+    override fun onLoadCommentFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+
+        binding.createButton.isEnabled = false
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_comment), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onCommentUpdated() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        findNavController().navigateUp()
+    }
+
+    override fun onCommentUpdateFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(requireView(), getString(R.string.failed_to_update_comment), Snackbar.LENGTH_LONG).show()
     }
 }

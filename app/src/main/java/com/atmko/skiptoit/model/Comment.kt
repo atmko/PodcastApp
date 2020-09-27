@@ -56,15 +56,38 @@ class Comment(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Comment) return false
-        return commentId == other.commentId
-                && parentId == other.parentId
-                && username == other.username
-                && body == other.body
-                && voteTally == other.voteTally
-                && isUserComment == other.isUserComment
-                && voteWeight == other.voteWeight
-                && replies == other.replies
-                && profileImage == other.profileImage
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Comment
+
+        if (commentId != other.commentId) return false
+        if (parentId != other.parentId) return false
+        if (episodeId != other.episodeId) return false
+        if (username != other.username) return false
+        if (body != other.body) return false
+        if (voteTally != other.voteTally) return false
+        if (isUserComment != other.isUserComment) return false
+        if (voteWeight != other.voteWeight) return false
+        if (replies != other.replies) return false
+        if (timestamp != other.timestamp) return false
+        if (profileImage != other.profileImage) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = commentId.hashCode()
+        result = 31 * result + (parentId?.hashCode() ?: 0)
+        result = 31 * result + episodeId.hashCode()
+        result = 31 * result + username.hashCode()
+        result = 31 * result + body.hashCode()
+        result = 31 * result + voteTally
+        result = 31 * result + isUserComment.hashCode()
+        result = 31 * result + voteWeight
+        result = 31 * result + replies
+        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + (profileImage?.hashCode() ?: 0)
+        return result
     }
 }

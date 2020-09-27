@@ -63,6 +63,8 @@
     <string name="no_browser_error_message">No browser to launch page</string>
     <string name="couldnt_update_google_play_services">Couldn\'t update google play services</string>
     <string name="couldnt_connect_to_server">Couldn\'t connect to server</string>
+    <string name="failed_to_load_comment">Failed to load comment</string>
+    <string name="failed_to_update_comment">Failed to update comment</string>
     <!--SNACK BAR MESSAGES-->
 
     <!--LAUNCH ACTIVITY TEXT-->

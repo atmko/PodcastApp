@@ -52,7 +52,7 @@ interface SkipToItApi {
     @PUT("comments/{comment_id}")
     fun updateCommentBody(@Path("comment_id") commentId: String,
                           @Field("id_token") idToken: String,
-                          @Field("body") commentBody: String): Single<Response<Void>>
+                          @Field("body") commentBody: String): Call<Void>
 
     @DELETE("comments/{comment_id}")
     fun deleteComment(@Path("comment_id") commentId: String,

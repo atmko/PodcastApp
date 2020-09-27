@@ -62,7 +62,7 @@
 
     <fragment
         android:id="@+id/navigation_update_comment"
-        android:name="com.atmko.skiptoit.view.UpdateCommentFragment"
+        android:name="com.atmko.skiptoit.updatecomment.UpdateCommentFragment"
         android:label="@string/title_update_comment"
         tools:layout="@layout/fragment_create_comment">
         <argument
@@ -91,7 +91,7 @@
 
     <fragment
         android:id="@+id/navigation_update_reply"
-        android:name="com.atmko.skiptoit.view.UpdateReplyFragment"
+        android:name="com.atmko.skiptoit.updatecomment.UpdateReplyFragment"
         android:label="@string/title_update_reply"
         tools:layout="@layout/fragment_create_reply">
         <argument

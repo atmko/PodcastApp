@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.SkipToItApplication;
+import com.atmko.skiptoit.model.database.CommentCache;
+import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
 import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
@@ -25,7 +27,7 @@ import com.atmko.skiptoit.viewmodel.RepliesViewModel;
 import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
-import com.atmko.skiptoit.viewmodel.UpdateCommentViewModel;
+import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -164,10 +166,9 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(UpdateCommentViewModel.class)
-    ViewModel provideUpdateCommentsViewModel(SkipToItApi skipToItApi,
-                                             GoogleSignInClient googleSignInClient,
-                                             CommentDao commentDao) {
-        return new UpdateCommentViewModel(skipToItApi, googleSignInClient, commentDao);
+    ViewModel provideUpdateCommentsViewModel(UpdateCommentEndpoint updateCommentEndpoint,
+                                             CommentCache commentCache) {
+        return new UpdateCommentViewModel(updateCommentEndpoint, commentCache);
     }
 
     @Provides
@@ -182,5 +183,17 @@ public class ViewModelModule {
     @ViewModelKey(SearchViewModel.class)
     ViewModel provideSearchViewModel(PodcastDataSourceFactory podcastDataSourceFactory) {
         return new SearchViewModel(podcastDataSourceFactory);
+    }
+
+    //------------
+    @Provides
+    CommentCache provideCommentCache(CommentDao commentDao) {
+        return new CommentCache(commentDao);
+    }
+
+    @Provides
+    UpdateCommentEndpoint provideUpdateCommentEndpoint(SkipToItApi skipToItApi,
+                                                GoogleSignInClient googleSignInClient) {
+        return new UpdateCommentEndpoint(skipToItApi, googleSignInClient);
     }
 }

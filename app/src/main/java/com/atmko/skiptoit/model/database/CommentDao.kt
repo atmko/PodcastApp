@@ -12,7 +12,7 @@ interface CommentDao {
     fun insertComments(comments: List<Comment>)
 
     @Query("SELECT * FROM comments WHERE comment_id = :commentId")
-    fun getComment(commentId: String): LiveData<Comment>
+    fun getComment(commentId: String): Comment
 
     @Query("SELECT * FROM comments WHERE parent_id IS NULL AND episode_id = :episodeId ORDER BY timestamp DESC LIMIT 1")
     fun getLastComment(episodeId: String): Comment?
