@@ -41,6 +41,8 @@ class UpdateCommentViewModel(
     }
 
     fun updateCommentBodyAndNotify(bodyUpdate : String) {
+        notifyProcessing()
+
         updateCommentEndpoint.updateComment(comment, bodyUpdate, object : UpdateCommentEndpoint.Listener {
             override fun onUpdateSuccess(bodyUpdate: String) {
                 comment.body = bodyUpdate

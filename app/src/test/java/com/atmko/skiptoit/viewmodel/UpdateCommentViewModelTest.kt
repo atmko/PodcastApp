@@ -2,6 +2,10 @@ package com.atmko.skiptoit.viewmodel
 
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.testdata.CommentMocks.Companion.BODY_UPDATE
+import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_1
+import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_2
+import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_WITH_UPDATED_BODY
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel
 import org.hamcrest.CoreMatchers.`is`
@@ -16,70 +20,10 @@ import java.lang.RuntimeException
 class UpdateCommentViewModelTest {
 
     // region constants
-    companion object {
-        val COMMENT_ID_1: String = "commentId1"
-        val COMMENT_ID_2: String = "commentId2"
-        val PARENT_ID: String = "parentId"
-        val EPISODE_ID: String = "episodeId"
-        val USERNAME: String = "username"
-        val BODY: String = "body"
-        val VOTE_TALLY: Int = 0
-        val IS_USER_COMMENT: Boolean = false
-        val VOTE_WEIGHT: Int = 0
-        val REPLIES: Int = 0
-        val TIMESTAMP: Long = 1000000
-        val PROFILE_IMAGE: String = "profileImage"
+    val COMMENT_ID_1: String = "commentId1"
+    val COMMENT_ID_2: String = "commentId2"
+    val BODY_UPDATE: String = "bodyUpdate"
 
-        val BODY_UPDATE: String = "bodyUpdate"
-
-        private fun GET_COMMENT_1(): Comment {
-            return Comment(
-                COMMENT_ID_1,
-                PARENT_ID,
-                EPISODE_ID,
-                USERNAME,
-                BODY,
-                VOTE_TALLY,
-                IS_USER_COMMENT,
-                VOTE_WEIGHT,
-                REPLIES ,
-                TIMESTAMP ,
-                PROFILE_IMAGE
-            )
-        }
-
-        private fun GET_COMMENT_2(): Comment {
-            return Comment(
-                COMMENT_ID_2,
-                PARENT_ID,
-                EPISODE_ID,
-                USERNAME,
-                BODY,
-                VOTE_TALLY,
-                IS_USER_COMMENT,
-                VOTE_WEIGHT,
-                REPLIES ,
-                TIMESTAMP ,
-                PROFILE_IMAGE
-            )
-        }
-
-        private fun GET_UPDATED_COMMENT(): Comment {
-            return Comment(
-                COMMENT_ID_1,
-                PARENT_ID,
-                EPISODE_ID,
-                USERNAME,
-                BODY_UPDATE,
-                VOTE_TALLY,
-                IS_USER_COMMENT,
-                VOTE_WEIGHT,
-                REPLIES ,
-                TIMESTAMP ,
-                PROFILE_IMAGE
-            )
-        }
-    }
     // endregion constants
 
     // end region helper fields
@@ -167,7 +111,20 @@ class UpdateCommentViewModelTest {
     //--------------------------------------------
 
     @Test
-    fun updateCommentBodyAndNotify_updateCommentSuccess_updatedCorrectBodySentByListeners() {
+    fun updateCommentBodyAndNotify_listenersNotifiedOfProcessing() {
+        // Arrange
+        SUT.comment = GET_COMMENT_1()
+        SUT.registerListener(mListenerTd1)
+        SUT.registerListener(mListenerTd2)
+        // Act
+        SUT.updateCommentBodyAndNotify(BODY_UPDATE)
+        // Assert
+        mListenerTd1.assertNotifyProcessingCalled(1)
+        mListenerTd2.assertNotifyProcessingCalled(1)
+    }
+
+    @Test
+    fun updateCommentBodyAndNotify_updateCommentSuccess_listenersReceiveCorrectUpdatedBody() {
         //Arrange
         SUT.comment = GET_COMMENT_1()
         SUT.registerListener(mListenerTd1)
@@ -175,7 +132,7 @@ class UpdateCommentViewModelTest {
         SUT.updateCommentBodyAndNotify(BODY_UPDATE)
         // Assert
         mListenerTd1.assertOnCommentUpdatedCalled(1)
-        assertThat(SUT.comment, `is`(GET_UPDATED_COMMENT()))
+        assertThat(SUT.comment, `is`(GET_COMMENT_WITH_UPDATED_BODY()))
     }
 
     @Test
@@ -202,7 +159,7 @@ class UpdateCommentViewModelTest {
         SUT.updateCommentBodyAndNotify(BODY_UPDATE)
         // Assert
         assertThat(mCommentCacheTd.mCacheCounter, `is`(1))
-        assertThat(mCommentCacheTd.mUpdatedComment, `is`(GET_UPDATED_COMMENT()))
+        assertThat(mCommentCacheTd.mUpdatedComment, `is`(GET_COMMENT_WITH_UPDATED_BODY()))
     }
 
     @Test
@@ -305,14 +262,14 @@ class UpdateCommentViewModelTest {
             }
         }
 
-        private var mOnLoadCommentFailureCounter = 0
+        private var mOnLoadCommentFailedCounter = 0
         override fun onLoadCommentFailed() {
-            mOnLoadCommentFailureCounter++
+            mOnLoadCommentFailedCounter++
         }
 
-        fun assertOnLoadCommentFailureCalled(times: Int) {
-            if (times != mOnLoadCommentFailureCounter) {
-                throw RuntimeException("Method called:$mOnLoadCommentFailureCounter instead of:$times")
+        fun assertOnLoadCommentFailedCalled(times: Int) {
+            if (times != mOnLoadCommentFailedCounter) {
+                throw RuntimeException("Method called:$mOnLoadCommentFailedCounter instead of:$times")
             }
         }
 
