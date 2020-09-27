@@ -110,6 +110,7 @@ class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
     }
 
     override fun notifyProcessing() {
+        binding.createButton.isEnabled = false
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
