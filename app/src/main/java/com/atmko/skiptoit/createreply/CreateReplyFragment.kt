@@ -1,25 +1,27 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.createreply
 
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
+import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.CreateReplyViewModel
+import com.atmko.skiptoit.view.MasterActivity
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
 const val CREATED_REPLY_KEY = "create_reply"
 
-class CreateReplyFragment: BaseFragment() {
+class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
 
     private var _binding: FragmentCreateReplyBinding? = null
     private val binding get() = _binding!!
@@ -47,6 +49,11 @@ class CreateReplyFragment: BaseFragment() {
         username = args.username
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.registerListener(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,7 +73,11 @@ class CreateReplyFragment: BaseFragment() {
 
         configureViews()
         configureValues(savedInstanceState)
-        configureViewModel()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.unregisterListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -87,7 +98,7 @@ class CreateReplyFragment: BaseFragment() {
         binding.createButton.apply {
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
-                viewModel.createReply(parentId, comment)
+                viewModel.createReplyAndNotify(parentId, comment)
             }
         }
     }
@@ -103,34 +114,28 @@ class CreateReplyFragment: BaseFragment() {
         }
     }
 
-    private fun configureViewModel() {
-        viewModel.createdReply.observe(viewLifecycleOwner, Observer { createdReply ->
-            createdReply?.let {
-                val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
-                savedStateHandle?.set(CREATED_REPLY_KEY, createdReply)
+    override fun notifyProcessing() {
+        binding.createButton.isEnabled = false
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
 
-                val masterActivity: MasterActivity = (activity as MasterActivity)
-                masterActivity.onBackPressedDispatcher.onBackPressed()
+    override fun onReplyCreated(comment: Comment?) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
-                view?.let { view -> masterActivity.hideSoftKeyboard(view) }
-            }
-        })
+        val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
+        savedStateHandle?.set(CREATED_REPLY_KEY, comment)
 
-        viewModel.processing.observe(viewLifecycleOwner, Observer { isProcessing ->
-            isProcessing?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
+        val masterActivity: MasterActivity = (activity as MasterActivity)
+        masterActivity.onBackPressedDispatcher.onBackPressed()
 
-        viewModel.createError.observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
+        view?.let { view -> masterActivity.hideSoftKeyboard(view) }
+    }
+
+    override fun onReplyCreateFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(requireView(), getString(R.string.failed_to_create_comment), Snackbar.LENGTH_LONG).show()
     }
 }

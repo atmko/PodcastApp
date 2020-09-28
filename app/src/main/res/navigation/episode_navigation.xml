@@ -75,7 +75,7 @@
 
     <fragment
         android:id="@+id/navigation_create_reply"
-        android:name="com.atmko.skiptoit.view.CreateReplyFragment"
+        android:name="com.atmko.skiptoit.createreply.CreateReplyFragment"
         android:label="@string/title_create_reply"
         tools:layout="@layout/fragment_create_reply">
         <argument

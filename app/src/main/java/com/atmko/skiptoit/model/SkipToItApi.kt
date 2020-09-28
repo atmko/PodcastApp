@@ -37,7 +37,7 @@ interface SkipToItApi {
     @POST("replies/{parent_id}")
     fun createReply(@Path("parent_id") parentId: String,
                     @Field("id_token") idToken: String,
-                    @Field("body") comment: String): Single<Comment>
+                    @Field("body") comment: String): Call<Comment>
 
     @GET("replies/{parent_id}/page/{page}")
     fun getRepliesUnauthenticated(@Path("parent_id") parentId: String,

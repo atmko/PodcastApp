@@ -9,6 +9,8 @@ import com.atmko.skiptoit.SkipToItApplication;
 import com.atmko.skiptoit.createcomment.CommentPageTrackerHelper;
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel;
+import com.atmko.skiptoit.createreply.CreateReplyEndpoint;
+import com.atmko.skiptoit.createreply.ReplyPageTrackerHelper;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.CommentCache;
@@ -18,7 +20,7 @@ import com.atmko.skiptoit.model.database.SkipToItDatabase;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
-import com.atmko.skiptoit.viewmodel.CreateReplyViewModel;
+import com.atmko.skiptoit.createreply.CreateReplyViewModel;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
@@ -159,10 +161,9 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(CreateReplyViewModel.class)
-    ViewModel provideCreateReplyViewModel(SkipToItApi skipToItApi,
-                                          GoogleSignInClient googleSignInClient,
-                                          SkipToItDatabase skipToItDatabase) {
-        return new CreateReplyViewModel(skipToItApi, googleSignInClient, skipToItDatabase);
+    ViewModel provideCreateReplyViewModel(CreateReplyEndpoint createReplyEndpoint,
+                                          ReplyPageTrackerHelper replyPageTrackerHelper) {
+        return new CreateReplyViewModel(createReplyEndpoint, replyPageTrackerHelper);
     }
 
     @Provides
@@ -194,13 +195,6 @@ public class ViewModelModule {
     }
 
     @Provides
-    CommentPageTrackerHelper provideCommentCommentPageTrackerHelper(
-            CommentDao commentDao,
-            CommentPageTrackerDao commentPageTrackerDao) {
-        return new CommentPageTrackerHelper(commentDao, commentPageTrackerDao);
-    }
-
-    @Provides
     UpdateCommentEndpoint provideUpdateCommentEndpoint(SkipToItApi skipToItApi,
                                                        GoogleSignInClient googleSignInClient) {
         return new UpdateCommentEndpoint(skipToItApi, googleSignInClient);
@@ -210,5 +204,25 @@ public class ViewModelModule {
     CreateCommentEndpoint provideCreateCommentEndpoint(SkipToItApi skipToItApi,
                                                        GoogleSignInClient googleSignInClient) {
         return new CreateCommentEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    CommentPageTrackerHelper provideCommentCommentPageTrackerHelper(
+            CommentDao commentDao,
+            CommentPageTrackerDao commentPageTrackerDao) {
+        return new CommentPageTrackerHelper(commentDao, commentPageTrackerDao);
+    }
+
+    @Provides
+    CreateReplyEndpoint provideCreateReplyEndpoint(SkipToItApi skipToItApi,
+                                                       GoogleSignInClient googleSignInClient) {
+        return new CreateReplyEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    ReplyPageTrackerHelper provideReplyCommentPageTrackerHelper(
+            CommentDao commentDao,
+            CommentPageTrackerDao commentPageTrackerDao) {
+        return new ReplyPageTrackerHelper(commentDao, commentPageTrackerDao);
     }
 }

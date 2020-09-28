@@ -7,6 +7,7 @@ class CommentMocks {
     companion object {
         val COMMENT_ID_1: String = "commentId1"
         val COMMENT_ID_2: String = "commentId2"
+        val PARENT_ID_NULL: String = "parentId"
         val PARENT_ID: String = "parentId"
         val EPISODE_ID: String = "episodeId"
         val USERNAME: String = "username"
@@ -23,7 +24,7 @@ class CommentMocks {
         fun GET_COMMENT_1(): Comment {
             return Comment(
                 COMMENT_ID_1,
-                PARENT_ID,
+                PARENT_ID_NULL,
                 EPISODE_ID,
                 USERNAME,
                 BODY,
@@ -39,7 +40,7 @@ class CommentMocks {
         fun GET_COMMENT_2(): Comment {
             return Comment(
                 COMMENT_ID_2,
-                PARENT_ID,
+                PARENT_ID_NULL,
                 EPISODE_ID,
                 USERNAME,
                 BODY,
@@ -53,6 +54,22 @@ class CommentMocks {
         }
 
         fun GET_COMMENT_WITH_UPDATED_BODY(): Comment {
+            return Comment(
+                COMMENT_ID_1,
+                PARENT_ID_NULL,
+                EPISODE_ID,
+                USERNAME,
+                BODY_UPDATE,
+                VOTE_TALLY,
+                IS_USER_COMMENT,
+                VOTE_WEIGHT,
+                REPLIES ,
+                TIMESTAMP ,
+                PROFILE_IMAGE
+            )
+        }
+
+        fun GET_REPLY(): Comment {
             return Comment(
                 COMMENT_ID_1,
                 PARENT_ID,
