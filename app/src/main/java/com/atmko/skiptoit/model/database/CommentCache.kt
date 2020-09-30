@@ -33,4 +33,14 @@ open class CommentCache(val commentDao: CommentDao?) {
             }
         }
     }
+
+    open fun deleteComments(comments: List<Comment>, listener: CacheUpdateListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            commentDao!!.deleteComments(comments)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onLocalCacheUpdateSuccess()
+            }
+        }
+    }
 }

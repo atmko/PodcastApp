@@ -2,6 +2,7 @@ package com.atmko.skiptoit.dependencyinjection.application
 
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
+import com.atmko.skiptoit.dependencyinjection.presentation.PagingModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
 import com.atmko.skiptoit.dependencyinjection.service.ServiceComponent
@@ -22,7 +23,8 @@ interface ApplicationComponent {
 
     fun newPresentationComponent(
         presentationModule: PresentationModule,
-        adapterModule: AdapterModule
+        adapterModule: AdapterModule,
+        pagingModule: PagingModule
     ): PresentationComponent
 
     fun newServiceComponent(serviceModule: ServiceModule): ServiceComponent

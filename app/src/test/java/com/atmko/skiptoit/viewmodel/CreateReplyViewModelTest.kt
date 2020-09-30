@@ -56,7 +56,7 @@ class CreateReplyViewModelTest {
     }
 
     @Test
-    fun createReplyAndNotify_success_listenersNotifiedOfProcessing() {
+    fun createReplyAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)

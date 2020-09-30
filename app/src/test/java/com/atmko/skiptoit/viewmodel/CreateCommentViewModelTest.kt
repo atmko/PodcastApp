@@ -58,7 +58,7 @@ class CreateCommentViewModelTest {
     }
 
     @Test
-    fun createCommentAndNotify_success_listenersNotifiedOfProcessing() {
+    fun createCommentAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)

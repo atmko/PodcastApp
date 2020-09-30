@@ -1,10 +1,9 @@
 package com.atmko.skiptoit.viewmodel
 
 import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks.Companion.BODY_UPDATE
 import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_1
-import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_2
 import com.atmko.skiptoit.testdata.CommentMocks.Companion.GET_COMMENT_WITH_UPDATED_BODY
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel
@@ -14,7 +13,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import java.lang.RuntimeException
 
 @RunWith(MockitoJUnitRunner::class)
 class UpdateCommentViewModelTest {
@@ -56,11 +54,11 @@ class UpdateCommentViewModelTest {
         // Act
         SUT.getCachedCommentAndNotify(COMMENT_ID_1)
         // Assert
-        assertThat(mCommentCacheTd.mPassedCommentId, `is`(COMMENT_ID_1))
+        assertThat(mCommentCacheTd.mCommentId, `is`(COMMENT_ID_1))
     }
 
     @Test
-    fun getCachedCommentAndNotify_loadCommentSuccess_listenersNotifiedOfProcessing() {
+    fun getCachedCommentAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
         SUT.registerListener(mListenerTd1)
         SUT.registerListener(mListenerTd2)
@@ -102,7 +100,7 @@ class UpdateCommentViewModelTest {
         SUT.getCachedCommentAndNotify(COMMENT_ID_1)
         SUT.getCachedCommentAndNotify(COMMENT_ID_2)
         // Assert
-        assertThat(mCommentCacheTd.mInvocationCounter, `is`(1))
+        assertThat(mCommentCacheTd.mGetCachedCommentCounter, `is`(1))
         assertThat(SUT.comment, `is`(GET_COMMENT_1()))
     }
 
@@ -128,10 +126,12 @@ class UpdateCommentViewModelTest {
         //Arrange
         SUT.comment = GET_COMMENT_1()
         SUT.registerListener(mListenerTd1)
+        SUT.registerListener(mListenerTd2)
         // Act
         SUT.updateCommentBodyAndNotify(BODY_UPDATE)
         // Assert
         mListenerTd1.assertOnCommentUpdatedCalled(1)
+        mListenerTd2.assertOnCommentUpdatedCalled(1)
         assertThat(SUT.comment, `is`(GET_COMMENT_WITH_UPDATED_BODY()))
     }
 
@@ -158,7 +158,7 @@ class UpdateCommentViewModelTest {
         // Act
         SUT.updateCommentBodyAndNotify(BODY_UPDATE)
         // Assert
-        assertThat(mCommentCacheTd.mCacheCounter, `is`(1))
+        assertThat(mCommentCacheTd.mUpdateLocalCacheCounter, `is`(1))
         assertThat(mCommentCacheTd.mUpdatedComment, `is`(GET_COMMENT_WITH_UPDATED_BODY()))
     }
 
@@ -181,7 +181,6 @@ class UpdateCommentViewModelTest {
         // no-op because mFailure false by default
     }
 
-    // region helper methods
     private fun updateCommentSuccess() {
         // no-op because mFailure false by default
     }
@@ -192,44 +191,15 @@ class UpdateCommentViewModelTest {
     // endregion helper methods
 
     // region helper classes
-    class CommentCacheTd : CommentCache(null) {
-
-        var mPassedCommentId: String = ""
-        var mInvocationCounter = 0
-        var mFailure = false
-
-        override
-        fun getCachedComment (commentId: String, listener: CommentFetchListener) {
-            mPassedCommentId = commentId
-            mInvocationCounter += 1
-            if (!mFailure) {
-                if (mInvocationCounter == 1) {
-                    listener.onCommentFetchSuccess(GET_COMMENT_1())
-                } else if (mInvocationCounter == 2) {
-                    listener.onCommentFetchSuccess(GET_COMMENT_2())
-                }
-            }
-        }
-
-        var mCacheCounter = 0
-        var mUpdatedComment: Comment = GET_COMMENT_1()
-
-        override fun updateLocalCache(updatedComment: Comment, listener: CacheUpdateListener) {
-            mCacheCounter += 1
-            mUpdatedComment = updatedComment
-            listener.onLocalCacheUpdateSuccess()
-        }
-    }
-
     class UpdateCommentEndpointTd: UpdateCommentEndpoint(null, null) {
 
-        lateinit var mPassedComment: Comment
-        var mPassedBodyUpdate: String = ""
+        private lateinit var mComment: Comment
+        var mBodyUpdate: String = ""
         var mFailure = false
 
         override fun updateComment(currentComment: Comment, bodyUpdate: String, listener: Listener) {
-            mPassedComment = currentComment
-            mPassedBodyUpdate = bodyUpdate
+            mComment = currentComment
+            mBodyUpdate = bodyUpdate
             if (!mFailure) {
                 listener.onUpdateSuccess(BODY_UPDATE)
             } else {

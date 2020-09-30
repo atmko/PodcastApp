@@ -1,26 +1,22 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.episode
 
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback
+import com.atmko.skiptoit.episode.common.CommentsEndpoint
+import com.atmko.skiptoit.episode.common.CommentsViewModel
 import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.SkipToItApi
+import com.atmko.skiptoit.model.database.CommentCache
 import com.atmko.skiptoit.model.database.CommentDao
-import com.atmko.skiptoit.viewmodel.common.CommentsViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 
-//todo rename mediator to boundary callback
 class ParentCommentsViewModel(
-    googleSignInClient: GoogleSignInClient,
-    skipToItApi: SkipToItApi,
+    commentEndpoint: CommentsEndpoint,
+    commentCache: CommentCache,
     private var commentDao: CommentDao,
-    private val parentCommentMediator: ParentCommentBoundaryCallback,
+    private val parentCommentBoundaryCallback: ParentCommentBoundaryCallback,
     private val pagedListConfig: PagedList.Config
 ) : CommentsViewModel(
-    skipToItApi,
-    googleSignInClient,
-    commentDao,
-    parentCommentMediator
+    commentEndpoint,
+    commentCache
 ) {
 
     fun getComments(episodeId: String) {
@@ -31,12 +27,12 @@ class ParentCommentsViewModel(
             return
         }
 
-        parentCommentMediator.param = episodeId
+        parentCommentBoundaryCallback.param = episodeId
         val dataSourceFactory = commentDao.getAllComments(episodeId)
         val pagedListBuilder =
             LivePagedListBuilder<Int, Comment>(dataSourceFactory, pagedListConfig)
         pagedListBuilder.setInitialLoadKey(1)
-        pagedListBuilder.setBoundaryCallback(parentCommentMediator)
+        pagedListBuilder.setBoundaryCallback(parentCommentBoundaryCallback)
         retrievedComments = pagedListBuilder.build()
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.SkipToItApplication;
+import com.atmko.skiptoit.episode.common.CommentsEndpoint;
 import com.atmko.skiptoit.createcomment.CommentPageTrackerHelper;
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel;
@@ -25,16 +26,16 @@ import com.atmko.skiptoit.viewmodel.DetailsViewModel;
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
-import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel;
-import com.atmko.skiptoit.viewmodel.RepliesViewModel;
+import com.atmko.skiptoit.episode.ParentCommentsViewModel;
+import com.atmko.skiptoit.episode.replies.RepliesViewModel;
 import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
 import com.atmko.skiptoit.viewmodel.SearchViewModel;
 import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
 import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
-import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
-import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
+import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
+import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -129,25 +130,25 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(ParentCommentsViewModel.class)
-    ViewModel provideParentCommentsViewModel(GoogleSignInClient googleSignInClient,
-                                             SkipToItApi skipToItApi,
+    ViewModel provideParentCommentsViewModel(CommentsEndpoint commentsEndpoint,
+                                             CommentCache commentCache,
                                              CommentDao commentDao,
                                              ParentCommentBoundaryCallback parentCommentMediator,
                                              @Named("comments") PagedList.Config pagedListConfig) {
         return new ParentCommentsViewModel(
-                googleSignInClient, skipToItApi, commentDao, parentCommentMediator, pagedListConfig);
+                commentsEndpoint, commentCache, commentDao, parentCommentMediator, pagedListConfig);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(RepliesViewModel.class)
-    ViewModel provideRepliesViewModel(GoogleSignInClient googleSignInClient,
-                                      SkipToItApi skipToItApi,
+    ViewModel provideRepliesViewModel(CommentsEndpoint commentsEndpoint,
+                                      CommentCache commentCache,
                                       CommentDao commentDao,
                                       ReplyCommentBoundaryCallback replyCommentMediator,
                                       @Named("comments") PagedList.Config pagedListConfig) {
         return new RepliesViewModel(
-                googleSignInClient, skipToItApi, commentDao, replyCommentMediator, pagedListConfig);
+                commentsEndpoint, commentCache, commentDao, replyCommentMediator, pagedListConfig);
     }
 
     @Provides
@@ -224,5 +225,11 @@ public class ViewModelModule {
             CommentDao commentDao,
             CommentPageTrackerDao commentPageTrackerDao) {
         return new ReplyPageTrackerHelper(commentDao, commentPageTrackerDao);
+    }
+
+    @Provides
+    CommentsEndpoint provideCommentsEndpoint(SkipToItApi skipToItApi,
+                                                GoogleSignInClient googleSignInClient) {
+        return new CommentsEndpoint(skipToItApi, googleSignInClient);
     }
 }

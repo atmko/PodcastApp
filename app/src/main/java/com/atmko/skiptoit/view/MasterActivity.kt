@@ -19,7 +19,10 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.R
+import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
+import com.atmko.skiptoit.episode.EpisodeFragmentDirections
+import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
 import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User

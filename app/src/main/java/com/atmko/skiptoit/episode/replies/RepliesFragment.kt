@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.episode.replies
 
 import android.content.Context
 import android.os.Bundle
@@ -14,15 +14,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.databinding.FragmentRepliesBinding
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.util.loadNetworkImage
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.RepliesViewModel
+import com.atmko.skiptoit.episode.common.CommentsViewModel
+import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.view.MasterActivity
+import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
+class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener,
+    CommentsViewModel.Listener, BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
@@ -54,6 +58,11 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureBaseBackButtonFunctionality()
     }
 
+    override fun onResume() {
+        super.onResume()
+        repliesViewModel.registerListener(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -75,6 +84,11 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureValues()
         configureViewModel()
         configureMasterActivityViewModel()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        repliesViewModel.unregisterListener(this)
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -163,28 +177,10 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private fun configureViewModel() {
         repliesViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer { replies ->
-            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
             replies?.let {
                 repliesAdapter.submitList(replies)
                 repliesAdapter.notifyDataSetChanged()
-            }
-        })
-
-        repliesViewModel.getCommentLoading().observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
-                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
-                }
-            }
-        })
-
-        repliesViewModel.getCommentError().observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
             }
         })
     }
@@ -212,16 +208,16 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
-        val action = RepliesFragmentDirections
-            .actionNavigationRepliesToNavigationCreateReply(
+        val action =
+            RepliesFragmentDirections.actionNavigationRepliesToNavigationCreateReply(
                 parentId, quotedText, username
             )
         view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToUpdateReply(comment: Comment, username: String) {
-        val action = RepliesFragmentDirections
-            .actionNavigationEpisodeToNavigationUpdateReply(
+        val action =
+            RepliesFragmentDirections.actionNavigationEpisodeToNavigationUpdateReply(
                 comment.commentId, username, binding.parentComment.body.text.toString()
             )
         view?.findNavController()?.navigate(action)
@@ -232,24 +228,66 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onRepliesButtonClick(comment: Comment) {
-        val action = RepliesFragmentDirections
-            .actionNavigationRepliesToNavigationReplies(comment)
+        val action =
+            RepliesFragmentDirections.actionNavigationRepliesToNavigationReplies(
+                comment
+            )
         view?.findNavController()?.navigate(action)
     }
 
     override fun onUpVoteClick(comment: Comment) {
-        repliesViewModel.onUpVoteClick(comment)
+        repliesViewModel.upVoteAndNotify(comment)
     }
 
     override fun onDownVoteClick(comment: Comment) {
-        repliesViewModel.onDownVoteClick(comment)
+        repliesViewModel.downVoteAndNotify(comment)
     }
 
     override fun onDeleteClick(comment: Comment) {
-        repliesViewModel.deleteComment(comment)
+        repliesViewModel.deleteCommentAndNotify(comment)
     }
 
     override fun onEditClick(comment: Comment) {
         attemptToUpdateReply(comment)
+    }
+
+    override fun notifyProcessing() {
+        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onVoteUpdate() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onVoteUpdateFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onDeleteComment() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onDeleteCommentFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPageLoading() {
+        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoad() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoadFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

@@ -2,20 +2,22 @@ package com.atmko.skiptoit.dependencyinjection.presentation;
 
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.paging.PagedList;
 
+import com.atmko.skiptoit.episode.common.CommentsViewModel;
+import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
+import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.SkipToItDatabase;
 import com.atmko.skiptoit.viewmodel.DetailsViewModel;
-import com.atmko.skiptoit.viewmodel.common.CommentsViewModel;
+import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback;
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.datasource.GenrePodcastDataSource;
 import com.atmko.skiptoit.viewmodel.datasource.PodcastDataSource;
 import com.atmko.skiptoit.viewmodel.datasource.QueryPodcastDataSource;
 import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
-import com.atmko.skiptoit.viewmodel.paging.ParentCommentBoundaryCallback;
-import com.atmko.skiptoit.viewmodel.paging.ReplyCommentBoundaryCallback;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -34,6 +36,12 @@ import dagger.multibindings.IntoMap;
 
 @Module
 public class PagingModule {
+
+    private final LifecycleOwner mLifecycleOwner;
+
+    public PagingModule(LifecycleOwner lifecycleOwner) {
+        mLifecycleOwner = lifecycleOwner;
+    }
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -74,14 +82,16 @@ public class PagingModule {
     ParentCommentBoundaryCallback provideParentCommentBoundaryCallback(GoogleSignInClient googleSignInClient,
                                                                        SkipToItApi skipToItApi,
                                                                        SkipToItDatabase skipToItDatabase) {
-        return new ParentCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase);
+        return new ParentCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase,
+                ((BaseBoundaryCallback.Listener) mLifecycleOwner));
     }
 
     @Provides
     ReplyCommentBoundaryCallback provideReplyCommentBoundaryCallback(GoogleSignInClient googleSignInClient,
                                                                      SkipToItApi skipToItApi,
                                                                      SkipToItDatabase skipToItDatabase) {
-        return new ReplyCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase);
+        return new ReplyCommentBoundaryCallback(googleSignInClient, skipToItApi, skipToItDatabase,
+                ((BaseBoundaryCallback.Listener) mLifecycleOwner));
     }
 
     @Provides

@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.episode
 
 import android.content.ComponentName
 import android.content.Context
@@ -23,16 +23,19 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
-import com.atmko.skiptoit.util.loadNetworkImage
-import com.atmko.skiptoit.util.showFullText
-import com.atmko.skiptoit.util.showLimitedText
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
 import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
-import com.atmko.skiptoit.viewmodel.ParentCommentsViewModel
+import com.atmko.skiptoit.episode.common.CommentsViewModel
+import com.atmko.skiptoit.util.loadNetworkImage
+import com.atmko.skiptoit.util.showFullText
+import com.atmko.skiptoit.util.showLimitedText
+import com.atmko.skiptoit.view.MasterActivity
+import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
 const val EPISODE_FRAGMENT_KEY = "episode_fragment"
@@ -42,7 +45,8 @@ const val SCRUBBER_HIDE_LENGTH: Long = 2000
 
 private const val SHOW_MORE_KEY = "show_more"
 
-class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener {
+class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener,
+    CommentsViewModel.Listener, BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentEpisodeBinding? = null
     private val binding get() = _binding!!
@@ -88,6 +92,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         isRestoringEpisode = args.isRestoringEpisode
     }
 
+    override fun onResume() {
+        super.onResume()
+        parentCommentsViewModel.registerListener(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -116,6 +125,11 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
                 it.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        parentCommentsViewModel.unregisterListener(this)
     }
 
     override fun onStop() {
@@ -232,24 +246,24 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun navigateToCreateComment(username: String) {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationCrateComment(
+        val action =
+            EpisodeFragmentDirections.actionNavigationEpisodeToNavigationCrateComment(
                 podcastId, episodeId, username
             )
         view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToUpdateComment(comment: Comment, username: String) {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationUpdateComment(
+        val action =
+            EpisodeFragmentDirections.actionNavigationEpisodeToNavigationUpdateComment(
                 comment.commentId, username
             )
         view?.findNavController()?.navigate(action)
     }
 
     private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationCreateReply(
+        val action =
+            EpisodeFragmentDirections.actionNavigationEpisodeToNavigationCreateReply(
                 parentId, quotedText, username
             )
         view?.findNavController()?.navigate(action)
@@ -397,28 +411,9 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private fun configureCommentsViewModel() {
         parentCommentsViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer {
+            binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
             commentsAdapter.submitList(it)
             commentsAdapter.notifyDataSetChanged()
-        })
-
-        parentCommentsViewModel.getCommentLoading()
-            .observe(viewLifecycleOwner, Observer { isLoading ->
-                isLoading?.let {
-                    binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
-                        if (it) View.VISIBLE else View.GONE
-                    if (it) {
-                        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                            View.GONE
-                        binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
-                    }
-                }
-            })
-
-        parentCommentsViewModel.getCommentError().observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
         })
     }
 
@@ -433,21 +428,23 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun onRepliesButtonClick(comment: Comment) {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationReplies(comment)
+        val action =
+            EpisodeFragmentDirections.actionNavigationEpisodeToNavigationReplies(
+                comment
+            )
         view?.findNavController()?.navigate(action)
     }
 
     override fun onUpVoteClick(comment: Comment) {
-        parentCommentsViewModel.onUpVoteClick(comment)
+        parentCommentsViewModel.upVoteAndNotify(comment)
     }
 
     override fun onDownVoteClick(comment: Comment) {
-        parentCommentsViewModel.onDownVoteClick(comment)
+        parentCommentsViewModel.downVoteAndNotify(comment)
     }
 
     override fun onDeleteClick(comment: Comment) {
-        parentCommentsViewModel.deleteComment(comment)
+        parentCommentsViewModel.deleteCommentAndNotify(comment)
     }
 
     override fun onEditClick(comment: Comment) {
@@ -465,5 +462,45 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
+    }
+
+    override fun notifyProcessing() {
+        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onVoteUpdate() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onVoteUpdateFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onDeleteComment() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onDeleteCommentFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPageLoading() {
+        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoad() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoadFailed() {
+        binding.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

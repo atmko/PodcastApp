@@ -1,14 +1,14 @@
-package com.atmko.skiptoit.viewmodel.paging
+package com.atmko.skiptoit.episode.common
 
-import androidx.lifecycle.MutableLiveData
-import androidx.paging.PagedList
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.CommentPageTracker
 import com.atmko.skiptoit.model.database.SkipToItDatabase
+import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
 
 open class CommentBoundaryCallback(
-    private val skipToItDatabase: SkipToItDatabase
-): PagedList.BoundaryCallback<Comment>() {
+    private val skipToItDatabase: SkipToItDatabase,
+    protected val listener: Listener
+) : BaseBoundaryCallback<Comment>() {
 
     val loadTypeRefresh = 0
     val loadTypeAppend = 1
@@ -17,10 +17,7 @@ open class CommentBoundaryCallback(
     lateinit var param: String
     var startPage: Int = 1
 
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun getCommentPageTracker(commentId: String): CommentPageTracker {
+    protected fun getCommentPageTracker(commentId: String): CommentPageTracker {
         return skipToItDatabase.commentPageTrackerDao().getCommentPageTracker(commentId)
     }
 }

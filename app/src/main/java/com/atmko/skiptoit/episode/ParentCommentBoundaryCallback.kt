@@ -1,22 +1,25 @@
-package com.atmko.skiptoit.viewmodel.paging
+package com.atmko.skiptoit.episode
 
 import android.util.Log
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.SkipToItDatabase
 import com.atmko.skiptoit.util.AppExecutors
+import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Tasks
 
-class ReplyCommentBoundaryCallback(
+class ParentCommentBoundaryCallback(
     private val googleSignInClient: GoogleSignInClient,
     private val skipToItApi: SkipToItApi,
-    private val skipToItDatabase: SkipToItDatabase
-): CommentBoundaryCallback(skipToItDatabase) {
+    private val skipToItDatabase: SkipToItDatabase,
+    listener: Listener
+): CommentBoundaryCallback(skipToItDatabase, listener) {
 
     private val tag = this::class.simpleName
 
     override fun onZeroItemsLoaded() {
-        Log.d(tag,"REFRESHING")
+        Log.d("REFRESHING","REFRESHING")
+        listener.onPageLoading()
         AppExecutors.getInstance().diskIO().execute {
             requestPage(loadTypeRefresh, startPage)
         }
@@ -24,22 +27,30 @@ class ReplyCommentBoundaryCallback(
 
     override fun onItemAtEndLoaded(itemAtEnd: Comment) {
         Log.d(tag,"APPEND")
+        listener.onPageLoading()
         AppExecutors.getInstance().diskIO().execute {
             val bottomItemTracker: CommentPageTracker = getCommentPageTracker(itemAtEnd.commentId)
             val nextPage = bottomItemTracker.nextPage
-            nextPage?.let {
+
+            if (nextPage != null) {
                 requestPage(loadTypeAppend, nextPage)
+            } else {
+                notifyOnPageLoad(listener)
             }
         }
     }
 
     override fun onItemAtFrontLoaded(itemAtFront: Comment) {
         Log.d(tag,"PREPEND")
+        listener.onPageLoading()
         AppExecutors.getInstance().diskIO().execute {
             val topItemTracker: CommentPageTracker = getCommentPageTracker(itemAtFront.commentId)
             val prevPage = topItemTracker.prevPage
-            prevPage?.let {
+
+            if (prevPage != null) {
                 requestPage(loadTypePrepend, prevPage)
+            } else {
+                notifyOnPageLoad(listener)
             }
         }
     }
@@ -48,13 +59,13 @@ class ReplyCommentBoundaryCallback(
         val googleSignInAccount = Tasks.await(googleSignInClient.silentSignIn())
         val commentResultCall =
             if (googleSignInAccount != null && googleSignInAccount.idToken != null) {
-                skipToItApi.getRepliesAuthenticated(
+                skipToItApi.getCommentsAuthenticated(
                     param,
                     loadKey,
                     googleSignInAccount.idToken!!
                 )
             } else {
-                skipToItApi.getRepliesUnauthenticated(
+                skipToItApi.getCommentsUnauthenticated(
                     param,
                     loadKey
                 )
@@ -63,15 +74,13 @@ class ReplyCommentBoundaryCallback(
         val response = commentResultCall.execute()
         if (response.isSuccessful) {
             Log.d(tag, "isSuccessful")
-            loading.postValue(false)
-            loadError.postValue(false)
+            notifyOnPageLoad(listener)
 
             val body: CommentResults = response.body()!!
             onCommentFetchCallback(body, requestType)
         } else {
             Log.d(tag, "!isSuccessful")
-            loading.postValue(false)
-            loadError.postValue(true)
+            notifyOnPageLoadFailed(listener)
         }
     }
 
@@ -82,7 +91,7 @@ class ReplyCommentBoundaryCallback(
         skipToItDatabase.beginTransaction()
         try {
             if (loadType == loadTypeRefresh) {
-                skipToItDatabase.commentDao().deleteAllReplies(param)
+                skipToItDatabase.commentDao().deleteAllComments()
             }
 
             val comments = commentResults.comments

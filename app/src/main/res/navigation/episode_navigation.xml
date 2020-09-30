@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_episode"
-        android:name="com.atmko.skiptoit.view.EpisodeFragment"
+        android:name="com.atmko.skiptoit.episode.EpisodeFragment"
         android:label="@string/title_episode"
         tools:layout="@layout/fragment_episode">
         <argument
@@ -107,7 +107,7 @@
 
     <fragment
         android:id="@+id/navigation_replies"
-        android:name="com.atmko.skiptoit.view.RepliesFragment"
+        android:name="com.atmko.skiptoit.episode.replies.RepliesFragment"
         android:label="@string/title_replies"
         tools:layout="@layout/fragment_replies">
         <argument

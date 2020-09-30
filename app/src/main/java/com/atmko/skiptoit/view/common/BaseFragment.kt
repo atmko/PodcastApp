@@ -13,6 +13,7 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
+import com.atmko.skiptoit.dependencyinjection.presentation.PagingModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
 import com.atmko.skiptoit.view.MasterActivity
@@ -30,7 +31,11 @@ open class BaseFragment : Fragment() {
         if (!isInjected) {
             isInjected = true
             return getApplicationComponent()
-                    .newPresentationComponent(PresentationModule(), AdapterModule(this))
+                .newPresentationComponent(
+                    PresentationModule(),
+                    AdapterModule(this),
+                    PagingModule(this)
+                )
         }
 
         throw RuntimeException("getPresentationComponent() called more than once")
@@ -68,7 +73,7 @@ open class BaseFragment : Fragment() {
     }
 
     fun getExtrasHeight(): Int {
-        return getScreenHeight() - (getStatusBarHeight() + getToolbarHeight() + getBaseFragmentBottomMargin() )
+        return getScreenHeight() - (getStatusBarHeight() + getToolbarHeight() + getBaseFragmentBottomMargin())
     }
 
     fun getStatusBarHeight(): Int {
@@ -87,7 +92,7 @@ open class BaseFragment : Fragment() {
 
     private fun getToolbarHeight(): Int {
         requireView().findViewById<View>(R.id.toolbar)?.let {
-                return requireView().findViewById<View>(R.id.toolbar).height
+            return requireView().findViewById<View>(R.id.toolbar).height
         }
         return 0
     }

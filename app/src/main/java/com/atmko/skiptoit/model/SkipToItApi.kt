@@ -18,11 +18,11 @@ interface SkipToItApi {
     @POST("comments/vote/{comment_id}")
     fun voteComment(@Path("comment_id") commentId: String,
              @Field("vote_weight") voteWeight: String,
-             @Field("id_token") idToken: String): Single<Response<Void>>
+             @Field("id_token") idToken: String): Call<Void>
 
     @DELETE("comments/vote/{comment_id}")
     fun deleteCommentVote(@Path("comment_id") commentId: String,
-                          @Query("id_token") it: String): Single<Response<Void>>
+                          @Query("id_token") it: String): Call<Void>
 
     @GET("comments/{episode_id}/page/{page}")
     fun getCommentsUnauthenticated(@Path("episode_id") episodeId: String,
@@ -56,7 +56,7 @@ interface SkipToItApi {
 
     @DELETE("comments/{comment_id}")
     fun deleteComment(@Path("comment_id") commentId: String,
-                      @Query("id_token") it: String): Single<Response<Void>>
+                      @Query("id_token") it: String): Call<Void>
 
     @FormUrlEncoded
     @POST("users/tokensignin")

@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.createreply
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.viewmodel.common.BaseViewModel
 
@@ -15,10 +14,6 @@ class CreateReplyViewModel(
         fun onReplyCreated(comment: Comment?)
         fun onReplyCreateFailed()
     }
-
-    val createdReply: MutableLiveData<Comment> = MutableLiveData()
-    val createError: MutableLiveData<Boolean> = MutableLiveData()
-    val processing: MutableLiveData<Boolean> = MutableLiveData()
 
     fun createReplyAndNotify(parentId: String, replyBody: String) {
         notifyProcessing()
