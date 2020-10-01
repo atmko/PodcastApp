@@ -47,7 +47,7 @@ class CommentsViewModelTest {
     }
 
     @Test
-    fun upVoteAndNotify_correctCommentAndVoteWeightPassedToEndpoint() {
+    fun upVoteAndNotify_upVoteAndNotify_unvotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
          // Arrange
          // Act
          SUT.upVoteAndNotify(CommentMocks.GET_COMMENT_1())
@@ -55,6 +55,30 @@ class CommentsViewModelTest {
          assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_UPVOTED_COMMENT()))
          assertThat(mCommentsEndpointTd.mVoteWeight, `is`(1))
      }
+
+    @Test
+    fun upVoteAndNotify_downVotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
+        //Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.upVoteAndNotify(CommentMocks.GET_DOWNVOTED_COMMENT())
+        // Assert
+        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_UPVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mVoteWeight, `is`(1))
+    }
+
+    @Test
+    fun upVoteAndNotify_upVotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
+        //Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.upVoteAndNotify(CommentMocks.GET_UPVOTED_COMMENT())
+        // Assert
+        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentsEndpointTd.mVoteWeight, `is`(0))
+    }
 
     @Test
     fun upVoteAndNotify_listenersNotifiedOfProcessing() {
@@ -123,13 +147,37 @@ class CommentsViewModelTest {
     //-----------------
 
     @Test
-    fun downVoteAndNotify_correctCommentAndVoteWeightPassedToEndpoint() {
+    fun downVoteAndNotify_unvotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
         // Arrange
         // Act
         SUT.downVoteAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
         assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_DOWNVOTED_COMMENT()))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(-1))
+    }
+
+    @Test
+    fun downVoteAndNotify_upVotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
+        //Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.downVoteAndNotify(CommentMocks.GET_UPVOTED_COMMENT())
+        // Assert
+        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_DOWNVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mVoteWeight, `is`(-1))
+    }
+
+    @Test
+    fun downVoteAndNotify_downVotedCommentCorrectCommentAndVoteWeightPassedToEndpoint() {
+        //Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.downVoteAndNotify(CommentMocks.GET_DOWNVOTED_COMMENT())
+        // Assert
+        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentsEndpointTd.mVoteWeight, `is`(0))
     }
 
     @Test

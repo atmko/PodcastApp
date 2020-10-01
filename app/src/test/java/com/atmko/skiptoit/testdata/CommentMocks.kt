@@ -23,6 +23,7 @@ class CommentMocks {
         val VOTE_WEIGHT_1: Int = 1
         val VOTE_WEIGHT_NEG1: Int = -1
         val VOTE_TALLY_1: Int = 1
+        val VOTE_TALLY_NEG1: Int = -1
 
         fun GET_COMMENT_1(): Comment {
             return Comment(
@@ -95,7 +96,7 @@ class CommentMocks {
                 EPISODE_ID,
                 USERNAME,
                 BODY,
-                VOTE_TALLY_1,
+                VOTE_TALLY_NEG1,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_NEG1,
                 REPLIES ,

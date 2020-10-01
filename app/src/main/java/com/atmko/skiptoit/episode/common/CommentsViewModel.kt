@@ -34,12 +34,12 @@ open class CommentsViewModel(
         when (comment.voteWeight) {
             VOTE_WEIGHT_UP_VOTE -> {
                 comment.voteWeight = VOTE_WEIGHT_NONE
-                comment.voteTally = comment.voteTally - 1
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_NEUTRALIZE_UP_VOTE
                 deleteCommentVote(comment)
             }
             VOTE_WEIGHT_NONE -> {
                 comment.voteWeight = VOTE_WEIGHT_UP_VOTE
-                comment.voteTally = comment.voteTally + 1
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_UP_VOTE
                 voteComment(comment, VOTE_WEIGHT_UP_VOTE)
             }
             else -> {
@@ -54,12 +54,12 @@ open class CommentsViewModel(
         when (comment.voteWeight) {
             VOTE_WEIGHT_DOWN_VOTE -> {
                 comment.voteWeight = VOTE_WEIGHT_NONE
-                comment.voteTally = comment.voteTally - 1
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_NEUTRALIZE_DOWN_VOTE
                 deleteCommentVote(comment)
             }
             VOTE_WEIGHT_NONE -> {
                 comment.voteWeight = VOTE_WEIGHT_DOWN_VOTE
-                comment.voteTally = comment.voteTally + 1
+                comment.voteTally = comment.voteTally + VOTE_WEIGHT_DOWN_VOTE
                 voteComment(comment, VOTE_WEIGHT_DOWN_VOTE)
             }
             else -> {
