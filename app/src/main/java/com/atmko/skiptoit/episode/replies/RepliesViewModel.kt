@@ -16,7 +16,8 @@ class RepliesViewModel(
     private val pagedListConfig: PagedList.Config
 ) : CommentsViewModel(
     commentEndpoint,
-    commentCache
+    commentCache,
+    replyCommentBoundaryCallback
 ) {
 
     fun getReplies(parentId: String) {

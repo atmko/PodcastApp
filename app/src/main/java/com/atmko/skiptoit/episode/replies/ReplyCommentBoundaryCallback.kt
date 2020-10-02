@@ -1,123 +1,77 @@
 package com.atmko.skiptoit.episode.replies
 
-import android.util.Log
 import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.CommentPageTracker
 import com.atmko.skiptoit.model.CommentResults
-import com.atmko.skiptoit.model.SkipToItApi
-import com.atmko.skiptoit.model.database.SkipToItDatabase
-import com.atmko.skiptoit.util.AppExecutors
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.tasks.Tasks
+import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.model.database.CommentCache.CommentPageTrackerListener
 
 class ReplyCommentBoundaryCallback(
-    private val googleSignInClient: GoogleSignInClient,
-    private val skipToItApi: SkipToItApi,
-    private val skipToItDatabase: SkipToItDatabase,
-    listener: Listener
-): CommentBoundaryCallback(skipToItDatabase, listener) {
-
-    private val tag = this::class.simpleName
+    private val getRepliesEndpoint: GetRepliesEndpoint,
+    private val commentCache: CommentCache
+) : CommentBoundaryCallback() {
 
     override fun onZeroItemsLoaded() {
-        Log.d(tag,"REFRESHING")
-        listener.onPageLoading()
-        AppExecutors.getInstance().diskIO().execute {
-            requestPage(loadTypeRefresh, startPage)
-        }
+        notifyPageLoading()
+        requestPage(loadTypeRefresh, startPage)
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: Comment) {
-        Log.d(tag,"APPEND")
-        listener.onPageLoading()
-        AppExecutors.getInstance().diskIO().execute {
-            val bottomItemTracker: CommentPageTracker = getCommentPageTracker(itemAtEnd.commentId)
-            val nextPage = bottomItemTracker.nextPage
-
-            if (nextPage != null) {
-                requestPage(loadTypeAppend, nextPage)
-            } else {
-                notifyOnPageLoad(listener)
+        notifyPageLoading()
+        commentCache.getPageTrackers(itemAtEnd.commentId, object : CommentPageTrackerListener {
+            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker) {
+                val nextPage = commentPageTracker.nextPage
+                if (nextPage != null) {
+                    requestPage(loadTypeAppend, nextPage)
+                } else {
+                    notifyOnPageLoad()
+                }
             }
-        }
+
+            override fun onPageTrackerFetchFailed() {
+                notifyOnPageLoadFailed()
+            }
+        })
     }
 
     override fun onItemAtFrontLoaded(itemAtFront: Comment) {
-        Log.d(tag,"PREPEND")
-        listener.onPageLoading()
-        AppExecutors.getInstance().diskIO().execute {
-            val topItemTracker: CommentPageTracker = getCommentPageTracker(itemAtFront.commentId)
-            val prevPage = topItemTracker.prevPage
-
-            if (prevPage != null) {
-                requestPage(loadTypePrepend, prevPage)
-            } else {
-                notifyOnPageLoad(listener)
+        notifyPageLoading()
+        commentCache.getPageTrackers(itemAtFront.commentId, object : CommentPageTrackerListener {
+            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker) {
+                val prevPage = commentPageTracker.prevPage
+                if (prevPage != null) {
+                    requestPage(loadTypePrepend, prevPage)
+                } else {
+                    notifyOnPageLoad()
+                }
             }
-        }
+
+            override fun onPageTrackerFetchFailed() {
+                notifyOnPageLoadFailed()
+            }
+        })
     }
 
-    private fun requestPage(requestType: Int, loadKey: Int) {
-        val googleSignInAccount = Tasks.await(googleSignInClient.silentSignIn())
-        val commentResultCall =
-            if (googleSignInAccount != null && googleSignInAccount.idToken != null) {
-                skipToItApi.getRepliesAuthenticated(
-                    param,
-                    loadKey,
-                    googleSignInAccount.idToken!!
-                )
-            } else {
-                skipToItApi.getRepliesUnauthenticated(
-                    param,
-                    loadKey
-                )
-            }
+    private fun requestPage(loadType: Int, loadKey: Int) {
+        getRepliesEndpoint.getReplies(param, loadKey, object : GetRepliesEndpoint.Listener {
+            override fun onQuerySuccess(commentResults: CommentResults) {
+                commentCache.insertRepliesAndTrackers(
+                    commentResults, loadType, param, object : CommentCache.PageFetchListener {
+                        override fun onPageFetchSuccess() {
+                            notifyOnPageLoad()
+                        }
 
-        val response = commentResultCall.execute()
-        if (response.isSuccessful) {
-            Log.d(tag, "isSuccessful")
-            notifyOnPageLoad(listener)
-
-            val body: CommentResults = response.body()!!
-            onCommentFetchCallback(body, requestType)
-        } else {
-            Log.d(tag, "!isSuccessful")
-            notifyOnPageLoadFailed(listener)
-        }
-    }
-
-    private fun onCommentFetchCallback(
-        commentResults: CommentResults,
-        loadType: Int
-    ): CommentResults {
-        skipToItDatabase.beginTransaction()
-        try {
-            if (loadType == loadTypeRefresh) {
-                skipToItDatabase.commentDao().deleteAllReplies(param)
-            }
-
-            val comments = commentResults.comments
-            val prevPage = if (!commentResults.hasPrev) null else commentResults.page - 1
-            val nextPage = if (!commentResults.hasNext) null else commentResults.page + 1
-            val pageTrackers = mutableListOf<CommentPageTracker>()
-            for (i in comments) {
-                pageTrackers.add(
-                    CommentPageTracker(
-                        i.commentId,
-                        commentResults.page,
-                        nextPage,
-                        prevPage
-                    )
+                        override fun onPageFetchFailed() {
+                            notifyOnPageLoadFailed()
+                        }
+                    }
                 )
             }
 
-            skipToItDatabase.commentDao().insertComments(commentResults.comments)
-            skipToItDatabase.commentPageTrackerDao().insert(pageTrackers)
-            skipToItDatabase.setTransactionSuccessful()
-        } finally {
-            skipToItDatabase.endTransaction()
-        }
-        return commentResults
+            override fun onQueryFailed() {
+                notifyOnPageLoadFailed()
+            }
+        })
     }
 }

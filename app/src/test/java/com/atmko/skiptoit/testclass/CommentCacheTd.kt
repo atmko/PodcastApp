@@ -1,8 +1,10 @@
 package com.atmko.skiptoit.testclass
 
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.model.CommentResults
 import com.atmko.skiptoit.model.database.CommentCache
 import com.atmko.skiptoit.testdata.CommentMocks
+import com.atmko.skiptoit.testdata.CommentPageTrackerMocks
 
 class CommentCacheTd : CommentCache(null) {
 
@@ -45,6 +47,69 @@ class CommentCacheTd : CommentCache(null) {
 
         if (!mFailure) {
             listener.onLocalCacheUpdateSuccess()
+        }
+    }
+
+    var mComment: Comment? = null
+    override fun updateCommentPagingTracker(comment: Comment, listener: UpdatePagingDataListener) {
+        mComment = comment
+        if (!mFailure) {
+            listener.onPagingDataUpdated(comment)
+        }
+    }
+
+    override fun updateReplyPagingTracker(reply: Comment, listener: UpdatePagingDataListener) {
+        mComment = reply
+        if (!mFailure) {
+            listener.onPagingDataUpdated(reply)
+        }
+    }
+
+    var mNextPage = false
+    var mPrevPage = false
+    override fun getPageTrackers(commentId: String, listener: CommentPageTrackerListener) {
+        mCommentId = commentId
+        if (!mFailure) {
+            if (mNextPage) {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NEXT_PAGE())
+            } else if (mPrevPage) {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_PREV_PAGE())
+            } else {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NULL_NEXT_PAGE())
+            }
+        } else {
+            listener.onPageTrackerFetchFailed()
+        }
+    }
+
+    lateinit var mCommentResults: CommentResults
+    var mLoadType: Int? = null
+    var mParam: String = ""
+
+    override fun insertCommentsAndTrackers(
+        commentResults: CommentResults,
+        loadType: Int,
+        listener: PageFetchListener
+    ) {
+        mCommentResults = commentResults
+        mLoadType = loadType
+        if (!mFailure) {
+            listener.onPageFetchSuccess()
+        }
+    }
+
+    override fun insertRepliesAndTrackers(
+        commentResults: CommentResults,
+        loadType: Int,
+        param: String,
+        listener: PageFetchListener
+    ) {
+        System.out.println(loadType)
+        mCommentResults = commentResults
+        mLoadType = loadType
+        mParam = param
+        if (!mFailure) {
+            listener.onPageFetchSuccess()
         }
     }
 }

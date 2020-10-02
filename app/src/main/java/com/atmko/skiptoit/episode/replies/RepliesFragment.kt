@@ -61,6 +61,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onResume() {
         super.onResume()
         repliesViewModel.registerListener(this)
+        repliesViewModel.registerBoundaryCallbackListener(this)
     }
 
     override fun onCreateView(
@@ -89,6 +90,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onPause() {
         super.onPause()
         repliesViewModel.unregisterListener(this)
+        repliesViewModel.unregisterBoundaryCallbackListener(this)
     }
 
     private fun configureBaseBackButtonFunctionality() {

@@ -19,7 +19,7 @@ open class BaseBottomSheetDialogFragment : BottomSheetDialogFragment() {
             isInjected = true
             return getApplicationComponent()
                 .newPresentationComponent(
-                    PresentationModule(), AdapterModule(this), PagingModule(this)
+                    PresentationModule(), AdapterModule(this)
                 )
         }
 

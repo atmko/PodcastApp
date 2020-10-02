@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.search
 
 import android.content.Context
 import android.os.Bundle
@@ -19,7 +19,7 @@ import com.atmko.skiptoit.model.GENRE_NAME_KEY
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.SearchViewModel
+import com.atmko.skiptoit.view.SearchParentFragmentDirections
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
@@ -39,7 +39,8 @@ class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener
 
     companion object {
         @JvmStatic
-        fun newInstance(genreId: Int, genreName: String) = SearchFragment().apply {
+        fun newInstance(genreId: Int, genreName: String) = SearchFragment()
+            .apply {
             arguments = Bundle().apply {
                 this.putInt(GENRE_ID_KEY, genreId)
                 this.putString(GENRE_NAME_KEY, genreName)
@@ -151,7 +152,9 @@ class SearchFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener
 
     override fun onItemClick(podcast: Podcast) {
         val action =
-            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(podcast)
+            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(
+                podcast
+            )
         view?.findNavController()?.navigate(action)
     }
 

@@ -23,8 +23,7 @@ interface ApplicationComponent {
 
     fun newPresentationComponent(
         presentationModule: PresentationModule,
-        adapterModule: AdapterModule,
-        pagingModule: PagingModule
+        adapterModule: AdapterModule
     ): PresentationComponent
 
     fun newServiceComponent(serviceModule: ServiceModule): ServiceComponent

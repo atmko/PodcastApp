@@ -16,7 +16,8 @@ class ParentCommentsViewModel(
     private val pagedListConfig: PagedList.Config
 ) : CommentsViewModel(
     commentEndpoint,
-    commentCache
+    commentCache,
+    parentCommentBoundaryCallback
 ) {
 
     fun getComments(episodeId: String) {

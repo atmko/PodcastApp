@@ -4,6 +4,10 @@ import com.atmko.skiptoit.episode.EpisodeFragment
 import com.atmko.skiptoit.episode.replies.RepliesFragment
 import com.atmko.skiptoit.createcomment.CreateCommentFragment
 import com.atmko.skiptoit.createreply.CreateReplyFragment
+import com.atmko.skiptoit.details.DetailsFragment
+import com.atmko.skiptoit.search.SearchFragment
+import com.atmko.skiptoit.search.SearchParentFragment
+import com.atmko.skiptoit.subcriptions.SubscriptionsFragment
 import com.atmko.skiptoit.updatecomment.UpdateCommentFragment
 import com.atmko.skiptoit.updatecomment.UpdateReplyFragment
 import com.atmko.skiptoit.view.*

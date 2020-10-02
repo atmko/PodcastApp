@@ -2,11 +2,13 @@ package com.atmko.skiptoit.createcomment
 
 import android.util.Log
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.model.database.CommentCache.UpdatePagingDataListener
 import com.atmko.skiptoit.viewmodel.common.BaseViewModel
 
 class CreateCommentViewModel(
     private val createCommentEndpoint: CreateCommentEndpoint,
-    private val commentPageTrackerHelper: CommentPageTrackerHelper
+    private val commentCache: CommentCache
 ) : BaseViewModel<CreateCommentViewModel.Listener>() {
 
     interface Listener {
@@ -20,7 +22,7 @@ class CreateCommentViewModel(
 
         createCommentEndpoint.createComment(podcastId, episodeId, commentBody,  object : CreateCommentEndpoint.Listener {
             override fun onCreateSuccess(comment: Comment) {
-                commentPageTrackerHelper.updatePagingTracker(comment, object : CommentPageTrackerHelper.Listener {
+                commentCache.updateCommentPagingTracker(comment, object : UpdatePagingDataListener {
                     override fun onPagingDataUpdated(comment: Comment) {
                         notifyCreateCommentSuccess(comment)
                     }

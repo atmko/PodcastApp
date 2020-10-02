@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.viewmodel
 
-import com.atmko.skiptoit.createcomment.CommentPageTrackerHelper
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -28,7 +28,7 @@ class CreateCommentViewModelTest {
 
     // end region helper fields
     private lateinit var mCreateCommentEndpointTd: CreateCommentEndpointTd
-    lateinit var mCommentPageTrackerHelperTd: CommentPageTrackerHelperTd
+    private lateinit var mCommentCacheTd: CommentCacheTd
 
     @Mock
     lateinit var mListenerMock1: CreateCommentViewModel.Listener
@@ -41,8 +41,8 @@ class CreateCommentViewModelTest {
     @Before
     fun setup() {
         mCreateCommentEndpointTd = CreateCommentEndpointTd()
-        mCommentPageTrackerHelperTd = CommentPageTrackerHelperTd()
-        SUT = CreateCommentViewModel(mCreateCommentEndpointTd, mCommentPageTrackerHelperTd)
+        mCommentCacheTd = CommentCacheTd()
+        SUT = CreateCommentViewModel(mCreateCommentEndpointTd, mCommentCacheTd)
         success()
     }
 
@@ -75,7 +75,7 @@ class CreateCommentViewModelTest {
         // Act
         SUT.createCommentAndNotify(PODCAST_ID, EPISODE_ID, COMMENT_BODY)
         // Assert
-        assertThat(mCommentPageTrackerHelperTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentCacheTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
     }
 
     @Test
@@ -151,19 +151,6 @@ class CreateCommentViewModelTest {
                 listener.onCreateSuccess(CommentMocks.GET_COMMENT_1())
             } else {
                 listener.onCreateFailed()
-            }
-        }
-    }
-
-    class CommentPageTrackerHelperTd : CommentPageTrackerHelper(null, null) {
-
-        var mComment: Comment? = null
-        var mFailure = false
-
-        override fun updatePagingTracker(comment: Comment, listener: Listener) {
-            mComment = comment
-            if (!mFailure) {
-                listener.onPagingDataUpdated(comment)
             }
         }
     }

@@ -5,11 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
 import com.atmko.skiptoit.viewmodel.common.BaseViewModel
 
 open class CommentsViewModel(
     private val commentEndpoint: CommentsEndpoint,
-    private val commentCache: CommentCache
+    private val commentCache: CommentCache,
+    private val commentBoundaryCallback: CommentBoundaryCallback
 ) : BaseViewModel<CommentsViewModel.Listener>() {
 
     interface Listener {
@@ -127,6 +129,14 @@ open class CommentsViewModel(
         })
     }
 
+    fun registerBoundaryCallbackListener(listener: BaseBoundaryCallback.Listener) {
+        commentBoundaryCallback.registerListener(listener)
+    }
+
+    fun unregisterBoundaryCallbackListener(listener: BaseBoundaryCallback.Listener) {
+        commentBoundaryCallback.unregisterListener(listener)
+    }
+
     private fun unregisterListeners() {
         for (listener in listeners) {
             unregisterListener(listener)
@@ -167,4 +177,5 @@ open class CommentsViewModel(
         Log.d("CLEARING", "CLEARING")
         unregisterListeners()
     }
+
 }

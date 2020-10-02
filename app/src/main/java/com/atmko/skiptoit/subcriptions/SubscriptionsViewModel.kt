@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.subcriptions
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -69,7 +69,9 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
             account.idToken?.let {
                 loading.value = true
                 disposable.add(
-                    skipToItApi.subscribeOrUnsubscribe(podcastId, it, STATUS_UNSUBSCRIBE)
+                    skipToItApi.subscribeOrUnsubscribe(podcastId, it,
+                        STATUS_UNSUBSCRIBE
+                    )
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {

@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.subcriptions
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -18,7 +18,9 @@ import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel
+import com.atmko.skiptoit.view.IS_FIRST_SETUP_KEY
+import com.atmko.skiptoit.view.LAUNCH_FRAGMENT_KEY
+import com.atmko.skiptoit.view.SubscriptionsFragmentDirections
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 
@@ -84,7 +86,8 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     }
 
     private fun openLaunchFragment() {
-        val action = SubscriptionsFragmentDirections.actionNavigationSubscriptionsToNavigationLaunch()
+        val action =
+            SubscriptionsFragmentDirections.actionNavigationSubscriptionsToNavigationLaunch()
         view?.findNavController()?.navigate(action)
     }
 
@@ -141,8 +144,10 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     }
 
     override fun onItemClick(podcast: Podcast) {
-        val action = SubscriptionsFragmentDirections
-            .actionNavigationSubscriptionsToNavigationDetails(podcast)
+        val action =
+            SubscriptionsFragmentDirections.actionNavigationSubscriptionsToNavigationDetails(
+                podcast
+            )
         view?.findNavController()?.navigate(action)
     }
 

@@ -19,7 +19,7 @@ open class BaseActivity : AppCompatActivity() {
             isInjected = true
             return getApplicationComponent()
                 .newPresentationComponent(
-                    PresentationModule(), AdapterModule(this), PagingModule(this)
+                    PresentationModule(), AdapterModule(this)
                 )
         }
         throw RuntimeException("getPresentationComponent() called more than once")

@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.viewmodel.common
 
 import androidx.paging.PagedList
-import com.atmko.skiptoit.util.AppExecutors
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -19,7 +18,6 @@ open class BaseBoundaryCallback<Type> : PagedList.BoundaryCallback<Type>() {
             ConcurrentHashMap<Listener, Boolean>(1)
         )
 
-
     fun registerListener(listener: Listener) {
         mListeners.add(listener)
     }
@@ -28,18 +26,24 @@ open class BaseBoundaryCallback<Type> : PagedList.BoundaryCallback<Type>() {
         mListeners.remove(listener)
     }
 
-    protected fun getListeners(): Set<Listener> {
+    private fun getListeners(): Set<Listener> {
         return Collections.unmodifiableSet(mListeners)
     }
 
-    fun notifyOnPageLoad(listener: Listener) {
-        AppExecutors.getInstance().mainThread().execute {
+    protected fun notifyPageLoading() {
+        for (listener in getListeners()) {
+            listener.onPageLoading()
+        }
+    }
+
+    protected fun notifyOnPageLoad() {
+        for (listener in getListeners()) {
             listener.onPageLoad()
         }
     }
 
-    fun notifyOnPageLoadFailed(listener: Listener) {
-        AppExecutors.getInstance().mainThread().execute {
+    protected fun notifyOnPageLoadFailed() {
+        for (listener in getListeners()) {
             listener.onPageLoadFailed()
         }
     }

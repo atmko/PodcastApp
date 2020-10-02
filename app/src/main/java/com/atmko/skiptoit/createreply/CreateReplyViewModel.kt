@@ -2,11 +2,13 @@ package com.atmko.skiptoit.createreply
 
 import android.util.Log
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.model.database.CommentCache
+import com.atmko.skiptoit.model.database.CommentCache.UpdatePagingDataListener
 import com.atmko.skiptoit.viewmodel.common.BaseViewModel
 
 class CreateReplyViewModel(
     private val createReplyEndpoint: CreateReplyEndpoint,
-    private val replyPageTrackerHelper: ReplyPageTrackerHelper
+    private val commentCache: CommentCache
 ) : BaseViewModel<CreateReplyViewModel.Listener>() {
 
     interface Listener {
@@ -20,8 +22,8 @@ class CreateReplyViewModel(
 
         createReplyEndpoint.createReply(parentId, replyBody, object : CreateReplyEndpoint.Listener {
             override fun onCreateSuccess(reply: Comment) {
-                replyPageTrackerHelper.updatePagingTracker(reply, object : ReplyPageTrackerHelper.Listener {
-                    override fun onPagingDataUpdated(reply: Comment) {
+                commentCache.updateReplyPagingTracker(reply, object : UpdatePagingDataListener {
+                    override fun onPagingDataUpdated(comment: Comment) {
                         notifyCreateReplySuccess(reply)
                     }
                 })

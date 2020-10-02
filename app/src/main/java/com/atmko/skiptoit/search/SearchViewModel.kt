@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.search
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel

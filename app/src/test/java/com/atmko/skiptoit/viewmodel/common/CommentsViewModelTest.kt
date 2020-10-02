@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.viewmodel.common
 
+import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback
+import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.atmko.skiptoit.episode.common.CommentsEndpoint
 import com.atmko.skiptoit.episode.common.CommentsViewModel
 import com.atmko.skiptoit.model.Comment
@@ -25,6 +27,8 @@ class CommentsViewModelTest {
     // end region helper fields
     private lateinit var mCommentsEndpointTd: CommentsEndpointTd
     private lateinit var mCommentCacheTd: CommentCacheTd
+    @Mock
+    lateinit var commentBoundaryCallback: CommentBoundaryCallback
 
     @Mock
     lateinit var mListenerMock1: CommentsViewModel.Listener
@@ -40,7 +44,8 @@ class CommentsViewModelTest {
         mCommentCacheTd = CommentCacheTd()
         SUT = CommentsViewModel(
             mCommentsEndpointTd,
-            mCommentCacheTd
+            mCommentCacheTd,
+            commentBoundaryCallback
         )
         voteSuccess()
         deleteSuccess()

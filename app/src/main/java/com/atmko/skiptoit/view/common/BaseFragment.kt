@@ -33,8 +33,7 @@ open class BaseFragment : Fragment() {
             return getApplicationComponent()
                 .newPresentationComponent(
                     PresentationModule(),
-                    AdapterModule(this),
-                    PagingModule(this)
+                    AdapterModule(this)
                 )
         }
 

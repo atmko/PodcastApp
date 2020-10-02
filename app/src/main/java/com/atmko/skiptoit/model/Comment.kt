@@ -13,8 +13,12 @@ const val USERNAME_KEY = "username"
 const val VOTE_WEIGHT_NONE: Int = 0
 const val VOTE_WEIGHT_UP_VOTE: Int = 1
 const val VOTE_WEIGHT_DOWN_VOTE: Int = -1
+
 const val VOTE_WEIGHT_UP_VOTE_INVERT: Int = -2
 const val VOTE_WEIGHT_DOWN_VOTE_INVERT: Int = 2
+
+const val VOTE_WEIGHT_NEUTRALIZE_UP_VOTE: Int = -1
+const val VOTE_WEIGHT_NEUTRALIZE_DOWN_VOTE: Int = 1
 
 @Entity(tableName = "comments")
 class Comment(

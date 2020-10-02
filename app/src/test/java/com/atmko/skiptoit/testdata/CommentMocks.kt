@@ -7,7 +7,7 @@ class CommentMocks {
     companion object {
         val COMMENT_ID_1: String = "commentId1"
         val COMMENT_ID_2: String = "commentId2"
-        val PARENT_ID_NULL: String = "parentId"
+        val PARENT_ID_NULL: String? = null
         val PARENT_ID: String = "parentId"
         val EPISODE_ID: String = "episodeId"
         val USERNAME: String = "username"
@@ -121,5 +121,4 @@ class CommentMocks {
             )
         }
     }
-
 }

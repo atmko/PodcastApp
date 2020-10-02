@@ -25,7 +25,6 @@ import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.view.adapters.CommentsAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.EpisodeViewModel
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
 import com.atmko.skiptoit.episode.common.CommentsViewModel
 import com.atmko.skiptoit.util.loadNetworkImage
@@ -95,6 +94,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onResume() {
         super.onResume()
         parentCommentsViewModel.registerListener(this)
+        parentCommentsViewModel.registerBoundaryCallbackListener(this)
     }
 
     override fun onCreateView(
@@ -130,6 +130,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onPause() {
         super.onPause()
         parentCommentsViewModel.unregisterListener(this)
+        parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
     }
 
     override fun onStop() {

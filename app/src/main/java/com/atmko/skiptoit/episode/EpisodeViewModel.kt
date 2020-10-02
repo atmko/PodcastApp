@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.episode
 
 import android.content.SharedPreferences
 import android.util.Log

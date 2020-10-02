@@ -2,8 +2,8 @@ package com.atmko.skiptoit.viewmodel
 
 import com.atmko.skiptoit.createreply.CreateReplyEndpoint
 import com.atmko.skiptoit.createreply.CreateReplyViewModel
-import com.atmko.skiptoit.createreply.ReplyPageTrackerHelper
 import com.atmko.skiptoit.model.Comment
+import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -27,7 +27,7 @@ class CreateReplyViewModelTest {
 
     // end region helper fields
     private lateinit var mCreateReplyEndpointTd: CreateReplyEndpointTd
-    lateinit var mReplyPageTrackerHelperTd: ReplyPageTrackerHelperTd
+    private lateinit var mCommentCacheTd: CommentCacheTd
 
     @Mock
     lateinit var mListenerMock1: CreateReplyViewModel.Listener
@@ -40,8 +40,8 @@ class CreateReplyViewModelTest {
     @Before
     fun setup() {
         mCreateReplyEndpointTd = CreateReplyEndpointTd()
-        mReplyPageTrackerHelperTd = ReplyPageTrackerHelperTd()
-        SUT = CreateReplyViewModel(mCreateReplyEndpointTd, mReplyPageTrackerHelperTd)
+        mCommentCacheTd = CommentCacheTd()
+        SUT = CreateReplyViewModel(mCreateReplyEndpointTd, mCommentCacheTd)
         success()
     }
 
@@ -73,7 +73,7 @@ class CreateReplyViewModelTest {
         // Act
         SUT.createReplyAndNotify(PARENT_ID, REPLY_BODY)
         // Assert
-        assertThat(mReplyPageTrackerHelperTd.mReply, `is`(CommentMocks.GET_REPLY()))
+        assertThat(mCommentCacheTd.mComment, `is`(CommentMocks.GET_REPLY()))
     }
 
     @Test
@@ -146,19 +146,6 @@ class CreateReplyViewModelTest {
                 listener.onCreateSuccess(CommentMocks.GET_REPLY())
             } else {
                 listener.onCreateFailed()
-            }
-        }
-    }
-
-    class ReplyPageTrackerHelperTd : ReplyPageTrackerHelper(null, null) {
-
-        var mReply: Comment? = null
-        var mFailure = false
-
-        override fun updatePagingTracker(reply: Comment, listener: Listener) {
-            mReply = reply
-            if (!mFailure) {
-                listener.onPagingDataUpdated(reply)
             }
         }
     }

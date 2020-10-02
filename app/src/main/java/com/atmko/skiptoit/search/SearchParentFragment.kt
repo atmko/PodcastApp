@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.search
 
 import android.content.Context
 import android.os.Bundle
@@ -21,7 +21,8 @@ import com.atmko.skiptoit.util.toEditable
 import com.atmko.skiptoit.view.adapters.GenrePagerAdapter
 import com.atmko.skiptoit.view.adapters.PodcastAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.SearchParentViewModel
+import com.atmko.skiptoit.view.MasterActivity
+import com.atmko.skiptoit.view.SearchParentFragmentDirections
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
@@ -262,7 +263,9 @@ class SearchParentFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickLi
 
     override fun onItemClick(podcast: Podcast) {
         val action =
-            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(podcast)
+            SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(
+                podcast
+            )
         view?.findNavController()?.navigate(action)
     }
 

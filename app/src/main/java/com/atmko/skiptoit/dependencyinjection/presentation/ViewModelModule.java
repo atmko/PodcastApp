@@ -6,36 +6,35 @@ import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.SkipToItApplication;
-import com.atmko.skiptoit.episode.common.CommentsEndpoint;
-import com.atmko.skiptoit.createcomment.CommentPageTrackerHelper;
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel;
 import com.atmko.skiptoit.createreply.CreateReplyEndpoint;
-import com.atmko.skiptoit.createreply.ReplyPageTrackerHelper;
+import com.atmko.skiptoit.createreply.CreateReplyViewModel;
+import com.atmko.skiptoit.episode.GetCommentsEndpoint;
+import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
+import com.atmko.skiptoit.episode.ParentCommentsViewModel;
+import com.atmko.skiptoit.episode.common.CommentsEndpoint;
+import com.atmko.skiptoit.episode.replies.GetRepliesEndpoint;
+import com.atmko.skiptoit.episode.replies.RepliesViewModel;
+import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.CommentCache;
 import com.atmko.skiptoit.model.database.CommentDao;
-import com.atmko.skiptoit.model.database.CommentPageTrackerDao;
 import com.atmko.skiptoit.model.database.SkipToItDatabase;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
-import com.atmko.skiptoit.createreply.CreateReplyViewModel;
-import com.atmko.skiptoit.viewmodel.DetailsViewModel;
-import com.atmko.skiptoit.viewmodel.EpisodeViewModel;
+import com.atmko.skiptoit.details.DetailsViewModel;
+import com.atmko.skiptoit.episode.EpisodeViewModel;
 import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
 import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
-import com.atmko.skiptoit.episode.ParentCommentsViewModel;
-import com.atmko.skiptoit.episode.replies.RepliesViewModel;
-import com.atmko.skiptoit.viewmodel.SearchParentViewModel;
-import com.atmko.skiptoit.viewmodel.SearchViewModel;
-import com.atmko.skiptoit.viewmodel.SubscriptionsViewModel;
+import com.atmko.skiptoit.search.SearchParentViewModel;
+import com.atmko.skiptoit.search.SearchViewModel;
+import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
 import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
 import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
-import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
-import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -155,16 +154,16 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(CreateCommentViewModel.class)
     ViewModel provideCreateCommentsViewModel(CreateCommentEndpoint createCommentEndpoint,
-                                             CommentPageTrackerHelper commentPageTrackerHelper) {
-        return new CreateCommentViewModel(createCommentEndpoint, commentPageTrackerHelper);
+                                             CommentCache commentCache) {
+        return new CreateCommentViewModel(createCommentEndpoint, commentCache);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(CreateReplyViewModel.class)
     ViewModel provideCreateReplyViewModel(CreateReplyEndpoint createReplyEndpoint,
-                                          ReplyPageTrackerHelper replyPageTrackerHelper) {
-        return new CreateReplyViewModel(createReplyEndpoint, replyPageTrackerHelper);
+                                          CommentCache commentCache) {
+        return new CreateReplyViewModel(createReplyEndpoint, commentCache);
     }
 
     @Provides
@@ -191,8 +190,8 @@ public class ViewModelModule {
 
     //------------
     @Provides
-    CommentCache provideCommentCache(CommentDao commentDao) {
-        return new CommentCache(commentDao);
+    CommentCache provideCommentCache(SkipToItDatabase skipToItDatabase) {
+        return new CommentCache(skipToItDatabase);
     }
 
     @Provides
@@ -208,28 +207,26 @@ public class ViewModelModule {
     }
 
     @Provides
-    CommentPageTrackerHelper provideCommentCommentPageTrackerHelper(
-            CommentDao commentDao,
-            CommentPageTrackerDao commentPageTrackerDao) {
-        return new CommentPageTrackerHelper(commentDao, commentPageTrackerDao);
-    }
-
-    @Provides
     CreateReplyEndpoint provideCreateReplyEndpoint(SkipToItApi skipToItApi,
-                                                       GoogleSignInClient googleSignInClient) {
+                                                   GoogleSignInClient googleSignInClient) {
         return new CreateReplyEndpoint(skipToItApi, googleSignInClient);
     }
 
     @Provides
-    ReplyPageTrackerHelper provideReplyCommentPageTrackerHelper(
-            CommentDao commentDao,
-            CommentPageTrackerDao commentPageTrackerDao) {
-        return new ReplyPageTrackerHelper(commentDao, commentPageTrackerDao);
+    CommentsEndpoint provideCommentsEndpoint(SkipToItApi skipToItApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new CommentsEndpoint(skipToItApi, googleSignInClient);
     }
 
     @Provides
-    CommentsEndpoint provideCommentsEndpoint(SkipToItApi skipToItApi,
-                                                GoogleSignInClient googleSignInClient) {
-        return new CommentsEndpoint(skipToItApi, googleSignInClient);
+    GetCommentsEndpoint provideGetCommentsEndpoint(SkipToItApi skipToItApi,
+                                                   GoogleSignInClient googleSignInClient) {
+        return new GetCommentsEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    GetRepliesEndpoint provideGetRepliesEndpoint(SkipToItApi skipToItApi,
+                                                 GoogleSignInClient googleSignInClient) {
+        return new GetRepliesEndpoint(skipToItApi, googleSignInClient);
     }
 }

@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.view
+package com.atmko.skiptoit.details
 
 import android.content.Context
 import android.os.Build
@@ -23,7 +23,8 @@ import com.atmko.skiptoit.util.showFullText
 import com.atmko.skiptoit.util.showLimitedText
 import com.atmko.skiptoit.view.adapters.EpisodeAdapter
 import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.DetailsViewModel
+import com.atmko.skiptoit.view.DetailsFragmentArgs
+import com.atmko.skiptoit.view.MasterActivity
 import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
 import javax.inject.Inject
 

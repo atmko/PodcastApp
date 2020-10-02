@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.viewmodel
+package com.atmko.skiptoit.details
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +7,8 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.SkipToItDatabase
+import com.atmko.skiptoit.subcriptions.STATUS_SUBSCRIBE
+import com.atmko.skiptoit.subcriptions.STATUS_UNSUBSCRIBE
 import com.atmko.skiptoit.util.AppExecutors
 import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
