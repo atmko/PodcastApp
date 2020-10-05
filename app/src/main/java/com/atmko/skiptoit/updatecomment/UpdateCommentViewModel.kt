@@ -3,7 +3,7 @@ package com.atmko.skiptoit.updatecomment
 import android.util.Log
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.database.CommentCache
-import com.atmko.skiptoit.viewmodel.common.BaseViewModel
+import com.atmko.skiptoit.common.BaseViewModel
 
 class UpdateCommentViewModel(
     private val updateCommentEndpoint: UpdateCommentEndpoint,

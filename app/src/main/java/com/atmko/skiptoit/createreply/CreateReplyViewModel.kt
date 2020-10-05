@@ -4,7 +4,7 @@ import android.util.Log
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.database.CommentCache
 import com.atmko.skiptoit.model.database.CommentCache.UpdatePagingDataListener
-import com.atmko.skiptoit.viewmodel.common.BaseViewModel
+import com.atmko.skiptoit.common.BaseViewModel
 
 class CreateReplyViewModel(
     private val createReplyEndpoint: CreateReplyEndpoint,

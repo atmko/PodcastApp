@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.dependencyinjection.presentation
 
 import androidx.lifecycle.LifecycleOwner
-import com.atmko.skiptoit.view.adapters.CommentsAdapter
-import com.atmko.skiptoit.view.adapters.EpisodeAdapter
-import com.atmko.skiptoit.view.adapters.PodcastAdapter
+import com.atmko.skiptoit.episode.CommentsAdapter
+import com.atmko.skiptoit.details.EpisodeAdapter
+import com.atmko.skiptoit.search.searchchild.PodcastAdapter
 import dagger.Module
 import dagger.Provides
 
@@ -11,7 +11,9 @@ import dagger.Provides
 class AdapterModule(private val lifecycleOwner: LifecycleOwner) {
     @Provides
     fun providePodcastAdapter(): PodcastAdapter {
-        return PodcastAdapter(lifecycleOwner as PodcastAdapter.OnPodcastItemClickListener)
+        return PodcastAdapter(
+            lifecycleOwner as PodcastAdapter.OnPodcastItemClickListener
+        )
     }
 
     @Provides

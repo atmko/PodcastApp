@@ -10,6 +10,9 @@ import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel;
 import com.atmko.skiptoit.createreply.CreateReplyEndpoint;
 import com.atmko.skiptoit.createreply.CreateReplyViewModel;
+import com.atmko.skiptoit.details.DetailsViewModel;
+import com.atmko.skiptoit.details.PodcastDetailsEndpoint;
+import com.atmko.skiptoit.episode.EpisodeViewModel;
 import com.atmko.skiptoit.episode.GetCommentsEndpoint;
 import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.episode.ParentCommentsViewModel;
@@ -17,24 +20,28 @@ import com.atmko.skiptoit.episode.common.CommentsEndpoint;
 import com.atmko.skiptoit.episode.replies.GetRepliesEndpoint;
 import com.atmko.skiptoit.episode.replies.RepliesViewModel;
 import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
+import com.atmko.skiptoit.episodelist.EpisodeBoundaryCallback;
+import com.atmko.skiptoit.episodelist.EpisodeListViewModel;
+import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.CommentCache;
 import com.atmko.skiptoit.model.database.CommentDao;
+import com.atmko.skiptoit.model.database.EpisodeDao;
+import com.atmko.skiptoit.model.database.EpisodesCache;
 import com.atmko.skiptoit.model.database.SkipToItDatabase;
+import com.atmko.skiptoit.model.database.SubscriptionsCache;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
+import com.atmko.skiptoit.search.searchparent.SearchParentViewModel;
+import com.atmko.skiptoit.search.searchchild.SearchViewModel;
+import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint;
+import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
-import com.atmko.skiptoit.details.DetailsViewModel;
-import com.atmko.skiptoit.episode.EpisodeViewModel;
-import com.atmko.skiptoit.viewmodel.LaunchFragmentViewModel;
-import com.atmko.skiptoit.viewmodel.MasterActivityViewModel;
-import com.atmko.skiptoit.search.SearchParentViewModel;
-import com.atmko.skiptoit.search.SearchViewModel;
-import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
-import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
-import com.atmko.skiptoit.viewmodel.common.ViewModelFactory;
-import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
+import com.atmko.skiptoit.launch.LaunchFragmentViewModel;
+import com.atmko.skiptoit.MasterActivityViewModel;
+import com.atmko.skiptoit.common.PodcastDataSourceFactory;
+import com.atmko.skiptoit.common.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -93,26 +100,32 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(SubscriptionsViewModel.class)
-    ViewModel provideSubscriptionsViewModel(SkipToItApi skipToItApi,
-                                            SubscriptionsDao subscriptionsDao,
-                                            GoogleSignInClient googleSignInClient) {
-        return new SubscriptionsViewModel(skipToItApi, subscriptionsDao, googleSignInClient);
+    ViewModel provideSubscriptionsViewModel(SubscriptionsEndpoint subscriptionsEndpoint,
+                                            SubscriptionsCache subscriptionsCache,
+                                            SubscriptionsDao subscriptionsDao) {
+        return new SubscriptionsViewModel(subscriptionsEndpoint, subscriptionsCache, subscriptionsDao);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(DetailsViewModel.class)
-    ViewModel provideDetailsViewModel(SkipToItApi skipToItApi,
-                                      PodcastsApi podcastApi,
-                                      GoogleSignInClient googleSignInClient,
-                                      SkipToItDatabase skipToItDatabase,
-                                      EpisodeBoundaryCallback episodeBoundaryCallback,
-                                      @Named("episodes") PagedList.Config pagedListConfig) {
+    ViewModel provideDetailsViewModel(PodcastDetailsEndpoint podcastDetailsEndpoint,
+                                      SubscriptionsEndpoint subscriptionsEndpoint,
+                                      SubscriptionsCache subscriptionsCache) {
         return new DetailsViewModel(
-                skipToItApi,
-                podcastApi,
-                googleSignInClient,
-                skipToItDatabase,
+                podcastDetailsEndpoint,
+                subscriptionsEndpoint,
+                subscriptionsCache);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(EpisodeListViewModel.class)
+    ViewModel provideEpisodeListViewModel(EpisodeDao episodeDao,
+                                      EpisodeBoundaryCallback episodeBoundaryCallback,
+                                      @Named("episode_list") PagedList.Config pagedListConfig) {
+        return new EpisodeListViewModel(
+                episodeDao,
                 episodeBoundaryCallback,
                 pagedListConfig);
     }
@@ -228,5 +241,34 @@ public class ViewModelModule {
     GetRepliesEndpoint provideGetRepliesEndpoint(SkipToItApi skipToItApi,
                                                  GoogleSignInClient googleSignInClient) {
         return new GetRepliesEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    SubscriptionsEndpoint provideSubscriptionsEndpoint(SkipToItApi skipToItApi,
+                                                       GoogleSignInClient googleSignInClient) {
+        return new SubscriptionsEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao) {
+        return new SubscriptionsCache(subscriptionsDao);
+    }
+
+    @Provides
+    PodcastDetailsEndpoint providePodcastDetailsEndpoint(PodcastsApi podcastsApi,
+                                          GoogleSignInClient googleSignInClient) {
+        return new PodcastDetailsEndpoint(podcastsApi, googleSignInClient);
+    }
+
+    @Provides
+    GetEpisodesEndpoint providePodcastApi(PodcastsApi podcastsApi,
+                                          GoogleSignInClient googleSignInClient) {
+        return new GetEpisodesEndpoint(podcastsApi, googleSignInClient);
+    }
+
+    @Provides
+    EpisodesCache provideEpisodesCache(SkipToItDatabase skipToItDatabase,
+                                       @Named("episode_fragment") SharedPreferences sharedPreferences) {
+        return new EpisodesCache(skipToItDatabase, sharedPreferences);
     }
 }

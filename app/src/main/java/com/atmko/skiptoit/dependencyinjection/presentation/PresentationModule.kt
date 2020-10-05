@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
-import com.atmko.skiptoit.view.LAUNCH_FRAGMENT_KEY
+import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named

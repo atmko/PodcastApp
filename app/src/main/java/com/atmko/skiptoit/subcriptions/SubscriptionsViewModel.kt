@@ -1,27 +1,32 @@
 package com.atmko.skiptoit.subcriptions
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import androidx.paging.toFlowable
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.SkipToItApi
+import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.atmko.skiptoit.model.database.SubscriptionsDao
-import com.atmko.skiptoit.util.AppExecutors
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.atmko.skiptoit.common.BaseViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.DisposableSubscriber
-import retrofit2.Response
 
 const val STATUS_SUBSCRIBE = 1
 const val STATUS_UNSUBSCRIBE = 0
 
-class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
-                             private val subscriptionsDao: SubscriptionsDao,
-                             private val googleSignInClient: GoogleSignInClient) : ViewModel() {
+class SubscriptionsViewModel(
+    private val subscriptionsEndpoint: SubscriptionsEndpoint,
+    private val subscriptionsCache: SubscriptionsCache,
+    private val subscriptionsDao: SubscriptionsDao
+) : BaseViewModel<SubscriptionsViewModel.Listener>() {
+
+    interface Listener {
+        fun notifyProcessing()
+        fun onStatusUpdated()
+        fun onStatusUpdateFailed()
+    }
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
@@ -60,51 +65,55 @@ class SubscriptionsViewModel(private val skipToItApi: SkipToItApi,
         )
     }
 
-    fun unsubscribe(podcastId: String) {
-        unsubscribeFromRemoteDatabase(podcastId)
-    }
+    fun unsubscribeAndNotify(podcastId: String) {
+        notifyProcessing()
+        subscriptionsEndpoint.updateSubscription(podcastId, STATUS_UNSUBSCRIBE, object : SubscriptionsEndpoint.Listener {
+            override fun onSubscriptionStatusUpdated() {
+                subscriptionsCache.removeSubscription(
+                    podcastId,
+                    object : SubscriptionsCache.SubscriptionUpdateListener {
+                        override fun onSubscriptionUpdateSuccess() {
+                            notifyStatusUpdated()
+                        }
 
-    private fun unsubscribeFromRemoteDatabase(podcastId: String) {
-        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
-            account.idToken?.let {
-                loading.value = true
-                disposable.add(
-                    skipToItApi.subscribeOrUnsubscribe(podcastId, it,
-                        STATUS_UNSUBSCRIBE
-                    )
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
-                            override fun onSuccess(response: Response<Void>) {
-                                if (response.isSuccessful) {
-                                    unsubscribeFromLocalDatabase(podcastId)
-                                } else {
-                                    loadError.value = false
-                                    loading.value = false
-                                }
-                            }
-
-                            override fun onError(e: Throwable) {
-                                loadError.value = true
-                                loading.value = false
-                            }
-                        })
-                )
+                        override fun onSubscriptionUpdateFailed() {
+                            notifyStatusUpdateFailed()
+                        }
+                    })
             }
-        }
-    }
 
-    private fun unsubscribeFromLocalDatabase(podcastId: String) {
-        AppExecutors.getInstance().diskIO().execute(Runnable {
-            subscriptionsDao.deleteSubscription(podcastId)
-
-            AppExecutors.getInstance().mainThread().execute(Runnable {
-                getSubscriptions()
-            })
+            override fun onSubscriptionStatusUpdateFailed() {
+                notifyStatusUpdateFailed()
+            }
         })
     }
 
+    private fun unregisterListeners() {
+        for (listener in listeners) {
+            unregisterListener(listener)
+        }
+    }
+
+    private fun notifyProcessing() {
+        for (listener in listeners) {
+            listener.notifyProcessing()
+        }
+    }
+
+    private fun notifyStatusUpdated() {
+        for (listener in listeners) {
+            listener.onStatusUpdated()
+        }
+    }
+
+    private fun notifyStatusUpdateFailed() {
+        for (listener in listeners) {
+            listener.onStatusUpdateFailed()
+        }
+    }
+
     override fun onCleared() {
-        disposable.clear()
+        Log.d("CLEARING", "CLEARING")
+        unregisterListeners()
     }
 }

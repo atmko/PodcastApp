@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.SkipToItDatabase
-import com.atmko.skiptoit.util.AppExecutors
+import com.atmko.skiptoit.utils.AppExecutors
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver

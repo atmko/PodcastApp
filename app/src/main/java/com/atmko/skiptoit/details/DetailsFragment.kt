@@ -15,23 +15,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentDetailsBinding
 import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
+import com.atmko.skiptoit.episodelist.EpisodeListViewModel
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastDetails
-import com.atmko.skiptoit.util.loadNetworkImage
-import com.atmko.skiptoit.util.showFullText
-import com.atmko.skiptoit.util.showLimitedText
-import com.atmko.skiptoit.view.adapters.EpisodeAdapter
-import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.view.DetailsFragmentArgs
-import com.atmko.skiptoit.view.MasterActivity
-import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.atmko.skiptoit.MasterActivity
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.common.BaseBoundaryCallback
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.utils.loadNetworkImage
+import com.atmko.skiptoit.utils.showFullText
+import com.atmko.skiptoit.utils.showLimitedText
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
 private const val SHOW_MORE_KEY = "show_more"
 
 class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener,
-    MasterActivity.PlayerListener {
+    MasterActivity.PlayerListener, DetailsViewModel.Listener, BaseBoundaryCallback.Listener{
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
@@ -43,7 +44,8 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: DetailsViewModel
+    private lateinit var detailsViewModel: DetailsViewModel
+    private lateinit var episodeListViewModel: EpisodeListViewModel
 
     @Inject
     lateinit var episodeAdapter: EpisodeAdapter
@@ -83,11 +85,13 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
         configureViews()
         configureValues(savedInstanceState)
-        configureDetailsViewModel()
+        configureViewModel()
     }
 
     override fun onResume() {
         super.onResume()
+        detailsViewModel.registerListener(this)
+        episodeListViewModel.registerBoundaryCallbackListener(this)
         (activity as MasterActivity).registerPlaybackListener(this)
     }
 
@@ -98,6 +102,8 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onPause() {
         super.onPause()
+        detailsViewModel.unregisterListener(this)
+        episodeListViewModel.unregisterBoundaryCallbackListener(this)
         (activity as MasterActivity).unregisterPlaybackListener(this)
     }
 
@@ -130,7 +136,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            viewModel.toggleSubscription(podcast)
+            detailsViewModel.toggleSubscriptionAndNotify(podcast)
         }
     }
 
@@ -153,11 +159,14 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this, viewModelFactory)
+        detailsViewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailsViewModel::class.java)
-        viewModel.loadSubscriptionStatus(podcast.id)
-        viewModel.refresh(podcast.id)
-        viewModel.getEpisodes(podcast.id)
+        detailsViewModel.loadSubscriptionStatusAndNotify(podcast.id)
+        detailsViewModel.getDetailsAndNotify(podcast.id)
+
+        episodeListViewModel = ViewModelProvider(this, viewModelFactory)
+            .get(EpisodeListViewModel::class.java)
+        episodeListViewModel.getEpisodes(podcast.id)
 
         binding.toggleSubscriptionButton.isEnabled = false
 
@@ -166,9 +175,8 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
     }
 
-    private fun configureDetailsViewModel() {
-        observePodcastDetails()
-        observeSubscriptionStatus()
+    private fun configureViewModel() {
+        observeEpisodes()
     }
 
     private fun configureDetailExtrasSize() {
@@ -184,65 +192,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
     }
 
-    private fun observePodcastDetails() {
-        //todo consider using assertion !! instead of null check ?
-        viewModel.podcastDetails.observe(viewLifecycleOwner, Observer { podcastDetails ->
-            resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
-            this.podcastDetails = podcastDetails
-            binding.title.text = podcastDetails.title
-
-            if (showMore) {
-                binding.description.showFullText(podcastDetails.description)
-                binding.showMore.text = getString(R.string.show_less)
-            } else {
-                val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-                binding.description.showLimitedText(maxLines, podcastDetails.description)
-                binding.showMore.text = getString(R.string.show_more)
-            }
-
-            binding.podcastImageView.loadNetworkImage(podcastDetails.image)
-        })
-
-        viewModel.episodes!!.observe(viewLifecycleOwner, Observer { episodes ->
+    private fun observeEpisodes() {
+        episodeListViewModel.episodes!!.observe(viewLifecycleOwner, Observer { episodes ->
             episodeAdapter.submitList(episodes)
-        })
-
-        viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
-                    resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
-    }
-
-    private fun observeSubscriptionStatus() {
-        viewModel.isSubscribed!!.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
-            } else {
-                binding.toggleSubscriptionButton.setText(R.string.subscribe)
-            }
-        })
-
-        viewModel.processing.observe(viewLifecycleOwner, Observer { processing ->
-            processing?.let {
-                binding.toggleSubscriptionButton.isEnabled = !processing
-            }
-        })
-
-        viewModel.processError.observe(viewLifecycleOwner, Observer { processError ->
-
         })
     }
 
@@ -265,5 +217,84 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onItemClick(episode: Episode) {
         (activity as MasterActivity).loadEpisodeIntoCollapsedBottomSheet(podcast.id, episode.episodeId)
+    }
+
+    override fun notifyProcessing() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
+        binding.toggleSubscriptionButton.isEnabled = false
+    }
+
+    override fun onDetailsFetched(podcastDetails: PodcastDetails) {
+        resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
+        resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+
+        this.podcastDetails = podcastDetails
+        binding.title.text = podcastDetails.title
+
+        if (showMore) {
+            binding.description.showFullText(podcastDetails.description)
+            binding.showMore.text = getString(R.string.show_less)
+        } else {
+            val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            binding.description.showLimitedText(maxLines, podcastDetails.description)
+            binding.showMore.text = getString(R.string.show_more)
+        }
+
+        binding.podcastImageView.loadNetworkImage(podcastDetails.image)
+    }
+
+    override fun onDetailsFetchFailed() {
+        resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
+        resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(requireView(), "Failed to get details", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onStatusUpdated(isSubscribed: Boolean) {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+
+        binding.toggleSubscriptionButton.isEnabled = true
+        if (isSubscribed) {
+            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
+        } else {
+            binding.toggleSubscriptionButton.setText(R.string.subscribe)
+        }
+    }
+
+    override fun onStatusUpdateFailed() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.toggleSubscriptionButton.isEnabled = true
+        Snackbar.make(requireView(), "Failed to update subscription", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onStatusFetched(isSubscribed: Boolean) {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+
+        binding.toggleSubscriptionButton.isEnabled = true
+        if (isSubscribed) {
+            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
+        } else {
+            binding.toggleSubscriptionButton.setText(R.string.subscribe)
+        }
+    }
+
+    override fun onStatusFetchFailed() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.toggleSubscriptionButton.isEnabled = true
+        Snackbar.make(requireView(), "Failed to get subscription data", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPageLoading() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoad() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoadFailed() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

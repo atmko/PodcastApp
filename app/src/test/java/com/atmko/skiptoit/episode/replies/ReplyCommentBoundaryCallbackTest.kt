@@ -1,10 +1,9 @@
 package com.atmko.skiptoit.episode.replies
 
-import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import com.atmko.skiptoit.testdata.CommentResultsMocks
-import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -21,8 +20,8 @@ class ReplyCommentBoundaryCallbackTest {
     // region constants
     companion object {
         const val PARENT_ID = "parent_id"
-        const val LOAD_KEY_1 = 1
-        const val LOAD_KEY_2 = 2
+        const val PAGING_KEY_1 = 1
+        const val PAGING_KEY_2 = 2
     }
 
     // endregion constants
@@ -46,8 +45,8 @@ class ReplyCommentBoundaryCallbackTest {
         SUT = ReplyCommentBoundaryCallback(mGetRepliesEndpointTd, mCommentCacheTd)
 
         SUT.param = PARENT_ID
+        endpointSuccess()
         cacheSuccess()
-        endPointSuccess()
         noNextPage()
         noPrevPage()
     }
@@ -71,11 +70,11 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.onZeroItemsLoaded()
         // Assert
         assertThat(mGetRepliesEndpointTd.mParam, `is`(PARENT_ID))
-        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(LOAD_KEY_1))
+        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(PAGING_KEY_1))
     }
 
     @Test
-    fun onZeroItemsLoaded_correctCommentResultsLoadTypeAndPassedToCommentCache() {
+    fun onZeroItemsLoaded_correctCommentResultsAndLoadTypePassedToCommentCache() {
         // Arrange
         // Act
         SUT.onZeroItemsLoaded()
@@ -88,12 +87,12 @@ class ReplyCommentBoundaryCallbackTest {
             `is`(CommentResultsMocks.GET_COMMENT_RESULTS().hasPrev))
         assertThat(mCommentCacheTd.mCommentResults.page,
             `is`(CommentResultsMocks.GET_COMMENT_RESULTS().page))
-        assertThat(mCommentCacheTd.mLoadType, `is`(CommentBoundaryCallback.loadTypeRefresh))
+        assertThat(mCommentCacheTd.mLoadType, `is`(BaseBoundaryCallback.loadTypeRefresh))
         assertThat(mCommentCacheTd.mParam, `is`(PARENT_ID))
     }
 
     @Test
-    fun onZeroItemsLoaded_endPointSuccess_listenersNotifiedOfSuccess() {
+    fun onZeroItemsLoaded_endPointSuccessCacheSuccess_listenersNotifiedOfSuccess() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -105,7 +104,7 @@ class ReplyCommentBoundaryCallbackTest {
     }
 
     @Test
-    fun onZeroItemsLoaded_endPointSuccess_unsubscribedListenersNotNotified() {
+    fun onZeroItemsLoaded_endPointSuccessCacheSuccess_unsubscribedListenersNotNotified() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -118,9 +117,22 @@ class ReplyCommentBoundaryCallbackTest {
     }
 
     @Test
+    fun onZeroItemsLoaded_endPointSuccessCacheError_listenersNotifiedOfError() {
+        // Arrange
+        cacheError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.onZeroItemsLoaded()
+        // Assert
+        verify(mListenerMock1).onPageLoadFailed()
+        verify(mListenerMock2).onPageLoadFailed()
+    }
+
+    @Test
     fun onZeroItemsLoaded_endpointError_listenersNotifiedOfError() {
         // Arrange
-        endPointError()
+        endpointError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -185,7 +197,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
         // Assert
         assertThat(mGetRepliesEndpointTd.mParam, `is`(PARENT_ID))
-        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(LOAD_KEY_2))
+        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(PAGING_KEY_2))
     }
 
     @Test
@@ -205,7 +217,7 @@ class ReplyCommentBoundaryCallbackTest {
     fun onItemAtEndLoaded_cacheSuccessNextPageEndPointError_listenersNotifiedOfSuccess() {
         // Arrange
         nextPage()
-        endPointError()
+        endpointError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -284,7 +296,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
         // Assert
         assertThat(mGetRepliesEndpointTd.mParam, `is`(PARENT_ID))
-        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(LOAD_KEY_1))
+        assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(PAGING_KEY_1))
     }
 
     @Test
@@ -304,7 +316,7 @@ class ReplyCommentBoundaryCallbackTest {
     fun onItemAtFrontLoaded_cacheSuccessPrevPageEndPointError_listenersNotifiedOfSuccess() {
         // Arrange
         prevPage()
-        endPointError()
+        endpointError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -328,20 +340,20 @@ class ReplyCommentBoundaryCallbackTest {
     }
 
     // region helper methods
+    private fun endpointSuccess() {
+        // no-op because mFailure false by default
+    }
+
+    private fun endpointError() {
+        mGetRepliesEndpointTd.mFailure = true
+    }
+
     private fun cacheSuccess() {
         // no-op because mFailure false by default
     }
 
     private fun cacheError() {
         mCommentCacheTd.mFailure = true
-    }
-
-    private fun endPointSuccess() {
-        // no-op because mFailure false by default
-    }
-
-    private fun endPointError() {
-        mGetRepliesEndpointTd.mFailure = true
     }
 
     private fun noNextPage() {
@@ -365,7 +377,7 @@ class ReplyCommentBoundaryCallbackTest {
     class GetRepliesEndpointTd : GetRepliesEndpoint(null, null) {
 
         var mParam: String = ""
-        var mLoadKey: Int = 0
+        var mLoadKey: Int? = null
         var mFailure = false
 
         override fun getReplies(param: String, loadKey: Int, listener: Listener) {

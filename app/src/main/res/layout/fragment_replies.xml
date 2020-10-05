@@ -16,20 +16,12 @@
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
-    <ProgressBar
-        android:id="@+id/pageLoading"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        app:layout_constraintTop_toBottomOf="@id/parentComment"/>
-
     <include
         android:id="@+id/resultsFrameLayout"
         layout="@layout/results_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pageLoading" />
+        app:layout_constraintTop_toBottomOf="@id/parentComment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

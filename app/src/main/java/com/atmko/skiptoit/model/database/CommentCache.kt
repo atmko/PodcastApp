@@ -1,10 +1,10 @@
 package com.atmko.skiptoit.model.database
 
-import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.CommentPageTracker
 import com.atmko.skiptoit.model.CommentResults
-import com.atmko.skiptoit.util.AppExecutors
+import com.atmko.skiptoit.utils.AppExecutors
+import com.atmko.skiptoit.common.BaseBoundaryCallback.Companion.loadTypeRefresh
 
 open class CommentCache(
     private val skipToItDatabase: SkipToItDatabase?
@@ -140,7 +140,7 @@ open class CommentCache(
         AppExecutors.getInstance().diskIO().execute {
             skipToItDatabase!!.beginTransaction()
             try {
-                if (loadType == CommentBoundaryCallback.loadTypeRefresh) {
+                if (loadType == loadTypeRefresh) {
                     skipToItDatabase.commentDao().deleteAllReplies(param)
                 }
 
@@ -166,7 +166,7 @@ open class CommentCache(
         AppExecutors.getInstance().diskIO().execute {
             skipToItDatabase!!.beginTransaction()
             try {
-                if (loadType == CommentBoundaryCallback.loadTypeRefresh) {
+                if (loadType == loadTypeRefresh) {
                     skipToItDatabase.commentDao().deleteAllComments()
                 }
 

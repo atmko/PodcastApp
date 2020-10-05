@@ -1,7 +1,5 @@
 package com.atmko.skiptoit.dependencyinjection.presentation;
 
-import android.content.SharedPreferences;
-
 import androidx.paging.PagedList;
 
 import com.atmko.skiptoit.episode.GetCommentsEndpoint;
@@ -9,15 +7,16 @@ import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
 import com.atmko.skiptoit.episode.common.CommentsViewModel;
 import com.atmko.skiptoit.episode.replies.GetRepliesEndpoint;
 import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
+import com.atmko.skiptoit.episodelist.EpisodeBoundaryCallback;
+import com.atmko.skiptoit.episodelist.EpisodeListViewModel;
+import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.database.CommentCache;
-import com.atmko.skiptoit.model.database.SkipToItDatabase;
-import com.atmko.skiptoit.details.DetailsViewModel;
-import com.atmko.skiptoit.viewmodel.common.PodcastDataSourceFactory;
-import com.atmko.skiptoit.viewmodel.datasource.GenrePodcastDataSource;
-import com.atmko.skiptoit.viewmodel.datasource.PodcastDataSource;
-import com.atmko.skiptoit.viewmodel.datasource.QueryPodcastDataSource;
-import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback;
+import com.atmko.skiptoit.model.database.EpisodesCache;
+import com.atmko.skiptoit.common.PodcastDataSourceFactory;
+import com.atmko.skiptoit.search.searchparent.GenrePodcastDataSource;
+import com.atmko.skiptoit.search.common.PodcastDataSource;
+import com.atmko.skiptoit.search.searchchild.QueryPodcastDataSource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -65,10 +64,9 @@ public class PagingModule {
     }
 
     @Provides
-    EpisodeBoundaryCallback provideReplyEpisodeBoundaryCallback(PodcastsApi podcastsApi,
-                                                                SkipToItDatabase skipToItDatabase,
-                                                                @Named("episode_fragment") SharedPreferences sharedPreferences) {
-        return new EpisodeBoundaryCallback(podcastsApi, skipToItDatabase, sharedPreferences);
+    EpisodeBoundaryCallback provideReplyEpisodeBoundaryCallback(GetEpisodesEndpoint getEpisodesEndpoint,
+                                                                EpisodesCache episodesCache) {
+        return new EpisodeBoundaryCallback(getEpisodesEndpoint, episodesCache);
     }
 
     @Provides
@@ -87,11 +85,11 @@ public class PagingModule {
     @Named("episodes")
     PagedList.Config provideEpisodePagingListConfig() {
         return new PagedList.Config.Builder()
-                .setPageSize(DetailsViewModel.pageSize)
-                .setPrefetchDistance(DetailsViewModel.prefetchDistance)
-                .setEnablePlaceholders(DetailsViewModel.enablePlaceholders)
-                .setInitialLoadSizeHint(DetailsViewModel.initialLoadSize)
-                .setMaxSize(DetailsViewModel.maxSize)
+                .setPageSize(EpisodeListViewModel.pageSize)
+                .setPrefetchDistance(EpisodeListViewModel.prefetchDistance)
+                .setEnablePlaceholders(EpisodeListViewModel.enablePlaceholders)
+                .setInitialLoadSizeHint(EpisodeListViewModel.initialLoadSize)
+                .setMaxSize(EpisodeListViewModel.maxSize)
                 .build();
     }
 
@@ -104,6 +102,18 @@ public class PagingModule {
                 .setEnablePlaceholders(CommentsViewModel.enablePlaceholders)
                 .setInitialLoadSizeHint(CommentsViewModel.initialLoadSize)
                 .setMaxSize(CommentsViewModel.maxSize)
+                .build();
+    }
+
+    @Provides
+    @Named("episode_list")
+    PagedList.Config provideEpisodeListPagingListConfig() {
+        return new PagedList.Config.Builder()
+                .setPageSize(EpisodeListViewModel.pageSize)
+                .setPrefetchDistance(EpisodeListViewModel.prefetchDistance)
+                .setEnablePlaceholders(EpisodeListViewModel.enablePlaceholders)
+                .setInitialLoadSizeHint(EpisodeListViewModel.initialLoadSize)
+                .setMaxSize(EpisodeListViewModel.maxSize)
                 .build();
     }
 }

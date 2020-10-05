@@ -134,7 +134,7 @@
 
     <dialog
         android:id="@+id/bottomSheet"
-        android:name="com.atmko.skiptoit.view.ConfirmationFragment"
+        android:name="com.atmko.skiptoit.confirmation.ConfirmationFragment"
         tools:layout="@layout/fragment_confirmation">
         <argument
             android:name="message"

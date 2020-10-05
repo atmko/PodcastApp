@@ -11,10 +11,10 @@ import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.util.toEditable
-import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.view.MasterActivity
-import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.atmko.skiptoit.utils.toEditable
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.MasterActivity
+import com.atmko.skiptoit.common.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 

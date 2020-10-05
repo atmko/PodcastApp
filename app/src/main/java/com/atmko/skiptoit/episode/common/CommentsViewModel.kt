@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.CommentCache
-import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
-import com.atmko.skiptoit.viewmodel.common.BaseViewModel
+import com.atmko.skiptoit.common.BaseBoundaryCallback
+import com.atmko.skiptoit.common.BaseViewModel
 
 open class CommentsViewModel(
     private val commentEndpoint: CommentsEndpoint,

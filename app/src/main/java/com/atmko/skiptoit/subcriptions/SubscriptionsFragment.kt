@@ -16,15 +16,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.view.adapters.PodcastAdapter
-import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.view.IS_FIRST_SETUP_KEY
-import com.atmko.skiptoit.view.LAUNCH_FRAGMENT_KEY
-import com.atmko.skiptoit.view.SubscriptionsFragmentDirections
-import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.launch.IS_FIRST_SETUP_KEY
+import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
+import com.atmko.skiptoit.common.ViewModelFactory
 import javax.inject.Inject
 
-class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener {
+class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener, SubscriptionsViewModel.Listener {
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
 
@@ -152,6 +151,18 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
-        viewModel.unsubscribe(podcast.id)
+        viewModel.unsubscribeAndNotify(podcast.id)
+    }
+
+    override fun notifyProcessing() {
+
+    }
+
+    override fun onStatusUpdated() {
+
+    }
+
+    override fun onStatusUpdateFailed() {
+
     }
 }

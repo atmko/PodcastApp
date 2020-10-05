@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.episode
 
-import android.util.Log
 import com.atmko.skiptoit.episode.common.CommentBoundaryCallback
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.CommentPageTracker
@@ -12,8 +11,6 @@ class ParentCommentBoundaryCallback(
     private val getCommentsEndpoint: GetCommentsEndpoint,
     private val commentCache: CommentCache
 ) : CommentBoundaryCallback() {
-
-    private val tag = this::class.simpleName
 
     override fun onZeroItemsLoaded() {
         notifyPageLoading()

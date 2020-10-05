@@ -95,6 +95,8 @@ class CommentCacheTd : CommentCache(null) {
         mLoadType = loadType
         if (!mFailure) {
             listener.onPageFetchSuccess()
+        } else {
+            listener.onPageFetchFailed()
         }
     }
 
@@ -110,6 +112,8 @@ class CommentCacheTd : CommentCache(null) {
         mParam = param
         if (!mFailure) {
             listener.onPageFetchSuccess()
+        } else {
+            listener.onPageFetchFailed()
         }
     }
 }

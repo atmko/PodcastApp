@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_background"
     android:fillViewport="true"
-    tools:context=".view.MasterActivity">
+    tools:context=".MasterActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -235,14 +235,6 @@ sources, please visit " />
                     android:layout_marginTop="@dimen/x2_layout_margin"
                     app:layout_constraintTop_toBottomOf="@id/commentsText" />
 
-                <ProgressBar
-                    android:id="@+id/pageLoading"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    app:layout_constraintTop_toBottomOf="@id/commentsDivider"/>
-
                 <include
                     android:id="@+id/resultsFrameLayout"
                     layout="@layout/results_recycler_view"
@@ -251,7 +243,7 @@ sources, please visit " />
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/pageLoading" />
+                    app:layout_constraintTop_toBottomOf="@id/commentsDivider" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

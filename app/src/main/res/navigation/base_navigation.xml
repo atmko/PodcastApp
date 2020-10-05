@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_launch"
-        android:name="com.atmko.skiptoit.view.LaunchFragment"
+        android:name="com.atmko.skiptoit.launch.LaunchFragment"
         android:label="@string/title_launch"
         tools:layout="@layout/fragment_launch">
         <action
@@ -33,7 +33,7 @@
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="com.atmko.skiptoit.search.SearchParentFragment"
+        android:name="com.atmko.skiptoit.search.searchparent.SearchParentFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search_parent">
         <action

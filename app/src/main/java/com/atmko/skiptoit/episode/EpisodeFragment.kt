@@ -23,16 +23,15 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
-import com.atmko.skiptoit.view.adapters.CommentsAdapter
-import com.atmko.skiptoit.view.common.BaseFragment
-import com.atmko.skiptoit.viewmodel.MasterActivityViewModel
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.MasterActivityViewModel
 import com.atmko.skiptoit.episode.common.CommentsViewModel
-import com.atmko.skiptoit.util.loadNetworkImage
-import com.atmko.skiptoit.util.showFullText
-import com.atmko.skiptoit.util.showLimitedText
-import com.atmko.skiptoit.view.MasterActivity
-import com.atmko.skiptoit.viewmodel.common.BaseBoundaryCallback
-import com.atmko.skiptoit.viewmodel.common.ViewModelFactory
+import com.atmko.skiptoit.utils.loadNetworkImage
+import com.atmko.skiptoit.utils.showFullText
+import com.atmko.skiptoit.utils.showLimitedText
+import com.atmko.skiptoit.MasterActivity
+import com.atmko.skiptoit.common.BaseBoundaryCallback
+import com.atmko.skiptoit.common.ViewModelFactory
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
@@ -466,42 +465,42 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun notifyProcessing() {
-        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
         binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdate() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdateFailed() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDeleteComment() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onDeleteCommentFailed() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {
-        binding.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
         binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

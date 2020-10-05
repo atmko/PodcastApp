@@ -72,7 +72,7 @@ interface SkipToItApi {
     @POST("subscriptions/{podcast_id}")
     fun subscribeOrUnsubscribe(@Path("podcast_id") podcastId: String,
                                @Field("id_token") idToken: String,
-                               @Field("subscribe") subscribe: Int): Single<Response<Void>>
+                               @Field("subscribe") subscribe: Int): Call<Void>
 
     @GET("subscriptions/{podcast_id}")
     fun getSubscriptionStatus(@Path("podcast_id") podcastId: String,

@@ -20,7 +20,7 @@ interface PodcastsApi {
     //todo rename to getPodcastDetails
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("podcasts/{podcast_id}?next_episode_pub_date=0000000000000&sort=recent_first")
-    fun getDetails(@Path("podcast_id") podcastId: String): Single<PodcastDetails>
+    fun getDetails(@Path("podcast_id") podcastId: String): Call<PodcastDetails>
 
     //todo rename to getPodcastDetails
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")

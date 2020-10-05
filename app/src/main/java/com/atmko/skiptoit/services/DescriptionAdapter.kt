@@ -7,7 +7,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.graphics.drawable.toBitmap
 import com.atmko.skiptoit.R
-import com.atmko.skiptoit.view.MasterActivity
+import com.atmko.skiptoit.MasterActivity
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 

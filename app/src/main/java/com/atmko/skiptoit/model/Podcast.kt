@@ -31,12 +31,28 @@ class Podcast(@PrimaryKey
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is Podcast) return false
-        return id == other.id
-                && title == other.title
-                && publisher == other.publisher
-                && image == other.image
-                && description == other.description
-                && totalEpisodes == other.totalEpisodes
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Podcast
+
+        if (id != other.id) return false
+        if (title != other.title) return false
+        if (publisher != other.publisher) return false
+        if (image != other.image) return false
+        if (description != other.description) return false
+        if (totalEpisodes != other.totalEpisodes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + publisher.hashCode()
+        result = 31 * result + image.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + totalEpisodes
+        return result
     }
 }

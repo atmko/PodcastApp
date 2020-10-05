@@ -1,151 +1,168 @@
 package com.atmko.skiptoit.details
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.model.database.SkipToItDatabase
+import android.util.Log
+import com.atmko.skiptoit.model.Podcast
+import com.atmko.skiptoit.model.PodcastDetails
+import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.atmko.skiptoit.subcriptions.STATUS_SUBSCRIBE
 import com.atmko.skiptoit.subcriptions.STATUS_UNSUBSCRIBE
-import com.atmko.skiptoit.util.AppExecutors
-import com.atmko.skiptoit.viewmodel.paging.EpisodeBoundaryCallback
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
-import retrofit2.Response
+import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
+import com.atmko.skiptoit.common.BaseViewModel
 
 class DetailsViewModel(
-    private val skipToItApi: SkipToItApi,
-    private val podcastsApi: PodcastsApi,
-    private val googleSignInClient: GoogleSignInClient,
-    private val skipToItDatabase: SkipToItDatabase,
-    private val episodeBoundaryCallback: EpisodeBoundaryCallback,
-    private val pagedListConfig: PagedList.Config
-) : ViewModel() {
+    private val podcastDetailsEndpoint: PodcastDetailsEndpoint,
+    private val subscriptionsEndpoint: SubscriptionsEndpoint,
+    private val subscriptionsCache: SubscriptionsCache
+) : BaseViewModel<DetailsViewModel.Listener>() {
 
-    companion object {
-        const val pageSize = 10
-        const val enablePlaceholders = true
-        const val maxSize = 60
-        const val prefetchDistance = 5
-        const val initialLoadSize = 30
+    interface Listener {
+
+        fun notifyProcessing()
+        fun onDetailsFetched(podcastDetails: PodcastDetails)
+        fun onDetailsFetchFailed()
+        fun onStatusUpdated(isSubscribed: Boolean)
+        fun onStatusUpdateFailed()
+        fun onStatusFetched(isSubscribed: Boolean)
+        fun onStatusFetchFailed()
     }
 
-    val podcastDetails: MutableLiveData<PodcastDetails> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
+    lateinit var podcastDetails: PodcastDetails
 
-    private val disposable: CompositeDisposable = CompositeDisposable()
+    var isSubscribed: Boolean? = null
 
-    var isSubscribed: LiveData<Boolean>? = null
-    val processError: MutableLiveData<Boolean> = MutableLiveData()
-    val processing: MutableLiveData<Boolean> = MutableLiveData()
+    fun getDetailsAndNotify(podcastId: String) {
+        notifyProcessing()
 
-    init {
-        processError.value = false
-        processing.value = false
-    }
-
-    fun refresh(podcastId: String) {
-        if (podcastDetails.value != null) {
-            return
-        }
-        loading.value = true
-        disposable.add(
-            podcastsApi.getDetails(podcastId)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<PodcastDetails>() {
-                    override fun onSuccess(podcast: PodcastDetails) {
-                        podcastDetails.value = podcast
-                        loadError.value = false
-                        loading.value = false
-                    }
-
-                    override fun onError(e: Throwable) {
-                        loadError.value = true
-                        loading.value = false
-                    }
-                })
-        )
-    }
-
-    var episodes: LiveData<PagedList<Episode>>? = null
-
-    fun getEpisodes(podcastId: String) {
-        if (episodes != null
-            && episodes!!.value != null
-            && !episodes!!.value!!.isEmpty()
-        ) {
+        if (this::podcastDetails.isInitialized) {
+            notifyDetailsFetched(podcastDetails)
             return
         }
 
-        episodeBoundaryCallback.param = podcastId
-        val dataSourceFactory = skipToItDatabase.episodeDao().getAllEpisodesForPodcast(podcastId)
-        val pagedListBuilder =
-            LivePagedListBuilder<Int, Episode>(dataSourceFactory, pagedListConfig)
-        pagedListBuilder.setInitialLoadKey(1)
-        pagedListBuilder.setBoundaryCallback(episodeBoundaryCallback)
-        episodes = pagedListBuilder.build()
-    }
-
-    fun loadSubscriptionStatus(podcastId: String) {
-        isSubscribed = skipToItDatabase.subscriptionsDao().isSubscribed(podcastId)
-    }
-
-    fun toggleSubscription(podcast: Podcast) {
-        toggleRemoteSubscriptionStatus(podcast)
-    }
-
-    private fun toggleRemoteSubscriptionStatus(podcast: Podcast) {
-        val subscribeStatus = if (isSubscribed!!.value!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
-        googleSignInClient.silentSignIn().addOnSuccessListener { account ->
-            account.idToken?.let {
-                processing.value = true
-                disposable.add(
-                    skipToItApi.subscribeOrUnsubscribe(podcast.id, it, subscribeStatus)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<Response<Void>>() {
-                            override fun onSuccess(response: Response<Void>) {
-                                if (response.isSuccessful) {
-                                    toggleLocalSubscriptionStatus(podcast, subscribeStatus)
-                                } else {
-                                    processError.value = true
-                                    processing.value = false
-                                }
-                            }
-
-                            override fun onError(e: Throwable) {
-                                processError.value = true
-                                processing.value = false
-                            }
-                        })
-                )
-            }
-        }
-    }
-
-    private fun toggleLocalSubscriptionStatus(podcast: Podcast, subscribeStatus: Int) {
-        AppExecutors.getInstance().diskIO().execute(Runnable {
-            if (subscribeStatus == STATUS_SUBSCRIBE) {
-                skipToItDatabase.subscriptionsDao().createSubscription(podcast)
-            } else {
-                skipToItDatabase.subscriptionsDao().deleteSubscription(podcast.id)
+        podcastDetailsEndpoint.getPodcastDetails(podcastId, object : PodcastDetailsEndpoint.Listener {
+            override fun onPodcastDetailsFetchSuccess(fetchedPodcastDetails: PodcastDetails) {
+                podcastDetails = fetchedPodcastDetails
+                notifyDetailsFetched(fetchedPodcastDetails)
             }
 
-            AppExecutors.getInstance().mainThread().execute(Runnable {
-                processError.value = false
-                processing.value = false
-            })
+            override fun onPodcastDetailsFetchFailed() {
+                notifyDetailsFetchFailed()
+            }
         })
     }
 
+    fun loadSubscriptionStatusAndNotify(podcastId: String) {
+        notifyProcessing()
+
+        if (isSubscribed != null) {
+            notifyStatusFetched(isSubscribed!!)
+            return
+        }
+
+        subscriptionsCache.getSubscriptionStatus(podcastId, object : SubscriptionsCache.SubscriptionStatusListener {
+            override fun onGetSubscriptionStatusSuccess(subscriptionStatus: Boolean) {
+                isSubscribed = subscriptionStatus
+                notifyStatusFetched(subscriptionStatus)
+            }
+
+            override fun onGetSubscriptionStatusFailed() {
+                notifyStatusFetchFailed()
+            }
+        })
+    }
+
+    fun toggleSubscriptionAndNotify(podcast: Podcast) {
+        notifyProcessing()
+
+        if (isSubscribed == null) return
+
+        val subscribeStatus = if (isSubscribed!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
+        subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus, object : SubscriptionsEndpoint.Listener {
+            override fun onSubscriptionStatusUpdated() {
+                toggleLocalSubscriptionStatus(podcast, subscribeStatus)
+            }
+
+            override fun onSubscriptionStatusUpdateFailed() {
+                notifyStatusUpdateFailed()
+            }
+        })
+    }
+
+    private fun toggleLocalSubscriptionStatus(podcast: Podcast, subscribeStatus: Int) {
+        if (subscribeStatus == STATUS_SUBSCRIBE) {
+            subscriptionsCache.insertSubscription(podcast, object : SubscriptionsCache.SubscriptionUpdateListener {
+                override fun onSubscriptionUpdateSuccess() {
+                    isSubscribed = true
+                    notifyStatusUpdated(isSubscribed!!)
+                }
+
+                override fun onSubscriptionUpdateFailed() {
+                    notifyStatusUpdateFailed()
+                }
+            })
+        } else {
+            subscriptionsCache.removeSubscription(podcast.id, object : SubscriptionsCache.SubscriptionUpdateListener {
+                override fun onSubscriptionUpdateSuccess() {
+                    isSubscribed = false
+                    notifyStatusUpdated(isSubscribed!!)
+                }
+
+                override fun onSubscriptionUpdateFailed() {
+                    notifyStatusUpdateFailed()
+                }
+            })
+        }
+    }
+
+    private fun unregisterListeners() {
+        for (listener in listeners) {
+            unregisterListener(listener)
+        }
+    }
+
+    private fun notifyProcessing() {
+        for (listener in listeners) {
+            listener.notifyProcessing()
+        }
+    }
+
+    private fun notifyDetailsFetched(podcastDetails: PodcastDetails) {
+        for (listener in listeners) {
+            listener.onDetailsFetched(podcastDetails)
+        }
+    }
+
+    private fun notifyDetailsFetchFailed() {
+        for (listener in listeners) {
+            listener.onDetailsFetchFailed()
+        }
+    }
+
+    private fun notifyStatusUpdated(isSubscribed: Boolean) {
+        for (listener in listeners) {
+            listener.onStatusUpdated(isSubscribed)
+        }
+    }
+
+    private fun notifyStatusUpdateFailed() {
+        for (listener in listeners) {
+            listener.onStatusUpdateFailed()
+        }
+    }
+
+    private fun notifyStatusFetched(subscriptionStatus: Boolean) {
+        for (listener in listeners) {
+            listener.onStatusFetched(subscriptionStatus)
+        }
+    }
+
+    private fun notifyStatusFetchFailed() {
+        for (listener in listeners) {
+            listener.onStatusFetchFailed()
+        }
+    }
+
     override fun onCleared() {
-        disposable.clear()
+        Log.d("CLEARING", "CLEARING")
+        unregisterListeners()
     }
 }
