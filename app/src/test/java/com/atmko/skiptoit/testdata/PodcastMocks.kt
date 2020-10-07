@@ -28,10 +28,10 @@ class PodcastMocks {
 
     class PodcastDetailsMocks {
         companion object {
-            val EPISODES: List<Episode> = listOf()
+            val WITHOUT_EPISODES: List<Episode> = listOf()
             val NEXT_EPISODE_PUBLISH_DATE: Long = 0
 
-            fun GET_PODCAST_DETAILS(): PodcastDetails {
+            fun GET_PODCAST_DETAILS_WITHOUT_EPISODES(): PodcastDetails {
                 return PodcastDetails(
                     PODCAST_ID,
                     TITLE,
@@ -39,7 +39,21 @@ class PodcastMocks {
                     IMAGE,
                     DESCRIPTION,
                     TOTAL_EPISODES,
-                    EPISODES,
+                    WITHOUT_EPISODES,
+                    NEXT_EPISODE_PUBLISH_DATE
+                )
+            }
+
+            val WITH_EPISODES: List<Episode> = listOf(EpisodeMocks.GET_NEXT_EPISODE())
+            fun GET_PODCAST_DETAILS_WITH_EPISODES(): PodcastDetails {
+                return PodcastDetails(
+                    PODCAST_ID,
+                    TITLE,
+                    PUBLISHER,
+                    IMAGE,
+                    DESCRIPTION,
+                    TOTAL_EPISODES,
+                    WITH_EPISODES,
                     NEXT_EPISODE_PUBLISH_DATE
                 )
             }

@@ -1,161 +1,213 @@
 package com.atmko.skiptoit.episode
 
-import android.content.SharedPreferences
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.model.database.SkipToItDatabase
-import com.atmko.skiptoit.utils.AppExecutors
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
+import com.atmko.skiptoit.model.database.EpisodesCache
 
 class EpisodeViewModel(
-    private val podcastsApi: PodcastsApi,
-    private val skipToItDatabase: SkipToItDatabase,
-    private val prefs: SharedPreferences
-) : ViewModel() {
+    private val episodeEndpoint: EpisodeEndpoint,
+    private val episodesCache: EpisodesCache
+) : BaseViewModel<EpisodeViewModel.Listener>() {
 
-    private val tag = this::class.simpleName
+    interface Listener {
+        fun notifyProcessing()
+        fun onPodcastEpisodesCacheCleared()
+        fun onPodcastEpisodesCacheClearFailed()
+        fun onDetailsFetched(episode: Episode)
+        fun onDetailsFetchFailed()
+        fun onNextEpisodeFetched(episode: Episode)
+        fun onNextEpisodeFetchFailed()
+        fun onPreviousEpisodeFetched(episode: Episode)
+        fun onPreviousEpisodeFetchFailed()
+    }
 
-    val episodeDetails: MutableLiveData<Episode> = MutableLiveData()
+    lateinit var episodeDetails: Episode
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
-    private val disposable: CompositeDisposable = CompositeDisposable()
-
     //if new podcast, erase previously played podcast's episodes from cache
-    fun clearPodcastCache(currentPodcastId: String) {
-        val lastPlayedPodcastId = prefs.getString(PODCAST_ID_KEY, "")
-        if (lastPlayedPodcastId != null && lastPlayedPodcastId != currentPodcastId) {
-            AppExecutors.getInstance().diskIO().execute {
-                skipToItDatabase.episodeDao().deletePodcastEpisodes(lastPlayedPodcastId)
+    fun clearPodcastCacheAndNotify(currentPodcastId: String) {
+        episodesCache.deletePodcastEpisodes(currentPodcastId, object : EpisodesCache.DeletePodcastEpisodesListener {
+            override fun onDeletePodcastEpisodesSuccess() {
+                notifyPodcastEpisodesCacheCleared()
             }
-        }
-    }
 
-    fun refresh(episodeId: String) {
-        if (episodeDetails.value != null) {
-            return
-        }
-        loading.value = true
-        disposable.add(
-            podcastsApi.getEpisodeDetails(episodeId)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<Episode>() {
-                    override fun onSuccess(episode: Episode) {
-                        episodeDetails.value = episode
-                        loadError.value = false
-                        loading.value = false
-                    }
-
-                    override fun onError(e: Throwable) {
-                        loadError.value = true
-                        loading.value = false
-                    }
-                })
-        )
-    }
-
-    fun restoreEpisode() {
-        if (episodeDetails.value != null) {
-            return
-        }
-        loading.value = true
-        AppExecutors.getInstance().diskIO().execute(Runnable {
-            val podcastId = prefs.getString(PODCAST_ID_KEY, "")!!
-            val episodeId = prefs.getString(EPISODE_ID_KEY, "")
-            val title = prefs.getString(EPISODE_TITLE_KEY, "")
-            val description = prefs.getString(EPISODE_DESCRIPTION_KEY, "")
-            val image = prefs.getString(EPISODE_IMAGE_KEY, "")
-            val audio = prefs.getString(EPISODE_AUDIO_KEY, "")
-            val publishDate = prefs.getLong(EPISODE_PUBLISH_DATE_KEY, 0)
-            val lengthInSeconds = prefs.getInt(EPISODE_LENGTH_IN_SECONDS_KEY, 0)
-
-            val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
-
-            val podcast =
-                Podcast(podcastId, podcastTitle, "", "", "", 0)
-
-            val episode =
-                Episode(
-                    episodeId!!,
-                    title,
-                    description,
-                    image,
-                    audio,
-                    publishDate,
-                    lengthInSeconds,
-                    podcast
-                )
-
-            episode.podcastId = podcast.id
-
-            AppExecutors.getInstance().mainThread().execute {
-                episodeDetails.value = episode
-                loadError.value = false
-                loading.value = false
+            override fun onDeletePodcastEpisodesFailed() {
+                notifyPodcastEpisodesCacheClearFailed()
             }
         })
     }
 
-    var nextEpisode: LiveData<Episode?>? = null
-    var prevEpisode: LiveData<Episode?>? = null
+    fun getDetailsAndNotify(episodeId: String) {
+        notifyProcessing()
 
-    fun fetchNextEpisode(podcastId: String, episode: Episode) {
-        if (nextEpisode != null && nextEpisode!!.value != null) {
+        if (this::episodeDetails.isInitialized) {
+            notifyDetailsFetched(episodeDetails)
             return
         }
-        nextEpisode =
-            skipToItDatabase.episodeDao().getNextEpisode(episode.episodeId, episode.publishDate)
-        if (nextEpisode!!.value == null) {
-            AppExecutors.getInstance().diskIO().execute {
-                fetchNextEpisodesFromRemote(podcastId, episode.publishDate)
+
+        episodeEndpoint.getEpisodeDetails(episodeId, object : EpisodeEndpoint.EpisodeDetailsListener {
+            override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
+                episodeDetails = episode
+                notifyDetailsFetched(episodeDetails)
             }
-        }
+
+            override fun onEpisodeDetailsFetchFailed() {
+                notifyDetailsFetchFailed()
+            }
+        })
     }
 
-    fun fetchPrevEpisode(episode: Episode) {
-        if (prevEpisode != null && prevEpisode!!.value != null) {
+    fun restoreEpisodeAndNotify() {
+        notifyProcessing()
+
+        if (this::episodeDetails.isInitialized) {
+            notifyDetailsFetched(episodeDetails)
             return
         }
-        prevEpisode =
-            skipToItDatabase.episodeDao().getPrevEpisode(episode.episodeId, episode.publishDate)
+
+        episodesCache.restoreEpisode(object : EpisodesCache.RestoreEpisodeListener {
+            override fun onEpisodeRestoreSuccess(episode: Episode) {
+                episodeDetails = episode
+                notifyDetailsFetched(episodeDetails)
+            }
+
+            override fun onEpisodeRestoreFailed() {
+                notifyDetailsFetchFailed()
+            }
+        })
     }
 
-    private fun fetchNextEpisodesFromRemote(podcastId: String, episodePublishDate: Long) {
-        val episodeResultCall = podcastsApi.getEpisodes(podcastId, episodePublishDate)
+    var nextEpisode: Episode? = null
+    var prevEpisode: Episode? = null
 
-        val response = episodeResultCall.execute()
-        if (response.isSuccessful) {
-            Log.d(tag, "isSuccessful")
-            val body: PodcastDetails = response.body()!!
-            onEpisodeFetchCallback(body)
-        } else {
-            Log.d(tag, "!isSuccessful")
+    fun fetchNextEpisodeAndNotify(podcastId: String, episode: Episode) {
+        if (nextEpisode != null) {
+            return
+        }
+        episodesCache.getNextEpisode(episode.episodeId, episode.publishDate, object : EpisodesCache.NextEpisodeListener {
+            override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
+                nextEpisode = cachedNextEpisode
+                if (nextEpisode != null) {
+                    notifyNextEpisodeFetched(nextEpisode!!)
+                } else {
+                    fetchNextEpisodesFromRemoteAndNotify(podcastId, episode.publishDate)
+                }
+            }
+
+            override fun onNextEpisodeFetchFailed() {
+                notifyNextEpisodeFetchFailed()
+            }
+        })
+    }
+
+    fun fetchPrevEpisodeAndNotify(episode: Episode) {
+        if (prevEpisode != null) {
+            return
+        }
+        episodesCache.getPreviousEpisode(episode.episodeId, episode.publishDate, object : EpisodesCache.PreviousEpisodeListener {
+            override fun onPreviousEpisodeFetchSuccess(cachedPreviousEpisode: Episode?) {
+                prevEpisode = cachedPreviousEpisode
+                if (prevEpisode != null) {
+                    notifyPreviousEpisodeFetched(prevEpisode!!)
+                }
+            }
+
+            override fun onPreviousEpisodeFetchFailed() {
+                notifyPreviousEpisodeFetchFailed()
+            }
+        })
+    }
+
+    private fun fetchNextEpisodesFromRemoteAndNotify(podcastId: String, episodePublishDate: Long) {
+        episodeEndpoint.fetchNextEpisodes(podcastId, episodePublishDate, object : EpisodeEndpoint.BatchNextEpisodeListener {
+            override fun onBatchNextEpisodesFetchSuccess(podcastDetails: PodcastDetails) {
+                if (podcastDetails.episodes.isNotEmpty()) {
+                    episodesCache.insertEpisodesAndReturnNextEpisode(podcastDetails, object : EpisodesCache.NextEpisodeListener {
+                        override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
+                            nextEpisode = cachedNextEpisode
+                            if (nextEpisode != null) {
+                                notifyNextEpisodeFetched(nextEpisode!!)
+                            }
+                        }
+
+                        override fun onNextEpisodeFetchFailed() {
+                            notifyNextEpisodeFetchFailed()
+                        }
+                    })
+                }
+            }
+
+            override fun onBatchNextEpisodesFetchFailed() {
+                notifyNextEpisodeFetchFailed()
+            }
+        })
+    }
+
+    private fun unregisterListeners() {
+        for (listener in listeners) {
+            unregisterListener(listener)
         }
     }
 
-    private fun onEpisodeFetchCallback(
-        podcastDetails: PodcastDetails
-    ) {
-        skipToItDatabase.beginTransaction()
-        try {
-            val episodes = podcastDetails.episodes
-            for (i in episodes) {
-                i.podcastId = podcastDetails.id
-            }
+    private fun notifyProcessing() {
+        for (listener in listeners) {
+            listener.notifyProcessing()
+        }
+    }
 
-        } finally {
-            skipToItDatabase.endTransaction()
+    private fun notifyPodcastEpisodesCacheCleared() {
+        for (listener in listeners) {
+            listener.onPodcastEpisodesCacheCleared()
+        }
+    }
+
+    private fun notifyPodcastEpisodesCacheClearFailed() {
+        for (listener in listeners) {
+            listener.onPodcastEpisodesCacheClearFailed()
+        }
+    }
+
+    private fun notifyDetailsFetched(episodeDetails: Episode) {
+        for (listener in listeners) {
+            listener.onDetailsFetched(episodeDetails)
+        }
+    }
+
+    private fun notifyDetailsFetchFailed() {
+        for (listener in listeners) {
+            listener.onDetailsFetchFailed()
+        }
+    }
+
+    private fun notifyNextEpisodeFetched(episode: Episode) {
+        for (listener in listeners) {
+            listener.onNextEpisodeFetched(episode)
+        }
+    }
+
+    private fun notifyNextEpisodeFetchFailed() {
+        for (listener in listeners) {
+            listener.onNextEpisodeFetchFailed()
+        }
+    }
+
+    private fun notifyPreviousEpisodeFetched(episode: Episode) {
+        for (listener in listeners) {
+            listener.onPreviousEpisodeFetched(episode)
+        }
+    }
+
+    private fun notifyPreviousEpisodeFetchFailed() {
+        for (listener in listeners) {
+            listener.onPreviousEpisodeFetchFailed()
         }
     }
 
     override fun onCleared() {
-        disposable.clear()
+        Log.d("CLEARING", "CLEARING")
+        unregisterListeners()
     }
 }

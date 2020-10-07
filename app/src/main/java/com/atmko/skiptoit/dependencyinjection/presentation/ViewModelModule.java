@@ -12,6 +12,7 @@ import com.atmko.skiptoit.createreply.CreateReplyEndpoint;
 import com.atmko.skiptoit.createreply.CreateReplyViewModel;
 import com.atmko.skiptoit.details.DetailsViewModel;
 import com.atmko.skiptoit.details.PodcastDetailsEndpoint;
+import com.atmko.skiptoit.episode.EpisodeEndpoint;
 import com.atmko.skiptoit.episode.EpisodeViewModel;
 import com.atmko.skiptoit.episode.GetCommentsEndpoint;
 import com.atmko.skiptoit.episode.ParentCommentBoundaryCallback;
@@ -133,10 +134,9 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
-    ViewModel provideEpisodeViewModel(PodcastsApi podcastApi,
-                                      SkipToItDatabase skipToItDatabase,
-                                      @Named("episode_fragment") SharedPreferences sharedPreferences) {
-        return new EpisodeViewModel(podcastApi, skipToItDatabase, sharedPreferences);
+    ViewModel provideEpisodeViewModel(EpisodeEndpoint episodeEndpoint,
+                                      EpisodesCache episodesCache) {
+        return new EpisodeViewModel(episodeEndpoint, episodesCache);
     }
 
     @Provides
@@ -264,6 +264,11 @@ public class ViewModelModule {
     GetEpisodesEndpoint providePodcastApi(PodcastsApi podcastsApi,
                                           GoogleSignInClient googleSignInClient) {
         return new GetEpisodesEndpoint(podcastsApi, googleSignInClient);
+    }
+
+    @Provides
+    EpisodeEndpoint provideEpisodeEndpoint(PodcastsApi podcastsApi) {
+        return new EpisodeEndpoint(podcastsApi);
     }
 
     @Provides

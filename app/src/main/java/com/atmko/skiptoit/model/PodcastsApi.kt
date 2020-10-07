@@ -32,7 +32,7 @@ interface PodcastsApi {
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("episodes/{episode_id}")
-    fun getEpisodeDetails(@Path("episode_id") episodeId: String): Single<Episode>
+    fun getEpisodeDetails(@Path("episode_id") episodeId: String): Call<Episode>
 
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @FormUrlEncoded

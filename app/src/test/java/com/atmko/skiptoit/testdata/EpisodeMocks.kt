@@ -10,7 +10,7 @@ class EpisodeMocks {
         val DESCRIPTION: String = "description"
         val IMAGE: String = "image"
         val AUDIO: String = "audio"
-        val PUBLISH_DATE: Long = 0
+        val PUBLISH_DATE_1: Long = 1
         val LENTH_IN_SECONDS: Int = 3600
 
         fun GET_EPISODE(): Episode {
@@ -20,7 +20,35 @@ class EpisodeMocks {
                 DESCRIPTION,
                 IMAGE,
                 AUDIO,
-                PUBLISH_DATE,
+                PUBLISH_DATE_1,
+                LENTH_IN_SECONDS
+            )
+        }
+
+        val NEXT_EPISODE_ID: String = "nextEpisodeId"
+        val PUBLISH_DATE_2: Long = 2
+        fun GET_NEXT_EPISODE(): Episode {
+            return Episode(
+                NEXT_EPISODE_ID,
+                TITLE,
+                DESCRIPTION,
+                IMAGE,
+                AUDIO,
+                PUBLISH_DATE_2,
+                LENTH_IN_SECONDS
+            )
+        }
+
+        val PREV_EPISODE_ID: String = "prevEpisodeId"
+        val PUBLISH_DATE_0: Long = 0
+        fun GET_PREV_EPISODE(): Episode {
+            return Episode(
+                PREV_EPISODE_ID,
+                TITLE,
+                DESCRIPTION,
+                IMAGE,
+                AUDIO,
+                PUBLISH_DATE_0,
                 LENTH_IN_SECONDS
             )
         }

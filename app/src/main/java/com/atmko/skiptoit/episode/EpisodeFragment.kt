@@ -44,6 +44,7 @@ const val SCRUBBER_HIDE_LENGTH: Long = 2000
 private const val SHOW_MORE_KEY = "show_more"
 
 class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener,
+    EpisodeViewModel.Listener,
     CommentsViewModel.Listener, BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentEpisodeBinding? = null
@@ -92,6 +93,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onResume() {
         super.onResume()
+        episodeViewModel.registerListener(this)
         parentCommentsViewModel.registerListener(this)
         parentCommentsViewModel.registerBoundaryCallbackListener(this)
     }
@@ -110,7 +112,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         if (podcastId != "" && episodeId != "") {
             configureViews()
             configureValues(savedInstanceState)
-            configureEpisodeViewModel()
             configureMasterActivityViewModel()
             configureCommentsViewModel()
         }
@@ -128,6 +129,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onPause() {
         super.onPause()
+        episodeViewModel.unregisterListener(this)
         parentCommentsViewModel.unregisterListener(this)
         parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
     }
@@ -291,13 +293,7 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             viewModelFactory
         ).get(EpisodeViewModel::class.java)
 
-        episodeViewModel.clearPodcastCache(podcastId)
-
-        if (isRestoringEpisode) {
-            episodeViewModel.restoreEpisode()
-        } else {
-            episodeViewModel.refresh(episodeId)
-        }
+        episodeViewModel.clearPodcastCacheAndNotify(podcastId)
 
         parentCommentsViewModel = ViewModelProvider(
             this,
@@ -318,95 +314,63 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
-    private fun configureEpisodeViewModel() {
-        episodeViewModel.episodeDetails.observe(viewLifecycleOwner, Observer { episodeDetails ->
-            this.episodeDetails = episodeDetails
-            episodeDetails?.let { details ->
+    private fun setupEpisodeDetailsViewData() {
+        episodeDetails?.let { details ->
+            //set expanded values
+            details.image?.let { binding.expandedPodcastImageView.loadNetworkImage(it) }
+            binding.expandedTitle.text = details.podcast?.title
+            binding.expandedEpisodeTitle.text = details.title
+            binding.title.text = details.title
 
-                observeNextAndPrevEpisodes()
+            if (showMore) {
+                binding.description.showFullText(details.description)
+                binding.showMore.text = getString(R.string.show_less)
+            } else {
+                val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+                binding.description.showLimitedText(maxLines, details.description)
+                binding.showMore.text = getString(R.string.show_more)
+            }
 
-                //set expanded values
-                details.image?.let { binding.expandedPodcastImageView.loadNetworkImage(it) }
-                binding.expandedTitle.text = details.podcast?.title
-                binding.expandedEpisodeTitle.text = details.title
-                binding.title.text = details.title
+            //set collapsed values
+            activity?.let {
+                (activity as MasterActivity)
+                    .setCollapsedSheetValues(
+                        details.image,
+                        details.podcast?.title,
+                        details.title
+                    )
+            }
 
-                if (showMore) {
-                    binding.description.showFullText(details.description)
-                    binding.showMore.text = getString(R.string.show_less)
-                } else {
-                    val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-                    binding.description.showLimitedText(maxLines, details.description)
-                    binding.showMore.text = getString(R.string.show_more)
-                }
+            context?.let {
+                mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
 
-                //set collapsed values
-                activity?.let {
-                    (activity as MasterActivity)
-                        .setCollapsedSheetValues(
-                            details.image,
-                            details.podcast?.title,
-                            details.title
-                        )
-                }
-
-                context?.let {
-                    mPlaybackService?.prepareMediaForPlayback(Uri.parse(episodeDetails.audio))
-
-                    if (!isRestoringEpisode) {
-                        mPlaybackService?.play()
-                        val sharedPrefs = activity?.getSharedPreferences(
-                            EPISODE_FRAGMENT_KEY,
-                            Context.MODE_PRIVATE
-                        )
-                        sharedPrefs?.let {
-                            sharedPrefs.edit()
-                                .putString(PODCAST_ID_KEY, details.podcast?.id)
-                                .putString(EPISODE_ID_KEY, details.episodeId)
-                                .putString(EPISODE_TITLE_KEY, details.title)
-                                .putString(EPISODE_DESCRIPTION_KEY, details.description)
-                                .putString(EPISODE_IMAGE_KEY, details.image)
-                                .putString(EPISODE_AUDIO_KEY, details.audio)
-                                .putLong(EPISODE_PUBLISH_DATE_KEY, details.publishDate)
-                                .putInt(EPISODE_LENGTH_IN_SECONDS_KEY, details.lengthInSeconds)
-                                .putString(PODCAST_TITLE_KEY, details.podcast?.title)
-                                .commit()
-                        }
+                if (!isRestoringEpisode) {
+                    mPlaybackService?.play()
+                    val sharedPrefs = activity?.getSharedPreferences(
+                        EPISODE_FRAGMENT_KEY,
+                        Context.MODE_PRIVATE
+                    )
+                    sharedPrefs?.let {
+                        sharedPrefs.edit()
+                            .putString(PODCAST_ID_KEY, details.podcast?.id)
+                            .putString(EPISODE_ID_KEY, details.episodeId)
+                            .putString(EPISODE_TITLE_KEY, details.title)
+                            .putString(EPISODE_DESCRIPTION_KEY, details.description)
+                            .putString(EPISODE_IMAGE_KEY, details.image)
+                            .putString(EPISODE_AUDIO_KEY, details.audio)
+                            .putLong(EPISODE_PUBLISH_DATE_KEY, details.publishDate)
+                            .putInt(EPISODE_LENGTH_IN_SECONDS_KEY, details.lengthInSeconds)
+                            .putString(PODCAST_TITLE_KEY, details.podcast?.title)
+                            .commit()
                     }
                 }
             }
-        })
-
-        episodeViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        episodeViewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
+        }
     }
 
     private fun observeNextAndPrevEpisodes() {
-        episodeViewModel.fetchNextEpisode(podcastId, episodeDetails!!)
-        episodeViewModel.nextEpisode!!.observe(viewLifecycleOwner, Observer {
-            nextEpisodeDetails = it
-            binding.nextEpisodeButton.isEnabled = it != null
-        })
-
-        episodeViewModel.fetchPrevEpisode(episodeDetails!!)
-        episodeViewModel.prevEpisode!!.observe(viewLifecycleOwner, Observer {
-            prevEpisodeDetails = it
-            binding.previousEpisodeButton.isEnabled = it != null
-        })
+        episodeViewModel.fetchNextEpisodeAndNotify(podcastId, episodeDetails!!)
+        episodeViewModel.fetchPrevEpisodeAndNotify(episodeDetails!!)
     }
 
     private fun configureCommentsViewModel() {
@@ -462,6 +426,50 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
+    }
+
+    override fun onPodcastEpisodesCacheCleared() {
+        if (isRestoringEpisode) {
+            episodeViewModel.restoreEpisodeAndNotify()
+        } else {
+            episodeViewModel.getDetailsAndNotify(episodeId)
+        }
+    }
+
+    override fun onPodcastEpisodesCacheClearFailed() {
+        Snackbar.make(requireView(), "Failed to clear podcast's episodes", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onDetailsFetched(episode: Episode) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        episodeDetails = episode
+        observeNextAndPrevEpisodes()
+        setupEpisodeDetailsViewData()
+    }
+
+    override fun onDetailsFetchFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(requireView(), "Failed to load details", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onNextEpisodeFetched(episode: Episode) {
+        nextEpisodeDetails = episode
+        binding.nextEpisodeButton.isEnabled = true
+    }
+
+    override fun onNextEpisodeFetchFailed() {
+        Snackbar.make(requireView(), "Failed to load next episode", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPreviousEpisodeFetched(episode: Episode) {
+        prevEpisodeDetails = episode
+        binding.previousEpisodeButton.isEnabled = true
+    }
+
+    override fun onPreviousEpisodeFetchFailed() {
+        Snackbar.make(requireView(), "Failed to load previous episode", Snackbar.LENGTH_LONG).show()
     }
 
     override fun notifyProcessing() {

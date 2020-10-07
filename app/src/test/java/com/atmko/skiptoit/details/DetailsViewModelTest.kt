@@ -87,7 +87,7 @@ class DetailsViewModelTest {
         SUT.getDetailsAndNotify(PODCAST_ID)
         // Assert
         assertThat(mPodcastDetailsEndpointTd.mGetPodcastDetailsCounter, `is`(1))
-        assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS()))
+        assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
     }
 
     @Test
@@ -101,8 +101,8 @@ class DetailsViewModelTest {
         verify(mListenerMock1).onDetailsFetched(mArgCaptorPodcastDetails.kotlinCapture())
         verify(mListenerMock2).onDetailsFetched(mArgCaptorPodcastDetails.kotlinCapture())
         val captures: List<PodcastDetails> = mArgCaptorPodcastDetails.allValues
-        assertThat(captures[0], `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS()))
-        assertThat(captures[1], `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS()))
+        assertThat(captures[0], `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
+        assertThat(captures[1], `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
     }
 
     @Test
@@ -113,7 +113,7 @@ class DetailsViewModelTest {
         SUT.getDetailsAndNotify(PODCAST_ID)
         // Assert
         assertThat(mPodcastDetailsEndpointTd.mGetPodcastDetailsCounter, `is`(1))
-        assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS()))
+        assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
     }
 
     @Test
@@ -483,7 +483,7 @@ class DetailsViewModelTest {
             mGetPodcastDetailsCounter += 1
             mPodcastId = podcastId
             if (!mFailure) {
-                listener.onPodcastDetailsFetchSuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS())
+                listener.onPodcastDetailsFetchSuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES())
             } else {
                 listener.onPodcastDetailsFetchFailed()
             }

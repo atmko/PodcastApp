@@ -76,7 +76,7 @@ class EpisodeBoundaryCallbackTest {
         // Act
         SUT.onZeroItemsLoaded()
         // Assert
-        assertThat(mEpisodesCacheTd.mPodcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS()))
+        assertThat(mEpisodesCacheTd.mPodcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
         assertThat(mEpisodesCacheTd.mLoadType, `is`(BaseBoundaryCallback.loadTypeRefresh))
         assertThat(mEpisodesCacheTd.mParam, `is`(PODCAST_ID))
     }
@@ -214,7 +214,6 @@ class EpisodeBoundaryCallbackTest {
     private fun cacheError() {
         mEpisodesCacheTd.mFailure = true
     }
-
     // endregion helper methods
 
     // region helper classes
@@ -228,7 +227,7 @@ class EpisodeBoundaryCallbackTest {
             mParam = param
             mLoadKey = loadKey
             if (!mFailure) {
-                listener.onEpisodesQuerySuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS())
+                listener.onEpisodesQuerySuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES())
             } else {
                 listener.onEpisodesQueryFailed()
             }

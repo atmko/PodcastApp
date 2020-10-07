@@ -106,7 +106,6 @@ class CommentCacheTd : CommentCache(null) {
         param: String,
         listener: PageFetchListener
     ) {
-        System.out.println(loadType)
         mCommentResults = commentResults
         mLoadType = loadType
         mParam = param

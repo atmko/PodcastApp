@@ -37,7 +37,7 @@ class EpisodeBoundaryCallback(
     private fun requestPage(loadType: Int, loadKey: Long?) {
         getEpisodesEndpoint.getEpisodes(param, loadKey, object : GetEpisodesEndpoint.Listener {
             override fun onEpisodesQuerySuccess(podcastDetails: PodcastDetails) {
-                episodesCache.insertEpisodes(
+                episodesCache.insertEpisodesForPaging(
                     podcastDetails, loadType, param, object : EpisodesCache.PageFetchListener {
                         override fun onPageFetchSuccess() {
                             notifyOnPageLoad()
