@@ -76,20 +76,22 @@ class DetailsViewModel(
         if (isSubscribed == null) return
 
         val subscribeStatus = if (isSubscribed!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
-        subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus, object : SubscriptionsEndpoint.Listener {
-            override fun onSubscriptionStatusUpdated() {
-                toggleLocalSubscriptionStatus(podcast, subscribeStatus)
-            }
+        subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus,
+            object : SubscriptionsEndpoint.UpdateSubscriptionListener {
+                override fun onSubscriptionStatusUpdated() {
+                    toggleLocalSubscriptionStatus(podcast, subscribeStatus)
+                }
 
-            override fun onSubscriptionStatusUpdateFailed() {
-                notifyStatusUpdateFailed()
+                override fun onSubscriptionStatusUpdateFailed() {
+                    notifyStatusUpdateFailed()
+                }
             }
-        })
+        )
     }
 
     private fun toggleLocalSubscriptionStatus(podcast: Podcast, subscribeStatus: Int) {
         if (subscribeStatus == STATUS_SUBSCRIBE) {
-            subscriptionsCache.insertSubscription(podcast, object : SubscriptionsCache.SubscriptionUpdateListener {
+            subscriptionsCache.insertSubscription(listOf(podcast), object : SubscriptionsCache.SubscriptionUpdateListener {
                 override fun onSubscriptionUpdateSuccess() {
                     isSubscribed = true
                     notifyStatusUpdated(isSubscribed!!)

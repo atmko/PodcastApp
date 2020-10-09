@@ -67,7 +67,7 @@ class SubscriptionsViewModel(
 
     fun unsubscribeAndNotify(podcastId: String) {
         notifyProcessing()
-        subscriptionsEndpoint.updateSubscription(podcastId, STATUS_UNSUBSCRIBE, object : SubscriptionsEndpoint.Listener {
+        subscriptionsEndpoint.updateSubscription(podcastId, STATUS_UNSUBSCRIBE, object : SubscriptionsEndpoint.UpdateSubscriptionListener {
             override fun onSubscriptionStatusUpdated() {
                 subscriptionsCache.removeSubscription(
                     podcastId,

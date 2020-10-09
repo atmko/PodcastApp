@@ -10,7 +10,7 @@ import com.atmko.skiptoit.model.Podcast
 @Dao
 interface SubscriptionsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun createSubscription(podcast: Podcast)
+    fun createSubscription(podcasts: List<Podcast>)
 
     @Query("SELECT EXISTS (SELECT 1 FROM subscriptions WHERE id = :podcastId)")
     fun isSubscribed(podcastId: String): Boolean

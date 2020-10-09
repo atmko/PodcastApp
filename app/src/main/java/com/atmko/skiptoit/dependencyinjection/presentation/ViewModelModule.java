@@ -5,7 +5,13 @@ import android.content.SharedPreferences;
 import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
-import com.atmko.skiptoit.SkipToItApplication;
+import com.atmko.skiptoit.LoginManager;
+import com.atmko.skiptoit.MasterActivityViewModel;
+import com.atmko.skiptoit.PodcastsEndpoint;
+import com.atmko.skiptoit.UserEndpoint;
+import com.atmko.skiptoit.common.PodcastDataSourceFactory;
+import com.atmko.skiptoit.common.ViewModelFactory;
+import com.atmko.skiptoit.confirmation.ConfirmationViewModel;
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
 import com.atmko.skiptoit.createcomment.CreateCommentViewModel;
 import com.atmko.skiptoit.createreply.CreateReplyEndpoint;
@@ -24,6 +30,7 @@ import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.episodelist.EpisodeBoundaryCallback;
 import com.atmko.skiptoit.episodelist.EpisodeListViewModel;
 import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint;
+import com.atmko.skiptoit.launch.LaunchFragmentViewModel;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.CommentCache;
@@ -33,16 +40,12 @@ import com.atmko.skiptoit.model.database.EpisodesCache;
 import com.atmko.skiptoit.model.database.SkipToItDatabase;
 import com.atmko.skiptoit.model.database.SubscriptionsCache;
 import com.atmko.skiptoit.model.database.SubscriptionsDao;
-import com.atmko.skiptoit.search.searchparent.SearchParentViewModel;
 import com.atmko.skiptoit.search.searchchild.SearchViewModel;
+import com.atmko.skiptoit.search.searchparent.SearchParentViewModel;
 import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint;
 import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
-import com.atmko.skiptoit.launch.LaunchFragmentViewModel;
-import com.atmko.skiptoit.MasterActivityViewModel;
-import com.atmko.skiptoit.common.PodcastDataSourceFactory;
-import com.atmko.skiptoit.common.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -78,24 +81,23 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(LaunchFragmentViewModel.class)
-    ViewModel provideLaunchFragmentViewModel(@Named("launch_fragment") SharedPreferences sharedPreferences) {
-        return new LaunchFragmentViewModel(sharedPreferences);
+    ViewModel provideLaunchFragmentViewModel(LoginManager loginManager,
+                                             UserEndpoint userEndpoint,
+                                             SubscriptionsEndpoint subscriptionsEndpoint,
+                                             PodcastsEndpoint podcastsEndpoint,
+                                             SubscriptionsCache subscriptionsCache) {
+        return new LaunchFragmentViewModel(loginManager, userEndpoint, subscriptionsEndpoint, podcastsEndpoint, subscriptionsCache);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(MasterActivityViewModel.class)
-    ViewModel provideMasterActivityViewModel(SkipToItApi skipToItApi,
-                                             PodcastsApi podcastApi,
-                                             SubscriptionsDao subscriptionsDao,
-                                             GoogleSignInClient googleSignInClient,
-                                             SkipToItApplication application) {
-        return new MasterActivityViewModel(
-                skipToItApi,
-                podcastApi,
-                subscriptionsDao,
-                googleSignInClient,
-                application);
+    ViewModel provideMasterActivityViewModel(LoginManager loginManager,
+                                             UserEndpoint userEndpoint,
+                                             SubscriptionsEndpoint subscriptionsEndpoint,
+                                             PodcastsEndpoint podcastsEndpoint,
+                                             SubscriptionsCache subscriptionsCache) {
+        return new MasterActivityViewModel(loginManager, userEndpoint, subscriptionsEndpoint, podcastsEndpoint, subscriptionsCache);
     }
 
     @Provides
@@ -123,8 +125,8 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeListViewModel.class)
     ViewModel provideEpisodeListViewModel(EpisodeDao episodeDao,
-                                      EpisodeBoundaryCallback episodeBoundaryCallback,
-                                      @Named("episode_list") PagedList.Config pagedListConfig) {
+                                          EpisodeBoundaryCallback episodeBoundaryCallback,
+                                          @Named("episode_list") PagedList.Config pagedListConfig) {
         return new EpisodeListViewModel(
                 episodeDao,
                 episodeBoundaryCallback,
@@ -201,6 +203,13 @@ public class ViewModelModule {
         return new SearchViewModel(podcastDataSourceFactory);
     }
 
+    @Provides
+    @IntoMap
+    @ViewModelKey(ConfirmationViewModel.class)
+    ViewModel provideConfirmationViewModel(UserEndpoint userEndpoint) {
+        return new ConfirmationViewModel(userEndpoint);
+    }
+
     //------------
     @Provides
     CommentCache provideCommentCache(SkipToItDatabase skipToItDatabase) {
@@ -256,7 +265,7 @@ public class ViewModelModule {
 
     @Provides
     PodcastDetailsEndpoint providePodcastDetailsEndpoint(PodcastsApi podcastsApi,
-                                          GoogleSignInClient googleSignInClient) {
+                                                         GoogleSignInClient googleSignInClient) {
         return new PodcastDetailsEndpoint(podcastsApi, googleSignInClient);
     }
 
@@ -275,5 +284,23 @@ public class ViewModelModule {
     EpisodesCache provideEpisodesCache(SkipToItDatabase skipToItDatabase,
                                        @Named("episode_fragment") SharedPreferences sharedPreferences) {
         return new EpisodesCache(skipToItDatabase, sharedPreferences);
+    }
+
+    @Provides
+    LoginManager provideLoginManager(GoogleSignInClient googleSignInClient,
+                                     @Named("launch_fragment") SharedPreferences sharedPreferences) {
+        return new LoginManager(googleSignInClient, sharedPreferences);
+    }
+
+    @Provides
+    UserEndpoint provideUserEndpoint(SkipToItApi skipToItApi,
+                                     GoogleSignInClient googleSignInClient) {
+        return new UserEndpoint(skipToItApi, googleSignInClient);
+    }
+
+    @Provides
+    PodcastsEndpoint providePodcastsEndpoint(PodcastsApi podcastsApi,
+                                             GoogleSignInClient googleSignInClient) {
+        return new PodcastsEndpoint(podcastsApi, googleSignInClient);
     }
 }

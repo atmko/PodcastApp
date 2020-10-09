@@ -7,7 +7,7 @@ class PodcastDetails(
     @SerializedName("title") val title: String?,
     @SerializedName("publisher") val publisher: String,
     val image: String,
-    val description: String,
+    val description: String?,
     @SerializedName("total_episodes") val totalEpisodes: Int,
     val episodes: List<Episode>,
     @SerializedName("next_episode_pub_date") val nextEpisodePubDate: Long?

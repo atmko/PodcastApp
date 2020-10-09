@@ -24,7 +24,6 @@ import com.atmko.skiptoit.databinding.FragmentEpisodeBinding
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.MasterActivityViewModel
 import com.atmko.skiptoit.episode.common.CommentsViewModel
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.atmko.skiptoit.utils.showFullText
@@ -68,9 +67,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private lateinit var parentCommentsViewModel: ParentCommentsViewModel
 
-    private lateinit var masterActivityViewModel: MasterActivityViewModel
-    private var user: User? = null
-
     @Inject
     lateinit var commentsAdapter: CommentsAdapter
 
@@ -91,13 +87,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         isRestoringEpisode = args.isRestoringEpisode
     }
 
-    override fun onResume() {
-        super.onResume()
-        episodeViewModel.registerListener(this)
-        parentCommentsViewModel.registerListener(this)
-        parentCommentsViewModel.registerBoundaryCallbackListener(this)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -112,7 +101,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         if (podcastId != "" && episodeId != "") {
             configureViews()
             configureValues(savedInstanceState)
-            configureMasterActivityViewModel()
             configureCommentsViewModel()
         }
     }
@@ -127,11 +115,22 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (podcastId != "" && episodeId != "") {
+            episodeViewModel.registerListener(this)
+            parentCommentsViewModel.registerListener(this)
+            parentCommentsViewModel.registerBoundaryCallbackListener(this)
+        }
+    }
+
     override fun onPause() {
         super.onPause()
-        episodeViewModel.unregisterListener(this)
-        parentCommentsViewModel.unregisterListener(this)
-        parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
+        if (podcastId != "" && episodeId != "") {
+            episodeViewModel.unregisterListener(this)
+            parentCommentsViewModel.unregisterListener(this)
+            parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
+        }
     }
 
     override fun onStop() {
@@ -224,26 +223,32 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun attemptToCreateComment() {
-        if (user != null) {
-            navigateToCreateComment(user!!.username!!)
+        val masterActivity = requireActivity() as MasterActivity
+        val user = masterActivity.user
+        if (user?.username != null) {
+            navigateToCreateComment(user.username)
         } else {
-            masterActivityViewModel.signIn()
+            masterActivity.viewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToUpdateComment(comment: Comment) {
-        if (user != null) {
-            navigateToUpdateComment(comment, user!!.username!!)
+        val masterActivity = requireActivity() as MasterActivity
+        val user = masterActivity.user
+        if (user?.username != null) {
+            navigateToUpdateComment(comment, user.username)
         } else {
-            masterActivityViewModel.signIn()
+            masterActivity.viewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        if (user != null) {
-            navigateToReplyComment(user!!.username!!, parentId, quotedText)
+        val masterActivity = requireActivity() as MasterActivity
+        val user = masterActivity.user
+        if (user?.username != null) {
+            navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivityViewModel.signIn()
+            masterActivity.viewModel.silentSignInAndNotify()
         }
     }
 
@@ -301,13 +306,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         ).get(ParentCommentsViewModel::class.java)
 
         parentCommentsViewModel.getComments(episodeId)
-
-        masterActivityViewModel = ViewModelProvider(
-            requireActivity(),
-            viewModelFactory
-        ).get(MasterActivityViewModel::class.java)
-
-        masterActivityViewModel.getUser()
 
         if (savedInstanceState != null) {
             showMore = savedInstanceState.getBoolean(SHOW_MORE_KEY)
@@ -378,12 +376,6 @@ class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
             binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
             commentsAdapter.submitList(it)
             commentsAdapter.notifyDataSetChanged()
-        })
-    }
-
-    private fun configureMasterActivityViewModel() {
-        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
-            user = it
         })
     }
 

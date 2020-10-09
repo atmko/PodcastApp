@@ -13,14 +13,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.MasterActivityViewModel
 import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.model.User
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar
@@ -32,18 +32,18 @@ private const val ERROR_DIALOG_REQUEST_CODE = 1
 
 class LaunchFragment : BaseFragment(),
     ProviderInstaller.ProviderInstallListener,
-    MasterActivityViewModel.ViewNavigation {
+    ManagerViewModel.Listener {
 
     private var _binding: FragmentLaunchBinding? = null
     private val binding get() = _binding!!
 
     private var isProviderUpdated = false
+    private var googleSignInIntent: Intent? = null
+    private var googleSignInRequestCode: Int? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var masterActivityViewModel: MasterActivityViewModel
-
-    private lateinit var launchFragmentViewModel: LaunchFragmentViewModel
+    private lateinit var viewModel: LaunchFragmentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,9 +67,24 @@ class LaunchFragment : BaseFragment(),
         retryProviderInstall()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.unregisterListener(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        data?.let { viewModel.onRequestResultReceived(requestCode, resultCode, it) }
     }
 
     override fun onProviderInstallFailed(errorCode: Int, recoveryIntent: Intent?) {
@@ -94,10 +109,8 @@ class LaunchFragment : BaseFragment(),
 
     override fun onProviderInstalled() {
         isProviderUpdated = true
-        if (!launchFragmentViewModel.isFirstSetUp()) {
+        if (!viewModel.isFirstSetUp()) {
             startApp()
-        } else {
-            configureMasterActivityViewModel()
         }
     }
 
@@ -134,7 +147,9 @@ class LaunchFragment : BaseFragment(),
 
         binding.googleContinue.setOnClickListener {
             if (isProviderUpdated) {
-                masterActivityViewModel.signIn()
+                if (googleSignInIntent != null && googleSignInRequestCode != null) {
+                    startActivityForResult(googleSignInIntent!!, googleSignInRequestCode!!)
+                }
             }
         }
 
@@ -146,33 +161,12 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun configureValues() {
-        activity?.let {
-            masterActivityViewModel =
-                ViewModelProvider(it).get(MasterActivityViewModel::class.java)
-        }
-
-        launchFragmentViewModel = ViewModelProvider(
+        viewModel = ViewModelProvider(
             this,
             viewModelFactory
         ).get(LaunchFragmentViewModel::class.java)
-    }
 
-    private fun configureMasterActivityViewModel() {
-        masterActivityViewModel.messageEvent.setEventReceiver(this, this)
-        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                startApp()
-            }
-        })
-
-        masterActivityViewModel.loadError.observe(viewLifecycleOwner, Observer {
-            if (it) {
-                Snackbar.make(
-                    binding.topLayout,
-                    getString(R.string.couldnt_connect_to_server), Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        })
+        viewModel.silentSignInAndNotify()
     }
 
     private fun retryProviderInstall() {
@@ -182,7 +176,7 @@ class LaunchFragment : BaseFragment(),
     }
 
     private fun startApp() {
-        launchFragmentViewModel.setIsFirstSetUpFalse()
+        viewModel.setIsFirstSetUp(false)
         val action =
             LaunchFragmentDirections.actionNavigationLaunchToNavigationSubscriptions()
         view?.findNavController()?.navigate(action)
@@ -210,5 +204,51 @@ class LaunchFragment : BaseFragment(),
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+
+    override fun notifyProcessing() {
+
+    }
+
+    override fun onSilentSignInSuccess() {
+        viewModel.getMatchingUserAndNotify()
+    }
+
+    override fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int) {
+        this.googleSignInIntent = googleSignInIntent
+        this.googleSignInRequestCode = googleSignInRequestCode
+    }
+
+    override fun onSignInSuccess() {
+        viewModel.getMatchingUserAndNotify()
+        viewModel.restoreSubscriptionsAndNotify()
+    }
+
+    override fun onSignInFailed() {
+        Snackbar.make(requireView(), "Failed to sign in", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onUserFetchSuccess(user: User) {
+        startApp()
+    }
+
+    override fun onUserFetchFailed() {
+        Snackbar.make(requireView(), "Failed to retrieve user", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onSignOutSuccess() {
+
+    }
+
+    override fun onSignOutFailed() {
+
+    }
+
+    override fun onRestoreSubscriptionsSuccess() {
+        
+    }
+
+    override fun onRestoreSubscriptionsFailed() {
+        
     }
 }

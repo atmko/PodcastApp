@@ -1,34 +1,49 @@
 package com.atmko.skiptoit.launch
 
 import android.content.Intent
-import android.content.SharedPreferences
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.atmko.skiptoit.launch.IS_FIRST_SETUP_KEY
-import io.reactivex.disposables.CompositeDisposable
+import android.util.Log
+import com.atmko.skiptoit.LoginManager
+import com.atmko.skiptoit.PodcastsEndpoint
+import com.atmko.skiptoit.UserEndpoint
+import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.model.database.SubscriptionsCache
+import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
 
 class LaunchFragmentViewModel(
-    private val sharedPreferences: SharedPreferences
-): ViewModel() {
+    loginManager: LoginManager,
+    userEndpoint: UserEndpoint,
+    subscriptionsEndpoint: SubscriptionsEndpoint,
+    podcastsEndpoint: PodcastsEndpoint,
+    subscriptionsCache: SubscriptionsCache
+) : ManagerViewModel(
+    loginManager,
+    userEndpoint,
+    subscriptionsEndpoint,
+    podcastsEndpoint,
+    subscriptionsCache
+) {
 
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
-
-    private val disposable: CompositeDisposable = CompositeDisposable()
-
-    interface ViewNavigation {
-        fun startActivityForResult(intent: Intent, requestCode: Int)
+    interface Listener {
+        fun notifyProcessing()
+        fun onSilentSignInSuccess()
+        fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int)
+        fun onSignInSuccess()
+        fun onSignInFailed()
+        fun onUserFetchSuccess(user: User)
+        fun onUserFetchFailed()
+        fun onRestoreSubscriptionsSuccess()
+        fun onRestoreSubscriptionsFailed()
     }
 
-    fun isFirstSetUp(): Boolean {
-        return sharedPreferences.getBoolean(IS_FIRST_SETUP_KEY, true)
-    }
-
-    fun setIsFirstSetUpFalse() {
-        sharedPreferences.edit().putBoolean(IS_FIRST_SETUP_KEY, false).apply()
+    private fun unregisterListeners() {
+        for (listener in listeners) {
+            unregisterListener(listener)
+        }
     }
 
     override fun onCleared() {
-        disposable.clear()
+        Log.d("CLEARING", "CLEARING")
+        unregisterListeners()
     }
 }

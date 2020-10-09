@@ -13,13 +13,15 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseActivity
+import com.atmko.skiptoit.common.views.ManagerViewModel
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
+import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
@@ -27,18 +29,17 @@ import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.utils.loadNetworkImage
-import com.atmko.skiptoit.common.views.BaseActivity
-import com.atmko.skiptoit.common.ViewModelFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
 
-class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
+class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
+
     private lateinit var binding: ActivityMasterBinding
 
     private var mIsBound: Boolean = false
@@ -46,7 +47,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: MasterActivityViewModel
+    lateinit var viewModel: MasterActivityViewModel
     var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
@@ -102,7 +103,11 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
-        configureViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.registerListener(this)
     }
 
     override fun onStart() {
@@ -127,6 +132,11 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
         outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
 
         outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.unregisterListener(this)
     }
 
     override fun onStop() {
@@ -186,7 +196,7 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     private fun configureValues(savedInstanceState: Bundle?) {
         viewModel = ViewModelProvider(this,
             viewModelFactory).get(MasterActivityViewModel::class.java)
-        viewModel.getUser()
+        viewModel.getMatchingUserAndNotify()
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
@@ -218,94 +228,6 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
                 }
             }
         }
-    }
-
-    private fun configureViewModel() {
-        viewModel.messageEvent.setEventReceiver(this, this)
-        observeUser()
-        observeRemoteDataFetching()
-        observeBatchPodcastFetching()
-        observeLocalBatchSaving()
-    }
-
-    private fun observeUser() {
-        viewModel.currentUser.observe(this, Observer {
-            user = it
-        })
-
-        viewModel.loading.observe(this, Observer { isLoading ->
-            isLoading?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.loadError.observe(this, Observer { isLoadError ->
-            isLoadError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
-    }
-
-    private fun observeRemoteDataFetching() {
-        viewModel.remoteFetching.observe(this, Observer { isRemoteFetching ->
-            isRemoteFetching?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.remoteFetchError.observe(this, Observer { isRemoteFetchError ->
-            isRemoteFetchError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
-    }
-
-    private fun observeBatchPodcastFetching() {
-        viewModel.batchFetching.observe(this, Observer { isBatchFetching ->
-            isBatchFetching?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.batchFetchError.observe(this, Observer { isBatchFetchError ->
-            isBatchFetchError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
-    }
-
-    private fun observeLocalBatchSaving() {
-        viewModel.batchSavingLocally.observe(this, Observer { isBatchSavingLocally ->
-            isBatchSavingLocally?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.batchLocalSaveError.observe(this, Observer { isBatchLocalSaveError ->
-            isBatchLocalSaveError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
-        })
     }
 
     private fun configureBottomSheet() {
@@ -375,14 +297,6 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
                     }
                 }
             })
-    }
-
-    fun signIn() {
-        viewModel.signIn()
-    }
-
-    fun signOut() {
-        viewModel.signOut()
     }
 
     fun navBarHeight(): Int {
@@ -529,5 +443,65 @@ class MasterActivity : BaseActivity(), MasterActivityViewModel.ViewNavigation {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun notifyProcessing() {
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onSilentSignInSuccess() {
+        viewModel.getMatchingUserAndNotify()
+    }
+
+    override fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int) {
+        startActivityForResult(googleSignInIntent, googleSignInRequestCode)
+    }
+
+    override fun onSignInSuccess() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        viewModel.getMatchingUserAndNotify()
+        viewModel.restoreSubscriptionsAndNotify()
+    }
+
+    override fun onSignInFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(binding.topLayout, "Failed to sign in", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onUserFetchSuccess(user: User) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        this.user = user
+    }
+
+    override fun onUserFetchFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(binding.topLayout, "Failed to retrieve user", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onSignOutSuccess() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onSignOutFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(binding.topLayout, "Failed to sign out", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onRestoreSubscriptionsSuccess() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onRestoreSubscriptionsFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        Snackbar.make(binding.topLayout, "Failed to sync subscriptions", Snackbar.LENGTH_LONG).show()
     }
 }

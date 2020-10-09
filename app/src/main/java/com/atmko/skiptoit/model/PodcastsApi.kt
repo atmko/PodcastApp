@@ -37,5 +37,5 @@ interface PodcastsApi {
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @FormUrlEncoded
     @POST("podcasts")
-    fun getBatchPodcastMetadata(@Field("ids") combinedPodcastIds: String): Single<ApiResults>
+    fun getBatchPodcastMetadata(@Field("ids") combinedPodcastIds: String): Call<ApiResults>
 }

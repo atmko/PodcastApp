@@ -9,10 +9,10 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
     var mPodcastId = ""
 
     var mInsertSubscriptionCounter = 0
-    lateinit var mPodcast: Podcast
-    override fun insertSubscription(podcast: Podcast, listener: SubscriptionUpdateListener) {
+    lateinit var mPodcasts: List<Podcast>
+    override fun insertSubscription(podcasts: List<Podcast>, listener: SubscriptionUpdateListener) {
         mInsertSubscriptionCounter += 1
-        mPodcast = podcast
+        mPodcasts = podcasts
         if (!mFailure) {
             listener.onSubscriptionUpdateSuccess()
         } else {
@@ -41,4 +41,6 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
             listener.onGetSubscriptionStatusFailed()
         }
     }
+
+
 }

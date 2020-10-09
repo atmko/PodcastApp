@@ -11,16 +11,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.atmko.skiptoit.databinding.FragmentRepliesBinding
-import com.atmko.skiptoit.model.Comment
-import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.episode.CommentsAdapter
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.MasterActivityViewModel
-import com.atmko.skiptoit.episode.common.CommentsViewModel
 import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.databinding.FragmentRepliesBinding
+import com.atmko.skiptoit.episode.CommentsAdapter
+import com.atmko.skiptoit.episode.common.CommentsViewModel
+import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
@@ -36,9 +34,6 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var repliesViewModel: RepliesViewModel
-
-    private lateinit var masterActivityViewModel: MasterActivityViewModel
-    private var user: User? = null
 
     @Inject
     lateinit var repliesAdapter: CommentsAdapter
@@ -84,7 +79,6 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         configureViews()
         configureValues()
         configureViewModel()
-        configureMasterActivityViewModel()
     }
 
     override fun onPause() {
@@ -122,13 +116,6 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         ).get(RepliesViewModel::class.java)
 
         repliesViewModel.getReplies(parentComment.commentId)
-
-        masterActivityViewModel = ViewModelProvider(
-            requireActivity(),
-            viewModelFactory
-        ).get(MasterActivityViewModel::class.java)
-
-        masterActivityViewModel.getUser()
     }
 
     private fun setupParentComment(comment: Comment) {
@@ -187,25 +174,23 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         })
     }
 
-    private fun configureMasterActivityViewModel() {
-        masterActivityViewModel.currentUser.observe(viewLifecycleOwner, Observer {
-            user = it
-        })
-    }
-
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        if (user != null) {
-            navigateToReplyComment(user!!.username!!, parentId, quotedText)
+        val masterActivity = requireActivity() as MasterActivity
+        val user = masterActivity.user
+        if (user?.username != null) {
+            navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivityViewModel.signIn()
+            masterActivity.viewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToUpdateReply(comment: Comment) {
-        if (user != null) {
-            navigateToUpdateReply(comment, user!!.username!!)
+        val masterActivity = requireActivity() as MasterActivity
+        val user = masterActivity.user
+        if (user?.username != null) {
+            navigateToUpdateReply(comment, user.username)
         } else {
-            masterActivityViewModel.signIn()
+            masterActivity.viewModel.silentSignInAndNotify()
         }
     }
 

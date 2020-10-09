@@ -200,12 +200,19 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
+        var description = ""
+        if (podcastDetails.description != null && podcastDetails.description != "") {
+            description = podcastDetails.description!!
+        } else if (podcast.description != null && podcast.description != "") {
+            description = podcast.description!!
+        }
+
         if (!showMore) {
-            binding.description.showFullText(podcast.description)
+            binding.description.showFullText(description)
             binding.showMore.text = getString(R.string.show_less)
         } else {
             val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-            binding.description.showLimitedText(maxLines, podcast.description)
+            binding.description.showLimitedText(maxLines, description)
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore

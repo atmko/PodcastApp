@@ -17,9 +17,9 @@ open class SubscriptionsCache(
         fun onGetSubscriptionStatusFailed()
     }
 
-    open fun insertSubscription(podcast: Podcast, listener: SubscriptionUpdateListener) {
+    open fun insertSubscription(podcasts: List<Podcast>, listener: SubscriptionUpdateListener) {
         AppExecutors.getInstance().diskIO().execute {
-            subscriptionsDao!!.createSubscription(podcast)
+            subscriptionsDao!!.createSubscription(podcasts)
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onSubscriptionUpdateSuccess()

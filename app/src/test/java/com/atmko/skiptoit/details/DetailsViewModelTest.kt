@@ -25,9 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner
 class DetailsViewModelTest {
 
     // region constants
-    companion object {
-        const val PODCAST_ID = "podcastId"
-    }
+
     // endregion constants
 
     // end region helper fields
@@ -64,7 +62,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).notifyProcessing()
         verify(mListenerMock2).notifyProcessing()
@@ -74,17 +72,17 @@ class DetailsViewModelTest {
     fun getDetailsAndNotify_correctPodcastIdPassedToEndpoint() {
         // Arrange
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mPodcastDetailsEndpointTd.mGetPodcastDetailsCounter, `is`(1))
-        assertThat(mPodcastDetailsEndpointTd.mPodcastId, `is`(PODCAST_ID))
+        assertThat(mPodcastDetailsEndpointTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
     }
 
     @Test
     fun getCachedCommentAndNotify_podcastDetailsEndpointSuccess_commentSavedInViewModel() {
         // Arrange
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mPodcastDetailsEndpointTd.mGetPodcastDetailsCounter, `is`(1))
         assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
@@ -96,7 +94,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onDetailsFetched(mArgCaptorPodcastDetails.kotlinCapture())
         verify(mListenerMock2).onDetailsFetched(mArgCaptorPodcastDetails.kotlinCapture())
@@ -109,8 +107,8 @@ class DetailsViewModelTest {
     fun getDetailsAndNotify_podcastDetailsEndpointSuccess_useCachedValueUponSecondCall() {
         // Arrange
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mPodcastDetailsEndpointTd.mGetPodcastDetailsCounter, `is`(1))
         assertThat(SUT.podcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES()))
@@ -123,7 +121,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onDetailsFetched(TestUtils.kotlinAny(PodcastDetails::class.java))
         verify(mListenerMock2, never()).onDetailsFetched(TestUtils.kotlinAny(PodcastDetails::class.java))
@@ -136,7 +134,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify(PODCAST_ID)
+        SUT.getDetailsAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onDetailsFetchFailed()
         verify(mListenerMock2).onDetailsFetchFailed()
@@ -150,7 +148,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).notifyProcessing()
         verify(mListenerMock2).notifyProcessing()
@@ -160,17 +158,17 @@ class DetailsViewModelTest {
     fun loadSubscriptionStatusAndNotify_correctPodcastIdPassedToCache() {
         // Arrange
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mSubscriptionsCacheTd.mGetSubscriptionStatusCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PODCAST_ID))
+        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
     }
 
     @Test
     fun loadSubscriptionStatusAndNotify_subscriptionCacheSuccess_subscriptionStatusSavedInViewModel() {
         // Arrange
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mSubscriptionsCacheTd.mGetSubscriptionStatusCounter, `is`(1))
         assertThat(SUT.isSubscribed, `is`(true))
@@ -183,7 +181,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac : ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onStatusFetched(ac.capture())
         verify(mListenerMock2).onStatusFetched(ac.capture())
@@ -196,8 +194,8 @@ class DetailsViewModelTest {
     fun loadSubscriptionStatusAndNotify_subscriptionCacheSuccess_useCachedValueUponSecondCall() {
         // Arrange
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mSubscriptionsCacheTd.mGetSubscriptionStatusCounter, `is`(1))
         assertThat(SUT.isSubscribed, `is`(true))
@@ -210,7 +208,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onStatusFetched(TestUtils.kotlinAny(Boolean::class.java))
         verify(mListenerMock2, never()).onStatusFetched(TestUtils.kotlinAny(Boolean::class.java))
@@ -223,7 +221,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.loadSubscriptionStatusAndNotify(PODCAST_ID)
+        SUT.loadSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         verify(mListenerMock1).onStatusFetchFailed()
         verify(mListenerMock2).onStatusFetchFailed()
@@ -237,7 +235,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         verify(mListenerMock1).notifyProcessing()
         verify(mListenerMock2).notifyProcessing()
@@ -248,10 +246,10 @@ class DetailsViewModelTest {
         // Arrange
         isSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PODCAST_ID))
+        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
         assertThat(mSubscriptionsEndpointTd.mSubscriptionStatus, `is`(STATUS_UNSUBSCRIBE))
     }
 
@@ -260,10 +258,10 @@ class DetailsViewModelTest {
         // Arrange
         isSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PODCAST_ID))
+        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
     }
 
     @Test
@@ -271,7 +269,7 @@ class DetailsViewModelTest {
         // Arrange
         isSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
@@ -286,7 +284,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         verify(mListenerMock1).onStatusUpdated(ac.capture())
         verify(mListenerMock2).onStatusUpdated(ac.capture())
@@ -303,7 +301,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         verify(mListenerMock1).onStatusUpdated(false)
         verify(mListenerMock2, never()).onStatusUpdated(ArgumentMatchers.anyBoolean())
@@ -317,7 +315,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(0))
@@ -333,7 +331,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
@@ -346,10 +344,10 @@ class DetailsViewModelTest {
         // Arrange
         isNotSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PODCAST_ID))
+        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
         assertThat(mSubscriptionsEndpointTd.mSubscriptionStatus, `is`(STATUS_SUBSCRIBE))
     }
 
@@ -358,10 +356,10 @@ class DetailsViewModelTest {
         // Arrange
         isNotSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mPodcast, `is`(PodcastMocks.GET_PODCAST()))
+        assertThat(mSubscriptionsCacheTd.mPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
     }
 
     @Test
@@ -369,7 +367,7 @@ class DetailsViewModelTest {
         // Arrange
         isNotSubscribed()
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
@@ -384,7 +382,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         verify(mListenerMock1).onStatusUpdated(ac.capture())
         verify(mListenerMock2).onStatusUpdated(ac.capture())
@@ -401,7 +399,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         verify(mListenerMock1).onStatusUpdated(true)
         verify(mListenerMock2, never()).onStatusUpdated(ArgumentMatchers.anyBoolean())
@@ -415,7 +413,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(0))
@@ -431,7 +429,7 @@ class DetailsViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST())
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))

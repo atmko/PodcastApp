@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.model
 
+import com.google.android.exoplayer2.C
 import io.reactivex.Single
 import retrofit2.Call
 
@@ -60,13 +61,13 @@ interface SkipToItApi {
 
     @FormUrlEncoded
     @POST("users/tokensignin")
-    fun getUser(@Field("id_token") idToken: String): Single<User>
+    fun getUser(@Field("id_token") idToken: String): Call<User>
 
     @FormUrlEncoded
     @POST("users/username")
     fun updateUsername(
         @Field("id_token") idToken: String,
-        @Field("username") username: String): Single<Response<Void>>
+        @Field("username") username: String): Call<User>
 
     @FormUrlEncoded
     @POST("subscriptions/{podcast_id}")
@@ -79,5 +80,5 @@ interface SkipToItApi {
                               @Query("id_token") idToken: String): Single<Boolean>
 
     @GET("subscriptions")
-    fun getSubscriptions(@Query("id_token") idToken: String): Single<List<Subscription>>
+    fun getSubscriptions(@Query("id_token") idToken: String): Call<List<Subscription>>
 }

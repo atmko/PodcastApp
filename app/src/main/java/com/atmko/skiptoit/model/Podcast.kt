@@ -16,7 +16,7 @@ class Podcast(@PrimaryKey
               @SerializedName("title", alternate=["title_original"]) val title: String?,
               @SerializedName("publisher", alternate=["publisher_original"]) val publisher: String,
               val image: String,
-              val description: String,
+              val description: String?,
               @ColumnInfo(name = "total_episodes")
               @SerializedName("total_episodes") val totalEpisodes: Int) : Serializable {
     
