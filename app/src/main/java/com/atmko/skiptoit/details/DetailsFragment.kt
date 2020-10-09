@@ -132,6 +132,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.showMore.setOnClickListener {
+            //todo check podcast and podcastDetails is not null before execution
             toggleFullOrLimitedDescription()
         }
 

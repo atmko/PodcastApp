@@ -7,6 +7,7 @@ import androidx.paging.PagedList
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.search.searchchild.QueryPodcastDataSource
 import com.atmko.skiptoit.common.PodcastDataSourceFactory
+import com.atmko.skiptoit.search.common.PodcastDataSource
 
 class SearchParentViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {
 
@@ -18,22 +19,28 @@ class SearchParentViewModel(private val dataSourceFactory: PodcastDataSourceFact
     //state save variables
     var tabPosition: Int = 0
 
+    var podcastDataSource: QueryPodcastDataSource
+
+    init {
+        dataSourceFactory.setTypeClass(QueryPodcastDataSource::class.java)
+        podcastDataSource = (dataSourceFactory.getDataSource() as QueryPodcastDataSource)
+    }
+
     fun search(queryString: String) {
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
             .setInitialLoadSizeHint(setInitialLoadSizeHint)
             .build()
-        dataSourceFactory.setTypeClass(QueryPodcastDataSource::class.java)
-        (dataSourceFactory.getDataSource() as QueryPodcastDataSource).queryString = queryString
+        podcastDataSource.queryString = queryString
         searchResults = LivePagedListBuilder<Int, Podcast>(dataSourceFactory, config)
             .build()
     }
 
-    fun getSearchLoading(): LiveData<Boolean> {
-        return (dataSourceFactory.getDataSource() as QueryPodcastDataSource).loading
+    fun registerBoundaryCallbackListener(listener: PodcastDataSource.Listener) {
+        podcastDataSource.registerListener(listener)
     }
 
-    fun getSearchLoadError(): LiveData<Boolean> {
-        return (dataSourceFactory.getDataSource() as QueryPodcastDataSource).loadError
+    fun unregisterBoundaryCallbackListener(listener: PodcastDataSource.Listener) {
+        podcastDataSource.unregisterListener(listener)
     }
 }

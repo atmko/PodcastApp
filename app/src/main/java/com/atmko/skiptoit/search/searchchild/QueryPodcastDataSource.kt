@@ -4,6 +4,7 @@ import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastsApi
 import com.atmko.skiptoit.search.common.PodcastDataSource
+import com.atmko.skiptoit.utils.AppExecutors
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,16 +19,17 @@ class QueryPodcastDataSource(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, Podcast>
     ) {
+        AppExecutors.getInstance().mainThread().execute {
+            notifyPageLoading()
+        }
         val call: Call<ApiResults> = podcastsApi.searchPodcasts(queryString!!, startingPage)
         call.enqueue(object : Callback<ApiResults> {
             override fun onFailure(call: Call<ApiResults>, t: Throwable) {
-                loading.postValue(false)
-                loadError.postValue(true)
+                notifyOnPageLoadFailed()
             }
 
             override fun onResponse(call: Call<ApiResults>, response: Response<ApiResults>) {
-                loading.postValue(false)
-                loadError.postValue(false)
+                notifyOnPageLoad()
 
                 val body: ApiResults = response.body()!!
                 callback.onResult(body.podcasts, null, getNextPage(body, startingPage))
@@ -36,16 +38,17 @@ class QueryPodcastDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Podcast>) {
+        AppExecutors.getInstance().mainThread().execute {
+            notifyPageLoading()
+        }
         val call: Call<ApiResults> = podcastsApi.searchPodcasts(queryString!!, params.key)
         call.enqueue(object : Callback<ApiResults> {
             override fun onFailure(call: Call<ApiResults>, t: Throwable) {
-                loading.postValue(false)
-                loadError.postValue(true)
+                notifyOnPageLoadFailed()
             }
 
             override fun onResponse(call: Call<ApiResults>, response: Response<ApiResults>) {
-                loading.postValue(false)
-                loadError.postValue(false)
+                notifyOnPageLoad()
 
                 val body: ApiResults = response.body()!!
                 callback.onResult(body.podcasts, getNextPage(body, params.key))

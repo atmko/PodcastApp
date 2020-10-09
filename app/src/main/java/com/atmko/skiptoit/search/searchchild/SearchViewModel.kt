@@ -7,6 +7,7 @@ import androidx.paging.PagedList
 import com.atmko.skiptoit.search.searchparent.GenrePodcastDataSource
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.common.PodcastDataSourceFactory
+import com.atmko.skiptoit.search.common.PodcastDataSource
 
 class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {
 
@@ -18,6 +19,13 @@ class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) :
     //state save variables
     var scrollPosition: Int = 0
 
+    var podcastDataSource: GenrePodcastDataSource
+
+    init {
+        dataSourceFactory.setTypeClass(GenrePodcastDataSource::class.java)
+        podcastDataSource = (dataSourceFactory.getDataSource() as GenrePodcastDataSource)
+    }
+
     fun fetchPodcastsByGenre(genreId: Int) {
         if (this::genreResults.isInitialized && genreResults.value != null) {
             return
@@ -27,17 +35,16 @@ class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) :
             .setPageSize(pageSize)
             .setInitialLoadSizeHint(setInitialLoadSizeHint)
             .build()
-        dataSourceFactory.setTypeClass(GenrePodcastDataSource::class.java)
-        (dataSourceFactory.getDataSource() as GenrePodcastDataSource).genreId = genreId
+        podcastDataSource.genreId = genreId
         genreResults = LivePagedListBuilder<Int, Podcast>(dataSourceFactory, config)
             .build()
     }
 
-    fun getGenreLoading(): LiveData<Boolean> {
-        return (dataSourceFactory.getDataSource() as GenrePodcastDataSource).loading
+    fun registerBoundaryCallbackListener(listener: PodcastDataSource.Listener) {
+        podcastDataSource.registerListener(listener)
     }
 
-    fun getGenreLoadError(): LiveData<Boolean> {
-        return (dataSourceFactory.getDataSource() as GenrePodcastDataSource).loadError
+    fun unregisterBoundaryCallbackListener(listener: PodcastDataSource.Listener) {
+        podcastDataSource.unregisterListener(listener)
     }
 }

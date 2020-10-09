@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @Module
 class NetworkModule {
     private val BASE_URL_LISTEN_NOTES = "https://listen-api.listennotes.com/api/v2/"
-    private val BASE_URL_SKIP_TO_TI = "http://10.0.2.2:8080/api/v1/"
+    private val BASE_URL_SKIP_TO_TI = "http://localhost:8080/api/v1/"
 
     @Provides
     @Singleton

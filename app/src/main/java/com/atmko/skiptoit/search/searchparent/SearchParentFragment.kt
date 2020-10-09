@@ -21,7 +21,9 @@ import com.atmko.skiptoit.utils.toEditable
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.search.common.PodcastDataSource
 import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
@@ -29,7 +31,9 @@ const val IS_SEARCH_BOX_VISIBLE_KEY = "is_search_box_visible"
 const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
 
 class SearchParentFragment : BaseFragment(),
-    PodcastAdapter.OnPodcastItemClickListener {
+    PodcastAdapter.OnPodcastItemClickListener,
+    PodcastDataSource.Listener {
+
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
 
@@ -71,11 +75,21 @@ class SearchParentFragment : BaseFragment(),
         configureValues(savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.registerBoundaryCallbackListener(this)
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
         outState.putBoolean(IS_SEARCH_BOX_VISIBLE_KEY, isSearchBarShown())
         outState.putBoolean(IS_KEYBOARD_VISIBLE_KEY, isKeyboardVisible)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.unregisterBoundaryCallbackListener(this)
     }
 
     private fun configureBottomMargin() {
@@ -227,25 +241,8 @@ class SearchParentFragment : BaseFragment(),
 
     private fun configureViewModel() {
         viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
-            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
             subscriptions?.let { podcastAdapter.submitList(it) }
-        })
-
-        viewModel.getSearchLoading().observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
-                    binding.resultsFrameLayout.resultsRecyclerView.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.getSearchLoadError().observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE }
         })
     }
 
@@ -272,5 +269,20 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onSubscriptionToggle(podcast: Podcast) {
         context?.let { Toast.makeText(it, "not yet implemented", Toast.LENGTH_SHORT).show() }
+    }
+
+    override fun onPageLoading() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoad() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onPageLoadFailed() {
+        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }
