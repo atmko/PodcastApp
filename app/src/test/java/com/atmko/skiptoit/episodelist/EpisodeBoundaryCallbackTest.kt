@@ -217,7 +217,7 @@ class EpisodeBoundaryCallbackTest {
     // endregion helper methods
 
     // region helper classes
-    class GetEpisodesEndpointTd : GetEpisodesEndpoint(null, null) {
+    class GetEpisodesEndpointTd : GetEpisodesEndpoint(null) {
 
         var mFailure = false
         var mLoadKey: Long? = null

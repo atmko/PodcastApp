@@ -472,7 +472,7 @@ class DetailsViewModelTest {
     // endregion helper methods
 
     // region helper classes
-    class PodcastDetailsEndpointTd : PodcastDetailsEndpoint(null, null) {
+    class PodcastDetailsEndpointTd : PodcastDetailsEndpoint(null) {
 
         var mGetPodcastDetailsCounter = 0
         var mPodcastId = ""

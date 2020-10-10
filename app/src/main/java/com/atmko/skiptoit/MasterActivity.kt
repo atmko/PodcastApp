@@ -455,6 +455,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     override fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
         startActivityForResult(googleSignInIntent, googleSignInRequestCode)
     }
 

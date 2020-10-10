@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.episodelist
 
-import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
@@ -16,9 +15,6 @@ class EpisodeBoundaryCallback(
 
     lateinit var param: String
     var startPage: Long? = null
-
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
     
     override fun onZeroItemsLoaded() {
         notifyPageLoading()

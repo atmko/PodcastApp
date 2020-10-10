@@ -264,15 +264,13 @@ public class ViewModelModule {
     }
 
     @Provides
-    PodcastDetailsEndpoint providePodcastDetailsEndpoint(PodcastsApi podcastsApi,
-                                                         GoogleSignInClient googleSignInClient) {
-        return new PodcastDetailsEndpoint(podcastsApi, googleSignInClient);
+    PodcastDetailsEndpoint providePodcastDetailsEndpoint(PodcastsApi podcastsApi) {
+        return new PodcastDetailsEndpoint(podcastsApi);
     }
 
     @Provides
-    GetEpisodesEndpoint providePodcastApi(PodcastsApi podcastsApi,
-                                          GoogleSignInClient googleSignInClient) {
-        return new GetEpisodesEndpoint(podcastsApi, googleSignInClient);
+    GetEpisodesEndpoint providePodcastApi(PodcastsApi podcastsApi) {
+        return new GetEpisodesEndpoint(podcastsApi);
     }
 
     @Provides
