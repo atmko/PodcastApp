@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.episode
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.*
 import com.atmko.skiptoit.model.database.EpisodesCache
@@ -24,8 +23,6 @@ class EpisodeViewModel(
     }
 
     lateinit var episodeDetails: Episode
-    val loadError: MutableLiveData<Boolean> = MutableLiveData()
-    val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     //if new podcast, erase previously played podcast's episodes from cache
     fun clearPodcastCacheAndNotify(currentPodcastId: String) {
@@ -41,12 +38,12 @@ class EpisodeViewModel(
     }
 
     fun getDetailsAndNotify(episodeId: String) {
-        notifyProcessing()
-
         if (this::episodeDetails.isInitialized) {
             notifyDetailsFetched(episodeDetails)
             return
         }
+
+        notifyProcessing()
 
         episodeEndpoint.getEpisodeDetails(episodeId, object : EpisodeEndpoint.EpisodeDetailsListener {
             override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
@@ -61,12 +58,12 @@ class EpisodeViewModel(
     }
 
     fun restoreEpisodeAndNotify() {
-        notifyProcessing()
-
         if (this::episodeDetails.isInitialized) {
             notifyDetailsFetched(episodeDetails)
             return
         }
+
+        notifyProcessing()
 
         episodesCache.restoreEpisode(object : EpisodesCache.RestoreEpisodeListener {
             override fun onEpisodeRestoreSuccess(episode: Episode) {

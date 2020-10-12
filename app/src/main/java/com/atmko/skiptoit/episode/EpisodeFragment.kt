@@ -42,9 +42,11 @@ const val SCRUBBER_HIDE_LENGTH: Long = 2000
 
 private const val SHOW_MORE_KEY = "show_more"
 
-class EpisodeFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener,
+class EpisodeFragment : BaseFragment(),
+    CommentsAdapter.OnCommentItemClickListener,
     EpisodeViewModel.Listener,
-    CommentsViewModel.Listener, BaseBoundaryCallback.Listener {
+    CommentsViewModel.Listener,
+    BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentEpisodeBinding? = null
     private val binding get() = _binding!!

@@ -31,12 +31,12 @@ class DetailsViewModel(
     var isSubscribed: Boolean? = null
 
     fun getDetailsAndNotify(podcastId: String) {
-        notifyProcessing()
-
         if (this::podcastDetails.isInitialized) {
             notifyDetailsFetched(podcastDetails)
             return
         }
+
+        notifyProcessing()
 
         podcastDetailsEndpoint.getPodcastDetails(podcastId, object : PodcastDetailsEndpoint.Listener {
             override fun onPodcastDetailsFetchSuccess(fetchedPodcastDetails: PodcastDetails) {
@@ -51,12 +51,12 @@ class DetailsViewModel(
     }
 
     fun loadSubscriptionStatusAndNotify(podcastId: String) {
-        notifyProcessing()
-
         if (isSubscribed != null) {
             notifyStatusFetched(isSubscribed!!)
             return
         }
+
+        notifyProcessing()
 
         subscriptionsCache.getSubscriptionStatus(podcastId, object : SubscriptionsCache.SubscriptionStatusListener {
             override fun onGetSubscriptionStatusSuccess(subscriptionStatus: Boolean) {
@@ -71,9 +71,9 @@ class DetailsViewModel(
     }
 
     fun toggleSubscriptionAndNotify(podcast: Podcast) {
-        notifyProcessing()
-
         if (isSubscribed == null) return
+
+        notifyProcessing()
 
         val subscribeStatus = if (isSubscribed!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
         subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus,

@@ -232,6 +232,7 @@ class DetailsViewModelTest {
     @Test
     fun toggleSubscriptionAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
+        SUT.isSubscribed = true
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act

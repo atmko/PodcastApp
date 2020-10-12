@@ -21,12 +21,12 @@ class UpdateCommentViewModel(
     lateinit var comment: Comment
 
     fun getCachedCommentAndNotify(commentId: String) {
-         notifyProcessing()
-
         if (this::comment.isInitialized) {
             notifyLoadCommentSuccess()
             return
         }
+
+        notifyProcessing()
 
         commentCache.getCachedComment(commentId, object : CommentCache.CommentFetchListener {
             override fun onCommentFetchSuccess(fetchedComment: Comment) {
