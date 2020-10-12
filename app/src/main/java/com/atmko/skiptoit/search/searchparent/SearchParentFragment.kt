@@ -31,6 +31,7 @@ const val IS_SEARCH_BOX_VISIBLE_KEY = "is_search_box_visible"
 const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
 
 class SearchParentFragment : BaseFragment(),
+    SearchParentViewModel.Listener,
     PodcastAdapter.OnPodcastItemClickListener,
     PodcastDataSource.Listener {
 
@@ -75,9 +76,11 @@ class SearchParentFragment : BaseFragment(),
         configureValues(savedInstanceState)
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
         viewModel.registerBoundaryCallbackListener(this)
+        viewModel.restoreSearchModeAndNotify()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -87,8 +90,9 @@ class SearchParentFragment : BaseFragment(),
         outState.putBoolean(IS_KEYBOARD_VISIBLE_KEY, isKeyboardVisible)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
+        viewModel.unregisterListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
     }
 
@@ -140,14 +144,7 @@ class SearchParentFragment : BaseFragment(),
                 val queryString : String = view.text.toString()
                 if (queryString != "") {
                     (activity as MasterActivity).hideSoftKeyboard(this)
-                    binding.tabLayout.visibility = View.GONE
-                    binding.searchViewPager.visibility = View.GONE
-                    binding.presetSearchDivider.visibility = View.GONE
-
-                    binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
-
-                    viewModel.search(queryString)
-                    configureViewModel()
+                    viewModel.activateManualModeAndNotify(queryString)
                 }
 
                 true
@@ -259,6 +256,13 @@ class SearchParentFragment : BaseFragment(),
         _binding = null
     }
 
+    private fun showManualSearchMode() {
+        binding.tabLayout.visibility = View.GONE
+        binding.searchViewPager.visibility = View.GONE
+        binding.presetSearchDivider.visibility = View.GONE
+        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
+    }
+
     override fun onItemClick(podcast: Podcast) {
         val action =
             SearchParentFragmentDirections.actionNavigationSearchToNavigationDetails(
@@ -284,5 +288,24 @@ class SearchParentFragment : BaseFragment(),
     override fun onPageLoadFailed() {
         binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onSearchModeManualActivated(queryString: String) {
+        showManualSearchMode()
+        viewModel.search(queryString)
+        configureViewModel()
+    }
+
+    override fun onSearchModeManualRestored() {
+        showManualSearchMode()
+        configureViewModel()
+    }
+
+    override fun onSearchModeGenreActivated() {
+        binding.tabLayout.visibility = View.VISIBLE
+        binding.searchViewPager.visibility = View.VISIBLE
+        binding.presetSearchDivider.visibility = View.VISIBLE
+
+        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
     }
 }

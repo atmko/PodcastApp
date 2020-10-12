@@ -6,7 +6,7 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.atmko.skiptoit.search.searchparent.GenrePodcastDataSource
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.common.PodcastDataSourceFactory
+import com.atmko.skiptoit.search.common.PodcastDataSourceFactory
 import com.atmko.skiptoit.search.common.PodcastDataSource
 
 class SearchViewModel(private val dataSourceFactory: PodcastDataSourceFactory) : ViewModel() {

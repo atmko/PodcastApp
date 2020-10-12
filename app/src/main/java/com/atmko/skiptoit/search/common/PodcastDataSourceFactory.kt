@@ -1,12 +1,11 @@
-package com.atmko.skiptoit.common
+package com.atmko.skiptoit.search.common
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.search.common.PodcastDataSource
 import javax.inject.Provider
 
-class PodcastDataSourceFactory(
+open class PodcastDataSourceFactory(
     private val providerMap: Map<Class<out PodcastDataSource>, Provider<PodcastDataSource>>
 ) :
     DataSource.Factory<Int, Podcast>() {

@@ -10,7 +10,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class QueryPodcastDataSource(
-    private val podcastsApi: PodcastsApi
+    private val podcastsApi: PodcastsApi?
 ) : PodcastDataSource() {
 
     var queryString: String? = null
@@ -22,7 +22,7 @@ class QueryPodcastDataSource(
         AppExecutors.getInstance().mainThread().execute {
             notifyPageLoading()
         }
-        val call: Call<ApiResults> = podcastsApi.searchPodcasts(queryString!!, startingPage)
+        val call: Call<ApiResults> = podcastsApi!!.searchPodcasts(queryString!!, startingPage)
         call.enqueue(object : Callback<ApiResults> {
             override fun onFailure(call: Call<ApiResults>, t: Throwable) {
                 notifyOnPageLoadFailed()
@@ -41,7 +41,7 @@ class QueryPodcastDataSource(
         AppExecutors.getInstance().mainThread().execute {
             notifyPageLoading()
         }
-        val call: Call<ApiResults> = podcastsApi.searchPodcasts(queryString!!, params.key)
+        val call: Call<ApiResults> = podcastsApi!!.searchPodcasts(queryString!!, params.key)
         call.enqueue(object : Callback<ApiResults> {
             override fun onFailure(call: Call<ApiResults>, t: Throwable) {
                 notifyOnPageLoadFailed()

@@ -13,7 +13,7 @@ import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.database.CommentCache;
 import com.atmko.skiptoit.model.database.EpisodesCache;
-import com.atmko.skiptoit.common.PodcastDataSourceFactory;
+import com.atmko.skiptoit.search.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.search.searchparent.GenrePodcastDataSource;
 import com.atmko.skiptoit.search.common.PodcastDataSource;
 import com.atmko.skiptoit.search.searchchild.QueryPodcastDataSource;

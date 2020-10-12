@@ -9,7 +9,7 @@ import com.atmko.skiptoit.LoginManager;
 import com.atmko.skiptoit.MasterActivityViewModel;
 import com.atmko.skiptoit.PodcastsEndpoint;
 import com.atmko.skiptoit.UserEndpoint;
-import com.atmko.skiptoit.common.PodcastDataSourceFactory;
+import com.atmko.skiptoit.search.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.common.ViewModelFactory;
 import com.atmko.skiptoit.confirmation.ConfirmationViewModel;
 import com.atmko.skiptoit.createcomment.CreateCommentEndpoint;
