@@ -1,4 +1,4 @@
-package com.atmko.skiptoit.common.views
+package com.atmko.skiptoit.common
 
 import android.app.Activity
 import android.content.Intent
@@ -6,7 +6,6 @@ import android.util.Log
 import com.atmko.skiptoit.LoginManager
 import com.atmko.skiptoit.PodcastsEndpoint
 import com.atmko.skiptoit.UserEndpoint
-import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.Subscription
@@ -118,7 +117,7 @@ open class ManagerViewModel(
             }
 
             override fun onSubscriptionsFetchFailed() {
-                notifyRestoreSubscriptionsFailed()
+                setSubscriptionsSynced(false)
             }
         })
     }
@@ -138,7 +137,7 @@ open class ManagerViewModel(
             }
 
             override fun onBatchFetchFailed() {
-                notifyRestoreSubscriptionsFailed()
+                setSubscriptionsSynced(false)
             }
         })
     }
@@ -146,11 +145,11 @@ open class ManagerViewModel(
     private fun saveToLocalDatabase(podcasts: List<Podcast>) {
         subscriptionsCache.insertSubscription(podcasts, object : SubscriptionsCache.SubscriptionUpdateListener {
             override fun onSubscriptionUpdateSuccess() {
-                notifyRestoreSubscriptionsSuccess()
+                setSubscriptionsSynced(true)
             }
 
             override fun onSubscriptionUpdateFailed() {
-                notifyRestoreSubscriptionsFailed()
+                setSubscriptionsSynced(false)
             }
         })
     }
@@ -167,6 +166,18 @@ open class ManagerViewModel(
         }
 
         return builder.toString()
+    }
+
+    private fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean) {
+        subscriptionsCache.setSubscriptionsSynced(isSubscriptionsSynced, object : SubscriptionsCache.SyncStatusUpdateListener {
+            override fun onSyncStatusUpdated() {
+                if (isSubscriptionsSynced) {
+                    notifyRestoreSubscriptionsSuccess()
+                } else {
+                    notifyRestoreSubscriptionsFailed()
+                }
+            }
+        })
     }
 
     private fun unregisterListeners() {

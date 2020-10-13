@@ -19,7 +19,7 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.FragmentLaunchBinding
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.common.ViewModelFactory
-import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.User
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
@@ -249,6 +249,6 @@ class LaunchFragment : BaseFragment(),
     }
 
     override fun onRestoreSubscriptionsFailed() {
-        
+
     }
 }

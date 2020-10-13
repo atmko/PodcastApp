@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
+import com.atmko.skiptoit.model.database.SubscriptionsCache
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -26,5 +27,16 @@ class PresentationModule() {
         skipToItApplication: SkipToItApplication
     ): SharedPreferences {
         return skipToItApplication.getSharedPreferences(LAUNCH_FRAGMENT_KEY, Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Named("subscriptions")
+    fun provideSubscriptionsCacheSharedPreferences(
+        skipToItApplication: SkipToItApplication
+    ): SharedPreferences {
+        return skipToItApplication.getSharedPreferences(
+            SubscriptionsCache.SUBSCRIPTIONS_CACHE_KEY,
+            Context.MODE_PRIVATE
+        )
     }
 }

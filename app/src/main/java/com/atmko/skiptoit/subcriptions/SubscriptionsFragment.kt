@@ -23,7 +23,8 @@ import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
 import com.atmko.skiptoit.common.ViewModelFactory
 import javax.inject.Inject
 
-class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener, SubscriptionsViewModel.Listener {
+class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener,
+    SubscriptionsViewModel.Listener {
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
 

@@ -19,7 +19,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseActivity
-import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections

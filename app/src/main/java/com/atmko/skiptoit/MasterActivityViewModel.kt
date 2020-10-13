@@ -1,7 +1,7 @@
 package com.atmko.skiptoit
 
 import android.util.Log
-import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
 

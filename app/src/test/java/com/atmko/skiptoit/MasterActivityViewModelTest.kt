@@ -2,7 +2,7 @@ package com.atmko.skiptoit
 
 import android.app.Activity
 import android.content.Intent
-import com.atmko.skiptoit.common.views.ManagerViewModel
+import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.testclass.LoginManagerTdTest
 import com.atmko.skiptoit.testclass.SubscriptionsCacheTd
@@ -73,6 +73,7 @@ class MasterActivityViewModelTest {
         getMatchingUserSuccess()
         getSubscriptionsSuccess()
         getBatchPodcastDataSuccess()
+        insertSubscriptionSuccess()
     }
 
     @Test
@@ -395,6 +396,17 @@ class MasterActivityViewModelTest {
     }
 
     @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
+        // Assert
+        getSubscriptionsError()
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
+    }
+
+    @Test
     fun restoreSubscriptionsAndNotify_getSubscriptionsError_listenersNotifiedOfError() {
         // Assert
         getSubscriptionsError()
@@ -409,32 +421,14 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccess_listenersNotifiedOfSuccess() {
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataError_falseArgumentPassedIntoUpdateMethod() {
         // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        getBatchPodcastDataError()
         // Act
         SUT.restoreSubscriptionsAndNotify()
         // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
-        verify(mListenerMock2).onRestoreSubscriptionsSuccess()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccess_unregisteredListenersNotNotifiedOfSuccess() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
-        verify(mListenerMock2, never()).onRestoreSubscriptionsSuccess()
+        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
     }
 
     @Test
@@ -450,6 +444,75 @@ class MasterActivityViewModelTest {
         assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
         verify(mListenerMock1).onRestoreSubscriptionsFailed()
         verify(mListenerMock2).onRestoreSubscriptionsFailed()
+    }
+
+    @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
+        // Assert
+        insertSubscriptionError()
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsCache.mInsertSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
+    }
+
+    @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsError_listenersNotifiedOfError() {
+        // Assert
+        insertSubscriptionError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mInsertSubscriptionCounter, `is`(1))
+        verify(mListenerMock1).onRestoreSubscriptionsFailed()
+        verify(mListenerMock2).onRestoreSubscriptionsFailed()
+    }
+
+    @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedIntoUpdateMethod() {
+        // Assert
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(true))
+    }
+
+    @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_listenersNotifiedOfSuccess() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
+        verify(mListenerMock2).onRestoreSubscriptionsSuccess()
+    }
+
+    @Test
+    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_unregisteredListenersNotNotifiedOfSuccess() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.restoreSubscriptionsAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
+        verify(mListenerMock2, never()).onRestoreSubscriptionsSuccess()
     }
 
     //----------------------------------------------------------------------------------------------
@@ -532,6 +595,14 @@ class MasterActivityViewModelTest {
 
     fun getBatchPodcastDataError() {
         mPodcastsEndpointTd.mGetBatchPodcastMetadataFailure = true
+    }
+
+    fun insertSubscriptionSuccess() {
+        // no-op because mFailure false by default
+    }
+
+    fun insertSubscriptionError() {
+        mSubscriptionsCache.mFailure = true
     }
     // endregion helper methods
 

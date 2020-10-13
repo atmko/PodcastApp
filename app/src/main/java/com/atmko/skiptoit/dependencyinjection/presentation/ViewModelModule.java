@@ -259,8 +259,9 @@ public class ViewModelModule {
     }
 
     @Provides
-    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao) {
-        return new SubscriptionsCache(subscriptionsDao);
+    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao,
+                                                 @Named("subscriptions") SharedPreferences sharedPreferences) {
+        return new SubscriptionsCache(subscriptionsDao, sharedPreferences);
     }
 
     @Provides
