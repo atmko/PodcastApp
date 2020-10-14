@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.subcriptions
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,13 +13,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.search.searchchild.PodcastAdapter
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.launch.IS_FIRST_SETUP_KEY
-import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
-import com.atmko.skiptoit.common.ViewModelFactory
 import javax.inject.Inject
 
 class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener,
@@ -56,11 +53,6 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        if (isFirstSetup()) {
-            openLaunchFragment()
-            return
-        }
         defineViewModelValues()
         configureViews()
         configureDetailsViewModel()
@@ -80,25 +72,6 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
-    }
-
-    private fun isFirstSetup(): Boolean {
-        activity?.let {
-            val sharedPreferences: SharedPreferences = it.getSharedPreferences(
-                LAUNCH_FRAGMENT_KEY,
-                Context.MODE_PRIVATE
-            )
-
-            return sharedPreferences.getBoolean(IS_FIRST_SETUP_KEY, true)
-        }
-
-        return true
-    }
-
-    private fun openLaunchFragment() {
-        val action =
-            SubscriptionsFragmentDirections.actionNavigationSubscriptionsToNavigationLaunch()
-        view?.findNavController()?.navigate(action)
     }
 
     private fun defineViewModelValues() {

@@ -34,6 +34,7 @@
     <string name="search_text_box_hint">Search</string>
 
     <string name="title_activity_master">Master Activity</string>
+    <string name="title_activity_launch">Launch Activity</string>
     <string name="title_launch">Launch</string>
     <string name="title_subscriptions">Subscriptions</string>
     <string name="title_search">Search</string>

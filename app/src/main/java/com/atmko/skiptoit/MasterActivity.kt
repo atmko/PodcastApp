@@ -1,9 +1,6 @@
 package com.atmko.skiptoit
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.IBinder
@@ -24,6 +21,9 @@ import com.atmko.skiptoit.databinding.ActivityMasterBinding
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
+import com.atmko.skiptoit.launch.IS_FIRST_SETUP_KEY
+import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
+import com.atmko.skiptoit.launch.LaunchActivity
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
 import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User
@@ -96,6 +96,11 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (isFirstSetup()) {
+            openLaunchFragment()
+            return
+        }
+
         getPresentationComponent().inject(this)
 
         configureOrientationRestrictions()
@@ -147,6 +152,21 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         mIsBound = false
     }
 
+    private fun isFirstSetup(): Boolean {
+        val sharedPreferences: SharedPreferences = getSharedPreferences(
+            LAUNCH_FRAGMENT_KEY,
+            Context.MODE_PRIVATE
+        )
+
+        return sharedPreferences.getBoolean(IS_FIRST_SETUP_KEY, true)
+    }
+
+    private fun openLaunchFragment() {
+        val launchActivityIntent = Intent(applicationContext, LaunchActivity::class.java)
+        startActivity(launchActivityIntent)
+        finish()
+    }
+
     private fun configureOrientationRestrictions() {
         if (resources.getBoolean(R.bool.isPhone)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -156,9 +176,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     private fun configureBaseNavigationChangedListener() {
         findNavController(R.id.base_nav_host_fragment)
             .addOnDestinationChangedListener{navController , destination, arguments ->
-                if (destination.id == R.id.navigation_launch) {
-                    hideBottomPanels()
-                } else if (!isBottomPanelsShown()){
+                if (!isBottomPanelsShown()){
                     showBottomPanels()
                 }
             }

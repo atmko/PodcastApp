@@ -6,26 +6,10 @@
     app:startDestination="@+id/navigation_subscriptions">
 
     <fragment
-        android:id="@+id/navigation_launch"
-        android:name="com.atmko.skiptoit.launch.LaunchFragment"
-        android:label="@string/title_launch"
-        tools:layout="@layout/fragment_launch">
-        <action
-            android:id="@+id/action_navigation_launch_to_navigation_subscriptions"
-            app:destination="@id/navigation_subscriptions"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/navigation_launch"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
         android:id="@+id/navigation_subscriptions"
         android:name="com.atmko.skiptoit.subcriptions.SubscriptionsFragment"
         android:label="@string/title_subscriptions"
         tools:layout="@layout/fragment_subscriptions" >
-        <action
-            android:id="@+id/action_navigation_subscriptions_to_navigation_launch"
-            app:destination="@id/navigation_launch" />
         <action
             android:id="@+id/action_navigation_subscriptions_to_navigation_details"
             app:destination="@id/navigation_details" />

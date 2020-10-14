@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.atmko.skiptoit.view.MasterActivity"
+            android:name="com.atmko.skiptoit.MasterActivity"
             android:label="@string/title_activity_master"
             android:launchMode="singleTop">
 
@@ -26,6 +26,11 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name="com.atmko.skiptoit.launch.LaunchActivity"
+            android:label="@string/title_activity_launch"
+            android:launchMode="singleTop" />
 
         <service android:name="com.atmko.skiptoit.services.PlaybackService">
 

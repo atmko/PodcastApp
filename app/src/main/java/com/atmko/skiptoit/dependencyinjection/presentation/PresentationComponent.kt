@@ -7,7 +7,7 @@ import com.atmko.skiptoit.episode.replies.RepliesFragment
 import com.atmko.skiptoit.createcomment.CreateCommentFragment
 import com.atmko.skiptoit.createreply.CreateReplyFragment
 import com.atmko.skiptoit.details.DetailsFragment
-import com.atmko.skiptoit.launch.LaunchFragment
+import com.atmko.skiptoit.launch.LaunchActivity
 import com.atmko.skiptoit.search.searchchild.SearchFragment
 import com.atmko.skiptoit.search.searchparent.SearchParentFragment
 import com.atmko.skiptoit.subcriptions.SubscriptionsFragment
@@ -29,7 +29,7 @@ interface PresentationComponent {
     fun inject(detailsFragment: DetailsFragment)
     fun inject(episodeFragment: EpisodeFragment)
 
-    fun inject(launchFragment: LaunchFragment)
+    fun inject(launchActity: LaunchActivity)
     fun inject(repliesFragment: RepliesFragment)
     fun inject(confirmationFragment: ConfirmationFragment)
     fun inject(createCommentFragment: CreateCommentFragment)
