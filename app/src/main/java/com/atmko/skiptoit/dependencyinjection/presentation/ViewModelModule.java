@@ -82,31 +82,27 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(LaunchFragmentViewModel.class)
     ViewModel provideLaunchFragmentViewModel(LoginManager loginManager,
-                                             UserEndpoint userEndpoint,
-                                             SubscriptionsEndpoint subscriptionsEndpoint,
-                                             PodcastsEndpoint podcastsEndpoint,
-                                             SubscriptionsCache subscriptionsCache) {
-        return new LaunchFragmentViewModel(loginManager, userEndpoint, subscriptionsEndpoint, podcastsEndpoint, subscriptionsCache);
+                                             UserEndpoint userEndpoint) {
+        return new LaunchFragmentViewModel(loginManager, userEndpoint);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(MasterActivityViewModel.class)
     ViewModel provideMasterActivityViewModel(LoginManager loginManager,
-                                             UserEndpoint userEndpoint,
-                                             SubscriptionsEndpoint subscriptionsEndpoint,
-                                             PodcastsEndpoint podcastsEndpoint,
-                                             SubscriptionsCache subscriptionsCache) {
-        return new MasterActivityViewModel(loginManager, userEndpoint, subscriptionsEndpoint, podcastsEndpoint, subscriptionsCache);
+                                             UserEndpoint userEndpoint) {
+        return new MasterActivityViewModel(loginManager, userEndpoint);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(SubscriptionsViewModel.class)
-    ViewModel provideSubscriptionsViewModel(SubscriptionsEndpoint subscriptionsEndpoint,
+    ViewModel provideSubscriptionsViewModel(LoginManager loginManager,
+                                            PodcastsEndpoint podcastsEndpoint,
+                                            SubscriptionsEndpoint subscriptionsEndpoint,
                                             SubscriptionsCache subscriptionsCache,
                                             SubscriptionsDao subscriptionsDao) {
-        return new SubscriptionsViewModel(subscriptionsEndpoint, subscriptionsCache, subscriptionsDao);
+        return new SubscriptionsViewModel(loginManager, podcastsEndpoint, subscriptionsEndpoint, subscriptionsCache, subscriptionsDao);
     }
 
     @Provides

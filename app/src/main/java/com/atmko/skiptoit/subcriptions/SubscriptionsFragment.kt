@@ -66,6 +66,16 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         configureDetailsViewModel()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.unregisterListener(this )
+    }
+
     private fun configureBottomMargin() {
         val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
@@ -97,7 +107,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
                 viewModelFactory).get(SubscriptionsViewModel::class.java)
         }
 
-        viewModel.getSubscriptions()
+        viewModel.checkSyncStatusAndNotify()
     }
 
     private fun configureViews() {
@@ -116,6 +126,10 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
                     viewModel.scrollPosition = scrollPosition
                 }
             })
+        }
+
+        binding.retrySyncButton.setOnClickListener {
+            viewModel.restoreSubscriptionsAndNotify()
         }
     }
 
@@ -157,6 +171,15 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun notifyProcessing() {
 
+    }
+
+    override fun onSubscriptionsSyncStatusSynced() {
+        binding.syncErrorLayout.visibility = View.GONE
+        viewModel.getSubscriptions()
+    }
+
+    override fun onSubscriptionsSyncStatusSyncFailed() {
+        binding.syncErrorLayout.visibility = View.VISIBLE
     }
 
     override fun onStatusUpdated() {

@@ -463,7 +463,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         viewModel.getMatchingUserAndNotify()
-        viewModel.restoreSubscriptionsAndNotify()
     }
 
     override fun onSignInFailed() {
@@ -493,16 +492,5 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(binding.topLayout, "Failed to sign out", Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onRestoreSubscriptionsSuccess() {
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-    }
-
-    override fun onRestoreSubscriptionsFailed() {
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, "Failed to sync subscriptions", Snackbar.LENGTH_LONG).show()
     }
 }

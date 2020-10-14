@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/top_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_general"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/syncErrorLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subscriptions_sync_failed" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retrySyncButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x2_layout_margin"
+            android:text="@string/retry_sync"
+            android:textAllCaps="true" />
+
+    </LinearLayout>
 
     <include
         android:id="@+id/resultsFrameLayout"
@@ -15,6 +44,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/syncErrorLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

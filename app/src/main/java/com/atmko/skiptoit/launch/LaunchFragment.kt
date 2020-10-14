@@ -221,7 +221,6 @@ class LaunchFragment : BaseFragment(),
 
     override fun onSignInSuccess() {
         viewModel.getMatchingUserAndNotify()
-        viewModel.restoreSubscriptionsAndNotify()
     }
 
     override fun onSignInFailed() {
@@ -241,14 +240,6 @@ class LaunchFragment : BaseFragment(),
     }
 
     override fun onSignOutFailed() {
-
-    }
-
-    override fun onRestoreSubscriptionsSuccess() {
-        
-    }
-
-    override fun onRestoreSubscriptionsFailed() {
 
     }
 }

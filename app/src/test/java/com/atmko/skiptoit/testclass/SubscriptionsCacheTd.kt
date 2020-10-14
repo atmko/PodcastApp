@@ -43,10 +43,17 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null, null) {
     }
 
     var mSetSubscriptionsSyncedCounter = 0
-    var mIsSubscriptionsSynced: Boolean? = null
+    var mIsSubscriptionsSynced: Boolean = true
     override fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean, listener: SyncStatusUpdateListener) {
         mSetSubscriptionsSyncedCounter += 1
         mIsSubscriptionsSynced = isSubscriptionsSynced
         listener.onSyncStatusUpdated()
+    }
+
+    var mIsSubscriptionsSyncedCounter = 0
+    var mIsUserLoggedIn: Boolean = true
+    override fun isSubscriptionsSynced(listener: SyncStatusFetchListener) {
+        mIsSubscriptionsSyncedCounter += 1
+        listener.onSyncStatusFetched(mIsSubscriptionsSynced)
     }
 }

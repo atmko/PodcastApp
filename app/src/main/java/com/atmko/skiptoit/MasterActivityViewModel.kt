@@ -2,21 +2,13 @@ package com.atmko.skiptoit
 
 import android.util.Log
 import com.atmko.skiptoit.common.ManagerViewModel
-import com.atmko.skiptoit.model.database.SubscriptionsCache
-import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
 
 class MasterActivityViewModel(
     loginManager: LoginManager,
-    userEndpoint: UserEndpoint,
-    subscriptionsEndpoint: SubscriptionsEndpoint,
-    podcastsEndpoint: PodcastsEndpoint,
-    subscriptionsCache: SubscriptionsCache
+    userEndpoint: UserEndpoint
 ) : ManagerViewModel(
     loginManager,
-    userEndpoint,
-    subscriptionsEndpoint,
-    podcastsEndpoint,
-    subscriptionsCache
+    userEndpoint
 ) {
 
     private fun unregisterListeners() {

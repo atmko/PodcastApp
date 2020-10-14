@@ -29,6 +29,10 @@ open class SubscriptionsCache(
         fun onSyncStatusUpdated()
     }
 
+    interface SyncStatusFetchListener {
+        fun onSyncStatusFetched(isSubscriptionsSynced: Boolean)
+    }
+
     open fun insertSubscription(podcasts: List<Podcast>, listener: SubscriptionUpdateListener) {
         AppExecutors.getInstance().diskIO().execute {
             subscriptionsDao!!.createSubscription(podcasts)
@@ -66,6 +70,16 @@ open class SubscriptionsCache(
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onSyncStatusUpdated()
+            }
+        }
+    }
+
+    open fun isSubscriptionsSynced(listener: SyncStatusFetchListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val isSubscriptionsSynced = prefs!!.getBoolean(IS_SUBSCRIPTIONS_SYNCED_KEY, false)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onSyncStatusFetched(isSubscriptionsSynced)
             }
         }
     }

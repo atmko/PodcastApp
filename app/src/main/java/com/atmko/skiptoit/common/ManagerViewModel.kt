@@ -4,22 +4,13 @@ import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import com.atmko.skiptoit.LoginManager
-import com.atmko.skiptoit.PodcastsEndpoint
 import com.atmko.skiptoit.UserEndpoint
-import com.atmko.skiptoit.model.ApiResults
-import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.Subscription
 import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.model.database.SubscriptionsCache
-import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 open class ManagerViewModel(
     private val loginManager: LoginManager,
-    private val userEndpoint: UserEndpoint,
-    private val subscriptionsEndpoint: SubscriptionsEndpoint,
-    private val podcastsEndpoint: PodcastsEndpoint,
-    private val subscriptionsCache: SubscriptionsCache
+    private val userEndpoint: UserEndpoint
 ) : BaseViewModel<ManagerViewModel.Listener>() {
 
     interface Listener {
@@ -32,8 +23,6 @@ open class ManagerViewModel(
         fun onUserFetchFailed()
         fun onSignOutSuccess()
         fun onSignOutFailed()
-        fun onRestoreSubscriptionsSuccess()
-        fun onRestoreSubscriptionsFailed()
     }
 
     companion object {
@@ -109,75 +98,12 @@ open class ManagerViewModel(
         })
     }
 
-    fun restoreSubscriptionsAndNotify() {
-        notifyProcessing()
-        subscriptionsEndpoint.getSubscriptions(object : SubscriptionsEndpoint.RetrieveSubscriptionsListener {
-            override fun onSubscriptionsFetchSuccess(subscriptions: List<Subscription>) {
-                getBatchPodcastData(subscriptions)
-            }
-
-            override fun onSubscriptionsFetchFailed() {
-                setSubscriptionsSynced(false)
-            }
-        })
-    }
-
     fun isFirstSetUp(): Boolean {
         return loginManager.isFirstSetUp()
     }
 
     fun setIsFirstSetUp(isFirstSetUp: Boolean) {
         loginManager.setIsFirstSetup(isFirstSetUp)
-    }
-
-    private fun getBatchPodcastData(subscriptions: List<Subscription>) {
-        podcastsEndpoint.getBatchPodcastMetadata(combinePodcastIds(subscriptions), object : PodcastsEndpoint.BatchFetchPodcastsListener {
-            override fun onBatchFetchSuccess(apiResults: ApiResults) {
-                saveToLocalDatabase(apiResults.podcasts)
-            }
-
-            override fun onBatchFetchFailed() {
-                setSubscriptionsSynced(false)
-            }
-        })
-    }
-
-    private fun saveToLocalDatabase(podcasts: List<Podcast>) {
-        subscriptionsCache.insertSubscription(podcasts, object : SubscriptionsCache.SubscriptionUpdateListener {
-            override fun onSubscriptionUpdateSuccess() {
-                setSubscriptionsSynced(true)
-            }
-
-            override fun onSubscriptionUpdateFailed() {
-                setSubscriptionsSynced(false)
-            }
-        })
-    }
-
-    private fun combinePodcastIds(subscriptions: List<Subscription>): String {
-        val builder: StringBuilder = java.lang.StringBuilder()
-        var counter = 0
-        while (counter < subscriptions.size) {
-            builder.append(subscriptions[counter].listenNotesId)
-            if (counter != subscriptions.size - 1) {
-                builder.append(",")
-            }
-            counter += 1
-        }
-
-        return builder.toString()
-    }
-
-    private fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean) {
-        subscriptionsCache.setSubscriptionsSynced(isSubscriptionsSynced, object : SubscriptionsCache.SyncStatusUpdateListener {
-            override fun onSyncStatusUpdated() {
-                if (isSubscriptionsSynced) {
-                    notifyRestoreSubscriptionsSuccess()
-                } else {
-                    notifyRestoreSubscriptionsFailed()
-                }
-            }
-        })
     }
 
     private fun unregisterListeners() {
@@ -239,18 +165,6 @@ open class ManagerViewModel(
     private fun notifySignOutFailed() {
         for (listener in listeners) {
             listener.onSignOutFailed()
-        }
-    }
-
-    private fun notifyRestoreSubscriptionsSuccess() {
-        for (listener in listeners) {
-            listener.onRestoreSubscriptionsSuccess()
-        }
-    }
-
-    private fun notifyRestoreSubscriptionsFailed() {
-        for (listener in listeners) {
-            listener.onRestoreSubscriptionsFailed()
         }
     }
 

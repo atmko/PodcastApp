@@ -2,24 +2,15 @@ package com.atmko.skiptoit.launch
 
 import android.util.Log
 import com.atmko.skiptoit.LoginManager
-import com.atmko.skiptoit.PodcastsEndpoint
 import com.atmko.skiptoit.UserEndpoint
 import com.atmko.skiptoit.common.ManagerViewModel
-import com.atmko.skiptoit.model.database.SubscriptionsCache
-import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
 
 class LaunchFragmentViewModel(
     loginManager: LoginManager,
-    userEndpoint: UserEndpoint,
-    subscriptionsEndpoint: SubscriptionsEndpoint,
-    podcastsEndpoint: PodcastsEndpoint,
-    subscriptionsCache: SubscriptionsCache
+    userEndpoint: UserEndpoint
 ) : ManagerViewModel(
     loginManager,
-    userEndpoint,
-    subscriptionsEndpoint,
-    podcastsEndpoint,
-    subscriptionsCache
+    userEndpoint
 ) {
 
     private fun unregisterListeners() {

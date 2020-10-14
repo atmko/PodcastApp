@@ -212,7 +212,6 @@ sources, please visit " />
                     app:layout_constraintTop_toBottomOf="@id/playPanel"
                     tools:text="3920" />
 
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/addCommentButton"
                     style="@style/Widget.MaterialComponents.Button.TextButton"

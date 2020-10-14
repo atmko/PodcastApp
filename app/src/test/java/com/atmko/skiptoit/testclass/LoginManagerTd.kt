@@ -2,10 +2,9 @@ package com.atmko.skiptoit.testclass
 
 import android.content.Intent
 import com.atmko.skiptoit.LoginManager
-import com.atmko.skiptoit.launch.LaunchFragmentViewModelTest
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
-class LoginManagerTdTest : LoginManager(null, null) {
+class LoginManagerTd : LoginManager(null, null) {
 
     var mSilentSignInCounter = 0
     var mSilentSignInFailure = false

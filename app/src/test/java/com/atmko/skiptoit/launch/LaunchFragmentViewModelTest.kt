@@ -2,21 +2,16 @@ package com.atmko.skiptoit.launch
 
 import android.app.Activity
 import android.content.Intent
-import com.atmko.skiptoit.PodcastsEndpoint
 import com.atmko.skiptoit.UserEndpoint
 import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.testclass.LoginManagerTdTest
-import com.atmko.skiptoit.testclass.SubscriptionsCacheTd
-import com.atmko.skiptoit.testclass.SubscriptionsEndpointTd
-import com.atmko.skiptoit.testdata.ApiResultsMocks
+import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,10 +33,7 @@ class LaunchFragmentViewModelTest {
     // endregion constants
 
     // end region helper fields
-    lateinit var mLoginManagerTd: LoginManagerTdTest
-    lateinit var mPodcastsEndpointTd: PodcastsEndpointTd
-    lateinit var mSubscriptionsCache: SubscriptionsCacheTd
-    lateinit var mSubscriptionsEndpointTd: SubscriptionsEndpointTd
+    lateinit var mLoginManagerTd: LoginManagerTd
     lateinit var mUserEndpointTd: UserEndpointTd
 
     @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
@@ -52,26 +44,17 @@ class LaunchFragmentViewModelTest {
 
     @Before
     fun setup() {
-        mLoginManagerTd = LoginManagerTdTest()
-        mPodcastsEndpointTd = PodcastsEndpointTd()
-        mSubscriptionsCache = SubscriptionsCacheTd()
-        mSubscriptionsEndpointTd = SubscriptionsEndpointTd()
+        mLoginManagerTd = LoginManagerTd()
         mUserEndpointTd = UserEndpointTd()
         SUT = LaunchFragmentViewModel(
             mLoginManagerTd,
-            mUserEndpointTd,
-            mSubscriptionsEndpointTd,
-            mPodcastsEndpointTd,
-            mSubscriptionsCache
+            mUserEndpointTd
         )
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
         silentSignInSuccess()
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
-        getSubscriptionsSuccess()
-        getBatchPodcastDataSuccess()
-        insertSubscriptionSuccess()
     }
 
     @Test
@@ -327,140 +310,6 @@ class LaunchFragmentViewModelTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    fun restoreSubscriptionsAndNotify_notifyProcessing() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        verify(mListenerMock1).notifyProcessing()
-        verify(mListenerMock2).notifyProcessing()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
-        // Assert
-        getSubscriptionsError()
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsError_listenersNotifiedOfError() {
-        // Assert
-        getSubscriptionsError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsFailed()
-        verify(mListenerMock2).onRestoreSubscriptionsFailed()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataError_falseArgumentPassedIntoUpdateMethod() {
-        // Assert
-        getBatchPodcastDataError()
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataError_listenersNotifiedOfError() {
-        // Assert
-        getBatchPodcastDataError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsFailed()
-        verify(mListenerMock2).onRestoreSubscriptionsFailed()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
-        // Assert
-        insertSubscriptionError()
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsCache.mInsertSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(false))
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsError_listenersNotifiedOfError() {
-        // Assert
-        insertSubscriptionError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mInsertSubscriptionCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsFailed()
-        verify(mListenerMock2).onRestoreSubscriptionsFailed()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedIntoUpdateMethod() {
-        // Assert
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCache.mIsSubscriptionsSynced, `is`(true))
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_listenersNotifiedOfSuccess() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
-        verify(mListenerMock2).onRestoreSubscriptionsSuccess()
-    }
-
-    @Test
-    fun restoreSubscriptionsAndNotify_getSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_unregisteredListenersNotNotifiedOfSuccess() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.restoreSubscriptionsAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        verify(mListenerMock1).onRestoreSubscriptionsSuccess()
-        verify(mListenerMock2, never()).onRestoreSubscriptionsSuccess()
-    }
-
-    //----------------------------------------------------------------------------------------------
-
-    @Test
     fun isFirstSetUp_isFirstSetUpCalled() {
         // Assert
         // Act
@@ -515,30 +364,6 @@ class LaunchFragmentViewModelTest {
     fun getMatchingUserError() {
         mUserEndpointTd.mGetMatchingUserFailure = true
     }
-
-    fun getSubscriptionsSuccess() {
-        // no-op because mGetSubscriptionsFailure false by default
-    }
-
-    fun getSubscriptionsError() {
-        mSubscriptionsEndpointTd.mGetSubscriptionsFailure = true
-    }
-
-    fun getBatchPodcastDataSuccess() {
-        // no-op because mGetBatchPodcastMetadataFailure false by default
-    }
-
-    fun getBatchPodcastDataError() {
-        mPodcastsEndpointTd.mGetBatchPodcastMetadataFailure = true
-    }
-
-    fun insertSubscriptionSuccess() {
-        // no-op because mFailure false by default
-    }
-
-    fun insertSubscriptionError() {
-        mSubscriptionsCache.mFailure = true
-    }
     // endregion helper methods
 
     // region helper classes
@@ -552,25 +377,6 @@ class LaunchFragmentViewModelTest {
                 listener.onUserFetchSuccess(UserMocks.GET_USER())
             } else {
                 listener.onUserFetchFailed()
-            }
-        }
-    }
-
-    class PodcastsEndpointTd : PodcastsEndpoint(null, null) {
-
-        var mGetBatchPodcastMetadataCounter = 0
-        var mGetBatchPodcastMetadataFailure = false
-        lateinit var mCombinedPodcastIds: String
-        override fun getBatchPodcastMetadata(
-            combinedPodcastIds: String,
-            listener: BatchFetchPodcastsListener
-        ) {
-            mGetBatchPodcastMetadataCounter += 1
-            mCombinedPodcastIds = combinedPodcastIds
-            if (!mGetBatchPodcastMetadataFailure) {
-                listener.onBatchFetchSuccess(ApiResultsMocks.GET_API_RESULTS())
-            } else {
-                listener.onBatchFetchFailed()
             }
         }
     }

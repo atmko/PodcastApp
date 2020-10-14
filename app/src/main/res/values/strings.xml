@@ -58,6 +58,8 @@
     <string name="unsubscribe">Unsubscribe</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
+    <string name="subscriptions_sync_failed">Subscriptions Sync Failed</string>
+    <string name="retry_sync">retry sync</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
