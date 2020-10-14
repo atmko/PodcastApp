@@ -52,7 +52,19 @@ open class ManagerViewModel(
         loginManager.signOut(object : LoginManager.SignOutListener {
             override fun onSignOutSuccess() {
                 currentUser = null
-                notifySignOutSuccess()
+                //todo is editing shared preferences here thread safe?
+                setIsFirstSetUp(true)
+                if (isFirstSetUp()) {
+                    loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
+                        override fun onDatabaseCleared() {
+                            loginManager.setSubscriptionsSynced(false, object : LoginManager.SyncStatusUpdateListener {
+                                override fun onSyncStatusUpdated() {
+                                    notifySignOutSuccess()
+                                }
+                            })
+                        }
+                    })
+                }
             }
 
             override fun onSignOutFailed() {

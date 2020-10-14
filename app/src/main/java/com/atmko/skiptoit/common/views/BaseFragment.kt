@@ -2,6 +2,9 @@ package com.atmko.skiptoit.common.views
 
 import android.content.res.Resources
 import android.util.DisplayMetrics
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
@@ -9,13 +12,13 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationModule
-import com.atmko.skiptoit.MasterActivity
 
 private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
 private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
@@ -44,6 +47,7 @@ open class BaseFragment : Fragment() {
     }
 
     fun configureToolbar(toolbar: Toolbar) {
+        setHasOptionsMenu(true)
         val navController = findNavController()
 
         val appBarConfiguration = AppBarConfiguration(
@@ -52,7 +56,21 @@ open class BaseFragment : Fragment() {
                 R.id.navigation_search
             )
         )
+        (activity as MasterActivity).setSupportActionBar(toolbar)
         toolbar.setupWithNavController(navController, appBarConfiguration)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.options_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.log_out) {
+            (requireActivity() as MasterActivity).viewModel.signOutAndNotify()
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     fun getBaseFragmentBottomMargin(): Int {

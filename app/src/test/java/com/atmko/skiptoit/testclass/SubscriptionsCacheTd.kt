@@ -3,7 +3,7 @@ package com.atmko.skiptoit.testclass
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 
-class  SubscriptionsCacheTd : SubscriptionsCache(null, null) {
+class  SubscriptionsCacheTd : SubscriptionsCache(null) {
 
     var mFailure = false
     var mPodcastId = ""
@@ -40,20 +40,5 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null, null) {
         } else {
             listener.onGetSubscriptionStatusFailed()
         }
-    }
-
-    var mSetSubscriptionsSyncedCounter = 0
-    var mIsSubscriptionsSynced: Boolean = true
-    override fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean, listener: SyncStatusUpdateListener) {
-        mSetSubscriptionsSyncedCounter += 1
-        mIsSubscriptionsSynced = isSubscriptionsSynced
-        listener.onSyncStatusUpdated()
-    }
-
-    var mIsSubscriptionsSyncedCounter = 0
-    var mIsUserLoggedIn: Boolean = true
-    override fun isSubscriptionsSynced(listener: SyncStatusFetchListener) {
-        mIsSubscriptionsSyncedCounter += 1
-        listener.onSyncStatusFetched(mIsSubscriptionsSynced)
     }
 }

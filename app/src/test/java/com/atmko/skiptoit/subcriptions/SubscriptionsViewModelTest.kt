@@ -84,7 +84,7 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.checkSyncStatusAndNotify()
         // Assert
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSyncedCounter, `is`(1))
     }
 
     @Test
@@ -134,7 +134,7 @@ class SubscriptionsViewModelTest {
         SUT.checkSyncStatusAndNotify()
         SUT.checkSyncStatusAndNotify()
         // Assert
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSyncedCounter, `is`(1))
         assertThat(mLoginManagerTd.mSilentSignInCounter, `is`(1))
         assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
     }
@@ -157,8 +157,8 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.checkSyncStatusAndNotify()
         // Assert
-        assertThat(mSubscriptionsCacheTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSynced, `is`(false))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(false))
     }
 
     @Test
@@ -184,8 +184,8 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.checkSyncStatusAndNotify()
         // Assert
-        assertThat(mSubscriptionsCacheTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSynced, `is`(false))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(false))
     }
 
     @Test
@@ -213,8 +213,8 @@ class SubscriptionsViewModelTest {
         SUT.checkSyncStatusAndNotify()
         // Assert
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSynced, `is`(false))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(false))
     }
 
     @Test
@@ -242,8 +242,8 @@ class SubscriptionsViewModelTest {
         SUT.checkSyncStatusAndNotify()
         // Assert
         assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSynced, `is`(true))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(true))
     }
 
     @Test
@@ -300,7 +300,7 @@ class SubscriptionsViewModelTest {
         SUT.checkSyncStatusAndNotify()
         SUT.checkSyncStatusAndNotify()
         // Assert
-        assertThat(mSubscriptionsCacheTd.mIsSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSyncedCounter, `is`(1))
         assertThat(mLoginManagerTd.mSilentSignInCounter, `is`(1))
         assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
     }
@@ -403,7 +403,7 @@ class SubscriptionsViewModelTest {
     }
 
     private fun subscriptionsNotSynced() {
-        mSubscriptionsCacheTd.mIsSubscriptionsSynced = false
+        mLoginManagerTd.mIsSubscriptionsSynced = false
     }
 
     fun getSubscriptionsSuccess() {

@@ -62,7 +62,7 @@ class SubscriptionsViewModel(
         notifyProcessing()
         loginManager.silentSignIn(object : LoginManager.SignInListener {
             override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
-                subscriptionsCache.isSubscriptionsSynced(object : SubscriptionsCache.SyncStatusFetchListener {
+                loginManager.isSubscriptionsSynced(object : SubscriptionsCache.SyncStatusFetchListener {
                     override fun onSyncStatusFetched(isSubscriptionsSynced: Boolean) {
                         if (!isSubscriptionsSynced) {
                             restoreSubscriptionsAndNotify()
@@ -181,7 +181,7 @@ class SubscriptionsViewModel(
     }
 
     private fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean) {
-        subscriptionsCache.setSubscriptionsSynced(isSubscriptionsSynced, object : SubscriptionsCache.SyncStatusUpdateListener {
+        loginManager.setSubscriptionsSynced(isSubscriptionsSynced, object : LoginManager.SyncStatusUpdateListener {
             override fun onSyncStatusUpdated() {
                 mIsSubscriptionsSynced = isSubscriptionsSynced
                 if (isSubscriptionsSynced) {

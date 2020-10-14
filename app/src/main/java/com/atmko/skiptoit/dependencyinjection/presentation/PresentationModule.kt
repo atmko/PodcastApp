@@ -2,9 +2,9 @@ package com.atmko.skiptoit.dependencyinjection.presentation
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.atmko.skiptoit.LoginManager.Companion.LOGIN_MANAGER_KEY
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
-import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 import dagger.Module
 import dagger.Provides
@@ -22,11 +22,11 @@ class PresentationModule() {
     }
 
     @Provides
-    @Named("launch_fragment")
+    @Named("login_manager")
     fun provideLaunchFragmentSharedPreferences(
         skipToItApplication: SkipToItApplication
     ): SharedPreferences {
-        return skipToItApplication.getSharedPreferences(LAUNCH_FRAGMENT_KEY, Context.MODE_PRIVATE)
+        return skipToItApplication.getSharedPreferences(LOGIN_MANAGER_KEY, Context.MODE_PRIVATE)
     }
 
     @Provides

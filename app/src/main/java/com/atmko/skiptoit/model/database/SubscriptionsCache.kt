@@ -1,13 +1,10 @@
 package com.atmko.skiptoit.model.database
 
-import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.utils.AppExecutors
 
 open class SubscriptionsCache(
-    private val subscriptionsDao: SubscriptionsDao?,
-    private val prefs: SharedPreferences?
+    private val subscriptionsDao: SubscriptionsDao?
 ) {
 
     companion object {
@@ -23,10 +20,6 @@ open class SubscriptionsCache(
     interface SubscriptionStatusListener {
         fun onGetSubscriptionStatusSuccess(subscriptionStatus: Boolean)
         fun onGetSubscriptionStatusFailed()
-    }
-
-    interface SyncStatusUpdateListener {
-        fun onSyncStatusUpdated()
     }
 
     interface SyncStatusFetchListener {
@@ -59,27 +52,6 @@ open class SubscriptionsCache(
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onGetSubscriptionStatusSuccess(isSubscribed)
-            }
-        }
-    }
-
-    @SuppressLint("ApplySharedPref")
-    open fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean, listener: SyncStatusUpdateListener) {
-        AppExecutors.getInstance().diskIO().execute {
-            prefs!!.edit().putBoolean(IS_SUBSCRIPTIONS_SYNCED_KEY, isSubscriptionsSynced).commit()
-
-            AppExecutors.getInstance().mainThread().execute {
-                listener.onSyncStatusUpdated()
-            }
-        }
-    }
-
-    open fun isSubscriptionsSynced(listener: SyncStatusFetchListener) {
-        AppExecutors.getInstance().diskIO().execute {
-            val isSubscriptionsSynced = prefs!!.getBoolean(IS_SUBSCRIPTIONS_SYNCED_KEY, false)
-
-            AppExecutors.getInstance().mainThread().execute {
-                listener.onSyncStatusFetched(isSubscriptionsSynced)
             }
         }
     }

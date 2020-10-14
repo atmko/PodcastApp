@@ -21,8 +21,6 @@ import com.atmko.skiptoit.databinding.ActivityMasterBinding
 import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
-import com.atmko.skiptoit.launch.IS_FIRST_SETUP_KEY
-import com.atmko.skiptoit.launch.LAUNCH_FRAGMENT_KEY
 import com.atmko.skiptoit.launch.LaunchActivity
 import com.atmko.skiptoit.model.EPISODE_ID_KEY
 import com.atmko.skiptoit.model.PODCAST_ID_KEY
@@ -96,11 +94,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (isFirstSetup()) {
-            openLaunchFragment()
-            return
-        }
-
         getPresentationComponent().inject(this)
 
         configureOrientationRestrictions()
@@ -108,6 +101,10 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
+        if (viewModel.isFirstSetUp()) {
+            openLaunchFragment()
+            return
+        }
     }
 
     override fun onResume() {
@@ -150,15 +147,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
             unbindService(playbackServiceConnection)
         }
         mIsBound = false
-    }
-
-    private fun isFirstSetup(): Boolean {
-        val sharedPreferences: SharedPreferences = getSharedPreferences(
-            LAUNCH_FRAGMENT_KEY,
-            Context.MODE_PRIVATE
-        )
-
-        return sharedPreferences.getBoolean(IS_FIRST_SETUP_KEY, true)
     }
 
     private fun openLaunchFragment() {
@@ -504,6 +492,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onSignOutSuccess() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
+        openLaunchFragment()
     }
 
     override fun onSignOutFailed() {

@@ -257,7 +257,7 @@ public class ViewModelModule {
     @Provides
     SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao,
                                                  @Named("subscriptions") SharedPreferences sharedPreferences) {
-        return new SubscriptionsCache(subscriptionsDao, sharedPreferences);
+        return new SubscriptionsCache(subscriptionsDao);
     }
 
     @Provides
@@ -283,8 +283,9 @@ public class ViewModelModule {
 
     @Provides
     LoginManager provideLoginManager(GoogleSignInClient googleSignInClient,
-                                     @Named("launch_fragment") SharedPreferences sharedPreferences) {
-        return new LoginManager(googleSignInClient, sharedPreferences);
+                                     @Named("login_manager") SharedPreferences sharedPreferences,
+                                     SkipToItDatabase skipToItDatabase) {
+        return new LoginManager(googleSignInClient, sharedPreferences, skipToItDatabase);
     }
 
     @Provides

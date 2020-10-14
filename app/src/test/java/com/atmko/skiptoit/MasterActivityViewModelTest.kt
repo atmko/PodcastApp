@@ -10,6 +10,7 @@ import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -57,6 +58,7 @@ class MasterActivityViewModelTest {
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
         silentSignInSuccess()
         signOutSuccess()
+        clearDatabaseSuccess()
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
     }
@@ -153,8 +155,50 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccess_listenersNotifiedOfSuccess() {
+    fun signOutAndNotify_signOutSuccess_userVariableNullified() {
         // Assert
+        SUT.currentUser = UserMocks.GET_USER()
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertNull(SUT.currentUser)
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccess_attemptToUpdateIsFirstSetUpValue() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessIsNotFirstSetup_correctBooleanValueSentToUpdateIsFirstUp() {
+        // Assert
+        mLoginManagerTd.mIsFirstSetup = false
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mClearDatabaseCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsFirstSetup, `is`(true))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccess_correctBooleanValueSentToUpdateSubscriptionSyncStatus() {
+        // Assert
+        mLoginManagerTd.mIsFirstSetup = false
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(false))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccesSsubscriptionSyncStatusUpdateSuccess_listenersNotifiedOfSuccess() {
+        // Assert
+        mLoginManagerTd.mIsFirstSetup = false
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -166,8 +210,9 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccess_unregisteredNotNotified() {
+    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccess_unregisteredNotNotified() {
         // Assert
+        mLoginManagerTd.mIsFirstSetup = false
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
@@ -415,6 +460,10 @@ class MasterActivityViewModelTest {
 
     fun signOutError() {
         mLoginManagerTd.mSignOutFailure = true
+    }
+
+    fun clearDatabaseSuccess() {
+        // no-op because mClearDatabaseFailure false by default
     }
 
     fun getSignedIAccountSuccess() {
