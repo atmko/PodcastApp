@@ -82,16 +82,18 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(LaunchViewModel.class)
     ViewModel provideLaunchFragmentViewModel(LoginManager loginManager,
-                                             UserEndpoint userEndpoint) {
-        return new LaunchViewModel(loginManager, userEndpoint);
+                                             UserEndpoint userEndpoint,
+                                             EpisodesCache episodesCache) {
+        return new LaunchViewModel(loginManager, userEndpoint, episodesCache);
     }
 
     @Provides
     @IntoMap
     @ViewModelKey(MasterActivityViewModel.class)
     ViewModel provideMasterActivityViewModel(LoginManager loginManager,
-                                             UserEndpoint userEndpoint) {
-        return new MasterActivityViewModel(loginManager, userEndpoint);
+                                             UserEndpoint userEndpoint,
+                                             EpisodesCache episodesCache) {
+        return new MasterActivityViewModel(loginManager, userEndpoint, episodesCache);
     }
 
     @Provides
