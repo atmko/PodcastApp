@@ -49,4 +49,6 @@
 
     <dimen name="search_box_padding">12dp</dimen>
 
+    <dimen name="bottom_sheet_drop_shadow_height">8dp</dimen>
+
 </resources>
