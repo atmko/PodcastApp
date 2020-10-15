@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.model.database
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import com.atmko.skiptoit.utils.AppExecutors
 import com.atmko.skiptoit.common.BaseBoundaryCallback.Companion.loadTypeRefresh
@@ -20,8 +21,13 @@ open class EpisodesCache(
         fun onDeletePodcastEpisodesFailed()
     }
 
+    interface SaveEpisodeListener {
+        fun onEpisodeSaveSuccess()
+        fun onEpisodeSaveFailed()
+    }
+
     interface RestoreEpisodeListener {
-        fun onEpisodeRestoreSuccess(episode: Episode)
+        fun onEpisodeRestoreSuccess(episode: Episode?)
         fun onEpisodeRestoreFailed()
     }
 
@@ -99,7 +105,7 @@ open class EpisodesCache(
     open fun deletePodcastEpisodes(currentPodcastId: String, listener: DeletePodcastEpisodesListener) {
         AppExecutors.getInstance().diskIO().execute {
             val lastPlayedPodcastId = prefs!!.getString(PODCAST_ID_KEY, "")
-            if (lastPlayedPodcastId != null && lastPlayedPodcastId != currentPodcastId) {
+            if (lastPlayedPodcastId != "" && lastPlayedPodcastId != currentPodcastId) {
                 skipToItDatabase!!.episodeDao().deletePodcastEpisodes(currentPodcastId)
             }
             AppExecutors.getInstance().mainThread().execute {
@@ -108,38 +114,39 @@ open class EpisodesCache(
         }
     }
 
-    open fun restoreEpisode(listener: RestoreEpisodeListener) {
+    @SuppressLint("ApplySharedPref")
+    open fun saveEpisode(episode: Episode, listener: SaveEpisodeListener) {
         AppExecutors.getInstance().diskIO().execute {
-            val podcastId = prefs!!.getString(PODCAST_ID_KEY, "")!!
-            val episodeId = prefs.getString(EPISODE_ID_KEY, "")
-            val title = prefs.getString(EPISODE_TITLE_KEY, "")
-            val description = prefs.getString(EPISODE_DESCRIPTION_KEY, "")
-            val image = prefs.getString(EPISODE_IMAGE_KEY, "")
-            val audio = prefs.getString(EPISODE_AUDIO_KEY, "")
-            val publishDate = prefs.getLong(EPISODE_PUBLISH_DATE_KEY, 0)
-            val lengthInSeconds = prefs.getInt(EPISODE_LENGTH_IN_SECONDS_KEY, 0)
+            prefs!!.edit()
+                .putString(PODCAST_ID_KEY, episode.podcastId)
+                .putString(EPISODE_ID_KEY, episode.episodeId)
+                .putString(PODCAST_TITLE_KEY, episode.podcast!!.title)
+                .commit()
 
-            val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
-
-            val podcast =
-                Podcast(podcastId, podcastTitle, "", "", "", 0)
-
-            val episode =
-                Episode(
-                    episodeId!!,
-                    title,
-                    description,
-                    image,
-                    audio,
-                    publishDate,
-                    lengthInSeconds,
-                    podcast
-                )
-
-            episode.podcastId = podcast.id
+            skipToItDatabase!!.episodeDao().insertEpisodes(listOf(episode))
 
             AppExecutors.getInstance().mainThread().execute {
-                listener.onEpisodeRestoreSuccess(episode)
+                listener.onEpisodeSaveSuccess()
+            }
+        }
+    }
+
+    open fun restoreEpisode(listener: RestoreEpisodeListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val episodeId = prefs!!.getString(EPISODE_ID_KEY, "")
+            val podcastId = prefs.getString(PODCAST_ID_KEY, "")
+            val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
+
+            val restoredEpisode: Episode? = skipToItDatabase!!.episodeDao().getEpisode(episodeId!!)
+            if (restoredEpisode != null) {
+                restoredEpisode.podcastId = podcastId
+                val podcast =
+                    Podcast(podcastId!!, podcastTitle, "", "", "", 0)
+                restoredEpisode.podcast = podcast
+            }
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onEpisodeRestoreSuccess(restoredEpisode)
             }
         }
     }

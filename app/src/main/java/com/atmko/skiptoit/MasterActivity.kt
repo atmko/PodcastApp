@@ -1,6 +1,9 @@
 package com.atmko.skiptoit
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.IBinder
@@ -14,16 +17,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseActivity
-import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
-import com.atmko.skiptoit.episode.EPISODE_FRAGMENT_KEY
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.launch.LaunchActivity
-import com.atmko.skiptoit.model.EPISODE_ID_KEY
-import com.atmko.skiptoit.model.PODCAST_ID_KEY
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
 import com.atmko.skiptoit.utils.loadNetworkImage
@@ -101,6 +101,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
+        launchEpisodeFragment()
         if (viewModel.isFirstSetUp()) {
             openLaunchFragment()
             return
@@ -224,16 +225,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
                 binding.collapsedBottomSheet.alpha = 1f
                 binding.episodeFragmentFrameLayout.alpha = 0f
             }
-        } else {
-            val episodePrefs = getSharedPreferences(EPISODE_FRAGMENT_KEY, Context.MODE_PRIVATE)
-            episodePrefs?.let {
-                val podcastId = episodePrefs.getString(PODCAST_ID_KEY, null)
-                val episodeId = episodePrefs.getString(EPISODE_ID_KEY, null)
-                if (episodeId != null && podcastId !== null) {
-                    restoreEpisodeIntoBottomSheet(podcastId, episodeId)
-                }
-            }
         }
+    }
+
+    private fun launchEpisodeFragment() {
+        val action = EpisodeFragmentDirections
+            .actionNavigationEpisodeToNavigationEpisode()
+
+        findNavController(R.id.episode_nav_host_fragment).navigate(action)
     }
 
     private fun configureBottomSheet() {
@@ -314,7 +313,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     fun bottomSheetPeekHeight(): Int {
-        return if (isBottomSheetShown()) {
+        return if (isBottomSheetVisible()) {
             resources.getDimension(R.dimen.bottom_sheet_peek_height).toInt()
         } else {
             0
@@ -327,7 +326,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     private fun isBottomPanelsShown(): Boolean {
-        return isNavViewShown() || isBottomSheetShown()
+        return isNavViewShown() || isBottomSheetVisible()
     }
 
     private fun showBottomPanels() {
@@ -339,13 +338,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         return binding.navView.visibility == View.VISIBLE
     }
 
-    private fun isBottomSheetShown(): Boolean {
+    private fun isBottomSheetVisible(): Boolean {
         return binding.bottomSheet.visibility == View.VISIBLE
-    }
-
-    private fun hideBottomPanels() {
-        binding.navView.visibility = View.GONE
-        binding.bottomSheet.visibility = View.GONE
     }
 
     private fun expandBottomSheet() {
@@ -386,31 +380,32 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
                 findNavController(R.id.episode_nav_host_fragment).navigate(
                     EpisodeFragmentDirections
                         .actionNavigationEpisodeToNavigationEpisode(
-                            podcastId, episodeId, false)
+                            podcastId, episodeId)
                 )
             }
             R.id.navigation_replies -> {
                 findNavController(R.id.episode_nav_host_fragment).navigate(
                     RepliesFragmentDirections
                         .actionNavigationRepliesToNavigationEpisode(
-                            podcastId, episodeId, false)
+                            podcastId, episodeId)
                 )
             }
         }
     }
 
-    private fun restoreEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        binding.navView.post {
-            bottomSheetBehavior.peekHeight =
-                binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+    fun configureBottomSheetState() {
+        if (!isBottomSheetExpanded()) {
+            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+            val hasPeekHeight: Boolean = bottomSheetBehavior.peekHeight > 0
+            if (!hasPeekHeight || !isBottomSheetVisible() ) {
+                binding.navView.post {
+                    bottomSheetBehavior.peekHeight =
+                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+                }
+            }
         }
 
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationEpisode(
-                podcastId, episodeId, true)
-
-        findNavController(R.id.episode_nav_host_fragment).navigate(action)
+        showBottomPanels()
     }
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {

@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.testclass
 
+import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 import com.atmko.skiptoit.testdata.EpisodeMocks
@@ -27,28 +28,45 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         }
     }
 
+    var mDeletePodcastEpisodesCounter = 0
+    var mDeletePodcastEpisodesError = false
     var mPodcastId = ""
     override fun deletePodcastEpisodes(currentPodcastId: String, listener: DeletePodcastEpisodesListener) {
+        mDeletePodcastEpisodesCounter += 1
         mPodcastId = currentPodcastId
-        if (!mFailure) {
+        if (!mDeletePodcastEpisodesError) {
             listener.onDeletePodcastEpisodesSuccess()
         } else {
             listener.onDeletePodcastEpisodesFailed()
         }
     }
 
+    var mSaveEpisodeCounter = 0
+    var mSaveEpisodeError = false
+    lateinit var mSaveEpisodeArgEpisode: Episode
+    override fun saveEpisode(episode: Episode, listener: SaveEpisodeListener) {
+        mSaveEpisodeCounter += 1
+        mSaveEpisodeArgEpisode = episode
+        if (!mSaveEpisodeError) {
+            listener.onEpisodeSaveSuccess()
+        } else {
+            listener.onEpisodeSaveFailed()
+        }
+    }
+
     var mRestoreEpisodeCounter = 0
+    var mRestoreEpisodeFailure = false
     override fun restoreEpisode(listener: RestoreEpisodeListener) {
         mRestoreEpisodeCounter += 1
-        if (!mFailure) {
-            listener.onEpisodeRestoreSuccess(EpisodeMocks.GET_EPISODE())
+        if (!mRestoreEpisodeFailure) {
+            listener.onEpisodeRestoreSuccess(EpisodeMocks.GET_EPISODE_DETAILS())
         } else {
             listener.onEpisodeRestoreFailed()
         }
     }
 
     var mGetNextEpisodeCounter = 0
-    var mCacheQueryError = false
+    var mGetNextEpisodeError = false
     var mEpisodeNotInCache = false
     var mEpisodeId = ""
     var mPublishDate: Long? = null
@@ -60,7 +78,7 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         mGetNextEpisodeCounter += 1
         mEpisodeId = episodeId
         mPublishDate = publishDate
-        if (!mCacheQueryError) {
+        if (!mGetNextEpisodeError) {
             if (!mEpisodeNotInCache) {
                 listener.onNextEpisodeFetchSuccess(EpisodeMocks.GET_NEXT_EPISODE())
             } else {
@@ -72,14 +90,14 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
     }
 
     var mInsertEpisodesAndReturnNextEpisodeCounter = 0
-    var mCacheWriteError = false
+    var mInsertEpisodesAndReturnNextEpisodeError = false
     override fun insertEpisodesAndReturnNextEpisode(
         podcastDetails: PodcastDetails,
         listener: NextEpisodeListener
     ) {
         mInsertEpisodesAndReturnNextEpisodeCounter += 1
         mPodcastDetails = podcastDetails
-        if (!mCacheWriteError) {
+        if (!mInsertEpisodesAndReturnNextEpisodeError) {
             listener.onNextEpisodeFetchSuccess(EpisodeMocks.GET_NEXT_EPISODE())
         } else {
             listener.onNextEpisodeFetchFailed()
@@ -87,6 +105,7 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
     }
 
     var mGetPreviousEpisodeCounter = 0
+    var mGetPreviousEpisodeError = false
     override fun getPreviousEpisode(
         episodeId: String,
         publishDate: Long,
@@ -95,7 +114,7 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         mGetPreviousEpisodeCounter += 1
         mEpisodeId = episodeId
         mPublishDate = publishDate
-        if (!mCacheQueryError) {
+        if (!mGetPreviousEpisodeError) {
             if (!mEpisodeNotInCache) {
                 listener.onPreviousEpisodeFetchSuccess(EpisodeMocks.GET_PREV_EPISODE())
             } else {

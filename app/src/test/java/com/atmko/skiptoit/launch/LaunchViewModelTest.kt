@@ -22,7 +22,7 @@ import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class LaunchFragmentViewModelTest {
+class LaunchViewModelTest {
 
     // region constants
     companion object {
@@ -40,13 +40,13 @@ class LaunchFragmentViewModelTest {
     @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
     // endregion helper fields
 
-    lateinit var SUT: LaunchFragmentViewModel
+    lateinit var SUT: LaunchViewModel
 
     @Before
     fun setup() {
         mLoginManagerTd = LoginManagerTd()
         mUserEndpointTd = UserEndpointTd()
-        SUT = LaunchFragmentViewModel(
+        SUT = LaunchViewModel(
             mLoginManagerTd,
             mUserEndpointTd
         )

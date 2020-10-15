@@ -11,12 +11,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val EPISODE_ID_KEY = "episode_id"
-const val EPISODE_TITLE_KEY = "episode_title"
-const val EPISODE_DESCRIPTION_KEY = "episode_description"
-const val EPISODE_IMAGE_KEY = "episode_image"
-const val EPISODE_AUDIO_KEY = "episode_audio"
-const val EPISODE_PUBLISH_DATE_KEY = "episode_publish_date"
-const val EPISODE_LENGTH_IN_SECONDS_KEY = "episode_length_in_seconds"
 
 const val MINUTE_TO_SECONDS = 60
 const val PUBLISH_DATE_FORMAT = "MMM dd, yyyy"
@@ -70,15 +64,36 @@ class Episode(
         }
     }
 
+
     override fun equals(other: Any?): Boolean {
-        if (other !is Episode) return false
-        return episodeId == other.episodeId
-                && title == other.title
-                && description == other.description
-                && image == other.image
-                && audio == other.audio
-                && publishDate == other.publishDate
-                && lengthInSeconds == other.lengthInSeconds
-                && podcast == other.podcast
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Episode
+
+        if (episodeId != other.episodeId) return false
+        if (title != other.title) return false
+        if (description != other.description) return false
+        if (image != other.image) return false
+        if (audio != other.audio) return false
+        if (publishDate != other.publishDate) return false
+        if (lengthInSeconds != other.lengthInSeconds) return false
+        if (podcastId != other.podcastId) return false
+        if (podcast != other.podcast) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = episodeId.hashCode()
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (audio?.hashCode() ?: 0)
+        result = 31 * result + publishDate.hashCode()
+        result = 31 * result + lengthInSeconds
+        result = 31 * result + (podcastId?.hashCode() ?: 0)
+        result = 31 * result + (podcast?.hashCode() ?: 0)
+        return result
     }
 }

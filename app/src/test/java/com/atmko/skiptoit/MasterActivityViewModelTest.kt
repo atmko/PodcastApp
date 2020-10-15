@@ -3,8 +3,7 @@ package com.atmko.skiptoit
 import android.app.Activity
 import android.content.Intent
 import com.atmko.skiptoit.common.ManagerViewModel
-import com.atmko.skiptoit.model.User
-import com.atmko.skiptoit.testclass.LoginManagerTd
+import com.atmko.skiptoit.model.User import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
@@ -38,10 +37,8 @@ class MasterActivityViewModelTest {
     lateinit var mLoginManagerTd: LoginManagerTd
     lateinit var mUserEndpointTd: UserEndpointTd
 
-    @Mock
-    lateinit var mListenerMock1: ManagerViewModel.Listener
-    @Mock
-    lateinit var mListenerMock2: ManagerViewModel.Listener
+    @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
+    @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
     // endregion helper fields
 
     lateinit var SUT: MasterActivityViewModel

@@ -23,7 +23,6 @@ import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-const val LAUNCH_FRAGMENT_KEY = "launch_fragment"
 const val IS_FIRST_SETUP_KEY = "is_first_set_up"
 private const val ERROR_DIALOG_REQUEST_CODE = 1
 
@@ -39,7 +38,7 @@ class LaunchActivity : BaseActivity(),
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: LaunchFragmentViewModel
+    private lateinit var viewModel: LaunchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,7 +142,7 @@ class LaunchActivity : BaseActivity(),
         viewModel = ViewModelProvider(
             this,
             viewModelFactory
-        ).get(LaunchFragmentViewModel::class.java)
+        ).get(LaunchViewModel::class.java)
 
         viewModel.silentSignInAndNotify()
     }

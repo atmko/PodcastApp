@@ -1,8 +1,10 @@
 package com.atmko.skiptoit.model.database
 
-import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.atmko.skiptoit.model.Episode
 
 @Dao
@@ -10,6 +12,9 @@ interface EpisodeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertEpisodes(episodes: List<Episode>)
+
+    @Query("SELECT * FROM episodes WHERE episode_id = :episodeId")
+    fun getEpisode(episodeId: String): Episode?
 
     @Query("SELECT * FROM episodes WHERE podcast_id = :podcastId ORDER BY publish_date DESC")
     fun getAllEpisodesForPodcast(podcastId: String):  DataSource.Factory<Int, Episode>

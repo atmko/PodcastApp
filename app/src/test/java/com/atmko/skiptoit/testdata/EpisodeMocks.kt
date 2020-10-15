@@ -13,6 +13,8 @@ class EpisodeMocks {
         val PUBLISH_DATE_1: Long = 1
         val LENTH_IN_SECONDS: Int = 3600
 
+        val PODCAST_ID = "podcastId"
+
         fun GET_EPISODE(): Episode {
             return Episode(
                 EPISODE_ID,
@@ -23,6 +25,12 @@ class EpisodeMocks {
                 PUBLISH_DATE_1,
                 LENTH_IN_SECONDS
             )
+        }
+
+        fun GET_EPISODE_DETAILS(): Episode {
+            val episode = GET_EPISODE()
+            episode.podcastId = PODCAST_ID
+            return episode
         }
 
         val NEXT_EPISODE_ID: String = "nextEpisodeId"

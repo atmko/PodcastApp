@@ -30,7 +30,7 @@ import com.atmko.skiptoit.episode.replies.ReplyCommentBoundaryCallback;
 import com.atmko.skiptoit.episodelist.EpisodeBoundaryCallback;
 import com.atmko.skiptoit.episodelist.EpisodeListViewModel;
 import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint;
-import com.atmko.skiptoit.launch.LaunchFragmentViewModel;
+import com.atmko.skiptoit.launch.LaunchViewModel;
 import com.atmko.skiptoit.model.PodcastsApi;
 import com.atmko.skiptoit.model.SkipToItApi;
 import com.atmko.skiptoit.model.database.CommentCache;
@@ -80,10 +80,10 @@ public class ViewModelModule {
 
     @Provides
     @IntoMap
-    @ViewModelKey(LaunchFragmentViewModel.class)
+    @ViewModelKey(LaunchViewModel.class)
     ViewModel provideLaunchFragmentViewModel(LoginManager loginManager,
                                              UserEndpoint userEndpoint) {
-        return new LaunchFragmentViewModel(loginManager, userEndpoint);
+        return new LaunchViewModel(loginManager, userEndpoint);
     }
 
     @Provides

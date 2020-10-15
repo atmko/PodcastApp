@@ -5,7 +5,7 @@ import com.atmko.skiptoit.LoginManager
 import com.atmko.skiptoit.UserEndpoint
 import com.atmko.skiptoit.common.ManagerViewModel
 
-class LaunchFragmentViewModel(
+class LaunchViewModel(
     loginManager: LoginManager,
     userEndpoint: UserEndpoint
 ) : ManagerViewModel(

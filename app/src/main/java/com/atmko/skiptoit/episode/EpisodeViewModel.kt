@@ -12,9 +12,7 @@ class EpisodeViewModel(
 
     interface Listener {
         fun notifyProcessing()
-        fun onPodcastEpisodesCacheCleared()
-        fun onPodcastEpisodesCacheClearFailed()
-        fun onDetailsFetched(episode: Episode)
+        fun onDetailsFetched(episode: Episode?, isRestoringEpisode: Boolean)
         fun onDetailsFetchFailed()
         fun onNextEpisodeFetched(episode: Episode)
         fun onNextEpisodeFetchFailed()
@@ -22,33 +20,42 @@ class EpisodeViewModel(
         fun onPreviousEpisodeFetchFailed()
     }
 
-    lateinit var episodeDetails: Episode
+    var episodeDetails: Episode? = null
+    var nextEpisode: Episode? = null
+    var prevEpisode: Episode? = null
 
-    //if new podcast, erase previously played podcast's episodes from cache
-    fun clearPodcastCacheAndNotify(currentPodcastId: String) {
-        episodesCache.deletePodcastEpisodes(currentPodcastId, object : EpisodesCache.DeletePodcastEpisodesListener {
-            override fun onDeletePodcastEpisodesSuccess() {
-                notifyPodcastEpisodesCacheCleared()
-            }
-
-            override fun onDeletePodcastEpisodesFailed() {
-                notifyPodcastEpisodesCacheClearFailed()
-            }
-        })
-    }
-
-    fun getDetailsAndNotify(episodeId: String) {
-        if (this::episodeDetails.isInitialized) {
-            notifyDetailsFetched(episodeDetails)
+    fun getDetailsAndNotify(episodeId: String, podcastId: String) {
+        if (episodeDetails != null) {
+            notifyDetailsFetched(episodeDetails, true)
             return
         }
 
         notifyProcessing()
 
+        if (episodeId != "" && podcastId != "") {
+            clearPodcastCache(podcastId, episodeId)
+        } else {
+            restoreEpisode()
+        }
+    }
+
+    //if new podcast, erase previously played podcast's episodes from cache
+    private fun clearPodcastCache(currentPodcastId: String, episodeId: String) {
+        episodesCache.deletePodcastEpisodes(currentPodcastId, object : EpisodesCache.DeletePodcastEpisodesListener {
+            override fun onDeletePodcastEpisodesSuccess() {
+                getEpisodeDetails(episodeId)
+            }
+
+            override fun onDeletePodcastEpisodesFailed() {
+                notifyDetailsFetchFailed()
+            }
+        })
+    }
+
+    private fun getEpisodeDetails(episodeId: String) {
         episodeEndpoint.getEpisodeDetails(episodeId, object : EpisodeEndpoint.EpisodeDetailsListener {
             override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
-                episodeDetails = episode
-                notifyDetailsFetched(episodeDetails)
+                saveEpisode(episode)
             }
 
             override fun onEpisodeDetailsFetchFailed() {
@@ -57,18 +64,24 @@ class EpisodeViewModel(
         })
     }
 
-    fun restoreEpisodeAndNotify() {
-        if (this::episodeDetails.isInitialized) {
-            notifyDetailsFetched(episodeDetails)
-            return
-        }
-
-        notifyProcessing()
-
-        episodesCache.restoreEpisode(object : EpisodesCache.RestoreEpisodeListener {
-            override fun onEpisodeRestoreSuccess(episode: Episode) {
+    private fun saveEpisode(episode: Episode) {
+        episodesCache.saveEpisode(episode, object : EpisodesCache.SaveEpisodeListener {
+            override fun onEpisodeSaveSuccess() {
                 episodeDetails = episode
-                notifyDetailsFetched(episodeDetails)
+                notifyDetailsFetched(episodeDetails, false)
+            }
+
+            override fun onEpisodeSaveFailed() {
+                notifyDetailsFetchFailed()
+            }
+        })
+    }
+
+    private fun restoreEpisode() {
+        episodesCache.restoreEpisode(object : EpisodesCache.RestoreEpisodeListener {
+            override fun onEpisodeRestoreSuccess(episode: Episode?) {
+                episodeDetails = episode
+                notifyDetailsFetched(episodeDetails, true)
             }
 
             override fun onEpisodeRestoreFailed() {
@@ -76,9 +89,6 @@ class EpisodeViewModel(
             }
         })
     }
-
-    var nextEpisode: Episode? = null
-    var prevEpisode: Episode? = null
 
     fun fetchNextEpisodeAndNotify(podcastId: String, episode: Episode) {
         if (nextEpisode != null) {
@@ -155,21 +165,9 @@ class EpisodeViewModel(
         }
     }
 
-    private fun notifyPodcastEpisodesCacheCleared() {
+    private fun notifyDetailsFetched(episodeDetails: Episode?, isRestored: Boolean) {
         for (listener in listeners) {
-            listener.onPodcastEpisodesCacheCleared()
-        }
-    }
-
-    private fun notifyPodcastEpisodesCacheClearFailed() {
-        for (listener in listeners) {
-            listener.onPodcastEpisodesCacheClearFailed()
-        }
-    }
-
-    private fun notifyDetailsFetched(episodeDetails: Episode) {
-        for (listener in listeners) {
-            listener.onDetailsFetched(episodeDetails)
+            listener.onDetailsFetched(episodeDetails, isRestored)
         }
     }
 

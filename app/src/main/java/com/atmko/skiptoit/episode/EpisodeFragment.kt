@@ -54,7 +54,6 @@ class EpisodeFragment : BaseFragment(),
     //fragment init variable
     private lateinit var podcastId: String
     private lateinit var episodeId: String
-    private var isRestoringEpisode: Boolean = false
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
@@ -86,7 +85,6 @@ class EpisodeFragment : BaseFragment(),
         val args: EpisodeFragmentArgs by navArgs()
         podcastId = args.podcastId
         episodeId = args.episodeId
-        isRestoringEpisode = args.isRestoringEpisode
     }
 
     override fun onCreateView(
@@ -100,11 +98,9 @@ class EpisodeFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        if (podcastId != "" && episodeId != "") {
-            configureViews()
-            configureValues(savedInstanceState)
-            configureCommentsViewModel()
-        }
+        configureViews()
+        configureValues(savedInstanceState)
+        configureCommentsViewModel()
     }
 
     override fun onStart() {
@@ -119,20 +115,16 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onResume() {
         super.onResume()
-        if (podcastId != "" && episodeId != "") {
-            episodeViewModel.registerListener(this)
-            parentCommentsViewModel.registerListener(this)
-            parentCommentsViewModel.registerBoundaryCallbackListener(this)
-        }
+        episodeViewModel.registerListener(this)
+        parentCommentsViewModel.registerListener(this)
+        parentCommentsViewModel.registerBoundaryCallbackListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        if (podcastId != "" && episodeId != "") {
-            episodeViewModel.unregisterListener(this)
-            parentCommentsViewModel.unregisterListener(this)
-            parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
-        }
+        episodeViewModel.unregisterListener(this)
+        parentCommentsViewModel.unregisterListener(this)
+        parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
     }
 
     override fun onStop() {
@@ -300,7 +292,7 @@ class EpisodeFragment : BaseFragment(),
             viewModelFactory
         ).get(EpisodeViewModel::class.java)
 
-        episodeViewModel.clearPodcastCacheAndNotify(podcastId)
+        episodeViewModel.getDetailsAndNotify(episodeId, podcastId)
 
         parentCommentsViewModel = ViewModelProvider(
             this,
@@ -339,31 +331,6 @@ class EpisodeFragment : BaseFragment(),
                         details.podcast?.title,
                         details.title
                     )
-            }
-
-            context?.let {
-                mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
-
-                if (!isRestoringEpisode) {
-                    mPlaybackService?.play()
-                    val sharedPrefs = activity?.getSharedPreferences(
-                        EPISODE_FRAGMENT_KEY,
-                        Context.MODE_PRIVATE
-                    )
-                    sharedPrefs?.let {
-                        sharedPrefs.edit()
-                            .putString(PODCAST_ID_KEY, details.podcast?.id)
-                            .putString(EPISODE_ID_KEY, details.episodeId)
-                            .putString(EPISODE_TITLE_KEY, details.title)
-                            .putString(EPISODE_DESCRIPTION_KEY, details.description)
-                            .putString(EPISODE_IMAGE_KEY, details.image)
-                            .putString(EPISODE_AUDIO_KEY, details.audio)
-                            .putLong(EPISODE_PUBLISH_DATE_KEY, details.publishDate)
-                            .putInt(EPISODE_LENGTH_IN_SECONDS_KEY, details.lengthInSeconds)
-                            .putString(PODCAST_TITLE_KEY, details.podcast?.title)
-                            .commit()
-                    }
-                }
             }
         }
     }
@@ -422,24 +389,22 @@ class EpisodeFragment : BaseFragment(),
         showMore = !showMore
     }
 
-    override fun onPodcastEpisodesCacheCleared() {
-        if (isRestoringEpisode) {
-            episodeViewModel.restoreEpisodeAndNotify()
-        } else {
-            episodeViewModel.getDetailsAndNotify(episodeId)
-        }
-    }
-
-    override fun onPodcastEpisodesCacheClearFailed() {
-        Snackbar.make(requireView(), "Failed to clear podcast's episodes", Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onDetailsFetched(episode: Episode) {
+    override fun onDetailsFetched(episode: Episode?, isRestoringEpisode: Boolean) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
+
         episodeDetails = episode
-        observeNextAndPrevEpisodes()
-        setupEpisodeDetailsViewData()
+        episodeDetails?.let { details ->
+            (activity as MasterActivity).configureBottomSheetState()
+            context?.let {
+                mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
+                if (!isRestoringEpisode) {
+                    mPlaybackService?.play()
+                }
+            }
+            observeNextAndPrevEpisodes()
+            setupEpisodeDetailsViewData()
+        }
     }
 
     override fun onDetailsFetchFailed() {

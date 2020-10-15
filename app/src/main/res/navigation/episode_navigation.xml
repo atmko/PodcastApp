@@ -18,10 +18,6 @@
             android:name="episode_id"
             app:argType="string"
             android:defaultValue=""/>
-        <argument
-            android:name="is_restoring_episode"
-            app:argType="boolean"
-            android:defaultValue="false"/>
         <action
             android:id="@+id/action_navigation_episode_to_navigation_episode"
             app:destination="@id/navigation_episode"
