@@ -75,7 +75,14 @@ open class BaseFragment : Fragment() {
 
     fun getBaseFragmentBottomMargin(): Int {
         val masterActivity = (activity as MasterActivity)
-        return masterActivity.bottomSheetPeekHeight() + masterActivity.navBarHeight()
+        val navHeight = masterActivity.navBarHeight()
+        val peekHeight = masterActivity.bottomSheetPeekHeight()
+
+        return if (peekHeight > navHeight) {
+            peekHeight
+        } else {
+            navHeight
+        }
     }
 
     fun getScreenWidth(): Int {

@@ -97,7 +97,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         getPresentationComponent().inject(this)
 
         configureOrientationRestrictions()
-        configureBaseNavigationChangedListener()
         configureBaseBackButtonFunctionality()
         configureViews()
         configureValues(savedInstanceState)
@@ -160,15 +159,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         if (resources.getBoolean(R.bool.isPhone)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-    }
-
-    private fun configureBaseNavigationChangedListener() {
-        findNavController(R.id.base_nav_host_fragment)
-            .addOnDestinationChangedListener{navController , destination, arguments ->
-                if (!isBottomPanelsShown()){
-                    showBottomPanels()
-                }
-            }
     }
 
     private fun configureBaseBackButtonFunctionality() {
@@ -313,20 +303,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     fun bottomSheetPeekHeight(): Int {
-        return if (isBottomSheetVisible()) {
-            resources.getDimension(R.dimen.bottom_sheet_peek_height).toInt()
-        } else {
-            0
-        }
+        return BottomSheetBehavior.from(binding.bottomSheet).peekHeight
     }
 
     fun isBottomSheetExpanded(): Boolean {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         return bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED
-    }
-
-    private fun isBottomPanelsShown(): Boolean {
-        return isNavViewShown() || isBottomSheetVisible()
     }
 
     private fun showBottomPanels() {
@@ -428,7 +410,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         if (view.requestFocus()) {
             val imm: InputMethodManager =
                 view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS);
+            imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         }
     }
 

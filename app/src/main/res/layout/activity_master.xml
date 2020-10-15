@@ -13,12 +13,10 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:background="?android:attr/windowBackground"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        tools:visibility="visible" />
+        app:menu="@menu/bottom_nav_menu" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -43,11 +41,9 @@
             android:layout_height="match_parent"
             android:background="@color/color_background"
             android:elevation="@dimen/x2_layout_margin"
-            android:visibility="gone"
             app:behavior_peekHeight="0dp"
             app:layout_behavior="@string/bottom_sheet_behavior"
-            tools:behavior_peekHeight="120dp"
-            tools:visibility="visible">
+            tools:behavior_peekHeight="120dp">
 
             <FrameLayout
                 android:id="@+id/episodeFragmentFrameLayout"
