@@ -26,6 +26,11 @@ open class EpisodesCache(
         fun onEpisodeSaveFailed()
     }
 
+    interface ClearLastPlayedEpisodeListener {
+        fun onEpisodeClearSuccess()
+        fun onEpisodeClearFailed()
+    }
+
     interface RestoreEpisodeListener {
         fun onEpisodeRestoreSuccess(episode: Episode?)
         fun onEpisodeRestoreFailed()
@@ -147,6 +152,21 @@ open class EpisodesCache(
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onEpisodeRestoreSuccess(restoredEpisode)
+            }
+        }
+    }
+
+    @SuppressLint("ApplySharedPref")
+    open fun clearLastPlayedEpisode(listener: ClearLastPlayedEpisodeListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            prefs!!.edit()
+                .remove(PODCAST_ID_KEY)
+                .remove(EPISODE_ID_KEY)
+                .remove(PODCAST_TITLE_KEY)
+                .commit()
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onEpisodeClearSuccess()
             }
         }
     }

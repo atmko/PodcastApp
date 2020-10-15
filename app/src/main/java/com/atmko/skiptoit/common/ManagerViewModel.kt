@@ -6,11 +6,13 @@ import android.util.Log
 import com.atmko.skiptoit.LoginManager
 import com.atmko.skiptoit.UserEndpoint
 import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.model.database.EpisodesCache
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 open class ManagerViewModel(
     private val loginManager: LoginManager,
-    private val userEndpoint: UserEndpoint
+    private val userEndpoint: UserEndpoint,
+    private val episodesCache: EpisodesCache
 ) : BaseViewModel<ManagerViewModel.Listener>() {
 
     interface Listener {
@@ -57,18 +59,40 @@ open class ManagerViewModel(
                 if (isFirstSetUp()) {
                     loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
                         override fun onDatabaseCleared() {
-                            loginManager.setSubscriptionsSynced(false, object : LoginManager.SyncStatusUpdateListener {
-                                override fun onSyncStatusUpdated() {
-                                    notifySignOutSuccess()
-                                }
-                            })
+                            clearLastPlayedEpisode()
+                        }
+
+                        override fun onDatabaseClearFailed() {
+                            notifySignOutFailed()
                         }
                     })
+                } else {
+                    notifySignOutFailed()
                 }
             }
 
             override fun onSignOutFailed() {
                 notifySignOutFailed()
+            }
+        })
+    }
+
+    private fun clearLastPlayedEpisode() {
+        episodesCache.clearLastPlayedEpisode(object : EpisodesCache.ClearLastPlayedEpisodeListener {
+            override fun onEpisodeClearSuccess() {
+                setSubscriptionsSynced()
+            }
+
+            override fun onEpisodeClearFailed() {
+                notifySignOutFailed()
+            }
+        })
+    }
+
+    private fun setSubscriptionsSynced() {
+        loginManager.setSubscriptionsSynced(false, object : LoginManager.SyncStatusUpdateListener {
+            override fun onSyncStatusUpdated() {
+                notifySignOutSuccess()
             }
         })
     }

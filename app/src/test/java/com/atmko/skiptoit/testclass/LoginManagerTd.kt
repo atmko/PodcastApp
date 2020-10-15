@@ -58,9 +58,10 @@ class LoginManagerTd : LoginManager(null, null, null) {
     }
 
     var mIsFirstSetupCounter = 0
+    var mIsFirstSetUpError = false
     override fun isFirstSetUp(): Boolean {
         mIsFirstSetupCounter += 1
-        return true
+        return !mIsFirstSetUpError
     }
 
     var mSetIsFirstSetupCounter = 0
@@ -76,6 +77,8 @@ class LoginManagerTd : LoginManager(null, null, null) {
         mClearDatabaseCounter += 1
         if (!mClearDatabaseFailure) {
             listener.onDatabaseCleared()
+        } else {
+            listener.onDatabaseClearFailed()
         }
     }
 }

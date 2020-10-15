@@ -65,6 +65,17 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         }
     }
 
+    var mClearLastPlayedEpisodeCounter = 0
+    var mClearLastPlayedEpisodeError = false
+    override fun clearLastPlayedEpisode(listener: ClearLastPlayedEpisodeListener) {
+        mClearLastPlayedEpisodeCounter += 1
+        if (!mClearLastPlayedEpisodeError) {
+            listener.onEpisodeClearSuccess()
+        } else {
+            listener.onEpisodeClearFailed()
+        }
+    }
+
     var mGetNextEpisodeCounter = 0
     var mGetNextEpisodeError = false
     var mEpisodeNotInCache = false

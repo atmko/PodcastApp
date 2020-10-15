@@ -3,7 +3,9 @@ package com.atmko.skiptoit
 import android.app.Activity
 import android.content.Intent
 import com.atmko.skiptoit.common.ManagerViewModel
-import com.atmko.skiptoit.model.User import com.atmko.skiptoit.testclass.LoginManagerTd
+import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.testclass.EpisodesCacheTd
+import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
@@ -36,6 +38,7 @@ class MasterActivityViewModelTest {
     // end region helper fields
     lateinit var mLoginManagerTd: LoginManagerTd
     lateinit var mUserEndpointTd: UserEndpointTd
+    lateinit var mEpisodesCacheTd: EpisodesCacheTd
 
     @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
     @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
@@ -47,15 +50,19 @@ class MasterActivityViewModelTest {
     fun setup() {
         mLoginManagerTd = LoginManagerTd()
         mUserEndpointTd = UserEndpointTd()
+        mEpisodesCacheTd = EpisodesCacheTd()
         SUT = MasterActivityViewModel(
             mLoginManagerTd,
-            mUserEndpointTd
+            mUserEndpointTd,
+            mEpisodesCacheTd
         )
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
         silentSignInSuccess()
         signOutSuccess()
+        setIsFirstSetUpSuccess()
         clearDatabaseSuccess()
+        clearLastPlayedEpisodeSuccess()
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
     }
@@ -162,63 +169,79 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccess_attemptToUpdateIsFirstSetUpValue() {
+    fun signOutAndNotify_signOutSuccess_correctValueSentToSetIsFirstSetup() {
         // Assert
         // Act
         SUT.signOutAndNotify()
         // Assert
         assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
-    }
-
-    @Test
-    fun signOutAndNotify_signOutSuccessIsNotFirstSetup_correctBooleanValueSentToUpdateIsFirstUp() {
-        // Assert
-        mLoginManagerTd.mIsFirstSetup = false
-        // Act
-        SUT.signOutAndNotify()
-        // Assert
-        assertThat(mLoginManagerTd.mClearDatabaseCounter, `is`(1))
         assertThat(mLoginManagerTd.mIsFirstSetup, `is`(true))
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccess_correctBooleanValueSentToUpdateSubscriptionSyncStatus() {
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccess_clearDatabasePolled() {
         // Assert
-        mLoginManagerTd.mIsFirstSetup = false
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mClearDatabaseCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccess_clearLastPlayedEpisodePolled() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mEpisodesCacheTd.mClearLastPlayedEpisodeCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeSuccess_setSubscriptionsSyncedPolled() {
+        // Assert
         // Act
         SUT.signOutAndNotify()
         // Assert
         assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(false))
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccesSsubscriptionSyncStatusUpdateSuccess_listenersNotifiedOfSuccess() {
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeError_listenersNotifiedOfError() {
         // Assert
-        mLoginManagerTd.mIsFirstSetup = false
+        clearLastPlayedEpisodeError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
         SUT.signOutAndNotify()
         // Assert
-        assertThat(mLoginManagerTd.mSignOutCounter, `is`(1))
-        verify(mListenerMock1).onSignOutSuccess()
-        verify(mListenerMock2).onSignOutSuccess()
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessIsNotFirstSetupClearDatabaseSuccess_unregisteredNotNotified() {
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseError_listenersNotifiedOfError() {
         // Assert
-        mLoginManagerTd.mIsFirstSetup = false
+        clearDatabaseError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
         // Act
         SUT.signOutAndNotify()
         // Assert
-        assertThat(mLoginManagerTd.mSignOutCounter, `is`(1))
-        verify(mListenerMock1).onSignOutSuccess()
-        verify(mListenerMock2, never()).onSignOutSuccess()
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupError_listenersNotifiedOfError() {
+        // Assert
+        setIsFirstSetUpError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
     }
 
     @Test
@@ -270,6 +293,24 @@ class MasterActivityViewModelTest {
     }
 
     @Test
+    fun onRequestResultReceived_requestCodeSignInResultCodeOkGetSignedInAccountSuccess_unsubscribedListenersNotNotified() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.onRequestResultReceived(
+            ManagerViewModel.REQUEST_CODE_SIGN_IN,
+            Activity.RESULT_OK,
+            INTENT_MOCK
+        )
+        // Assert
+        assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(1))
+        verify(mListenerMock1).onSignInSuccess()
+        verify(mListenerMock2, never()).onSignInSuccess()
+    }
+
+    @Test
     fun onRequestResultReceived_requestCodeSignInResultCodeOkGetSignedInAccountFailure_listenersNotifiedOfError() {
         // Assert
         getSignedIAccountFailure()
@@ -302,24 +343,6 @@ class MasterActivityViewModelTest {
         assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(0))
         verify(mListenerMock1).onSignInFailed()
         verify(mListenerMock2).onSignInFailed()
-    }
-
-    @Test
-    fun onRequestResultReceived_requestCodeSignInResultCodeOkGetSignedInAccountSuccess_unsubscribedListenersNotNotified() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.onRequestResultReceived(
-            ManagerViewModel.REQUEST_CODE_SIGN_IN,
-            Activity.RESULT_OK,
-            INTENT_MOCK
-        )
-        // Assert
-        assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(1))
-        verify(mListenerMock1).onSignInSuccess()
-        verify(mListenerMock2, never()).onSignInSuccess()
     }
 
     //----------------------------------------------------------------------------------------------
@@ -459,8 +482,28 @@ class MasterActivityViewModelTest {
         mLoginManagerTd.mSignOutFailure = true
     }
 
+    fun setIsFirstSetUpSuccess() {
+        // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun setIsFirstSetUpError() {
+        mLoginManagerTd.mIsFirstSetUpError = true
+    }
+
     fun clearDatabaseSuccess() {
         // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun clearDatabaseError() {
+        mLoginManagerTd.mClearDatabaseFailure = true
+    }
+
+    fun clearLastPlayedEpisodeSuccess() {
+        // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun clearLastPlayedEpisodeError() {
+        mEpisodesCacheTd.mClearLastPlayedEpisodeError = true
     }
 
     fun getSignedIAccountSuccess() {

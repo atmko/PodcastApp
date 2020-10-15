@@ -5,6 +5,7 @@ import android.content.Intent
 import com.atmko.skiptoit.UserEndpoint
 import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.testclass.EpisodesCacheTd
 import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
@@ -35,6 +36,7 @@ class LaunchViewModelTest {
     // end region helper fields
     lateinit var mLoginManagerTd: LoginManagerTd
     lateinit var mUserEndpointTd: UserEndpointTd
+    lateinit var mEpisodesCacheTd: EpisodesCacheTd
 
     @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
     @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
@@ -46,9 +48,11 @@ class LaunchViewModelTest {
     fun setup() {
         mLoginManagerTd = LoginManagerTd()
         mUserEndpointTd = UserEndpointTd()
+        mEpisodesCacheTd = EpisodesCacheTd()
         SUT = LaunchViewModel(
             mLoginManagerTd,
-            mUserEndpointTd
+            mUserEndpointTd,
+            mEpisodesCacheTd
         )
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK

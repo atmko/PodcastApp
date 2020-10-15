@@ -43,6 +43,7 @@ open class LoginManager(
 
     interface ClearDatabaseListener {
         fun onDatabaseCleared()
+        fun onDatabaseClearFailed()
     }
 
     open fun silentSignIn(listener: SignInListener) {
