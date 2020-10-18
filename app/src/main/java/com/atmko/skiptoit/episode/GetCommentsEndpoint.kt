@@ -20,33 +20,35 @@ open class GetCommentsEndpoint(
     open fun getComments(param: String, loadKey: Int, listener: Listener) {
         googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
             val commentResultCall =
-                if (account != null && account.idToken != null) {
-                    skipToItApi!!.getCommentsAuthenticated(
-                        param,
-                        loadKey,
-                        account.idToken!!
-                    )
-                } else {
-                    skipToItApi!!.getCommentsUnauthenticated(
-                        param,
-                        loadKey
-                    )
-                }
-
-            commentResultCall.enqueue(object : Callback<CommentResults> {
-                    override fun onResponse(call: Call<CommentResults>, response: Response<CommentResults>) {
-                        if (response.isSuccessful) {
-                            listener.onQuerySuccess(response.body()!!)
-                        } else {
-                            listener.onQueryFailed()
-                        }
-                    }
-
-                    override fun onFailure(call: Call<CommentResults>, t: Throwable) {
-                        listener.onQueryFailed()
-                    }
-                }
-            )
+                skipToItApi!!.getCommentsAuthenticated(
+                    param,
+                    loadKey,
+                    account.idToken!!
+                )
+            callCommentsEndpoint(commentResultCall, listener)
+        }.addOnFailureListener {
+            val commentResultCall =
+                skipToItApi!!.getCommentsUnauthenticated(
+                    param,
+                    loadKey
+                )
+            callCommentsEndpoint(commentResultCall, listener)
         }
+    }
+
+    private fun callCommentsEndpoint(commentResultCall: Call<CommentResults>, listener: Listener) {
+        commentResultCall.enqueue(object : Callback<CommentResults> {
+            override fun onResponse(call: Call<CommentResults>, response: Response<CommentResults>) {
+                if (response.isSuccessful) {
+                    listener.onQuerySuccess(response.body()!!)
+                } else {
+                    listener.onQueryFailed()
+                }
+            }
+
+            override fun onFailure(call: Call<CommentResults>, t: Throwable) {
+                listener.onQueryFailed()
+            }
+        })
     }
 }
