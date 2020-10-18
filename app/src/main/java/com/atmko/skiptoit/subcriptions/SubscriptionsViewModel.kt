@@ -109,27 +109,33 @@ class SubscriptionsViewModel(
         )
     }
 
+    //remove subscription from remote and then remove subscription locally
     fun unsubscribeAndNotify(podcastId: String) {
         notifyProcessing()
         subscriptionsEndpoint.updateSubscription(podcastId, STATUS_UNSUBSCRIBE, object : SubscriptionsEndpoint.UpdateSubscriptionListener {
             override fun onSubscriptionStatusUpdated() {
-                subscriptionsCache.removeSubscription(
-                    podcastId,
-                    object : SubscriptionsCache.SubscriptionUpdateListener {
-                        override fun onSubscriptionUpdateSuccess() {
-                            notifyStatusUpdated()
-                        }
-
-                        override fun onSubscriptionUpdateFailed() {
-                            notifyStatusUpdateFailed()
-                        }
-                    })
+                unsubscribeLocallyAndNotify(podcastId)
             }
 
             override fun onSubscriptionStatusUpdateFailed() {
                 notifyStatusUpdateFailed()
             }
         })
+    }
+
+    //remove subscription locally only
+    fun unsubscribeLocallyAndNotify(podcastId: String) {
+        subscriptionsCache.removeSubscription(
+            podcastId,
+            object : SubscriptionsCache.SubscriptionUpdateListener {
+                override fun onSubscriptionUpdateSuccess() {
+                    notifyStatusUpdated()
+                }
+
+                override fun onSubscriptionUpdateFailed() {
+                    notifyStatusUpdateFailed()
+                }
+            })
     }
 
     private fun unregisterListeners() {

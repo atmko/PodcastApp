@@ -389,6 +389,55 @@ class SubscriptionsViewModelTest {
         verify(mListenerMock2).onStatusUpdateFailed()
     }
 
+    //----------------------------------------------------------------------------------------------
+
+    @Test
+    fun unsubscribeLocallyAndNotify_correctPodcastIdPassedToCache() {
+        // Arrange
+        // Act
+        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PODCAST_ID))
+    }
+
+    @Test
+    fun unsubscribeLocallyAndNotify_cacheSuccess_listenersNotifiedOfSuccess() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        // Assert
+        verify(mListenerMock1).onStatusUpdated()
+        verify(mListenerMock2).onStatusUpdated()
+    }
+
+    @Test
+    fun unsubscribeLocallyAndNotify_cacheSuccess_unsubscribedListenersNotNotified() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        // Assert
+        verify(mListenerMock1).onStatusUpdated()
+        verify(mListenerMock2, never()).onStatusUpdated()
+    }
+
+    @Test
+    fun unsubscribeLocallyAndNotify_cacheError_listenersNotifiedOfFailure() {
+        // Arrange
+        subscriptionsCacheError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        // Assert
+        verify(mListenerMock1).onStatusUpdateFailed()
+        verify(mListenerMock2).onStatusUpdateFailed()
+    }
+
     // region helper methods
     fun silentSignInSuccess() {
         // no-op because mSilentSignInFailure false by default

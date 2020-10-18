@@ -12,17 +12,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
+import com.atmko.skiptoit.common.BaseBoundaryCallback
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentDetailsBinding
 import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
 import com.atmko.skiptoit.episodelist.EpisodeListViewModel
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastDetails
-import com.atmko.skiptoit.MasterActivity
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.common.BaseBoundaryCallback
-import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.atmko.skiptoit.utils.showFullText
 import com.atmko.skiptoit.utils.showLimitedText
@@ -137,7 +137,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            detailsViewModel.toggleSubscriptionAndNotify(podcast)
+            if ((activity as MasterActivity).user != null) {
+                detailsViewModel.toggleSubscriptionAndNotify(podcast)
+            } else {
+                detailsViewModel.toggleLocalSubscriptionAndNotify(podcast)
+            }
         }
     }
 

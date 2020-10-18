@@ -1,13 +1,13 @@
 package com.atmko.skiptoit.details
 
 import android.util.Log
+import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.atmko.skiptoit.subcriptions.STATUS_SUBSCRIBE
 import com.atmko.skiptoit.subcriptions.STATUS_UNSUBSCRIBE
 import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint
-import com.atmko.skiptoit.common.BaseViewModel
 
 class DetailsViewModel(
     private val podcastDetailsEndpoint: PodcastDetailsEndpoint,
@@ -70,16 +70,15 @@ class DetailsViewModel(
         })
     }
 
+    //toggle remote subscriptions status then toggle local subscription status
     fun toggleSubscriptionAndNotify(podcast: Podcast) {
         if (isSubscribed == null) return
-
         notifyProcessing()
-
         val subscribeStatus = if (isSubscribed!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
         subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus,
             object : SubscriptionsEndpoint.UpdateSubscriptionListener {
                 override fun onSubscriptionStatusUpdated() {
-                    toggleLocalSubscriptionStatus(podcast, subscribeStatus)
+                    toggleLocalSubscriptionAndNotify(podcast)
                 }
 
                 override fun onSubscriptionStatusUpdateFailed() {
@@ -89,7 +88,10 @@ class DetailsViewModel(
         )
     }
 
-    private fun toggleLocalSubscriptionStatus(podcast: Podcast, subscribeStatus: Int) {
+    //toggle local subscription status
+    fun toggleLocalSubscriptionAndNotify(podcast: Podcast) {
+        if (isSubscribed == null) return
+        val subscribeStatus = if (isSubscribed!!) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
         if (subscribeStatus == STATUS_SUBSCRIBE) {
             subscriptionsCache.insertSubscription(listOf(podcast), object : SubscriptionsCache.SubscriptionUpdateListener {
                 override fun onSubscriptionUpdateSuccess() {
