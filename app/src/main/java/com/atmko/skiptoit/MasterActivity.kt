@@ -468,6 +468,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     override fun onSignOutSuccess() {
+        val playbackService = Intent(this@MasterActivity, PlaybackService::class.java)
+        stopService(playbackService)
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         openLaunchFragment()
