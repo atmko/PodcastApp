@@ -90,6 +90,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
