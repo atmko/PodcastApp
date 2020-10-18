@@ -74,7 +74,7 @@ class CreateCommentViewModelTest {
         // Act
         SUT.createCommentAndNotify(PODCAST_ID, EPISODE_ID, COMMENT_BODY)
         // Assert
-        assertThat(mCommentCacheTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentCacheTd.mEpisodeId, `is`(EPISODE_ID))
     }
 
     @Test

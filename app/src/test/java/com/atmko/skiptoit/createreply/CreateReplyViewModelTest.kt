@@ -72,7 +72,7 @@ class CreateReplyViewModelTest {
         // Act
         SUT.createReplyAndNotify(PARENT_ID, REPLY_BODY)
         // Assert
-        assertThat(mCommentCacheTd.mComment, `is`(CommentMocks.GET_REPLY()))
+        assertThat(mCommentCacheTd.mParentId, `is`(PARENT_ID))
     }
 
     @Test

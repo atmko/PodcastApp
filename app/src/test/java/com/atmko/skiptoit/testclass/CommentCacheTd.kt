@@ -50,18 +50,19 @@ class CommentCacheTd : CommentCache(null) {
         }
     }
 
-    var mComment: Comment? = null
-    override fun updateCommentPagingTracker(comment: Comment, listener: UpdatePagingDataListener) {
-        mComment = comment
+    lateinit var mEpisodeId: String
+    override fun updateCommentPagingTracker(episodeId: String, listener: UpdatePagingDataListener) {
+        mEpisodeId = episodeId
         if (!mFailure) {
-            listener.onPagingDataUpdated(comment)
+            listener.onPagingDataUpdated()
         }
     }
 
-    override fun updateReplyPagingTracker(reply: Comment, listener: UpdatePagingDataListener) {
-        mComment = reply
+    lateinit var mParentId: String
+    override fun updateReplyPagingTracker(parentId: String, listener: UpdatePagingDataListener) {
+        mParentId = parentId
         if (!mFailure) {
-            listener.onPagingDataUpdated(reply)
+            listener.onPagingDataUpdated()
         }
     }
 
