@@ -20,7 +20,7 @@ open class CommentCache(
     }
 
     interface UpdatePagingDataListener {
-        fun onPagingDataUpdated(comment: Comment)
+        fun onPagingDataUpdated()
     }
 
     interface PageFetchListener {
@@ -65,16 +65,16 @@ open class CommentCache(
     }
 
     //--------------
-    open fun updateCommentPagingTracker(comment: Comment, listener: UpdatePagingDataListener) {
+    open fun updateCommentPagingTracker(episodeId: String, listener: UpdatePagingDataListener) {
         AppExecutors.getInstance().diskIO().execute {
             val lastPageTracker =
-                getLastCommentPageTrackerForEpisode(comment.episodeId)
+                getLastCommentPageTrackerForEpisode(episodeId)
             if (lastPageTracker != null && lastPageTracker.nextPage == null) {
-                deleteCommentPage(comment.episodeId, lastPageTracker.page)
+                deleteCommentPage(episodeId, lastPageTracker.page)
             }
 
             AppExecutors.getInstance().mainThread().execute {
-                listener.onPagingDataUpdated(comment)
+                listener.onPagingDataUpdated()
             }
         }
     }
@@ -92,16 +92,16 @@ open class CommentCache(
         skipToItDatabase.commentDao().deleteComments(pageComments)
     }
 
-    open fun updateReplyPagingTracker(reply: Comment, listener: UpdatePagingDataListener) {
+    open fun updateReplyPagingTracker(parentId: String, listener: UpdatePagingDataListener) {
         AppExecutors.getInstance().diskIO().execute {
             val lastPageTracker =
-                getLastReplyPageTrackerForEpisode(reply.parentId!!)
+                getLastReplyPageTrackerForEpisode(parentId)
             if (lastPageTracker != null && lastPageTracker.nextPage == null) {
-                deleteReplyPage(reply.parentId, lastPageTracker.page)
+                deleteReplyPage(parentId, lastPageTracker.page)
             }
 
             AppExecutors.getInstance().mainThread().execute {
-                listener.onPagingDataUpdated(reply)
+                listener.onPagingDataUpdated()
             }
         }
     }

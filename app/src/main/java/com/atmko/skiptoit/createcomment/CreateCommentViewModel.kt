@@ -22,8 +22,8 @@ class CreateCommentViewModel(
 
         createCommentEndpoint.createComment(podcastId, episodeId, commentBody,  object : CreateCommentEndpoint.Listener {
             override fun onCreateSuccess(comment: Comment) {
-                commentCache.updateCommentPagingTracker(comment, object : UpdatePagingDataListener {
-                    override fun onPagingDataUpdated(comment: Comment) {
+                commentCache.updateCommentPagingTracker(episodeId, object : UpdatePagingDataListener {
+                    override fun onPagingDataUpdated() {
                         notifyCreateCommentSuccess(comment)
                     }
                 })

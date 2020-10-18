@@ -22,8 +22,8 @@ class CreateReplyViewModel(
 
         createReplyEndpoint.createReply(parentId, replyBody, object : CreateReplyEndpoint.Listener {
             override fun onCreateSuccess(reply: Comment) {
-                commentCache.updateReplyPagingTracker(reply, object : UpdatePagingDataListener {
-                    override fun onPagingDataUpdated(comment: Comment) {
+                commentCache.updateReplyPagingTracker(parentId, object : UpdatePagingDataListener {
+                    override fun onPagingDataUpdated() {
                         notifyCreateReplySuccess(reply)
                     }
                 })
