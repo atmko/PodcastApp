@@ -101,7 +101,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureViews() {
-        binding.resultsFrameLayout.resultsRecyclerView.apply {
+        binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = repliesAdapter
         }
@@ -166,7 +166,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     private fun configureViewModel() {
         repliesViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer { replies ->
-            binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
+            binding.errorAndLoading.loadingScreen.visibility = View.GONE
             replies?.let {
                 repliesAdapter.submitList(replies)
                 repliesAdapter.notifyDataSetChanged()
@@ -239,42 +239,42 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     override fun notifyProcessing() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdate() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdateFailed() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDeleteComment() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onDeleteCommentFailed() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

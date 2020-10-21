@@ -29,6 +29,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SubscriptionsViewModel
+
     @Inject
     lateinit var subscriptionsAdapter: PodcastAdapter
 
@@ -38,9 +39,11 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         getPresentationComponent().inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentSubscriptionsBinding.inflate(inflater, container, false)
         configureBottomMargin()
         return binding.root
@@ -66,7 +69,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onStop() {
         super.onStop()
-        viewModel.unregisterListener(this )
+        viewModel.unregisterListener(this)
     }
 
     private fun configureBottomMargin() {
@@ -77,8 +80,10 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     private fun defineViewModelValues() {
         activity?.let {
-            viewModel = ViewModelProvider(it,
-                viewModelFactory).get(SubscriptionsViewModel::class.java)
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(SubscriptionsViewModel::class.java)
         }
 
         if ((activity as MasterActivity).user != null) {
@@ -89,7 +94,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     }
 
     private fun configureViews() {
-        binding.resultsFrameLayout.resultsRecyclerView.apply {
+        binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = subscriptionsAdapter
@@ -113,23 +118,23 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     private fun configureDetailsViewModel() {
         viewModel.subscriptions.observe(viewLifecycleOwner, Observer {
-            binding.resultsFrameLayout.resultsRecyclerView.visibility = View.VISIBLE
+            binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
             subscriptionsAdapter.submitList(it)
         })
 
         viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let {
-                binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility =
+                binding.errorAndLoading.loadingScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
                 if (it) {
-                    binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+                    binding.errorAndLoading.errorScreen.visibility = View.GONE
                 }
             }
         })
 
         viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
             isError.let {
-                binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility =
+                binding.errorAndLoading.errorScreen.visibility =
                     if (it) View.VISIBLE else View.GONE
             }
         })

@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar_general"
-        app:layout_constraintTop_toTopOf="parent"/>
+    android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".MasterActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -122,7 +117,14 @@ discussion and listener participation. The" />
                     </com.google.android.material.tabs.TabLayout>
 
                     <include
-                        android:id="@+id/resultsFrameLayout"
+                        android:id="@+id/pageLoading"
+                        layout="@layout/page_loading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+
+                    <include
+                        android:id="@+id/resultsRecyclerView"
                         layout="@layout/results_recycler_view"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
@@ -130,6 +132,16 @@ discussion and listener participation. The" />
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+
+                    <include
+                        android:id="@+id/error_and_loading"
+                        layout="@layout/layout_error_and_loading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@id/resultsRecyclerView"
+                        app:layout_constraintEnd_toEndOf="@id/resultsRecyclerView"
+                        app:layout_constraintStart_toStartOf="@id/resultsRecyclerView"
+                        app:layout_constraintTop_toTopOf="@id/resultsRecyclerView" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -139,4 +151,14 @@ discussion and listener participation. The" />
 
     </androidx.core.widget.NestedScrollView>
 
-</LinearLayout>
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_general" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

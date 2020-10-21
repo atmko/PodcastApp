@@ -13,16 +13,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentSearchParentBinding
 import com.atmko.skiptoit.model.Genre
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.utils.toEditable
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.MasterActivity
-import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.search.common.PodcastDataSource
 import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
@@ -53,8 +53,10 @@ class SearchParentFragment : BaseFragment(),
         getPresentationComponent().inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentSearchParentBinding.inflate(inflater, container, false)
         configureBottomMargin()
         return binding.root
@@ -141,7 +143,7 @@ class SearchParentFragment : BaseFragment(),
         //configure search box
         binding.toolbar.searchBox.searchBox.apply {
             setOnEditorActionListener { view, actionId, event ->
-                val queryString : String = view.text.toString()
+                val queryString: String = view.text.toString()
                 if (queryString != "") {
                     (activity as MasterActivity).hideSoftKeyboard(this)
                     viewModel.activateManualModeAndNotify(queryString)
@@ -166,7 +168,7 @@ class SearchParentFragment : BaseFragment(),
         }
 
         //configure recycler view
-        binding.resultsFrameLayout.resultsRecyclerView.apply {
+        binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = podcastAdapter
         }
@@ -199,7 +201,11 @@ class SearchParentFragment : BaseFragment(),
     }
 
     private fun hideManualSearchState() {
-        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.GONE
+        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+
         binding.toolbar.searchBox.searchBox.visibility = View.GONE
         binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_manual_search)
     }
@@ -212,8 +218,10 @@ class SearchParentFragment : BaseFragment(),
 
     private fun configureValues(savedInstanceState: Bundle?) {
         activity?.let {
-            viewModel = ViewModelProvider(it,
-                viewModelFactory).get(SearchParentViewModel::class.java)
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(SearchParentViewModel::class.java)
         }
         binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
 
@@ -238,7 +246,7 @@ class SearchParentFragment : BaseFragment(),
 
     private fun configureViewModel() {
         viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
-            binding.resultsFrameLayout.errorAndLoading.loadingScreen.visibility = View.GONE
+            binding.errorAndLoading.loadingScreen.visibility = View.GONE
             subscriptions?.let { podcastAdapter.submitList(it) }
         })
     }
@@ -260,7 +268,11 @@ class SearchParentFragment : BaseFragment(),
         binding.tabLayout.visibility = View.GONE
         binding.searchViewPager.visibility = View.GONE
         binding.presetSearchDivider.visibility = View.GONE
-        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.VISIBLE
+
+        binding.pageLoading.pageLoading.visibility = View.VISIBLE
+        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
     }
 
     override fun onItemClick(podcast: Podcast) {
@@ -276,17 +288,17 @@ class SearchParentFragment : BaseFragment(),
     }
 
     override fun onPageLoading() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.VISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
-        binding.resultsFrameLayout.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
-        binding.resultsFrameLayout.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 
@@ -306,6 +318,9 @@ class SearchParentFragment : BaseFragment(),
         binding.searchViewPager.visibility = View.VISIBLE
         binding.presetSearchDivider.visibility = View.VISIBLE
 
-        binding.resultsFrameLayout.resultsFrameLayout.visibility = View.GONE
+        binding.pageLoading.pageLoading.visibility = View.GONE
+        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
     }
 }

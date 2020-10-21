@@ -13,12 +13,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.atmko.skiptoit.R
-import com.atmko.skiptoit.databinding.ResultsRecyclerViewBinding
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
+import com.atmko.skiptoit.databinding.LayoutRecyclerViewBinding
 import com.atmko.skiptoit.model.GENRE_ID_KEY
 import com.atmko.skiptoit.model.GENRE_NAME_KEY
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.search.common.PodcastDataSource
 import com.atmko.skiptoit.search.searchparent.SearchParentFragment
 import com.atmko.skiptoit.search.searchparent.SearchParentFragmentDirections
@@ -29,7 +29,7 @@ class SearchFragment : BaseFragment(),
     PodcastAdapter.OnPodcastItemClickListener,
     PodcastDataSource.Listener {
 
-    private var _binding: ResultsRecyclerViewBinding? = null
+    private var _binding: LayoutRecyclerViewBinding? = null
     private val binding get() = _binding!!
 
     @Inject
@@ -46,11 +46,11 @@ class SearchFragment : BaseFragment(),
         @JvmStatic
         fun newInstance(genreId: Int, genreName: String) = SearchFragment()
             .apply {
-            arguments = Bundle().apply {
-                this.putInt(GENRE_ID_KEY, genreId)
-                this.putString(GENRE_NAME_KEY, genreName)
+                arguments = Bundle().apply {
+                    this.putInt(GENRE_ID_KEY, genreId)
+                    this.putString(GENRE_NAME_KEY, genreName)
+                }
             }
-        }
     }
 
     override fun onAttach(context: Context) {
@@ -70,7 +70,7 @@ class SearchFragment : BaseFragment(),
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        _binding = ResultsRecyclerViewBinding.inflate(inflater, container, false)
+        _binding = LayoutRecyclerViewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -101,7 +101,7 @@ class SearchFragment : BaseFragment(),
     }
 
     fun configureViews() {
-        binding.resultsRecyclerView.apply {
+        binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager =
                 GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
@@ -161,17 +161,17 @@ class SearchFragment : BaseFragment(),
     }
 
     override fun onPageLoading() {
-        binding.pageLoading.visibility = View.VISIBLE
+        binding.pageLoading.pageLoading.visibility = View.VISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
-        binding.pageLoading.visibility = View.INVISIBLE
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
     }
 }

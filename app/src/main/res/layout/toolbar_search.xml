@@ -7,6 +7,7 @@
     android:layout_height="?attr/actionBarSize"
     android:background="@color/colorPrimary"
     android:theme="@style/Toolbar_Theme"
+    app:layout_scrollFlags="scroll|enterAlways"
     tools:showIn="@layout/fragment_search_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,16 +17,16 @@
 
         <include
             android:id="@+id/search_box"
-            android:layout_marginTop="@dimen/x1_layout_margin"
-            android:layout_marginBottom="@dimen/x1_layout_margin"
+            layout="@layout/search_box"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            layout="@layout/search_box"
+            android:layout_marginTop="@dimen/x1_layout_margin"
+            android:layout_marginBottom="@dimen/x1_layout_margin"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/search_image_button"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/title_text_view"
