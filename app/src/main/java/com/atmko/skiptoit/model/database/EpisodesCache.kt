@@ -2,9 +2,9 @@ package com.atmko.skiptoit.model.database
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import com.atmko.skiptoit.utils.AppExecutors
 import com.atmko.skiptoit.common.BaseBoundaryCallback.Companion.loadTypeRefresh
 import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.utils.AppExecutors
 
 open class EpisodesCache(
     private val skipToItDatabase: SkipToItDatabase?,
@@ -127,8 +127,6 @@ open class EpisodesCache(
                 .putString(EPISODE_ID_KEY, episode.episodeId)
                 .putString(PODCAST_TITLE_KEY, episode.podcast!!.title)
                 .commit()
-
-            skipToItDatabase!!.episodeDao().insertEpisodes(listOf(episode))
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onEpisodeSaveSuccess()
