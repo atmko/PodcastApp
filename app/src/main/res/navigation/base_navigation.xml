@@ -12,7 +12,11 @@
         tools:layout="@layout/fragment_subscriptions" >
         <action
             android:id="@+id/action_navigation_subscriptions_to_navigation_details"
-            app:destination="@id/navigation_details" />
+            app:destination="@id/navigation_details"
+            app:enterAnim="@anim/slide_left_entry"
+            app:exitAnim="@anim/null_exit"
+            app:popEnterAnim="@anim/null_exit"
+            app:popExitAnim="@anim/slide_right_exit" />
     </fragment>
 
     <fragment
@@ -22,7 +26,11 @@
         tools:layout="@layout/fragment_search_parent">
         <action
             android:id="@+id/action_navigation_search_to_navigation_details"
-            app:destination="@id/navigation_details" />
+            app:destination="@id/navigation_details"
+            app:enterAnim="@anim/slide_left_entry"
+            app:exitAnim="@anim/null_exit"
+            app:popEnterAnim="@anim/null_exit"
+            app:popExitAnim="@anim/slide_right_exit" />
     </fragment>
 
     <fragment
