@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:foreground="@drawable/ripple_pressed">
 
     <ImageView
         android:id="@+id/profileImageView"
@@ -102,11 +103,11 @@ bathed? The was out swimming..." />
         android:id="@+id/editButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/x1_layout_margin"
-        android:layout_marginEnd="@dimen/x1_layout_margin"
         android:layout_marginStart="@dimen/x3_layout_margin"
+        android:layout_marginEnd="@dimen/x1_layout_margin"
         android:background="@null"
         android:contentDescription="@string/edit_comment"
+        android:padding="@dimen/x1_layout_margin"
         android:src="@drawable/ic_edit"
         app:layout_constraintBottom_toBottomOf="@id/votes"
         app:layout_constraintEnd_toStartOf="@id/deleteButton"
@@ -116,11 +117,11 @@ bathed? The was out swimming..." />
         android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/x1_layout_margin"
-        android:layout_marginEnd="@dimen/x1_layout_margin"
         android:layout_marginStart="@dimen/x3_layout_margin"
+        android:layout_marginEnd="@dimen/x1_layout_margin"
         android:background="@null"
         android:contentDescription="@string/delete_comment"
+        android:padding="@dimen/x1_layout_margin"
         android:src="@drawable/ic_delete"
         app:layout_constraintBottom_toBottomOf="@id/votes"
         app:layout_constraintEnd_toStartOf="@id/replyButton"
