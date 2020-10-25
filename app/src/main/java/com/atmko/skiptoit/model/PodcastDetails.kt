@@ -11,8 +11,6 @@ class PodcastDetails(
     @SerializedName("total_episodes") val totalEpisodes: Int,
     val episodes: List<Episode>,
     @SerializedName("next_episode_pub_date") val nextEpisodePubDate: Long?
-
-
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

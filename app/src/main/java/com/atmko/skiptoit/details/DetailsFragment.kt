@@ -38,7 +38,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     private lateinit var podcast: Podcast
 
-    private lateinit var podcastDetails: PodcastDetails
+    private var podcastDetails: PodcastDetails? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -130,7 +130,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
         binding.showMore.setOnClickListener {
             //todo check podcast and podcastDetails is not null before execution
-            toggleFullOrLimitedDescription()
+            setDescription(true)
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
@@ -180,13 +180,14 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     private fun configureViewModel() {
-        observeEpisodes()
+        episodeListViewModel.episodes!!.observe(viewLifecycleOwner, Observer { episodes ->
+            episodeAdapter.submitList(episodes)
+        })
     }
 
     private fun configureDetailExtrasSize() {
         requireView().post {
-            val includeDetailsExtras: ConstraintLayout? =
-                view?.findViewById(R.id.details_extras)
+            val includeDetailsExtras: ConstraintLayout? = binding.detailsExtras
 
             val detailExtrasParams = FrameLayout.LayoutParams(
                 getScreenWidth(), getExtrasHeight()
@@ -196,21 +197,18 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
     }
 
-    private fun observeEpisodes() {
-        episodeListViewModel.episodes!!.observe(viewLifecycleOwner, Observer { episodes ->
-            episodeAdapter.submitList(episodes)
-        })
+    // todo: set description via view model
+    private fun setDescription(isToggle: Boolean) {
+        if (isToggle) {
+            toggleFullOrLimitedDescription()
+        } else {
+            resetDescription()
+        }
     }
 
     //limit long / short description text
     private fun toggleFullOrLimitedDescription() {
-        var description = ""
-        if (podcastDetails.description != null && podcastDetails.description != "") {
-            description = podcastDetails.description!!
-        } else if (podcast.description != null && podcast.description != "") {
-            description = podcast.description!!
-        }
-
+        val description = getDescription()
         if (!showMore) {
             binding.description.showFullText(description)
             binding.showMore.text = getString(R.string.show_less)
@@ -220,6 +218,28 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             binding.showMore.text = getString(R.string.show_more)
         }
         showMore = !showMore
+    }
+
+    private fun getDescription(): String {
+        var description = ""
+        if (podcastDetails != null && podcastDetails!!.description != null && podcastDetails!!.description != "") {
+            description = podcastDetails!!.description!!
+        } else if (podcast.description != null && podcast.description != "") {
+            description = podcast.description!!
+        }
+        return description
+    }
+
+    private fun resetDescription() {
+        val description = getDescription()
+        if (showMore) {
+            binding.description.showFullText(description)
+            binding.showMore.text = getString(R.string.show_less)
+        } else {
+            val maxLines = resources.getInteger(R.integer.max_lines_details_description)
+            binding.description.showLimitedText(maxLines, description)
+            binding.showMore.text = getString(R.string.show_more)
+        }
     }
 
     override fun onPlaybackStateChanged(isPlaying: Boolean) {
@@ -243,17 +263,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         this.podcastDetails = podcastDetails
+
         binding.title.text = podcastDetails.title
-
-        if (showMore) {
-            binding.description.showFullText(podcastDetails.description)
-            binding.showMore.text = getString(R.string.show_less)
-        } else {
-            val maxLines = resources.getInteger(R.integer.max_lines_details_description)
-            binding.description.showLimitedText(maxLines, podcastDetails.description)
-            binding.showMore.text = getString(R.string.show_more)
-        }
-
+        setDescription(false)
         binding.podcastImageView.loadNetworkImage(podcastDetails.image)
     }
 
