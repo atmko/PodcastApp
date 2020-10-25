@@ -77,8 +77,8 @@
     <string name="google_continue_text_literal">google sign in</string>
     <string name="guest_continue_text_literal">continue</string>
     <string name="accept_terms_text">By clicking continue, you are agreeing to our\nTerms of Use and Privacy Policy</string>
-    <string name="terms_url"></string>
-    <string name="privacy_url"></string>
+    <string name="terms_url">https://www.websitepolicies.com/policies/view/Z9OW4dTy</string>
+    <string name="privacy_url">https://www.websitepolicies.com/policies/view/3W9Q2ZnY</string>
     <!--LAUNCH ACTIVITY TEXT-->
 
     <string name="error_loading_subscriptions">Couldn\'t load data</string>
