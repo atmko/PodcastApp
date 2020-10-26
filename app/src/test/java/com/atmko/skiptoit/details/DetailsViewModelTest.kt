@@ -9,8 +9,7 @@ import com.atmko.skiptoit.testdata.PodcastMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert.*
-
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,7 +17,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Captor
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -358,7 +358,7 @@ class DetailsViewModelTest {
         SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionArgPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
     }
 
     @Test
@@ -511,7 +511,7 @@ class DetailsViewModelTest {
         SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
-        assertThat(mSubscriptionsCacheTd.mPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionArgPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
     }
 
     @Test

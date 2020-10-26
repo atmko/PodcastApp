@@ -5,6 +5,8 @@ import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testclass.PodcastsEndpointTd
 import com.atmko.skiptoit.testclass.SubscriptionsCacheTd
 import com.atmko.skiptoit.testclass.SubscriptionsEndpointTd
+import com.atmko.skiptoit.testdata.PodcastMocks
+import com.atmko.skiptoit.testdata.SubscriptionMocks
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
@@ -88,21 +90,6 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_silentSignInError_nothingNotified() {
-        // Arrange
-        silentSignInError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSyncFailed()
-        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSyncFailed()
-    }
-
-    @Test
     fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsSynced_variableUpdated() {
         // Arrange
         SUT.mIsSubscriptionsSynced = null
@@ -140,13 +127,122 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSynced_restoreSubscriptionsCalled() {
-        // Arrange
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSynced_getSubscriptionsCalled() {
+        // Assert
         subscriptionsNotSynced()
         // Act
         SUT.checkSyncStatusAndNotify()
         // Assert
         assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccess_correctCombinedIdsPassedToGetBatchPodcastMetadata() {
+        // Assert
+        subscriptionsNotSynced()
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mCombinedPodcastIds, `is`(SubscriptionMocks.LISTEN_NOTES_ID_1 + "," + SubscriptionMocks.LISTEN_NOTES_ID_2))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccess_correctPodcastsPassedToInsertSubscriptions() {
+        // Assert
+        subscriptionsNotSynced()
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionArgPodcasts,
+            `is`(listOf(PodcastMocks.GET_PODCAST_1(), PodcastMocks.GET_PODCAST_2()))
+        )
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedToSetSubscriptionsSynced() {
+        // Assert
+        subscriptionsNotSynced()
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(true))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_listenersNotifiedOfSuccess() {
+        // Assert
+        subscriptionsNotSynced()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        verify(mListenerMock1).onSubscriptionsSyncStatusSynced()
+        verify(mListenerMock2).onSubscriptionsSyncStatusSynced()
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_unregisteredListenersNotNotifiedOfSuccess() {
+        // Assert
+        subscriptionsNotSynced()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
+        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
+        verify(mListenerMock1).onSubscriptionsSyncStatusSynced()
+        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSynced()
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_variableUpdated() {
+        // Arrange
+        subscriptionsNotSynced()
+        SUT.mIsSubscriptionsSynced = null
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccessSecondCall_silentSignInCalledOnlyOnce() {
+        // Arrange
+        subscriptionsNotSynced()
+        SUT.mIsSubscriptionsSynced = null
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mIsSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mSilentSignInCounter, `is`(1))
+        assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInError_nothingNotified() {
+        // Arrange
+        silentSignInError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSynced()
+        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSynced()
+        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSyncFailed()
+        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSyncFailed()
     }
 
     @Test
@@ -232,77 +328,6 @@ class SubscriptionsViewModelTest {
         assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
         verify(mListenerMock1).onSubscriptionsSyncStatusSyncFailed()
         verify(mListenerMock2).onSubscriptionsSyncStatusSyncFailed()
-    }
-
-    @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedIntoUpdateMethod() {
-        // Assert
-        subscriptionsNotSynced()
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mLoginManagerTd.mIsSubscriptionsSynced, `is`(true))
-    }
-
-    @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_listenersNotifiedOfSuccess() {
-        // Assert
-        subscriptionsNotSynced()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        verify(mListenerMock1).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock2).onSubscriptionsSyncStatusSynced()
-    }
-
-    @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_unregisteredListenersNotNotifiedOfSuccess() {
-        // Assert
-        subscriptionsNotSynced()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        assertThat(mSubscriptionsEndpointTd.mGetSubscriptionsCounter, `is`(1))
-        assertThat(mPodcastsEndpointTd.mGetBatchPodcastMetadataCounter, `is`(1))
-        verify(mListenerMock1).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSynced()
-    }
-
-    @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_variableUpdated() {
-        // Arrange
-        subscriptionsNotSynced()
-        SUT.mIsSubscriptionsSynced = null
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
-    }
-
-    @Test
-    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetSubscriptionsSuccessGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSecondCall_silentSignInCalledOnlyOnce() {
-        // Arrange
-        subscriptionsNotSynced()
-        SUT.mIsSubscriptionsSynced = null
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.checkSyncStatusAndNotify()
-        SUT.checkSyncStatusAndNotify()
-        // Assert
-        assertThat(mLoginManagerTd.mIsSubscriptionsSyncedCounter, `is`(1))
-        assertThat(mLoginManagerTd.mSilentSignInCounter, `is`(1))
-        assertThat(SUT.mIsSubscriptionsSynced, `is`(true))
     }
 
     //----------------------------------------------------------------------------------------------

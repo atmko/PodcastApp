@@ -5,8 +5,8 @@ import com.atmko.skiptoit.model.Subscription
 class SubscriptionMocks {
 
     companion object {
-        const val LISTEN_NOTES_ID_1 = "listenNotesId1"
-        const val LISTEN_NOTES_ID_2 = "listenNotesId2"
+        const val LISTEN_NOTES_ID_1 = "podcastId1"
+        const val LISTEN_NOTES_ID_2 = "podcastId2"
 
         fun GET_SUBSCRIPTION_1(): Subscription {
             return Subscription(LISTEN_NOTES_ID_1)
