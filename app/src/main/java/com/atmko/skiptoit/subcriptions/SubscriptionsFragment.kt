@@ -86,7 +86,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
             ).get(SubscriptionsViewModel::class.java)
         }
 
-        viewModel.checkSyncStatusAndNotify()
+        viewModel.silentSignIn()
     }
 
     private fun configureViews() {
@@ -154,6 +154,14 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun notifyProcessing() {
 
+    }
+
+    override fun onSilentSignInSuccess() {
+        viewModel.checkSyncStatusAndNotify()
+    }
+
+    override fun onSilentSignInFailed() {
+        viewModel.getSubscriptions()
     }
 
     override fun onSubscriptionsSyncStatusSynced() {

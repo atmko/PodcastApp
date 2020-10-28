@@ -32,6 +32,8 @@ class SubscriptionsViewModel(
 
     interface Listener {
         fun notifyProcessing()
+        fun onSilentSignInSuccess()
+        fun onSilentSignInFailed()
         fun onSubscriptionsSyncStatusSynced()
         fun onSubscriptionsSyncStatusSyncFailed()
         fun onStatusUpdated()
@@ -51,6 +53,18 @@ class SubscriptionsViewModel(
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
+    fun silentSignIn() {
+        loginManager.silentSignIn(object : LoginManager.SignInListener {
+            override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
+                notifySilentSignInSuccess()
+            }
+
+            override fun onSignInFailed(googleSignInIntent: Intent) {
+                notifySilentSignInFailed()
+            }
+        })
+    }
+
     fun checkSyncStatusAndNotify() {
         if (mIsSubscriptionsSynced != null) {
             if (mIsSubscriptionsSynced!!) {
@@ -62,26 +76,16 @@ class SubscriptionsViewModel(
         }
 
         notifyProcessing()
-        loginManager.silentSignIn(object : LoginManager.SignInListener {
-            override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
-                loginManager.isSubscriptionsSynced(object : SubscriptionsCache.SyncStatusFetchListener {
-                    override fun onSyncStatusFetched(isSubscriptionsSynced: Boolean) {
-                        if (!isSubscriptionsSynced) {
-                            restoreSubscriptionsAndNotify()
-                        } else {
-                            mIsRemoteSubscriptionsSynced = true
-                            mIsLocalSubscriptionsSynced = true
-                            mIsSubscriptionsSynced = isSubscriptionsSynced
-                            notifyOnSubscriptionStatusSynced()
-                        }
-                    }
-                })
-            }
-
-            override fun onSignInFailed(googleSignInIntent: Intent) {
-                mIsRemoteSubscriptionsSynced = false
-                mIsLocalSubscriptionsSynced = false
-                setSubscriptionsSynced()
+        loginManager.isSubscriptionsSynced(object : SubscriptionsCache.SyncStatusFetchListener {
+            override fun onSyncStatusFetched(isSubscriptionsSynced: Boolean) {
+                if (!isSubscriptionsSynced) {
+                    restoreSubscriptionsAndNotify()
+                } else {
+                    mIsRemoteSubscriptionsSynced = true
+                    mIsLocalSubscriptionsSynced = true
+                    mIsSubscriptionsSynced = isSubscriptionsSynced
+                    notifyOnSubscriptionStatusSynced()
+                }
             }
         })
     }
@@ -303,6 +307,18 @@ class SubscriptionsViewModel(
             }
         }
         return notInMap
+    }
+
+    private fun notifySilentSignInSuccess() {
+        for (listener in listeners) {
+            listener.onSilentSignInSuccess()
+        }
+    }
+
+    private fun notifySilentSignInFailed() {
+        for (listener in listeners) {
+            listener.onSilentSignInFailed()
+        }
     }
 
     private fun notifyOnSubscriptionStatusSynced() {
