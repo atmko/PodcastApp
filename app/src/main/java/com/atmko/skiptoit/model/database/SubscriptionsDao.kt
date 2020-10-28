@@ -18,6 +18,9 @@ interface SubscriptionsDao {
     @Query("SELECT * FROM subscriptions")
     fun getAllSubscriptions(): DataSource.Factory<Int, Podcast>
 
+    @Query("SELECT * FROM subscriptions")
+    fun getAllSubscriptionsAlt(): List<Podcast>
+
     @Query("DELETE FROM subscriptions WHERE id = :podcastId")
     fun deleteSubscription(podcastId: String)
 }

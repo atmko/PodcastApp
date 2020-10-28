@@ -17,6 +17,11 @@ open class SubscriptionsCache(
         fun onSubscriptionUpdateFailed()
     }
 
+    interface FetchSubscriptionsListener {
+        fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>)
+        fun onFetchSubscriptionFailed()
+    }
+
     interface SubscriptionStatusListener {
         fun onGetSubscriptionStatusSuccess(subscriptionStatus: Boolean)
         fun onGetSubscriptionStatusFailed()
@@ -32,6 +37,15 @@ open class SubscriptionsCache(
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onSubscriptionUpdateSuccess()
+            }
+        }
+    }
+
+    open fun getSubscriptions(listener: FetchSubscriptionsListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val localSubscriptions = subscriptionsDao!!.getAllSubscriptionsAlt()
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onFetchSubscriptionsSuccess(localSubscriptions)
             }
         }
     }

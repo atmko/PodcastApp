@@ -18,7 +18,7 @@ open class SubscriptionsEndpoint(
     }
 
     interface RetrieveSubscriptionsListener {
-        fun onSubscriptionsFetchSuccess(subscriptions: List<Subscription>)
+        fun onSubscriptionsFetchSuccess(serverSubscriptions: List<Subscription>)
         fun onSubscriptionsFetchFailed()
     }
 
@@ -26,6 +26,27 @@ open class SubscriptionsEndpoint(
         googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
                 skipToItApi!!.subscribeOrUnsubscribe(podcastId, it, subscriptionStatus)
+                    .enqueue(object : Callback<Void> {
+                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                            if (response.isSuccessful) {
+                                listener.onSubscriptionStatusUpdated()
+                            } else {
+                                listener.onSubscriptionStatusUpdateFailed()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Void>, t: Throwable) {
+                            listener.onSubscriptionStatusUpdateFailed()
+                        }
+                    })
+            }
+        }
+    }
+
+    open fun batchSubscribe(combinedPodcastIds: String, listener: UpdateSubscriptionListener) {
+        googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
+            account.idToken?.let {
+                skipToItApi!!.batchSubscribe(combinedPodcastIds, it)
                     .enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {

@@ -2,6 +2,7 @@ package com.atmko.skiptoit.testclass
 
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.database.SubscriptionsCache
+import com.atmko.skiptoit.testdata.PodcastMocks
 
 class  SubscriptionsCacheTd : SubscriptionsCache(null) {
 
@@ -17,6 +18,22 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
             listener.onSubscriptionUpdateSuccess()
         } else {
             listener.onSubscriptionUpdateFailed()
+        }
+    }
+
+    var mGetSubscriptionsCounter = 0
+    var mGetSubscriptionsFailure = false
+    var mNoPushablePodcasts = true
+    override fun getSubscriptions(listener: FetchSubscriptionsListener) {
+        mGetSubscriptionsCounter += 1
+        if (!mGetSubscriptionsFailure) {
+            if (mNoPushablePodcasts) {
+                listener.onFetchSubscriptionsSuccess(listOf())
+            } else {
+                listener.onFetchSubscriptionsSuccess(listOf(PodcastMocks.GET_PODCAST_3(), PodcastMocks.GET_PODCAST_4()))
+            }
+        } else {
+            listener.onFetchSubscriptionFailed()
         }
     }
 

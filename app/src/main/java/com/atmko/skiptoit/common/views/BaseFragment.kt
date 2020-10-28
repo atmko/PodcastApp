@@ -67,7 +67,7 @@ open class BaseFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.log_out) {
-            (requireActivity() as MasterActivity).viewModel.signOutAndNotify()
+            (requireActivity() as MasterActivity).masterActivityViewModel.signOutAndNotify()
         }
 
         return super.onOptionsItemSelected(item)

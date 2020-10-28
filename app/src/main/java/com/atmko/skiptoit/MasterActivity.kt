@@ -26,6 +26,7 @@ import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.launch.LaunchActivity
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.services.PlaybackService
+import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.google.android.exoplayer2.Player
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -45,7 +46,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    lateinit var viewModel: MasterActivityViewModel
+    lateinit var masterActivityViewModel: MasterActivityViewModel
+    lateinit var subscriptionsViewModel: SubscriptionsViewModel
     var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
@@ -102,19 +104,15 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         configureViews()
         configureValues(savedInstanceState)
         launchEpisodeFragment()
-        if (viewModel.isFirstSetUp()) {
+        if (masterActivityViewModel.isFirstSetUp()) {
             openLaunchFragment()
             return
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.registerListener(this)
-    }
-
     override fun onStart() {
         super.onStart()
+        masterActivityViewModel.registerListener(this)
         Intent(this, PlaybackService::class.java).also { intent ->
             startService(intent)
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
@@ -123,7 +121,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        data?.let { viewModel.onRequestResultReceived(requestCode, resultCode, it) }
+        data?.let { masterActivityViewModel.onRequestResultReceived(requestCode, resultCode, it) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -137,13 +135,9 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded())
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.unregisterListener(this)
-    }
-
     override fun onStop() {
         super.onStop()
+        masterActivityViewModel.unregisterListener(this)
         if (mIsBound) {
             unbindService(playbackServiceConnection)
         }
@@ -192,9 +186,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     private fun configureValues(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this,
+        masterActivityViewModel = ViewModelProvider(this,
             viewModelFactory).get(MasterActivityViewModel::class.java)
-        viewModel.getMatchingUserAndNotify()
+        masterActivityViewModel.getMatchingUserAndNotify()
+
+        subscriptionsViewModel = ViewModelProvider(this,
+            viewModelFactory).get(SubscriptionsViewModel::class.java)
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
@@ -435,7 +432,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     override fun onSilentSignInSuccess() {
-        viewModel.getMatchingUserAndNotify()
+        masterActivityViewModel.getMatchingUserAndNotify()
     }
 
     override fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int) {
@@ -446,7 +443,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onSignInSuccess() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-        viewModel.getMatchingUserAndNotify()
+        masterActivityViewModel.getMatchingUserAndNotify()
     }
 
     override fun onSignInFailed() {
@@ -459,6 +456,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         this.user = user
+        subscriptionsViewModel.restoreSubscriptionsAndNotify()
     }
 
     override fun onUserFetchFailed() {

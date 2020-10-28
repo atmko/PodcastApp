@@ -7,12 +7,12 @@ import androidx.paging.PagedList
 import androidx.paging.toFlowable
 import com.atmko.skiptoit.LoginManager
 import com.atmko.skiptoit.PodcastsEndpoint
-import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.model.database.SubscriptionsCache
-import com.atmko.skiptoit.model.database.SubscriptionsDao
 import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.ApiResults
+import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.Subscription
+import com.atmko.skiptoit.model.database.SubscriptionsCache
+import com.atmko.skiptoit.model.database.SubscriptionsDao
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -43,6 +43,8 @@ class SubscriptionsViewModel(
     //state save variables
     var scrollPosition: Int = 0
 
+    var mIsRemoteSubscriptionsSynced: Boolean? = null
+    var mIsLocalSubscriptionsSynced: Boolean? = null
     var mIsSubscriptionsSynced: Boolean? = null
 
     val subscriptions: MutableLiveData<PagedList<Podcast>> = MutableLiveData()
@@ -67,6 +69,8 @@ class SubscriptionsViewModel(
                         if (!isSubscriptionsSynced) {
                             restoreSubscriptionsAndNotify()
                         } else {
+                            mIsRemoteSubscriptionsSynced = true
+                            mIsLocalSubscriptionsSynced = true
                             mIsSubscriptionsSynced = isSubscriptionsSynced
                             notifyOnSubscriptionStatusSynced()
                         }
@@ -78,7 +82,6 @@ class SubscriptionsViewModel(
 
             }
         })
-
     }
 
     fun getSubscriptions() {
@@ -151,13 +154,49 @@ class SubscriptionsViewModel(
     }
 
     fun restoreSubscriptionsAndNotify() {
+        mIsRemoteSubscriptionsSynced = null
+        mIsLocalSubscriptionsSynced = null
         subscriptionsEndpoint.getSubscriptions(object : SubscriptionsEndpoint.RetrieveSubscriptionsListener {
-            override fun onSubscriptionsFetchSuccess(subscriptions: List<Subscription>) {
-                getBatchPodcastData(subscriptions)
+            override fun onSubscriptionsFetchSuccess(serverSubscriptions: List<Subscription>) {
+                getLocalSubscriptions(serverSubscriptions)
             }
 
             override fun onSubscriptionsFetchFailed() {
-                setSubscriptionsSynced(false)
+                mIsRemoteSubscriptionsSynced = false
+                mIsLocalSubscriptionsSynced = false
+                setSubscriptionsSynced()
+            }
+        })
+    }
+
+    private fun getLocalSubscriptions(serverSubscriptions: List<Subscription>) {
+        subscriptionsCache.getSubscriptions(object : SubscriptionsCache.FetchSubscriptionsListener {
+            override fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>) {
+                val serverSubscriptionsMap = createServerSubscriptionsMap(serverSubscriptions)
+                val localSubscriptionsMap = createLocalSubscriptionsMap(localSubscriptions)
+
+                val pushablePodcasts = getExcludedSubscriptions(serverSubscriptionsMap, localSubscriptionsMap.values)
+                val pullablePodcasts = getExcludedSubscriptions(localSubscriptionsMap, serverSubscriptionsMap.values)
+
+                if (pushablePodcasts.isNotEmpty()) {
+                    batchSubscribePodcasts(pushablePodcasts)
+                } else {
+                    mIsRemoteSubscriptionsSynced = true
+                    setSubscriptionsSynced()
+                }
+
+                if (pullablePodcasts.isNotEmpty()) {
+                    getBatchPodcastData(pullablePodcasts)
+                } else {
+                    mIsLocalSubscriptionsSynced = true
+                    setSubscriptionsSynced()
+                }
+            }
+
+            override fun onFetchSubscriptionFailed() {
+                mIsRemoteSubscriptionsSynced = false
+                mIsLocalSubscriptionsSynced = false
+                setSubscriptionsSynced()
             }
         })
     }
@@ -169,34 +208,56 @@ class SubscriptionsViewModel(
             }
 
             override fun onBatchFetchFailed() {
-                setSubscriptionsSynced(false)
+                mIsLocalSubscriptionsSynced = false
+                setSubscriptionsSynced()
             }
         })
+    }
+
+    fun batchSubscribePodcasts(subscriptions: List<Subscription>) {
+        subscriptionsEndpoint.batchSubscribe(combinePodcastIds(subscriptions),
+            object : SubscriptionsEndpoint.UpdateSubscriptionListener {
+                override fun onSubscriptionStatusUpdated() {
+                    mIsRemoteSubscriptionsSynced = true
+                    setSubscriptionsSynced()
+                }
+
+                override fun onSubscriptionStatusUpdateFailed() {
+                    mIsRemoteSubscriptionsSynced = false
+                    setSubscriptionsSynced()
+                }
+            }
+        )
     }
 
     private fun saveToLocalDatabase(podcasts: List<Podcast>) {
         subscriptionsCache.insertSubscription(podcasts, object : SubscriptionsCache.SubscriptionUpdateListener {
             override fun onSubscriptionUpdateSuccess() {
-                setSubscriptionsSynced(true)
+                mIsLocalSubscriptionsSynced = true
+                setSubscriptionsSynced()
             }
 
             override fun onSubscriptionUpdateFailed() {
-                setSubscriptionsSynced(false)
+                mIsLocalSubscriptionsSynced = false
+                setSubscriptionsSynced()
             }
         })
     }
 
-    private fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean) {
-        loginManager.setSubscriptionsSynced(isSubscriptionsSynced, object : LoginManager.SyncStatusUpdateListener {
-            override fun onSyncStatusUpdated() {
-                mIsSubscriptionsSynced = isSubscriptionsSynced
-                if (isSubscriptionsSynced) {
-                    notifyOnSubscriptionStatusSynced()
-                } else {
-                    notifyOnSubscriptionStatusSyncFailed()
+    private fun setSubscriptionsSynced() {
+        if (mIsRemoteSubscriptionsSynced != null && mIsLocalSubscriptionsSynced != null) {
+            val isSubscriptionsSynced = mIsRemoteSubscriptionsSynced!! && mIsLocalSubscriptionsSynced!!
+            loginManager.setSubscriptionsSynced(isSubscriptionsSynced, object : LoginManager.SyncStatusUpdateListener {
+                override fun onSyncStatusUpdated() {
+                    mIsSubscriptionsSynced = isSubscriptionsSynced
+                    if (isSubscriptionsSynced) {
+                        notifyOnSubscriptionStatusSynced()
+                    } else {
+                        notifyOnSubscriptionStatusSyncFailed()
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun combinePodcastIds(subscriptions: List<Subscription>): String {
@@ -211,6 +272,35 @@ class SubscriptionsViewModel(
         }
 
         return builder.toString()
+    }
+
+    private fun createServerSubscriptionsMap(serverSubscriptions: List<Subscription>) : Map<String, Subscription> {
+        val serverSubscriptionsMap = HashMap<String, Subscription>()
+        for (subscription in serverSubscriptions) {
+            serverSubscriptionsMap[subscription.listenNotesId] = subscription
+        }
+        return serverSubscriptionsMap
+    }
+
+    private fun createLocalSubscriptionsMap(localSubscriptions: List<Podcast>) : Map<String, Subscription> {
+        val localSubscriptionsMap = HashMap<String, Subscription>()
+        for (podcast in localSubscriptions) {
+            localSubscriptionsMap[podcast.id] = Subscription(podcast.id)
+        }
+        return localSubscriptionsMap
+    }
+
+    private fun getExcludedSubscriptions(
+        subscriptionsMap: Map<String, Subscription>,
+        checklist: Collection<Subscription>
+    ): List<Subscription> {
+        val notInMap: ArrayList<Subscription> = arrayListOf()
+        for (subscription in checklist) {
+            if (!subscriptionsMap.containsKey(subscription.listenNotesId)) {
+                notInMap.add(subscription)
+            }
+        }
+        return notInMap
     }
 
     private fun notifyOnSubscriptionStatusSynced() {

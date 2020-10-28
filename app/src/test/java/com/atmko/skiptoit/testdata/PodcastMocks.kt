@@ -9,6 +9,8 @@ class PodcastMocks {
     companion object {
         val PODCAST_ID_1: String = "podcastId1"
         val PODCAST_ID_2: String = "podcastId2"
+        val PODCAST_ID_3: String = "podcastId3"
+        val PODCAST_ID_4: String = "podcastId4"
         val TITLE: String = "title"
         val PUBLISHER: String = "publisher"
         val IMAGE: String = "image"
@@ -29,6 +31,28 @@ class PodcastMocks {
         fun GET_PODCAST_2(): Podcast {
             return Podcast(
                 PODCAST_ID_2,
+                TITLE,
+                PUBLISHER,
+                IMAGE,
+                DESCRIPTION,
+                TOTAL_EPISODES
+            )
+        }
+
+        fun GET_PODCAST_3(): Podcast {
+            return Podcast(
+                PODCAST_ID_3,
+                TITLE,
+                PUBLISHER,
+                IMAGE,
+                DESCRIPTION,
+                TOTAL_EPISODES
+            )
+        }
+
+        fun GET_PODCAST_4(): Podcast {
+            return Podcast(
+                PODCAST_ID_4,
                 TITLE,
                 PUBLISHER,
                 IMAGE,

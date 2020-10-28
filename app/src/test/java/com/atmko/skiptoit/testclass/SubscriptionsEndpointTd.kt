@@ -22,12 +22,30 @@ class SubscriptionsEndpointTd : SubscriptionsEndpoint(null, null) {
 
     var mGetSubscriptionsCounter = 0
     var mGetSubscriptionsFailure = false
+    var mNoPullablePodcasts = true
     override fun getSubscriptions(listener: RetrieveSubscriptionsListener) {
         mGetSubscriptionsCounter += 1
         if (!mGetSubscriptionsFailure) {
-            listener.onSubscriptionsFetchSuccess(SubscriptionMocks.GET_SUBSCRIPTIONS())
+            if (mNoPullablePodcasts) {
+                listener.onSubscriptionsFetchSuccess(listOf())
+            } else {
+                listener.onSubscriptionsFetchSuccess(SubscriptionMocks.GET_SUBSCRIPTIONS())
+            }
         } else {
             listener.onSubscriptionsFetchFailed()
+        }
+    }
+
+    var mBatchSubscribeCounter = 0
+    var mBatchSubscribePodcastsFailure = false
+    lateinit var mBatchSubscribeArgCombinedPocastIds:String
+    override fun batchSubscribe(combinedPodcastIds: String, listener: UpdateSubscriptionListener) {
+        mBatchSubscribeCounter += 1
+        mBatchSubscribeArgCombinedPocastIds = combinedPodcastIds
+        if (!mBatchSubscribePodcastsFailure) {
+            listener.onSubscriptionStatusUpdated()
+        } else {
+            listener.onSubscriptionStatusUpdateFailed()
         }
     }
 }

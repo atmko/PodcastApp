@@ -180,7 +180,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         if (user?.username != null) {
             navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivity.viewModel.silentSignInAndNotify()
+            masterActivity.masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
@@ -190,7 +190,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         if (user?.username != null) {
             navigateToUpdateReply(comment, user.username)
         } else {
-            masterActivity.viewModel.silentSignInAndNotify()
+            masterActivity.masterActivityViewModel.silentSignInAndNotify()
         }
     }
 

@@ -33,17 +33,17 @@ class LoginManagerTd : LoginManager(null, null, null) {
     }
 
     var mSetSubscriptionsSyncedCounter = 0
-    var mIsSubscriptionsSynced: Boolean = true
+    var mSetSubscriptionsSyncedArgIsSubscriptionSynced: Boolean = true
     override fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean, listener: SyncStatusUpdateListener) {
         mSetSubscriptionsSyncedCounter += 1
-        mIsSubscriptionsSynced = isSubscriptionsSynced
+        mSetSubscriptionsSyncedArgIsSubscriptionSynced = isSubscriptionsSynced
         listener.onSyncStatusUpdated()
     }
 
     var mIsSubscriptionsSyncedCounter = 0
     override fun isSubscriptionsSynced(listener: SubscriptionsCache.SyncStatusFetchListener) {
         mIsSubscriptionsSyncedCounter += 1
-        listener.onSyncStatusFetched(mIsSubscriptionsSynced)
+        listener.onSyncStatusFetched(mSetSubscriptionsSyncedArgIsSubscriptionSynced)
     }
 
     var mSignOutCounter = 0

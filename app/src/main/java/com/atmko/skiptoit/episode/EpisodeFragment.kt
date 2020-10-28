@@ -223,7 +223,7 @@ class EpisodeFragment : BaseFragment(),
         if (user?.username != null) {
             navigateToCreateComment(user.username)
         } else {
-            masterActivity.viewModel.silentSignInAndNotify()
+            masterActivity.masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
@@ -233,7 +233,7 @@ class EpisodeFragment : BaseFragment(),
         if (user?.username != null) {
             navigateToUpdateComment(comment, user.username)
         } else {
-            masterActivity.viewModel.silentSignInAndNotify()
+            masterActivity.masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
@@ -243,7 +243,7 @@ class EpisodeFragment : BaseFragment(),
         if (user?.username != null) {
             navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivity.viewModel.silentSignInAndNotify()
+            masterActivity.masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
