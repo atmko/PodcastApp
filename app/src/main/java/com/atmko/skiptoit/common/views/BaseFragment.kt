@@ -61,13 +61,20 @@ open class BaseFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_menu, menu)
+        if ((requireActivity() as MasterActivity).user != null) {
+            inflater.inflate(R.menu.signed_in_options_menu, menu)
+        } else {
+            inflater.inflate(R.menu.signed_out_options_menu, menu)
+        }
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.log_out) {
             (requireActivity() as MasterActivity).masterActivityViewModel.signOutAndNotify()
+        } else if (item.itemId == R.id.log_in) {
+            (requireActivity() as MasterActivity).masterActivityViewModel.silentSignInAndNotify()
         }
 
         return super.onOptionsItemSelected(item)

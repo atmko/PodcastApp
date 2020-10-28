@@ -62,6 +62,7 @@
     <string name="subscriptions_sync_failed">Subscriptions Sync Failed</string>
     <string name="retry_sync">retry sync</string>
     <string name="log_out">Log Out</string>
+    <string name="log_in">Log In</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
