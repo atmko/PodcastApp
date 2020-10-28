@@ -395,7 +395,21 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_silentSignInError_nothingNotified() {
+    fun checkSyncStatusAndNotify_silentSignInError_falseArgumentPassedIntoUpdateMethod() {
+        // Arrange
+        silentSignInError()
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedArgIsSubscriptionSynced, `is`(false))
+        assertThat(SUT.mIsRemoteSubscriptionsSynced, `is`(false))
+        assertThat(SUT.mIsLocalSubscriptionsSynced, `is`(false))
+        assertThat(SUT.mIsSubscriptionsSynced, `is`(false))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInError_listenersNotifiedOfError() {
         // Arrange
         silentSignInError()
         SUT.registerListener(mListenerMock1)
@@ -403,10 +417,8 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.checkSyncStatusAndNotify()
         // Assert
-        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSynced()
-        verify(mListenerMock1, never()).onSubscriptionsSyncStatusSyncFailed()
-        verify(mListenerMock2, never()).onSubscriptionsSyncStatusSyncFailed()
+        verify(mListenerMock1).onSubscriptionsSyncStatusSyncFailed()
+        verify(mListenerMock2).onSubscriptionsSyncStatusSyncFailed()
     }
 
     @Test

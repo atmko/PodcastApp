@@ -86,11 +86,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
             ).get(SubscriptionsViewModel::class.java)
         }
 
-        if ((activity as MasterActivity).user != null) {
-            viewModel.checkSyncStatusAndNotify()
-        } else {
-            viewModel.getSubscriptions()
-        }
+        viewModel.checkSyncStatusAndNotify()
     }
 
     private fun configureViews() {
@@ -167,6 +163,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onSubscriptionsSyncStatusSyncFailed() {
         binding.syncErrorLayout.visibility = View.VISIBLE
+        viewModel.getSubscriptions()
     }
 
     override fun onStatusUpdated() {

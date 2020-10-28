@@ -79,7 +79,9 @@ class SubscriptionsViewModel(
             }
 
             override fun onSignInFailed(googleSignInIntent: Intent) {
-
+                mIsRemoteSubscriptionsSynced = false
+                mIsLocalSubscriptionsSynced = false
+                setSubscriptionsSynced()
             }
         })
     }
