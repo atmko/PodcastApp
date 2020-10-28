@@ -29,7 +29,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var parentComment: Comment
+    lateinit var parentComment: Comment
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -48,6 +48,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         super.onCreate(savedInstanceState)
 
         val args: RepliesFragmentArgs by navArgs()
+        //todo replace with database call in view model
         parentComment = args.parentComment
 
         configureBaseBackButtonFunctionality()

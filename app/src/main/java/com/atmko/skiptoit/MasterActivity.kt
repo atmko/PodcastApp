@@ -16,16 +16,25 @@ import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseActivity
 import com.atmko.skiptoit.databinding.ActivityMasterBinding
+import com.atmko.skiptoit.details.DetailsFragment
+import com.atmko.skiptoit.details.DetailsFragmentDirections
+import com.atmko.skiptoit.episode.EpisodeFragment
 import com.atmko.skiptoit.episode.EpisodeFragmentDirections
+import com.atmko.skiptoit.episode.replies.RepliesFragment
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.launch.LaunchActivity
 import com.atmko.skiptoit.model.User
+import com.atmko.skiptoit.search.searchparent.SearchParentFragment
+import com.atmko.skiptoit.search.searchparent.SearchParentFragmentDirections
 import com.atmko.skiptoit.services.PlaybackService
+import com.atmko.skiptoit.subcriptions.SubscriptionsFragment
+import com.atmko.skiptoit.subcriptions.SubscriptionsFragmentDirections
 import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.google.android.exoplayer2.Player
@@ -33,6 +42,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
+
 
 private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
 private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
@@ -456,7 +466,58 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         this.user = user
+
+        reloadCurrentFragment()
+
         subscriptionsViewModel.restoreSubscriptionsAndNotify()
+    }
+
+    private fun reloadCurrentFragment() {
+        val baseNavHostFragment: NavHostFragment? =
+            supportFragmentManager.findFragmentById(R.id.base_nav_host_fragment) as NavHostFragment
+        val baseCurrentFragment = baseNavHostFragment!!.childFragmentManager.fragments[0]
+        val baseNavController = findNavController(R.id.base_nav_host_fragment)
+
+        when (baseCurrentFragment) {
+            is SubscriptionsFragment -> {
+                baseNavController.navigate(
+                    SubscriptionsFragmentDirections
+                        .actionNavigationSubscriptionsToNavigationSubscriptions()
+                )
+            }
+            is SearchParentFragment -> {
+                baseNavController.navigate(
+                    SearchParentFragmentDirections
+                        .actionNavigationSearchToNavigationSearch()
+                )
+            }
+            is DetailsFragment -> {
+                baseNavController.navigate(
+                    DetailsFragmentDirections
+                        .actionNavigationDetailsToNavigationDetails(baseCurrentFragment.podcast)
+                )
+            }
+        }
+
+        val episodeNavHostFragment: NavHostFragment? =
+            supportFragmentManager.findFragmentById(R.id.base_nav_host_fragment) as NavHostFragment
+        val episodeCurrentFragment = episodeNavHostFragment!!.childFragmentManager.fragments[0]
+        val episodeNacController = findNavController(R.id.base_nav_host_fragment)
+
+        if (episodeCurrentFragment is EpisodeFragment) {
+            episodeNacController.navigate(
+                EpisodeFragmentDirections
+                    .actionNavigationEpisodeToNavigationEpisode(
+                        episodeCurrentFragment.podcastId,
+                        episodeCurrentFragment.episodeId
+                    )
+            )
+        } else if (episodeCurrentFragment is RepliesFragment) {
+            episodeNacController.navigate(
+                RepliesFragmentDirections
+                    .actionNavigationRepliesToNavigationReplies(episodeCurrentFragment.parentComment)
+            )
+        }
     }
 
     override fun onUserFetchFailed() {

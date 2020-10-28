@@ -36,7 +36,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var podcast: Podcast
+    lateinit var podcast: Podcast
 
     private var podcastDetails: PodcastDetails? = null
 
@@ -60,6 +60,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onCreate(savedInstanceState)
 
         val args: DetailsFragmentArgs by navArgs()
+        //todo replace with database call in view model
         podcast = args.podcast
     }
 

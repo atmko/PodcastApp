@@ -53,8 +53,8 @@ class EpisodeFragment : BaseFragment(),
     private val binding get() = _binding!!
 
     //fragment init variable
-    private lateinit var podcastId: String
-    private lateinit var episodeId: String
+    lateinit var podcastId: String
+    lateinit var episodeId: String
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null

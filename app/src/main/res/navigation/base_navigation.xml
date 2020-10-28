@@ -11,6 +11,11 @@
         android:label="@string/title_subscriptions"
         tools:layout="@layout/fragment_subscriptions" >
         <action
+            android:id="@+id/action_navigation_subscriptions_to_navigation_subscriptions"
+            app:destination="@id/navigation_subscriptions"
+            app:popUpTo="@id/navigation_subscriptions"
+            app:popUpToInclusive="true" />
+        <action
             android:id="@+id/action_navigation_subscriptions_to_navigation_details"
             app:destination="@id/navigation_details"
             app:enterAnim="@anim/slide_left_entry"
@@ -25,6 +30,11 @@
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search_parent">
         <action
+            android:id="@+id/action_navigation_search_to_navigation_search"
+            app:destination="@id/navigation_search"
+            app:popUpTo="@id/navigation_search"
+            app:popUpToInclusive="true" />
+        <action
             android:id="@+id/action_navigation_search_to_navigation_details"
             app:destination="@id/navigation_details"
             app:enterAnim="@anim/slide_left_entry"
@@ -38,6 +48,11 @@
         android:name="com.atmko.skiptoit.details.DetailsFragment"
         android:label="@string/title_details"
         tools:layout="@layout/fragment_details">
+        <action
+            android:id="@+id/action_navigation_details_to_navigation_details"
+            app:destination="@id/navigation_details"
+            app:popUpTo="@id/navigation_details"
+            app:popUpToInclusive="true" />
         <argument
             android:name="podcast"
             app:argType="com.atmko.skiptoit.model.Podcast" />
