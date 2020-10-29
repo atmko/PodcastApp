@@ -16,7 +16,6 @@ class DetailsViewModel(
 ) : BaseViewModel<DetailsViewModel.Listener>() {
 
     interface Listener {
-
         fun notifyProcessing()
         fun onDetailsFetched(podcastDetails: PodcastDetails)
         fun onDetailsFetchFailed()

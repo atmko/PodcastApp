@@ -53,6 +53,7 @@ class SubscriptionsViewModel(
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
+    // todo: not yet tested
     val subscriptionsMap: HashMap<String, Unit?> = HashMap()
 
     fun silentSignIn() {
@@ -92,6 +93,7 @@ class SubscriptionsViewModel(
         })
     }
 
+    // todo: not yet tested
     fun getSubscriptions() {
         if (subscriptions.value != null) {
             return
@@ -143,6 +145,7 @@ class SubscriptionsViewModel(
             podcastId,
             object : SubscriptionsCache.SubscriptionUpdateListener {
                 override fun onSubscriptionUpdateSuccess() {
+                    subscriptionsMap.remove(podcastId)
                     notifyStatusUpdated()
                 }
 
