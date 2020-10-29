@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
@@ -102,7 +101,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
     override fun onUsernameUpdated(user: User) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-        (requireActivity() as MasterActivity).user = user
+        getMasterActivity().user = user
         findNavController().navigateUp()
     }
 

@@ -53,6 +53,8 @@ class SubscriptionsViewModel(
     val loadError: MutableLiveData<Boolean> = MutableLiveData()
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
+    val subscriptionsMap: HashMap<String, Unit?> = HashMap()
+
     fun silentSignIn() {
         loginManager.silentSignIn(object : LoginManager.SignInListener {
             override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
@@ -110,6 +112,9 @@ class SubscriptionsViewModel(
                     }
 
                     override fun onNext(podcasts: PagedList<Podcast>) {
+                        for (podcast in podcasts.toList()) {
+                            subscriptionsMap[podcast.id] = null
+                        }
                         subscriptions.value = podcasts
                         loadError.value = false
                         loading.value = false

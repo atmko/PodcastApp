@@ -19,7 +19,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.common.ViewModelFactory
@@ -184,7 +183,7 @@ class EpisodeFragment : BaseFragment(),
         binding.nextEpisodeButton.apply {
             isEnabled = false
             setOnClickListener {
-                (activity as MasterActivity).loadEpisodeIntoBottomSheet(
+                getMasterActivity().loadEpisodeIntoBottomSheet(
                     podcastId,
                     nextEpisodeDetails!!.episodeId
                 )
@@ -194,7 +193,7 @@ class EpisodeFragment : BaseFragment(),
         binding.previousEpisodeButton.apply {
             isEnabled = false
             setOnClickListener {
-                (activity as MasterActivity).loadEpisodeIntoBottomSheet(
+                getMasterActivity().loadEpisodeIntoBottomSheet(
                     podcastId,
                     prevEpisodeDetails!!.episodeId
                 )
@@ -218,32 +217,29 @@ class EpisodeFragment : BaseFragment(),
     }
 
     private fun attemptToCreateComment() {
-        val masterActivity = requireActivity() as MasterActivity
-        val user = masterActivity.user
+        val user = getMasterActivity().user
         if (user?.username != null) {
             navigateToCreateComment(user.username)
         } else {
-            masterActivity.masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToUpdateComment(comment: Comment) {
-        val masterActivity = requireActivity() as MasterActivity
-        val user = masterActivity.user
+        val user = getMasterActivity().user
         if (user?.username != null) {
             navigateToUpdateComment(comment, user.username)
         } else {
-            masterActivity.masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        val masterActivity = requireActivity() as MasterActivity
-        val user = masterActivity.user
+        val user = getMasterActivity().user
         if (user?.username != null) {
             navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivity.masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
@@ -325,14 +321,11 @@ class EpisodeFragment : BaseFragment(),
             }
 
             //set collapsed values
-            activity?.let {
-                (activity as MasterActivity)
-                    .setCollapsedSheetValues(
-                        details.image,
-                        details.podcast?.title,
-                        details.title
-                    )
-            }
+            getMasterActivity().setCollapsedSheetValues(
+                details.image,
+                details.podcast?.title,
+                details.title
+            )
         }
     }
 
@@ -396,7 +389,7 @@ class EpisodeFragment : BaseFragment(),
 
         episodeDetails = episode
         episodeDetails?.let { details ->
-            (activity as MasterActivity).configureBottomSheetState()
+            getMasterActivity().configureBottomSheetState()
             context?.let {
                 mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
                 if (!isRestoringEpisode) {

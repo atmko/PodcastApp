@@ -9,13 +9,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
+import com.atmko.skiptoit.common.ViewModelFactory
+import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.utils.toEditable
-import com.atmko.skiptoit.common.views.BaseFragment
-import com.atmko.skiptoit.MasterActivity
-import com.atmko.skiptoit.common.ViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
@@ -88,10 +87,8 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
     private fun configureViews() {
         binding.cancelButton.apply {
             setOnClickListener {
-                val masterActivity: MasterActivity = (activity as MasterActivity)
-                masterActivity.onBackPressedDispatcher.onBackPressed()
-
-                masterActivity.hideSoftKeyboard(requireView())
+                getMasterActivity().onBackPressedDispatcher.onBackPressed()
+                getMasterActivity().hideSoftKeyboard(requireView())
             }
         }
 
@@ -127,10 +124,8 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
         savedStateHandle?.set(CREATED_REPLY_KEY, comment)
 
-        val masterActivity: MasterActivity = (activity as MasterActivity)
-        masterActivity.onBackPressedDispatcher.onBackPressed()
-
-        view?.let { view -> masterActivity.hideSoftKeyboard(view) }
+        getMasterActivity().onBackPressedDispatcher.onBackPressed()
+        view?.let { view -> getMasterActivity().hideSoftKeyboard(view) }
     }
 
     override fun onReplyCreateFailed() {

@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -145,7 +144,7 @@ class SearchParentFragment : BaseFragment(),
             setOnEditorActionListener { view, actionId, event ->
                 val queryString: String = view.text.toString()
                 if (queryString != "") {
-                    (activity as MasterActivity).hideSoftKeyboard(this)
+                    getMasterActivity().hideSoftKeyboard(this)
                     viewModel.activateManualModeAndNotify(queryString)
                 }
 
@@ -175,12 +174,12 @@ class SearchParentFragment : BaseFragment(),
     }
 
     private fun showKeyboard() {
-        (activity as MasterActivity).showSoftKeyboard(binding.toolbar.searchBox.searchBox)
+        getMasterActivity().showSoftKeyboard(binding.toolbar.searchBox.searchBox)
         isKeyboardVisible = true
     }
 
     private fun hideKeyboard() {
-        (activity as MasterActivity).hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
+        getMasterActivity().hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
         isKeyboardVisible = false
     }
 
@@ -247,6 +246,8 @@ class SearchParentFragment : BaseFragment(),
     private fun configureViewModel() {
         viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.errorAndLoading.loadingScreen.visibility = View.GONE
+            podcastAdapter.subscriptions =
+                getMasterActivity().subscriptionsViewModel.subscriptionsMap
             subscriptions?.let { podcastAdapter.submitList(it) }
         })
     }

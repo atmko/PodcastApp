@@ -91,7 +91,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onResume()
         detailsViewModel.registerListener(this)
         episodeListViewModel.registerBoundaryCallbackListener(this)
-        (activity as MasterActivity).registerPlaybackListener(this)
+        getMasterActivity().registerPlaybackListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -103,7 +103,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onPause()
         detailsViewModel.unregisterListener(this)
         episodeListViewModel.unregisterBoundaryCallbackListener(this)
-        (activity as MasterActivity).unregisterPlaybackListener(this)
+        getMasterActivity().unregisterPlaybackListener(this)
     }
 
     override fun onDestroy() {
@@ -126,7 +126,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.playButton.setOnClickListener {
-            (activity as MasterActivity).togglePlayPause()
+            getMasterActivity().togglePlayPause()
         }
 
         binding.showMore.setOnClickListener {
@@ -135,7 +135,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            if ((activity as MasterActivity).user != null) {
+            if (getMasterActivity().user != null) {
                 detailsViewModel.toggleSubscriptionAndNotify(podcast)
             } else {
                 detailsViewModel.toggleLocalSubscriptionAndNotify(podcast)
@@ -248,7 +248,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun onItemClick(episode: Episode) {
-        (activity as MasterActivity).loadEpisodeIntoCollapsedBottomSheet(
+        getMasterActivity().loadEpisodeIntoCollapsedBottomSheet(
             podcast.id,
             episode.episodeId
         )

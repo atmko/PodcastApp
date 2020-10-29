@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -91,8 +90,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     private fun configureBaseBackButtonFunctionality() {
         val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val masterActivity = (activity as MasterActivity)
-                if (masterActivity.isBottomSheetExpanded()) {
+                if (getMasterActivity().isBottomSheetExpanded()) {
                     view?.findNavController()?.navigateUp()
                 }
             }
@@ -176,22 +174,20 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun attemptToReplyComment(parentId: String, quotedText: String) {
-        val masterActivity = requireActivity() as MasterActivity
-        val user = masterActivity.user
+        val user = getMasterActivity().user
         if (user?.username != null) {
             navigateToReplyComment(user.username, parentId, quotedText)
         } else {
-            masterActivity.masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
     }
 
     private fun attemptToUpdateReply(comment: Comment) {
-        val masterActivity = requireActivity() as MasterActivity
-        val user = masterActivity.user
+        val user = getMasterActivity().user
         if (user?.username != null) {
             navigateToUpdateReply(comment, user.username)
         } else {
-            masterActivity.masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
     }
 

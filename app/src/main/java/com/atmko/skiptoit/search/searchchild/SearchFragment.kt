@@ -138,6 +138,8 @@ class SearchFragment : BaseFragment(),
     private fun configureViewModel() {
         viewModel.genreResults.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.errorAndLoading.loadingScreen.visibility = View.GONE
+            podcastAdapter.subscriptions =
+                getMasterActivity().subscriptionsViewModel.subscriptionsMap
             subscriptions?.let { podcastAdapter.submitList(it) }
         })
     }

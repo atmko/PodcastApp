@@ -35,7 +35,7 @@ open class BaseFragment : Fragment() {
             return getApplicationComponent()
                 .newPresentationComponent(
                     PresentationModule(),
-                    AdapterModule(this)
+                    AdapterModule(this, requireContext())
                 )
         }
 
@@ -56,12 +56,12 @@ open class BaseFragment : Fragment() {
                 R.id.navigation_search
             )
         )
-        (activity as MasterActivity).setSupportActionBar(toolbar)
+        getMasterActivity().setSupportActionBar(toolbar)
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if ((requireActivity() as MasterActivity).user != null) {
+        if (getMasterActivity().user != null) {
             inflater.inflate(R.menu.signed_in_options_menu, menu)
         } else {
             inflater.inflate(R.menu.signed_out_options_menu, menu)
@@ -72,18 +72,21 @@ open class BaseFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.log_out) {
-            (requireActivity() as MasterActivity).masterActivityViewModel.signOutAndNotify()
+            getMasterActivity().masterActivityViewModel.signOutAndNotify()
         } else if (item.itemId == R.id.log_in) {
-            (requireActivity() as MasterActivity).masterActivityViewModel.silentSignInAndNotify()
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
 
         return super.onOptionsItemSelected(item)
     }
 
+    protected fun getMasterActivity(): MasterActivity {
+        return requireActivity() as MasterActivity
+    }
+
     fun getBaseFragmentBottomMargin(): Int {
-        val masterActivity = (activity as MasterActivity)
-        val navHeight = masterActivity.navBarHeight()
-        val peekHeight = masterActivity.bottomSheetPeekHeight()
+        val navHeight = getMasterActivity().navBarHeight()
+        val peekHeight = getMasterActivity().bottomSheetPeekHeight()
 
         return if (peekHeight > navHeight) {
             peekHeight

@@ -12,7 +12,6 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -145,7 +144,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
-        if ((activity as MasterActivity).user != null) {
+        if (getMasterActivity().user != null) {
             viewModel.unsubscribeAndNotify(podcast.id)
         } else {
             viewModel.unsubscribeLocallyAndNotify(podcast.id)
