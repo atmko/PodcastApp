@@ -110,13 +110,8 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(DetailsViewModel.class)
-    ViewModel provideDetailsViewModel(PodcastDetailsEndpoint podcastDetailsEndpoint,
-                                      SubscriptionsEndpoint subscriptionsEndpoint,
-                                      SubscriptionsCache subscriptionsCache) {
-        return new DetailsViewModel(
-                podcastDetailsEndpoint,
-                subscriptionsEndpoint,
-                subscriptionsCache);
+    ViewModel provideDetailsViewModel(PodcastDetailsEndpoint podcastDetailsEndpoint) {
+        return new DetailsViewModel(podcastDetailsEndpoint);
     }
 
     @Provides
@@ -257,8 +252,7 @@ public class ViewModelModule {
     }
 
     @Provides
-    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao,
-                                                 @Named("subscriptions") SharedPreferences sharedPreferences) {
+    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao) {
         return new SubscriptionsCache(subscriptionsDao);
     }
 

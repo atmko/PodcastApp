@@ -38,10 +38,11 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
     }
 
     var mRemoveSubscriptionCounter = 0
+    var mRemoveSubscriptionFailure = false
     override fun removeSubscription(podcastId: String, listener: SubscriptionUpdateListener) {
         mRemoveSubscriptionCounter += 1
         mPodcastId = podcastId
-        if (!mFailure) {
+        if (!mRemoveSubscriptionFailure) {
             listener.onSubscriptionUpdateSuccess()
         } else {
             listener.onSubscriptionUpdateFailed()

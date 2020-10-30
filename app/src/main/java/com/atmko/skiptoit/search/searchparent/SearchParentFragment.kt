@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
@@ -21,6 +20,7 @@ import com.atmko.skiptoit.model.Genre
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.search.common.PodcastDataSource
 import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel
 import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -31,6 +31,7 @@ const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
 
 class SearchParentFragment : BaseFragment(),
     SearchParentViewModel.Listener,
+    SubscriptionsViewModel.ToggleSubscriptionListener,
     PodcastAdapter.OnPodcastItemClickListener,
     PodcastDataSource.Listener {
 
@@ -80,6 +81,7 @@ class SearchParentFragment : BaseFragment(),
     override fun onStart() {
         super.onStart()
         viewModel.registerListener(this)
+        getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         viewModel.registerBoundaryCallbackListener(this)
         viewModel.restoreSearchModeAndNotify()
     }
@@ -94,6 +96,7 @@ class SearchParentFragment : BaseFragment(),
     override fun onStop() {
         super.onStop()
         viewModel.unregisterListener(this)
+        getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
     }
 
@@ -285,7 +288,11 @@ class SearchParentFragment : BaseFragment(),
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
-        context?.let { Toast.makeText(it, "not yet implemented", Toast.LENGTH_SHORT).show() }
+        if (getMasterActivity().user != null) {
+            getMasterActivity().subscriptionsViewModel.toggleSubscriptionAndNotify(podcast)
+        } else {
+            getMasterActivity().subscriptionsViewModel.toggleLocalSubscriptionAndNotify(podcast)
+        }
     }
 
     override fun onPageLoading() {
@@ -323,5 +330,19 @@ class SearchParentFragment : BaseFragment(),
         binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
+    }
+
+    override fun notifyProcessing() {
+
+    }
+
+    override fun onSubscriptionToggleSuccess(isSubscribed: Boolean) {
+        podcastAdapter.subscriptions =
+            getMasterActivity().subscriptionsViewModel.subscriptionsMap
+        podcastAdapter.notifyDataSetChanged()
+    }
+
+    override fun onSubscriptionToggleFailed() {
+        Snackbar.make(requireView(), "Toggle subscription failed", Snackbar.LENGTH_LONG).show()
     }
 }

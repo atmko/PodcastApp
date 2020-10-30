@@ -36,8 +36,48 @@ class SubscriptionsViewModel(
         fun onSilentSignInFailed()
         fun onSubscriptionsSyncStatusSynced()
         fun onSubscriptionsSyncStatusSyncFailed()
-        fun onStatusUpdated()
-        fun onStatusUpdateFailed()
+    }
+
+    private val toggleListeners = mutableListOf<ToggleSubscriptionListener>()
+    interface ToggleSubscriptionListener {
+        fun notifyProcessing()
+        fun onSubscriptionToggleSuccess(isSubscribed: Boolean)
+        fun onSubscriptionToggleFailed()
+    }
+
+    fun registerToggleListener(listener: ToggleSubscriptionListener) {
+        toggleListeners.add(listener)
+    }
+
+    fun unregisterToggleListener(listener: ToggleSubscriptionListener) {
+        toggleListeners.remove(listener)
+    }
+
+    private fun unregisterToggleListeners() {
+        for (listener in toggleListeners) {
+            unregisterToggleListener(listener)
+        }
+    }
+
+    private val subscriptionStatusListeners = mutableListOf<FetchSubscriptionStatusListener>()
+    interface FetchSubscriptionStatusListener {
+        fun notifyProcessing()
+        fun onSubscriptionStatusFetched(isSubscribed: Boolean)
+        fun onSubscriptionStatusFetchFailed()
+    }
+
+    fun registerSubscriptionStatusListener(listener: FetchSubscriptionStatusListener) {
+        subscriptionStatusListeners.add(listener)
+    }
+
+    fun unregisterSubscriptionStatusListener(listener: FetchSubscriptionStatusListener) {
+        subscriptionStatusListeners.remove(listener)
+    }
+
+    private fun unregisterSubscriptionStatusListeners() {
+        for (listener in subscriptionStatusListeners) {
+            unregisterSubscriptionStatusListener(listener)
+        }
     }
 
     private val disposable: CompositeDisposable = CompositeDisposable()
@@ -54,7 +94,7 @@ class SubscriptionsViewModel(
     val loading: MutableLiveData<Boolean> = MutableLiveData()
 
     // todo: not yet tested
-    val subscriptionsMap: HashMap<String, Unit?> = HashMap()
+    var subscriptionsMap: HashMap<String, Unit?>? = null
 
     fun silentSignIn() {
         loginManager.silentSignIn(object : LoginManager.SignInListener {
@@ -98,62 +138,121 @@ class SubscriptionsViewModel(
         if (subscriptions.value != null) {
             return
         }
-        disposable.add(
-            subscriptionsDao
-                .getAllSubscriptions().toFlowable(20, 1)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSubscriber<PagedList<Podcast>>() {
-                    override fun onError(e: Throwable) {
-                        loadError.value = true
-                        loading.value = false
-                    }
 
-                    override fun onComplete() {
+        subscriptionsCache.getSubscriptions(object : SubscriptionsCache.FetchSubscriptionsListener {
+            override fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>) {
+                subscriptionsMap = HashMap()
+                for (podcast in localSubscriptions) {
+                    setIsSubscribed(podcast.id, true)//todo: not tested
+                }
 
-                    }
+                disposable.add(
+                    subscriptionsDao
+                        .getAllSubscriptions().toFlowable(20, 1)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSubscriber<PagedList<Podcast>>() {
+                            override fun onError(e: Throwable) {
+                                loadError.value = true
+                                loading.value = false
+                            }
 
-                    override fun onNext(podcasts: PagedList<Podcast>) {
-                        for (podcast in podcasts.toList()) {
-                            subscriptionsMap[podcast.id] = null
-                        }
-                        subscriptions.value = podcasts
-                        loadError.value = false
-                        loading.value = false
-                    }
-                })
+                            override fun onComplete() {
+
+                            }
+
+                            override fun onNext(podcasts: PagedList<Podcast>) {
+                                subscriptions.value = podcasts
+                                loadError.value = false
+                                loading.value = false
+                            }
+                        })
+                )
+            }
+
+            override fun onFetchSubscriptionFailed() {
+
+            }
+        })
+    }
+
+    //toggle remote subscriptions status then toggle local subscription status
+    fun toggleSubscriptionAndNotify(podcast: Podcast) {
+        if (subscriptionsMap == null) return
+        notifyToggleStatusProcessing()
+        val subscribeStatus = if (isSubscribed(podcast.id)) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
+        subscriptionsEndpoint.updateSubscription(podcast.id, subscribeStatus,
+            object : SubscriptionsEndpoint.UpdateSubscriptionListener {
+                override fun onSubscriptionStatusUpdated() {
+                    toggleLocalSubscriptionAndNotify(podcast)
+                }
+
+                override fun onSubscriptionStatusUpdateFailed() {
+                    notifySubscriptionToggleFailed()
+                }
+            }
         )
     }
 
-    //remove subscription from remote and then remove subscription locally
-    fun unsubscribeAndNotify(podcastId: String) {
-        notifyProcessing()
-        subscriptionsEndpoint.updateSubscription(podcastId, STATUS_UNSUBSCRIBE, object : SubscriptionsEndpoint.UpdateSubscriptionListener {
-            override fun onSubscriptionStatusUpdated() {
-                unsubscribeLocallyAndNotify(podcastId)
+    //toggle local subscription status
+    fun toggleLocalSubscriptionAndNotify(podcast: Podcast) {
+        if (subscriptionsMap == null) return
+        val subscribeStatus = if (isSubscribed(podcast.id)) STATUS_UNSUBSCRIBE else STATUS_SUBSCRIBE
+        if (subscribeStatus == STATUS_SUBSCRIBE) {
+            subscribeLocallyAndNotify(podcast)
+        } else {
+            unsubscribeLocallyAndNotify(podcast.id)
+        }
+    }
+
+    //add subscription locally only
+    private fun subscribeLocallyAndNotify(podcast: Podcast) {
+        subscriptionsCache.insertSubscription(listOf(podcast), object : SubscriptionsCache.SubscriptionUpdateListener {
+            override fun onSubscriptionUpdateSuccess() {
+                setIsSubscribed(podcast.id, true)//todo: not tested
+                notifySubscriptionToggleSuccess(true)//todo: not tested
             }
 
-            override fun onSubscriptionStatusUpdateFailed() {
-                notifyStatusUpdateFailed()
+            override fun onSubscriptionUpdateFailed() {
+                notifySubscriptionToggleFailed()
             }
         })
     }
 
     //remove subscription locally only
-    fun unsubscribeLocallyAndNotify(podcastId: String) {
-        subscriptionsCache.removeSubscription(
-            podcastId,
-            object : SubscriptionsCache.SubscriptionUpdateListener {
-                override fun onSubscriptionUpdateSuccess() {
-                    subscriptionsMap.remove(podcastId)
-                    notifyStatusUpdated()
-                }
+    private fun unsubscribeLocallyAndNotify(podcastId: String) {
+        subscriptionsCache.removeSubscription(podcastId, object : SubscriptionsCache.SubscriptionUpdateListener {
+            override fun onSubscriptionUpdateSuccess() {
+                setIsSubscribed(podcastId, false)//todo: not tested
+                notifySubscriptionToggleSuccess(false)//todo: not tested
+            }
 
-                override fun onSubscriptionUpdateFailed() {
-                    notifyStatusUpdateFailed()
-                }
-            })
+            override fun onSubscriptionUpdateFailed() {
+                notifySubscriptionToggleFailed()
+            }
+        })
     }
+
+    fun getSubscriptionStatusAndNotify(podcastId: String) {
+        notifySubscriptionStatusProcessing()
+        if (subscriptionsMap != null) {
+            notifySubscriptionStatusFetched(isSubscribed(podcastId))
+        } else {
+            notifySubscriptionStausFetchFailed()
+        }
+    }
+
+    private fun isSubscribed(podcastId: String): Boolean {
+        return subscriptionsMap!!.containsKey(podcastId)
+    }
+
+    private fun setIsSubscribed(podcastId: String, isSubscribed: Boolean) {
+        if (isSubscribed) {
+            subscriptionsMap!![podcastId] = null
+        } else {
+            subscriptionsMap!!.remove(podcastId)
+        }
+     }
 
     private fun unregisterListeners() {
         for (listener in listeners) {
@@ -341,20 +440,46 @@ class SubscriptionsViewModel(
         }
     }
 
-    private fun notifyStatusUpdated() {
-        for (listener in listeners) {
-            listener.onStatusUpdated()
+    private fun notifyToggleStatusProcessing() {
+        for (listener in toggleListeners) {
+            listener.notifyProcessing()
         }
     }
 
-    private fun notifyStatusUpdateFailed() {
-        for (listener in listeners) {
-            listener.onStatusUpdateFailed()
+    private fun notifySubscriptionToggleSuccess(isSubscribed: Boolean) {
+        for (listener in toggleListeners) {
+            listener.onSubscriptionToggleSuccess(isSubscribed)
+        }
+    }
+
+    private fun notifySubscriptionToggleFailed() {
+        for (listener in toggleListeners) {
+            listener.onSubscriptionToggleFailed()
+        }
+    }
+
+    private fun notifySubscriptionStatusProcessing() {
+        for (listener in subscriptionStatusListeners) {
+            listener.notifyProcessing()
+        }
+    }
+
+    private fun notifySubscriptionStatusFetched(isSubscribed: Boolean) {
+        for (listener in subscriptionStatusListeners) {
+            listener.onSubscriptionStatusFetched(isSubscribed)
+        }
+    }
+
+    private fun notifySubscriptionStausFetchFailed() {
+        for (listener in subscriptionStatusListeners) {
+            listener.onSubscriptionStatusFetchFailed()
         }
     }
 
     override fun onCleared() {
         Log.d("CLEARING", "CLEARING")
         unregisterListeners()
+        unregisterToggleListeners()
+        unregisterSubscriptionStatusListeners()
     }
 }

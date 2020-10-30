@@ -7,12 +7,15 @@ import com.atmko.skiptoit.testclass.SubscriptionsCacheTd
 import com.atmko.skiptoit.testclass.SubscriptionsEndpointTd
 import com.atmko.skiptoit.testdata.PodcastMocks
 import com.atmko.skiptoit.testdata.SubscriptionMocks
+import com.atmko.skiptoit.testutils.TestUtils
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
@@ -38,6 +41,12 @@ class SubscriptionsViewModelTest {
 
     @Mock lateinit var mListenerMock1: SubscriptionsViewModel.Listener
     @Mock lateinit var mListenerMock2: SubscriptionsViewModel.Listener
+
+    @Mock lateinit var mSubscriptionStatusListenerMock1: SubscriptionsViewModel.FetchSubscriptionStatusListener
+    @Mock lateinit var mSubscriptionStatusListenerMock2: SubscriptionsViewModel.FetchSubscriptionStatusListener
+
+    @Mock lateinit var mToggleListenerMock1: SubscriptionsViewModel.ToggleSubscriptionListener
+    @Mock lateinit var mToggleListenerMock2: SubscriptionsViewModel.ToggleSubscriptionListener
     // endregion helper fields
 
     lateinit var SUT: SubscriptionsViewModel
@@ -56,10 +65,14 @@ class SubscriptionsViewModelTest {
         subscriptionsSynced()
         getRemoteSubscriptionsSuccess()
         getLocalSubscriptionsSuccess()
-        endpointSuccess()
         subscriptionsCacheSuccess()
         noPushablePodcasts()
         noPullablePodcasts()
+
+        subscriptionStatusFetchSuccess()
+        updateServerSubscriptionSuccess()
+        insertSubscriptionSuccess()
+        removeSubscriptionSuccess()
     }
 
     @Test
@@ -575,138 +588,407 @@ class SubscriptionsViewModelTest {
         verify(mListenerMock2).onSubscriptionsSyncStatusSyncFailed()
     }
 
-    //----------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
     @Test
-    fun unsubscribeAndNotify_listenersNotifiedOfProcessing() {
+    fun loadSubscriptionStatusAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock1)
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock2)
         // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
+        SUT.getSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).notifyProcessing()
-        verify(mListenerMock2).notifyProcessing()
+        verify(mSubscriptionStatusListenerMock1).notifyProcessing()
+        verify(mSubscriptionStatusListenerMock2).notifyProcessing()
     }
 
     @Test
-    fun unsubscribeAndNotify_correctPodcastIdPassedToEndpoint() {
+    fun getSubscriptionStatusAndNotify_subscriptionCacheSuccess_listenersNotifiedOfSuccessWithCorrectValue() {
         // Arrange
+        isSubscribed()
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock1)
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock2)
+        val ac : ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
         // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
+        SUT.getSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PODCAST_ID))
+        verify(mSubscriptionStatusListenerMock1).onSubscriptionStatusFetched(ac.capture())
+        verify(mSubscriptionStatusListenerMock2).onSubscriptionStatusFetched(ac.capture())
+        val captures: List<Boolean> = ac.allValues
+        assertThat(captures[0], `is`(true))
+        assertThat(captures[1], `is`(true))
     }
 
     @Test
-    fun unsubscribeAndNotify_correctPodcastIdPassedToCache() {
+    fun getSubscriptionStatusAndNotify_subscriptionCacheSuccess_unsubscribedListenersNotNotified() {
         // Arrange
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock1)
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock2)
+        SUT.unregisterSubscriptionStatusListener(mSubscriptionStatusListenerMock2)
         // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
+        SUT.getSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PODCAST_ID))
+        verify(mSubscriptionStatusListenerMock1).onSubscriptionStatusFetched(TestUtils.kotlinAny(Boolean::class.java))
+        verify(mSubscriptionStatusListenerMock2, never()).onSubscriptionStatusFetched(TestUtils.kotlinAny(Boolean::class.java))
     }
 
     @Test
-    fun unsubscribeAndNotify_endpointSuccessCacheSuccess_listenersNotifiedOfSuccess() {
+    fun getSubscriptionStatusAndNotify_subscriptionCacheError_listenersNotifiedOfError() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        subscriptionStatusFetchError()
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock1)
+        SUT.registerSubscriptionStatusListener(mSubscriptionStatusListenerMock2)
         // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
+        SUT.getSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onStatusUpdated()
-        verify(mListenerMock2).onStatusUpdated()
-    }
-
-    @Test
-    fun unsubscribeAndNotify_endpointSuccessCacheSuccess_unsubscribedListenersNotNotified() {
-        // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
-        // Assert
-        verify(mListenerMock1).onStatusUpdated()
-        verify(mListenerMock2, never()).onStatusUpdated()
-    }
-
-    @Test
-    fun unsubscribeAndNotify_endpointSuccessCacheError_listenersNotifiedOfFailure() {
-        // Arrange
-        subscriptionsCacheError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
-        // Assert
-        verify(mListenerMock1).onStatusUpdateFailed()
-        verify(mListenerMock2).onStatusUpdateFailed()
-    }
-
-    @Test
-    fun unsubscribeAndNotify_endpointErrorCacheError_listenersNotifiedOfFailure() {
-        // Arrange
-        endpointError()
-        subscriptionsCacheError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.unsubscribeAndNotify(PODCAST_ID)
-        // Assert
-        verify(mListenerMock1).onStatusUpdateFailed()
-        verify(mListenerMock2).onStatusUpdateFailed()
+        verify(mSubscriptionStatusListenerMock1).onSubscriptionStatusFetchFailed()
+        verify(mSubscriptionStatusListenerMock2).onSubscriptionStatusFetchFailed()
     }
 
     //----------------------------------------------------------------------------------------------
-
     @Test
-    fun unsubscribeLocallyAndNotify_correctPodcastIdPassedToCache() {
+    fun toggleSubscriptionAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
+        isSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
         // Act
-        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
-        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PODCAST_ID))
+        verify(mToggleListenerMock1).notifyProcessing()
+        verify(mToggleListenerMock2).notifyProcessing()
     }
 
     @Test
-    fun unsubscribeLocallyAndNotify_cacheSuccess_listenersNotifiedOfSuccess() {
+    fun toggleSubscriptionAndNotify_isSubScribed_correctPodcastIdAndSubscriptionStatusPassedToEndpoint() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        isSubscribed()
         // Act
-        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
-        verify(mListenerMock1).onStatusUpdated()
-        verify(mListenerMock2).onStatusUpdated()
+        assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
+        assertThat(mSubscriptionsEndpointTd.mSubscriptionStatus, `is`(STATUS_UNSUBSCRIBE))
     }
 
     @Test
-    fun unsubscribeLocallyAndNotify_cacheSuccess_unsubscribedListenersNotNotified() {
+    fun toggleSubscriptionAndNotify_isSubScribedSubscriptionEndpointSuccess_correctPodcastIdPassedToCache() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
+        isSubscribed()
         // Act
-        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
-        verify(mListenerMock1).onStatusUpdated()
-        verify(mListenerMock2, never()).onStatusUpdated()
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
     }
 
     @Test
-    fun unsubscribeLocallyAndNotify_cacheError_listenersNotifiedOfFailure() {
+    fun toggleSubscriptionAndNotify_isSubScribedSubscriptionEndpointSuccessCacheUpdateSuccess_subscriptionStatusSavedInViewModel() {
         // Arrange
-        subscriptionsCacheError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        isSubscribed()
         // Act
-        SUT.unsubscribeLocallyAndNotify(PODCAST_ID)
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
-        verify(mListenerMock1).onStatusUpdateFailed()
-        verify(mListenerMock2).onStatusUpdateFailed()
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
+        assertThat(SUT.subscriptionsMap!!.contains(PodcastMocks.GET_PODCAST_1().id), `is`(false))
     }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isSubscribedSubscriptionEndpointSuccessCacheSuccess_listenersNotifiedOfSuccessWithCorrectValue() {
+        // Arrange
+        isSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(ac.capture())
+        verify(mToggleListenerMock2).onSubscriptionToggleSuccess(ac.capture())
+        val captures: List<Boolean> = ac.allValues
+        assertThat(captures[0], `is`(false))
+        assertThat(captures[1], `is`(false))
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isSubscribedSubscriptionEndpointSuccessCacheSuccess_unregisteredListenerNotNotified() {
+        // Arrange
+        isSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        SUT.unregisterToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(false)
+        verify(mToggleListenerMock2, never()).onSubscriptionToggleSuccess(ArgumentMatchers.anyBoolean())
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isSubscribedSubscriptionsEndPointError_listenersNotifiedOfError() {
+        // Arrange
+        isSubscribed()
+        updateServerSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(0))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isSubscribedSubscriptionEndpointSuccessCacheError_listenersNotifiedOfError() {
+        // Arrange
+        isSubscribed()
+        removeSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubScribed_correctPodcastIdAndSubscriptionStatusPassedToEndpoint() {
+        // Arrange
+        isNotSubscribed()
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsEndpointTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
+        assertThat(mSubscriptionsEndpointTd.mSubscriptionStatus, `is`(STATUS_SUBSCRIBE))
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubScribedSubscriptionEndpointSuccess_correctPodcastIdPassedToCache() {
+        // Arrange
+        isNotSubscribed()
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionArgPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubScribedSubscriptionEndpointSuccessCacheUpdateSuccess_subscriptionStatusSavedInViewModel() {
+        // Arrange
+        isNotSubscribed()
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        assertThat(SUT.subscriptionsMap!!.contains(PodcastMocks.GET_PODCAST_1().id), `is`(true))
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubscribedSubscriptionEndpointSuccessCacheSuccess_listenersNotifiedOfSuccessWithCorrectValue() {
+        // Arrange
+        isNotSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(ac.capture())
+        verify(mToggleListenerMock2).onSubscriptionToggleSuccess(ac.capture())
+        val captures: List<Boolean> = ac.allValues
+        assertThat(captures[0], `is`(true))
+        assertThat(captures[1], `is`(true))
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubscribedSubscriptionEndpointSuccessCacheSuccess_unregisteredListenerNotNotified() {
+        // Arrange
+        isNotSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        SUT.unregisterToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(true)
+        verify(mToggleListenerMock2, never()).onSubscriptionToggleSuccess(ArgumentMatchers.anyBoolean())
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubscribedSubscriptionsEndPointError_listenersNotifiedOfError() {
+        // Arrange
+        isNotSubscribed()
+        updateServerSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsEndpointTd.mUpdateSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(0))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    @Test
+    fun toggleSubscriptionAndNotify_isNotSubscribedSubscriptionEndpointSuccessCacheError_listenersNotifiedOfError() {
+        // Arrange
+        isNotSubscribed()
+        insertSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_correctPodcastIdPassedToCache() {
+        // Arrange
+        isSubscribed()
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_CacheUpdateSuccess_subscriptionStatusSavedInViewModel() {
+        // Arrange
+        isSubscribed()
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(SUT.subscriptionsMap!!.contains(PodcastMocks.GET_PODCAST_1().id), `is`(false))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_CacheSuccess_listenersNotifiedOfSuccessWithCorrectValue() {
+        // Arrange
+        isSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(ac.capture())
+        verify(mToggleListenerMock2).onSubscriptionToggleSuccess(ac.capture())
+        val captures: List<Boolean> = ac.allValues
+        assertThat(captures[0], `is`(false))
+        assertThat(captures[1], `is`(false))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_CacheSuccess_unregisteredListenerNotNotified() {
+        // Arrange
+        isSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        SUT.unregisterToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(false)
+        verify(mToggleListenerMock2, never()).onSubscriptionToggleSuccess(ArgumentMatchers.anyBoolean())
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_CacheError_listenersNotifiedOfError() {
+        // Arrange
+        isSubscribed()
+        removeSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mRemoveSubscriptionCounter, `is`(1))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_isNotSubScribed_correctPodcastIdPassedToCache() {
+        // Arrange
+        isNotSubscribed()
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionArgPodcasts[0], `is`(PodcastMocks.GET_PODCAST_1()))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_isNotSubScribedCacheUpdateSuccess_subscriptionStatusSavedInViewModel() {
+        // Arrange
+        isNotSubscribed()
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        assertThat(SUT.subscriptionsMap!!.contains(PodcastMocks.GET_PODCAST_1().id), `is`(true))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_isNotSubscribedCacheSuccess_listenersNotifiedOfSuccessWithCorrectValue() {
+        // Arrange
+        isNotSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        val ac: ArgumentCaptor<Boolean> = ArgumentCaptor.forClass(Boolean::class.java)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(ac.capture())
+        verify(mToggleListenerMock2).onSubscriptionToggleSuccess(ac.capture())
+        val captures: List<Boolean> = ac.allValues
+        assertThat(captures[0], `is`(true))
+        assertThat(captures[1], `is`(true))
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_isNotSubscribedCacheSuccess_unregisteredListenerNotNotified() {
+        // Arrange
+        isNotSubscribed()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        SUT.unregisterToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        verify(mToggleListenerMock1).onSubscriptionToggleSuccess(true)
+        verify(mToggleListenerMock2, never()).onSubscriptionToggleSuccess(ArgumentMatchers.anyBoolean())
+    }
+
+    @Test
+    fun toggleLocalSubscriptionAndNotify_isNotSubscribedCacheError_listenersNotifiedOfError() {
+        // Arrange
+        isNotSubscribed()
+        insertSubscriptionError()
+        SUT.registerToggleListener(mToggleListenerMock1)
+        SUT.registerToggleListener(mToggleListenerMock2)
+        // Act
+        SUT.toggleLocalSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mInsertSubscriptionCounter, `is`(1))
+        verify(mToggleListenerMock1).onSubscriptionToggleFailed()
+        verify(mToggleListenerMock2).onSubscriptionToggleFailed()
+    }
+
+    //----------------------------------------------------------------------------------------------
 
     // region helper methods
     fun silentSignInSuccess() {
@@ -757,6 +1039,22 @@ class SubscriptionsViewModelTest {
         mPodcastsEndpointTd.mGetBatchPodcastMetadataFailure = true
     }
 
+    fun subscriptionStatusFetchSuccess() {
+        SUT.subscriptionsMap = HashMap()
+    }
+
+    fun subscriptionStatusFetchError() {
+        SUT.subscriptionsMap = null
+    }
+
+    fun updateServerSubscriptionSuccess() {
+        // no-op because mUpdateServerSubscriptionFailure false by default
+    }
+
+    fun updateServerSubscriptionError() {
+        mSubscriptionsEndpointTd.mUpdateServerSubscriptionFailure = true
+    }
+
     fun insertSubscriptionSuccess() {
         // no-op because mFailure false by default
     }
@@ -765,12 +1063,21 @@ class SubscriptionsViewModelTest {
         mSubscriptionsCacheTd.mFailure = true
     }
 
-    private fun endpointSuccess() {
-        // no-op because mFailure false by default
+    fun removeSubscriptionSuccess() {
+        // no-op because mRemoveSubscriptionFailure false by default
     }
 
-    private fun endpointError() {
-        mSubscriptionsEndpointTd.mFailure = true
+    fun removeSubscriptionError() {
+        mSubscriptionsCacheTd.mRemoveSubscriptionFailure = true
+    }
+
+    fun isSubscribed() {
+        SUT.subscriptionsMap = HashMap()
+        SUT.subscriptionsMap!![PodcastMocks.GET_PODCAST_1().id] = null
+    }
+
+    fun isNotSubscribed() {
+        SUT.subscriptionsMap = HashMap()
     }
 
     private fun subscriptionsCacheSuccess() {

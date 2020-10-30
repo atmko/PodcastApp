@@ -145,9 +145,9 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onSubscriptionToggle(podcast: Podcast) {
         if (getMasterActivity().user != null) {
-            viewModel.unsubscribeAndNotify(podcast.id)
+            viewModel.toggleSubscriptionAndNotify(podcast)
         } else {
-            viewModel.unsubscribeLocallyAndNotify(podcast.id)
+            viewModel.toggleLocalSubscriptionAndNotify(podcast)
         }
     }
 
@@ -171,13 +171,5 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     override fun onSubscriptionsSyncStatusSyncFailed() {
         binding.syncErrorLayout.visibility = View.VISIBLE
         viewModel.getSubscriptions()
-    }
-
-    override fun onStatusUpdated() {
-
-    }
-
-    override fun onStatusUpdateFailed() {
-
     }
 }

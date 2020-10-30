@@ -22,6 +22,7 @@ import com.atmko.skiptoit.episodelist.EpisodeListViewModel
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastDetails
+import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel
 import com.atmko.skiptoit.utils.loadNetworkImage
 import com.atmko.skiptoit.utils.showFullText
 import com.atmko.skiptoit.utils.showLimitedText
@@ -31,7 +32,9 @@ import javax.inject.Inject
 private const val SHOW_MORE_KEY = "show_more"
 
 class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener,
-    MasterActivity.PlayerListener, DetailsViewModel.Listener, BaseBoundaryCallback.Listener {
+    MasterActivity.PlayerListener, DetailsViewModel.Listener,
+    SubscriptionsViewModel.ToggleSubscriptionListener,
+    SubscriptionsViewModel.FetchSubscriptionStatusListener, BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
@@ -87,10 +90,17 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         configureViewModel()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         detailsViewModel.registerListener(this)
         episodeListViewModel.registerBoundaryCallbackListener(this)
+        getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
+        getMasterActivity().subscriptionsViewModel.registerSubscriptionStatusListener(this)
+        getMasterActivity().subscriptionsViewModel.getSubscriptionStatusAndNotify(podcast.id)
+    }
+
+    override fun onResume() {
+        super.onResume()
         getMasterActivity().registerPlaybackListener(this)
     }
 
@@ -101,9 +111,15 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onPause() {
         super.onPause()
+        getMasterActivity().unregisterPlaybackListener(this)
+    }
+
+    override fun onStop() {
         detailsViewModel.unregisterListener(this)
         episodeListViewModel.unregisterBoundaryCallbackListener(this)
-        getMasterActivity().unregisterPlaybackListener(this)
+        getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
+        getMasterActivity().subscriptionsViewModel.unregisterSubscriptionStatusListener(this)
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -136,9 +152,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
         binding.toggleSubscriptionButton.setOnClickListener {
             if (getMasterActivity().user != null) {
-                detailsViewModel.toggleSubscriptionAndNotify(podcast)
+                getMasterActivity().subscriptionsViewModel.toggleSubscriptionAndNotify(podcast)
             } else {
-                detailsViewModel.toggleLocalSubscriptionAndNotify(podcast)
+                getMasterActivity().subscriptionsViewModel.toggleLocalSubscriptionAndNotify(podcast)
             }
         }
     }
@@ -166,7 +182,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private fun configureValues(savedInstanceState: Bundle?) {
         detailsViewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailsViewModel::class.java)
-        detailsViewModel.loadSubscriptionStatusAndNotify(podcast.id)
         detailsViewModel.getDetailsAndNotify(podcast.id)
 
         episodeListViewModel = ViewModelProvider(this, viewModelFactory)
@@ -259,6 +274,40 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.toggleSubscriptionButton.isEnabled = false
     }
 
+    override fun onSubscriptionToggleSuccess(isSubscribed: Boolean) {
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+
+        binding.toggleSubscriptionButton.isEnabled = true
+        if (isSubscribed) {
+            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
+        } else {
+            binding.toggleSubscriptionButton.setText(R.string.subscribe)
+        }
+    }
+
+    override fun onSubscriptionToggleFailed() {
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.toggleSubscriptionButton.isEnabled = true
+        Snackbar.make(requireView(), "Failed to update subscription", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onSubscriptionStatusFetched(isSubscribed: Boolean) {
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+
+        binding.toggleSubscriptionButton.isEnabled = true
+        if (isSubscribed) {
+            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
+        } else {
+            binding.toggleSubscriptionButton.setText(R.string.subscribe)
+        }
+    }
+
+    override fun onSubscriptionStatusFetchFailed() {
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.toggleSubscriptionButton.isEnabled = true
+        Snackbar.make(requireView(), "Failed to get subscription data", Snackbar.LENGTH_LONG).show()
+    }
+
     override fun onDetailsFetched(podcastDetails: PodcastDetails) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
@@ -274,40 +323,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(requireView(), "Failed to get details", Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onStatusUpdated(isSubscribed: Boolean) {
-        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-
-        binding.toggleSubscriptionButton.isEnabled = true
-        if (isSubscribed) {
-            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
-        } else {
-            binding.toggleSubscriptionButton.setText(R.string.subscribe)
-        }
-    }
-
-    override fun onStatusUpdateFailed() {
-        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.toggleSubscriptionButton.isEnabled = true
-        Snackbar.make(requireView(), "Failed to update subscription", Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun onStatusFetched(isSubscribed: Boolean) {
-        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-
-        binding.toggleSubscriptionButton.isEnabled = true
-        if (isSubscribed) {
-            binding.toggleSubscriptionButton.setText(R.string.unsubscribe)
-        } else {
-            binding.toggleSubscriptionButton.setText(R.string.subscribe)
-        }
-    }
-
-    override fun onStatusFetchFailed() {
-        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.toggleSubscriptionButton.isEnabled = true
-        Snackbar.make(requireView(), "Failed to get subscription data", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {
