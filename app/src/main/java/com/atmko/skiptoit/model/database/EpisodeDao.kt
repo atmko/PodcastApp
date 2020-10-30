@@ -17,7 +17,10 @@ interface EpisodeDao {
     fun getEpisode(episodeId: String): Episode?
 
     @Query("SELECT * FROM episodes WHERE podcast_id = :podcastId ORDER BY publish_date DESC")
-    fun getAllEpisodesForPodcast(podcastId: String):  DataSource.Factory<Int, Episode>
+    fun getAllPodcastEpisodes(podcastId: String):  DataSource.Factory<Int, Episode>
+
+    @Query("SELECT * FROM episodes WHERE podcast_id = :podcastId ORDER BY publish_date DESC")
+    fun getAllPodcastEpisodesAlt(podcastId: String):  List<Episode>
 
     //deletes all episodes except episode from podcast last played
     @Query("DELETE FROM episodes WHERE podcast_id <> :nowPlayingPodcastId")

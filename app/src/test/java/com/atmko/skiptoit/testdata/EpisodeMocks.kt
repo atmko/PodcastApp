@@ -5,7 +5,8 @@ import com.atmko.skiptoit.model.Episode
 class EpisodeMocks {
 
     companion object {
-        val EPISODE_ID: String = "episodeId"
+        val EPISODE_ID_1: String = "episodeId1"
+        val EPISODE_ID_2: String = "episodeId2"
         val TITLE: String = "title"
         val DESCRIPTION: String = "description"
         val IMAGE: String = "image"
@@ -15,9 +16,21 @@ class EpisodeMocks {
 
         val PODCAST_ID = "podcastId"
 
-        fun GET_EPISODE(): Episode {
+        fun GET_EPISODE_1(): Episode {
             return Episode(
-                EPISODE_ID,
+                EPISODE_ID_1,
+                TITLE,
+                DESCRIPTION,
+                IMAGE,
+                AUDIO,
+                PUBLISH_DATE_1,
+                LENTH_IN_SECONDS
+            )
+        }
+
+        fun GET_EPISODE_2(): Episode {
+            return Episode(
+                EPISODE_ID_2,
                 TITLE,
                 DESCRIPTION,
                 IMAGE,
@@ -28,7 +41,7 @@ class EpisodeMocks {
         }
 
         fun GET_EPISODE_DETAILS(): Episode {
-            val episode = GET_EPISODE()
+            val episode = GET_EPISODE_1()
             episode.podcastId = PODCAST_ID
             return episode
         }

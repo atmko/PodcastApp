@@ -2,7 +2,8 @@ package com.atmko.skiptoit.episode
 
 import android.util.Log
 import com.atmko.skiptoit.common.BaseViewModel
-import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.Episode
+import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 
 class EpisodeViewModel(
@@ -43,7 +44,7 @@ class EpisodeViewModel(
     private fun clearPodcastCache(currentPodcastId: String, episodeId: String) {
         episodesCache.deletePodcastEpisodes(currentPodcastId, object : EpisodesCache.DeletePodcastEpisodesListener {
             override fun onDeletePodcastEpisodesSuccess() {
-                getEpisodeDetails(episodeId)
+                getEpisodeDetails(currentPodcastId, episodeId)
             }
 
             override fun onDeletePodcastEpisodesFailed() {
@@ -52,9 +53,10 @@ class EpisodeViewModel(
         })
     }
 
-    private fun getEpisodeDetails(episodeId: String) {
+    private fun getEpisodeDetails(podcastId: String, episodeId: String) {
         episodeEndpoint.getEpisodeDetails(episodeId, object : EpisodeEndpoint.EpisodeDetailsListener {
             override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
+                episode.podcastId = podcastId
                 saveEpisode(episode)
             }
 

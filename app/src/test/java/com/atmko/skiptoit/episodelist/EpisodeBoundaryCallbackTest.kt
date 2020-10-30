@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.episodelist
 
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.testclass.EpisodesCacheTd
 import com.atmko.skiptoit.testdata.EpisodeMocks
 import com.atmko.skiptoit.testdata.PodcastMocks
-import com.atmko.skiptoit.common.BaseBoundaryCallback
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -139,7 +139,7 @@ class EpisodeBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE())
+        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE_1())
         // Assert
         verify(mListenerMock1).onPageLoading()
         verify(mListenerMock2).onPageLoading()
@@ -151,7 +151,7 @@ class EpisodeBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE())
+        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE_1())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2).onPageLoad()
@@ -164,7 +164,7 @@ class EpisodeBoundaryCallbackTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE())
+        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE_1())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2, never()).onPageLoad()
@@ -177,7 +177,7 @@ class EpisodeBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE())
+        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE_1())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()
@@ -190,7 +190,7 @@ class EpisodeBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE())
+        SUT.onItemAtEndLoaded(EpisodeMocks.GET_EPISODE_1())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()

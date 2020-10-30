@@ -1,10 +1,13 @@
 package com.atmko.skiptoit.details
 
 import com.atmko.skiptoit.model.PodcastDetails
+import com.atmko.skiptoit.testclass.EpisodesCacheTd
+import com.atmko.skiptoit.testdata.EpisodeMocks
 import com.atmko.skiptoit.testdata.PodcastMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -20,11 +23,14 @@ import org.mockito.junit.MockitoJUnitRunner
 class DetailsViewModelTest {
 
     // region constants
-
+    companion object {
+        const val PODCAST_ID = "podcastId"
+    }
     // endregion constants
 
     // end region helper fields
     lateinit var mPodcastDetailsEndpointTd: PodcastDetailsEndpointTd
+    lateinit var mEpisodesCacheTd: EpisodesCacheTd
 
     @Mock lateinit var mListenerMock1: DetailsViewModel.Listener
     @Mock lateinit var mListenerMock2: DetailsViewModel.Listener
@@ -37,10 +43,15 @@ class DetailsViewModelTest {
     @Before
     fun setup() {
         mPodcastDetailsEndpointTd = PodcastDetailsEndpointTd()
+        mEpisodesCacheTd = EpisodesCacheTd()
         SUT = DetailsViewModel(
-            mPodcastDetailsEndpointTd
+            mPodcastDetailsEndpointTd,
+            mEpisodesCacheTd
         )
         detailsEndpointSuccess()
+        restoreEpisodeSuccess()
+        isNotLastPlayedPodcast()
+        getAllPodcastEpisodesSuccess()
     }
 
     @Test
@@ -127,6 +138,180 @@ class DetailsViewModelTest {
         verify(mListenerMock2).onDetailsFetchFailed()
     }
 
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeCalled() {
+        // Arrange
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertThat(mEpisodesCacheTd.mRestoreEpisodeCounter, `is`(1))
+    }
+
+    @Test
+    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessNullEpisodeReturned_listenersNotifiedWithFalseValue() {
+        // Arrange
+        noLastEpisode()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onIsLastPlayedPodcastFetched(false)
+        verify(mListenerMock2).onIsLastPlayedPodcastFetched(false)
+    }
+
+    @Test
+    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsNotLastPlayedPodcast_listenersNotifiedWithFalseValue() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onIsLastPlayedPodcastFetched(false)
+        verify(mListenerMock2).onIsLastPlayedPodcastFetched(false)
+    }
+
+    @Test
+    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsLastPlayedPodcast_listenersNotifiedWithTrueValue() {
+        // Arrange
+        isLastPlayedPodcast()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onIsLastPlayedPodcastFetched(true)
+        verify(mListenerMock2).onIsLastPlayedPodcastFetched(true)
+    }
+
+    @Test
+    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsLastPlayedPodcast_unsubscribedListenerNotNotified() {
+        // Arrange
+        isLastPlayedPodcast()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onIsLastPlayedPodcastFetched(true)
+        verify(mListenerMock2, never()).onIsLastPlayedPodcastFetched(true)
+    }
+
+    @Test
+    fun checkIsCurrentlyPlayingPodcastAndNotify_restoreEpisodeError_listenersNotifiedOfError() {
+        // Arrange
+        restoreEpisodeError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onIsLastPlayedPodcastFetchFailed()
+        verify(mListenerMock1).onIsLastPlayedPodcastFetchFailed()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_correctPodcastIdSentToGetAllPodcastEpisodes() {
+        // Arrange
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesCounter, `is`(1))
+        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesArgPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessNoEpisodesAvailable_nullSavedToLatestEpisodeIdVariable() {
+        // Arrange
+        SUT.latestEpisodeId = null
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertNull(SUT.latestEpisodeId)
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessNoEpisodesAvailable_listenersNotifiedWithNullValue() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onLatestEpisodeIdFetched(null)
+        verify(mListenerMock2).onLatestEpisodeIdFetched(null)
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_latestEpisodeIdSavedToVariable() {
+        // Arrange
+        getAllEpisodesEpisodesAvailable()
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertThat(SUT.latestEpisodeId, `is`(EpisodeMocks.EPISODE_ID_2))
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_listenersNotifiedWithCorrectValue() {
+        // Arrange
+        getAllEpisodesEpisodesAvailable()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock2).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailableSecondCall_getAllPodcastEpisodesCalledOnlyOnce() {
+        // Arrange
+        SUT.latestEpisodeId = null
+        getAllEpisodesEpisodesAvailable()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesCounter, `is`(1))
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_unregisteredListenersNotNotified() {
+        // Arrange
+        getAllEpisodesEpisodesAvailable()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock2, never()).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+    }
+
+    @Test
+    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_listenersNotifiedOfError() {
+        // Arrange
+        getAllPodcastEpisodesFailure()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onLatestEpisodeIdFetchFailed()
+        verify(mListenerMock2).onLatestEpisodeIdFetchFailed()
+    }
+
     // region helper methods
     fun detailsEndpointSuccess() {
         // no-op because mFailure false by default
@@ -134,6 +319,42 @@ class DetailsViewModelTest {
 
     fun detailsEndpointError() {
         mPodcastDetailsEndpointTd.mFailure = true
+    }
+
+    fun restoreEpisodeSuccess() {
+        // no-op because mRestoreEpisodeFailure false by default
+    }
+
+    fun restoreEpisodeError() {
+        mEpisodesCacheTd.mRestoreEpisodeFailure = true
+    }
+
+    fun isNotLastPlayedPodcast() {
+        // no-op because mIsLastPlayedPodcast false by default
+    }
+
+    fun isLastPlayedPodcast() {
+        mEpisodesCacheTd.mIsLastPlayedPodcast = true
+    }
+
+    fun noLastEpisode() {
+        mEpisodesCacheTd.mIsLastPlayedPodcast = null
+    }
+
+    fun getAllEpisodesNoEpisodesAvailable() {
+        // no-op because mGetAllPodcastEpisodesEpisodesAvailable false by default
+    }
+
+    fun getAllEpisodesEpisodesAvailable() {
+        mEpisodesCacheTd.mGetAllPodcastEpisodesEpisodesAvailable = true
+    }
+
+    fun getAllPodcastEpisodesSuccess() {
+        // no-op because mGetAllPodcastEpisodesFailure false by default
+    }
+
+    fun getAllPodcastEpisodesFailure() {
+        mEpisodesCacheTd.mGetAllPodcastEpisodesFailure = true
     }
     // endregion helper methods
 

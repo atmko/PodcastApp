@@ -142,7 +142,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.playButton.setOnClickListener {
-            getMasterActivity().togglePlayPause()
+            detailsViewModel.checkIsLastPlayedPodcastAndNotify(podcast.id)
         }
 
         binding.showMore.setOnClickListener {
@@ -323,6 +323,33 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(requireView(), "Failed to get details", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onIsLastPlayedPodcastFetched(
+        isLastPlayedPodcast: Boolean
+    ) {
+        if (isLastPlayedPodcast) {
+            getMasterActivity().togglePlayPause()
+        } else {
+            detailsViewModel.getLatestEpisodeIdAndNotify(podcast.id)
+        }
+    }
+
+    override fun onIsLastPlayedPodcastFetchFailed() {
+
+    }
+
+    override fun onLatestEpisodeIdFetched(firstEpisodeId: String?) {
+        if (firstEpisodeId != null && firstEpisodeId != "") {
+            getMasterActivity().loadEpisodeIntoBottomSheet(
+                podcast.id,
+                firstEpisodeId
+            )
+        }
+    }
+
+    override fun onLatestEpisodeIdFetchFailed() {
+
     }
 
     override fun onPageLoading() {

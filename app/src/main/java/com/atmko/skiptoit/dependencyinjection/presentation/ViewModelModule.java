@@ -110,8 +110,9 @@ public class ViewModelModule {
     @Provides
     @IntoMap
     @ViewModelKey(DetailsViewModel.class)
-    ViewModel provideDetailsViewModel(PodcastDetailsEndpoint podcastDetailsEndpoint) {
-        return new DetailsViewModel(podcastDetailsEndpoint);
+    ViewModel provideDetailsViewModel(PodcastDetailsEndpoint podcastDetailsEndpoint,
+                                      EpisodesCache episodesCache) {
+        return new DetailsViewModel(podcastDetailsEndpoint, episodesCache);
     }
 
     @Provides

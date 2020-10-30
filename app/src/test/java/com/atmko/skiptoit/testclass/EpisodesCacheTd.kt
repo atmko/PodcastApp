@@ -4,6 +4,7 @@ import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 import com.atmko.skiptoit.testdata.EpisodeMocks
+import com.atmko.skiptoit.testdata.PodcastMocks
 
 class EpisodesCacheTd : EpisodesCache(null, null) {
 
@@ -28,10 +29,36 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         }
     }
 
+    var mGetAllPodcastEpisodesCounter = 0
+    lateinit var mGetAllPodcastEpisodesArgPodcastId: String
+    var mGetAllPodcastEpisodesEpisodesAvailable = false
+    var mGetAllPodcastEpisodesFailure = false
+    override fun getAllPodcastEpisodes(podcastId: String, listener: GetAllPodcastEpisodesListener) {
+        mGetAllPodcastEpisodesCounter += 1
+        mGetAllPodcastEpisodesArgPodcastId = podcastId
+        if (mGetAllPodcastEpisodesFailure) {
+            listener.onGetAllEpisodesFailed()
+            return
+        }
+        if (!mGetAllPodcastEpisodesEpisodesAvailable) {
+            listener.onGetAllEpisodesSuccess(listOf())
+        } else {
+            listener.onGetAllEpisodesSuccess(
+                listOf(
+                    EpisodeMocks.GET_EPISODE_2(),
+                    EpisodeMocks.GET_EPISODE_1()
+                )
+            )
+        }
+    }
+
     var mDeletePodcastEpisodesCounter = 0
     var mDeletePodcastEpisodesError = false
     var mPodcastId = ""
-    override fun deletePodcastEpisodes(currentPodcastId: String, listener: DeletePodcastEpisodesListener) {
+    override fun deletePodcastEpisodes(
+        currentPodcastId: String,
+        listener: DeletePodcastEpisodesListener
+    ) {
         mDeletePodcastEpisodesCounter += 1
         mPodcastId = currentPodcastId
         if (!mDeletePodcastEpisodesError) {
@@ -56,10 +83,22 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
 
     var mRestoreEpisodeCounter = 0
     var mRestoreEpisodeFailure = false
+    var mIsLastPlayedPodcast: Boolean? = false
     override fun restoreEpisode(listener: RestoreEpisodeListener) {
         mRestoreEpisodeCounter += 1
         if (!mRestoreEpisodeFailure) {
-            listener.onEpisodeRestoreSuccess(EpisodeMocks.GET_EPISODE_DETAILS())
+            val restoredEpisodeMock = EpisodeMocks.GET_EPISODE_DETAILS()
+            if (mIsLastPlayedPodcast == null) {
+                listener.onEpisodeRestoreSuccess(null)
+                return
+            }
+            if (!mIsLastPlayedPodcast!!) {
+                restoredEpisodeMock.podcastId = PodcastMocks.PODCAST_ID_2
+                listener.onEpisodeRestoreSuccess(restoredEpisodeMock)
+            } else {
+                restoredEpisodeMock.podcastId = PodcastMocks.PODCAST_ID_1
+                listener.onEpisodeRestoreSuccess(restoredEpisodeMock)
+            }
         } else {
             listener.onEpisodeRestoreFailed()
         }

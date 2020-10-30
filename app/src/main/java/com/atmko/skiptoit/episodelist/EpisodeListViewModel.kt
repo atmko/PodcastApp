@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.database.EpisodeDao
-import com.atmko.skiptoit.common.BaseBoundaryCallback
 
 class EpisodeListViewModel(
     private val episodeDao: EpisodeDao,
@@ -33,7 +33,7 @@ class EpisodeListViewModel(
         }
 
         episodeBoundaryCallback.param = podcastId
-        val dataSourceFactory = episodeDao.getAllEpisodesForPodcast(podcastId)
+        val dataSourceFactory = episodeDao.getAllPodcastEpisodes(podcastId)
         val pagedListBuilder =
             LivePagedListBuilder<Int, Episode>(dataSourceFactory, pagedListConfig)
         pagedListBuilder.setInitialLoadKey(1)

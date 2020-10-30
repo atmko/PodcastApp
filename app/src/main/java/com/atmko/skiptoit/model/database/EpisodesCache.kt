@@ -46,6 +46,11 @@ open class EpisodesCache(
         fun onPreviousEpisodeFetchFailed()
     }
 
+    interface GetAllPodcastEpisodesListener {
+        fun onGetAllEpisodesSuccess(podcastEpisodes: List<Episode>)
+        fun onGetAllEpisodesFailed()
+    }
+
     open fun insertEpisodesAndReturnNextEpisode(
         podcastDetails: PodcastDetails,
         listener: NextEpisodeListener
@@ -84,7 +89,8 @@ open class EpisodesCache(
             try {
                 if (loadType == loadTypeRefresh) {
                     val lastPlayedPodcastId = prefs!!.getString(PODCAST_ID_KEY, "")!!
-                    skipToItDatabase.episodeDao().deleteAllEpisodesExceptNowPlaying(lastPlayedPodcastId)
+                    skipToItDatabase.episodeDao()
+                        .deleteAllEpisodesExceptNowPlaying(lastPlayedPodcastId)
                 }
 
                 val episodes = podcastDetails.episodes
@@ -107,7 +113,20 @@ open class EpisodesCache(
         }
     }
 
-    open fun deletePodcastEpisodes(currentPodcastId: String, listener: DeletePodcastEpisodesListener) {
+    open fun getAllPodcastEpisodes(podcastId: String, listener: GetAllPodcastEpisodesListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val podcastEpisodes =
+                skipToItDatabase!!.episodeDao().getAllPodcastEpisodesAlt(podcastId)
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onGetAllEpisodesSuccess(podcastEpisodes)
+            }
+        }
+    }
+
+    open fun deletePodcastEpisodes(
+        currentPodcastId: String,
+        listener: DeletePodcastEpisodesListener
+    ) {
         AppExecutors.getInstance().diskIO().execute {
             val lastPlayedPodcastId = prefs!!.getString(PODCAST_ID_KEY, "")
             if (lastPlayedPodcastId != "" && lastPlayedPodcastId != currentPodcastId) {
@@ -179,7 +198,11 @@ open class EpisodesCache(
         }
     }
 
-    open fun getPreviousEpisode(episodeId: String, publishDate: Long, listener: PreviousEpisodeListener) {
+    open fun getPreviousEpisode(
+        episodeId: String,
+        publishDate: Long,
+        listener: PreviousEpisodeListener
+    ) {
         AppExecutors.getInstance().diskIO().execute {
             val episode = skipToItDatabase!!.episodeDao().getPrevEpisode(episodeId, publishDate)
 
