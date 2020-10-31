@@ -141,175 +141,211 @@ class DetailsViewModelTest {
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeCalled() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeCalled() {
         // Arrange
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mEpisodesCacheTd.mRestoreEpisodeCounter, `is`(1))
     }
 
     @Test
-    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessNullEpisodeReturned_listenersNotifiedWithFalseValue() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeSuccessNullEpisodeReturned_notifyNewPodcastDetected() {
         // Arrange
         noLastEpisode()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onIsLastPlayedPodcastFetched(false)
-        verify(mListenerMock2).onIsLastPlayedPodcastFetched(false)
+        verify(mListenerMock1).onNewPodcastDetcted()
+        verify(mListenerMock2).onNewPodcastDetcted()
     }
 
     @Test
-    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsNotLastPlayedPodcast_listenersNotifiedWithFalseValue() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeSuccessNewPodcastDected_notifyNewPodcastDected() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onIsLastPlayedPodcastFetched(false)
-        verify(mListenerMock2).onIsLastPlayedPodcastFetched(false)
+        verify(mListenerMock1).onNewPodcastDetcted()
+        verify(mListenerMock2).onNewPodcastDetcted()
     }
 
     @Test
-    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsLastPlayedPodcast_listenersNotifiedWithTrueValue() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeSuccessIsLastPlayedPodcast_notifyOldPodcastDected() {
         // Arrange
         isLastPlayedPodcast()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onIsLastPlayedPodcastFetched(true)
-        verify(mListenerMock2).onIsLastPlayedPodcastFetched(true)
+        verify(mListenerMock1).onOldPodcastDetced()
+        verify(mListenerMock2).onOldPodcastDetced()
     }
 
     @Test
-    fun checkIsLastPlayedPodcastAndNotify_restoreEpisodeSuccessIsLastPlayedPodcast_unsubscribedListenerNotNotified() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeSuccessOldPodcastDected_unsubscribedListenerNotNotified() {
         // Arrange
         isLastPlayedPodcast()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onIsLastPlayedPodcastFetched(true)
-        verify(mListenerMock2, never()).onIsLastPlayedPodcastFetched(true)
+        verify(mListenerMock1).onOldPodcastDetced()
+        verify(mListenerMock2, never()).onOldPodcastDetced()
     }
 
     @Test
-    fun checkIsCurrentlyPlayingPodcastAndNotify_restoreEpisodeError_listenersNotifiedOfError() {
+    fun detectOldOrNewPodcastAndNotify_restoreEpisodeError_listenersNotifiedOfError() {
         // Arrange
         restoreEpisodeError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.checkIsLastPlayedPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.detectOldOrNewPodcastAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onIsLastPlayedPodcastFetchFailed()
-        verify(mListenerMock1).onIsLastPlayedPodcastFetchFailed()
+        verify(mListenerMock1).onPodcastDetectFailed()
+        verify(mListenerMock1).onPodcastDetectFailed()
     }
 
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    fun getLatestEpisodeIdAndNotify_correctPodcastIdSentToGetAllPodcastEpisodes() {
+    fun togglePlaybackAndNotify_isOldPodcastNull_notifyToggleOldEpisodePlaybackFailed() {
         // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesCounter, `is`(1))
-        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesArgPodcastId, `is`(PodcastMocks.PODCAST_ID_1))
+        verify(mListenerMock1).onToggleOldEpisodePlaybackFailed()
+        verify(mListenerMock2).onToggleOldEpisodePlaybackFailed()
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessNoEpisodesAvailable_nullSavedToLatestEpisodeIdVariable() {
+    fun togglePlaybackAndNotify_isOldPodcast_notifyToggleOldEpisodePlayback() {
+        // Arrange
+        SUT.isOldPodcast = true
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        verify(mListenerMock1).onToggleOldEpisodePlayback()
+        verify(mListenerMock2).onToggleOldEpisodePlayback()
+    }
+
+    @Test
+    fun togglePlaybackAndNotify_isNewPodcast_correctPodcastIdSentToGetAllPodcastEpisodes() {
+        // Arrange
+        SUT.isOldPodcast = false
+        // Act
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
+        // Assert
+        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesCounter, `is`(1))
+        assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesArgPodcastId, `is`(PodcastMocks.PODCAST_ID_1)
+        )
+    }
+
+    @Test
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessNoEpisodesAvailable_nullSavedToLatestEpisodeIdVariable() {
         // Arrange
         SUT.latestEpisodeId = null
+        SUT.isOldPodcast = false
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertNull(SUT.latestEpisodeId)
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessNoEpisodesAvailable_listenersNotifiedWithNullValue() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessNoEpisodesAvailable_notifyToggleNewEpisodePlaybackFailed() {
         // Arrange
+        SUT.isOldPodcast = false
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onLatestEpisodeIdFetched(null)
-        verify(mListenerMock2).onLatestEpisodeIdFetched(null)
+        verify(mListenerMock1).onToggleNewEpisodePlaybackFailed()
+        verify(mListenerMock2).onToggleNewEpisodePlaybackFailed()
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_latestEpisodeIdSavedToVariable() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessEpisodesAvailable_latestEpisodeIdSavedToVariable() {
         // Arrange
+        SUT.isOldPodcast = false
         getAllEpisodesEpisodesAvailable()
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(SUT.latestEpisodeId, `is`(EpisodeMocks.EPISODE_ID_2))
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_listenersNotifiedWithCorrectValue() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessEpisodesAvailable_notifyToggleNewEpisodePlayback() {
         // Arrange
+        SUT.isOldPodcast = false
         getAllEpisodesEpisodesAvailable()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
-        verify(mListenerMock2).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock1).onToggleNewEpisodePlayback(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock2).onToggleNewEpisodePlayback(EpisodeMocks.EPISODE_ID_2)
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailableSecondCall_getAllPodcastEpisodesCalledOnlyOnce() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessEpisodesAvailableSecondCall_getAllPodcastEpisodesCalledOnlyOnceNotifyToggleOldEpisodePlayback() {
         // Arrange
+        SUT.isOldPodcast = false
         SUT.latestEpisodeId = null
         getAllEpisodesEpisodesAvailable()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
         assertThat(mEpisodesCacheTd.mGetAllPodcastEpisodesCounter, `is`(1))
+        verify(mListenerMock1).onToggleOldEpisodePlayback()
+        verify(mListenerMock2).onToggleOldEpisodePlayback()
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_unregisteredListenersNotNotified() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessEpisodesAvailable_unregisteredListenersNotNotified() {
         // Arrange
+        SUT.isOldPodcast = false
         getAllEpisodesEpisodesAvailable()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
-        verify(mListenerMock2, never()).onLatestEpisodeIdFetched(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock1).onToggleNewEpisodePlayback(EpisodeMocks.EPISODE_ID_2)
+        verify(mListenerMock2, never()).onToggleNewEpisodePlayback(EpisodeMocks.EPISODE_ID_2)
     }
 
     @Test
-    fun getLatestEpisodeIdAndNotify_getAllPodcastEpisodesSuccessEpisodesAvailable_listenersNotifiedOfError() {
+    fun togglePlaybackAndNotify_isNewPodcastGetAllPodcastEpisodesSuccessEpisodesAvailable_notifyToggleNewEpisodePlaybackFailed() {
         // Arrange
+        SUT.isOldPodcast = false
         getAllPodcastEpisodesFailure()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getLatestEpisodeIdAndNotify(PodcastMocks.PODCAST_ID_1)
+        SUT.togglePlaybackAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mListenerMock1).onLatestEpisodeIdFetchFailed()
-        verify(mListenerMock2).onLatestEpisodeIdFetchFailed()
+        verify(mListenerMock1).onToggleNewEpisodePlaybackFailed()
+        verify(mListenerMock2).onToggleNewEpisodePlaybackFailed()
     }
 
     // region helper methods

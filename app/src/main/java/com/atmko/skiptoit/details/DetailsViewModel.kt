@@ -15,10 +15,15 @@ class DetailsViewModel(
         fun notifyProcessing()
         fun onDetailsFetched(podcastDetails: PodcastDetails)
         fun onDetailsFetchFailed()
-        fun onIsLastPlayedPodcastFetched(isLastPlayedPodcast: Boolean)
-        fun onIsLastPlayedPodcastFetchFailed()
-        fun onLatestEpisodeIdFetched(firstEpisodeId: String?)
-        fun onLatestEpisodeIdFetchFailed()
+
+        fun onOldPodcastDetced()
+        fun onNewPodcastDetcted()
+        fun onPodcastDetectFailed()
+
+        fun onToggleOldEpisodePlayback()
+        fun onToggleOldEpisodePlaybackFailed()
+        fun onToggleNewEpisodePlayback(latestEpisodeId: String)
+        fun onToggleNewEpisodePlaybackFailed()
     }
 
     lateinit var podcastDetails: PodcastDetails
@@ -46,36 +51,56 @@ class DetailsViewModel(
             })
     }
 
-    fun checkIsLastPlayedPodcastAndNotify(podcastId: String) {
+    var isOldPodcast: Boolean? = null
+    fun detectOldOrNewPodcastAndNotify(podcastId: String) {
         episodesCache.restoreEpisode(object : EpisodesCache.RestoreEpisodeListener {
             override fun onEpisodeRestoreSuccess(episode: Episode?) {
-                notifyIsLastPlayedPodcastFetched(
-                    episode != null && podcastId == episode.podcastId
-                )
+                isOldPodcast = episode != null && podcastId == episode.podcastId
+                if (isOldPodcast!!) {
+                    notifyOldPodcastDetected()
+                } else {
+                    notifyNewPodcastDetected()
+                }
             }
 
             override fun onEpisodeRestoreFailed() {
-                notifyIsLastPlayedPodcastFetchFailed()
+                notifyDetectPodcastFailed()
             }
         })
     }
 
-    fun getLatestEpisodeIdAndNotify(podcastId: String) {
+    fun togglePlaybackAndNotify(podcastId: String) {
         if (latestEpisodeId != null) {
-            notifyLatestEpisodeIdFetched()
+            notifyToggleOldEpisodePlayback()
             return
         }
+
+        if (isOldPodcast == null ) {
+            notifyToggleOldEpisodePlaybackFailed()
+            return
+        }
+
+        if (isOldPodcast!!) {
+            notifyToggleOldEpisodePlayback()
+            return
+        }
+
         episodesCache.getAllPodcastEpisodes(
             podcastId,
             object : EpisodesCache.GetAllPodcastEpisodesListener {
                 override fun onGetAllEpisodesSuccess(podcastEpisodes: List<Episode>) {
                     latestEpisodeId =
                         if (podcastEpisodes.isNotEmpty()) podcastEpisodes[0].episodeId else null
-                    notifyLatestEpisodeIdFetched()
+
+                    if (latestEpisodeId != null) {
+                        notifyToggleNewEpisodePlayback()
+                    } else {
+                        notifyToggleNewEpisodePlaybackFailed()
+                    }
                 }
 
                 override fun onGetAllEpisodesFailed() {
-                    notifyLatestEpisodeIdFetchFailed()
+                    notifyToggleNewEpisodePlaybackFailed()
                 }
             })
     }
@@ -104,27 +129,45 @@ class DetailsViewModel(
         }
     }
 
-    private fun notifyIsLastPlayedPodcastFetched(isLastPlayedPodcast: Boolean) {
+    private fun notifyOldPodcastDetected() {
         for (listener in listeners) {
-            listener.onIsLastPlayedPodcastFetched(isLastPlayedPodcast)
+            listener.onOldPodcastDetced()
         }
     }
 
-    private fun notifyIsLastPlayedPodcastFetchFailed() {
+    private fun notifyNewPodcastDetected() {
         for (listener in listeners) {
-            listener.onIsLastPlayedPodcastFetchFailed()
+            listener.onNewPodcastDetcted()
         }
     }
 
-    private fun notifyLatestEpisodeIdFetched() {
+    private fun notifyDetectPodcastFailed() {
         for (listener in listeners) {
-            listener.onLatestEpisodeIdFetched(latestEpisodeId)
+            listener.onPodcastDetectFailed()
         }
     }
 
-    private fun notifyLatestEpisodeIdFetchFailed() {
+    private fun notifyToggleOldEpisodePlayback() {
         for (listener in listeners) {
-            listener.onLatestEpisodeIdFetchFailed()
+            listener.onToggleOldEpisodePlayback()
+        }
+    }
+
+    private fun notifyToggleOldEpisodePlaybackFailed() {
+        for (listener in listeners) {
+            listener.onToggleOldEpisodePlaybackFailed()
+        }
+    }
+
+    private fun notifyToggleNewEpisodePlayback() {
+        for (listener in listeners) {
+            listener.onToggleNewEpisodePlayback(latestEpisodeId!!)
+        }
+    }
+
+    private fun notifyToggleNewEpisodePlaybackFailed() {
+        for (listener in listeners) {
+            listener.onToggleNewEpisodePlaybackFailed()
         }
     }
 

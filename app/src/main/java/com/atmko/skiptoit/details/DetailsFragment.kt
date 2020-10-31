@@ -99,27 +99,18 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         getMasterActivity().subscriptionsViewModel.getSubscriptionStatusAndNotify(podcast.id)
     }
 
-    override fun onResume() {
-        super.onResume()
-        getMasterActivity().registerPlaybackListener(this)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SHOW_MORE_KEY, showMore)
     }
 
-    override fun onPause() {
-        super.onPause()
-        getMasterActivity().unregisterPlaybackListener(this)
-    }
-
     override fun onStop() {
+        super.onStop()
         detailsViewModel.unregisterListener(this)
         episodeListViewModel.unregisterBoundaryCallbackListener(this)
+        getMasterActivity().unregisterPlaybackListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterSubscriptionStatusListener(this)
-        super.onStop()
     }
 
     override fun onDestroy() {
@@ -142,7 +133,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.playButton.setOnClickListener {
-            detailsViewModel.checkIsLastPlayedPodcastAndNotify(podcast.id)
+            detailsViewModel.togglePlaybackAndNotify(podcast.id)
         }
 
         binding.showMore.setOnClickListener {
@@ -182,6 +173,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     private fun configureValues(savedInstanceState: Bundle?) {
         detailsViewModel = ViewModelProvider(this, viewModelFactory)
             .get(DetailsViewModel::class.java)
+        detailsViewModel.detectOldOrNewPodcastAndNotify(podcast.id)
         detailsViewModel.getDetailsAndNotify(podcast.id)
 
         episodeListViewModel = ViewModelProvider(this, viewModelFactory)
@@ -325,31 +317,36 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         Snackbar.make(requireView(), "Failed to get details", Snackbar.LENGTH_LONG).show()
     }
 
-    override fun onIsLastPlayedPodcastFetched(
-        isLastPlayedPodcast: Boolean
-    ) {
-        if (isLastPlayedPodcast) {
-            getMasterActivity().togglePlayPause()
-        } else {
-            detailsViewModel.getLatestEpisodeIdAndNotify(podcast.id)
-        }
+    override fun onOldPodcastDetced() {
+        getMasterActivity().registerPlaybackListener(this)
     }
 
-    override fun onIsLastPlayedPodcastFetchFailed() {
+    override fun onNewPodcastDetcted() {
 
     }
 
-    override fun onLatestEpisodeIdFetched(firstEpisodeId: String?) {
-        if (firstEpisodeId != null && firstEpisodeId != "") {
-            getMasterActivity().loadEpisodeIntoBottomSheet(
-                podcast.id,
-                firstEpisodeId
-            )
-        }
+    override fun onPodcastDetectFailed() {
+        Snackbar.make(requireView(), "Failed to detect podcast", Snackbar.LENGTH_LONG).show()
     }
 
-    override fun onLatestEpisodeIdFetchFailed() {
+    override fun onToggleOldEpisodePlayback() {
+        getMasterActivity().togglePlayPause()
+    }
 
+    override fun onToggleOldEpisodePlaybackFailed() {
+        Snackbar.make(requireView(), "Failed to toggle old playback", Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onToggleNewEpisodePlayback(latestEpisodeId: String) {
+        getMasterActivity().registerPlaybackListener(this)
+        getMasterActivity().loadEpisodeIntoBottomSheet(
+            podcast.id,
+            latestEpisodeId
+        )
+    }
+
+    override fun onToggleNewEpisodePlaybackFailed() {
+        Snackbar.make(requireView(), "Failed to toggle new playback", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {

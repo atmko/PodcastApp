@@ -70,6 +70,11 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
 
     fun registerPlaybackListener(playbackListener: PlayerListener) {
         playbackListeners.add(playbackListener)
+        mPlaybackService?.let {
+            mPlaybackService!!.player?.let {
+                playbackListener.onPlaybackStateChanged(mPlaybackService!!.player!!.isPlaying)
+            }
+        }
     }
 
     fun unregisterPlaybackListener(playbackListener: PlayerListener) {
