@@ -4,7 +4,6 @@ import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 import com.atmko.skiptoit.testdata.EpisodeMocks
-import com.atmko.skiptoit.testdata.PodcastMocks
 
 class EpisodesCacheTd : EpisodesCache(null, null) {
 
@@ -83,22 +82,11 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
 
     var mRestoreEpisodeCounter = 0
     var mRestoreEpisodeFailure = false
-    var mIsLastPlayedPodcast: Boolean? = false
     override fun restoreEpisode(listener: RestoreEpisodeListener) {
         mRestoreEpisodeCounter += 1
         if (!mRestoreEpisodeFailure) {
             val restoredEpisodeMock = EpisodeMocks.GET_EPISODE_DETAILS()
-            if (mIsLastPlayedPodcast == null) {
-                listener.onEpisodeRestoreSuccess(null)
-                return
-            }
-            if (!mIsLastPlayedPodcast!!) {
-                restoredEpisodeMock.podcastId = PodcastMocks.PODCAST_ID_2
                 listener.onEpisodeRestoreSuccess(restoredEpisodeMock)
-            } else {
-                restoredEpisodeMock.podcastId = PodcastMocks.PODCAST_ID_1
-                listener.onEpisodeRestoreSuccess(restoredEpisodeMock)
-            }
         } else {
             listener.onEpisodeRestoreFailed()
         }
