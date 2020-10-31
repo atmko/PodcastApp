@@ -71,6 +71,23 @@
     <string name="failed_to_load_comment">Failed to load comment</string>
     <string name="failed_to_create_comment">Failed to create comment</string>
     <string name="failed_to_update_comment">Failed to update comment</string>
+    <string name="error_loading_subscriptions">Couldn\'t load data</string>
+    <string name="failed_to_sign_out">Failed to sign out</string>
+    <string name="failed_to_retrieve_user">Failed to retrieve user</string>
+    <string name="failed_to_sign_in">Failed to sign in</string>
+    <string name="failed_to_load_page">Failed to load page</string>
+    <string name="failed_to_toggle_new_playback">Failed to toggle new playback</string>
+    <string name="failed_to_toggle_old_playback">Failed to toggle old playback</string>
+    <string name="failed_to_detect_podcast">Failed to detect podcast</string>
+    <string name="failed_to_get_details">Failed to get details</string>
+    <string name="failed_to_get_subscription_data">Failed to get subscription data</string>
+    <string name="failed_to_update_subscription">Failed to update subscription</string>
+    <string name="failed_to_update_username">Failed to update username</string>
+    <string name="failed_to_delete_comment">Failed to delete comment</string>
+    <string name="vote_update_failed">Vote Update Failed</string>
+    <string name="failed_to_load_previous_episode">Failed to load previous episode</string>
+    <string name="failed_to_load_next_episode">Failed to load next episode</string>
+    <string name="toggle_subscription_failed">Toggle subscription failed</string>
     <!--SNACK BAR MESSAGES-->
 
     <!--LAUNCH ACTIVITY TEXT-->
@@ -81,8 +98,6 @@
     <string name="terms_url">https://www.websitepolicies.com/policies/view/Z9OW4dTy</string>
     <string name="privacy_url">https://www.websitepolicies.com/policies/view/3W9Q2ZnY</string>
     <!--LAUNCH ACTIVITY TEXT-->
-
-    <string name="error_loading_subscriptions">Couldn\'t load data</string>
 
     <string name="server_client_id">58655822133-gjg7l8q2dbdtnnrlh4jg583clq32s4kn.apps.googleusercontent.com</string>
 

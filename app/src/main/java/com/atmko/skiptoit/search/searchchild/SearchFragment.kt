@@ -180,7 +180,7 @@ class SearchFragment : BaseFragment(),
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
     }
 
     override fun notifyProcessing() {
@@ -194,6 +194,6 @@ class SearchFragment : BaseFragment(),
     }
 
     override fun onSubscriptionToggleFailed() {
-        Snackbar.make(requireView(), "Toggle subscription failed", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.toggle_subscription_failed), Snackbar.LENGTH_LONG).show()
     }
 }

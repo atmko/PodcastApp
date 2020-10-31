@@ -404,7 +404,7 @@ class EpisodeFragment : BaseFragment(),
     override fun onDetailsFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), "Failed to load details", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_get_details), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onNextEpisodeFetched(episode: Episode) {
@@ -413,7 +413,7 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onNextEpisodeFetchFailed() {
-        Snackbar.make(requireView(), "Failed to load next episode", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_next_episode), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPreviousEpisodeFetched(episode: Episode) {
@@ -422,7 +422,7 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onPreviousEpisodeFetchFailed() {
-        Snackbar.make(requireView(), "Failed to load previous episode", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_previous_episode), Snackbar.LENGTH_LONG).show()
     }
 
     override fun notifyProcessing() {
@@ -437,7 +437,7 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onVoteUpdateFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDeleteComment() {
@@ -447,7 +447,7 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_delete_comment), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {
@@ -462,6 +462,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
     }
 }

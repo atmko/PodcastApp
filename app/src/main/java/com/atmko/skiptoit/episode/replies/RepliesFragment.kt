@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -247,7 +248,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onVoteUpdateFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Vote Update Failed", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDeleteComment() {
@@ -257,7 +258,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Failed to delete comment", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_delete_comment), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onPageLoading() {
@@ -272,6 +273,6 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), "Failed to load page", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
     }
 }

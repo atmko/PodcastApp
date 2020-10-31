@@ -197,7 +197,7 @@ class LaunchActivity : BaseActivity(),
     }
 
     override fun onSignInFailed() {
-        Snackbar.make(binding.topLayout, "Failed to sign in", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_in), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onUserFetchSuccess(user: User) {
@@ -205,7 +205,7 @@ class LaunchActivity : BaseActivity(),
     }
 
     override fun onUserFetchFailed() {
-        Snackbar.make(binding.topLayout, "Failed to retrieve user", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.topLayout, getString(R.string.failed_to_retrieve_user), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onSignOutSuccess() {

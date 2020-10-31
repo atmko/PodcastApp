@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseBottomSheetDialogFragment
 import com.atmko.skiptoit.databinding.FragmentConfirmationBinding
@@ -108,6 +109,6 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
     override fun onUsernameUpdateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), "Failed to update username", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_update_username), Snackbar.LENGTH_LONG).show()
     }
 }

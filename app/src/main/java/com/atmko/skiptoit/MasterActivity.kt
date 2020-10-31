@@ -464,7 +464,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onSignInFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, "Failed to sign in", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_in), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onUserFetchSuccess(user: User) {
@@ -528,7 +528,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onUserFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, "Failed to retrieve user", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.topLayout, getString(R.string.failed_to_retrieve_user), Snackbar.LENGTH_LONG).show()
     }
 
     override fun onSignOutSuccess() {
@@ -542,6 +542,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onSignOutFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, "Failed to sign out", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_out), Snackbar.LENGTH_LONG).show()
     }
 }
