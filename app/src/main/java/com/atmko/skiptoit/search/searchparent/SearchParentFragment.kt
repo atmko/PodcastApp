@@ -317,6 +317,7 @@ class SearchParentFragment : BaseFragment(),
     }
 
     override fun onSearchModeManualRestored() {
+        showManualSearchBar()
         showManualSearchMode()
         configureViewModel()
     }
