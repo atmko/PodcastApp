@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.common.views
 
+import android.content.Intent
 import android.content.res.Resources
 import android.util.DisplayMetrics
 import android.view.Menu
@@ -15,6 +16,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.SkipToItApplication
+import com.atmko.skiptoit.about.AboutActivity
 import com.atmko.skiptoit.dependencyinjection.application.ApplicationComponent
 import com.atmko.skiptoit.dependencyinjection.presentation.AdapterModule
 import com.atmko.skiptoit.dependencyinjection.presentation.PresentationComponent
@@ -71,10 +73,17 @@ open class BaseFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.log_out) {
-            getMasterActivity().masterActivityViewModel.signOutAndNotify()
-        } else if (item.itemId == R.id.log_in) {
-            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
+        when (item.itemId) {
+            R.id.log_out -> {
+                getMasterActivity().masterActivityViewModel.signOutAndNotify()
+            }
+            R.id.log_in -> {
+                getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
+            }
+            R.id.about -> {
+                val aboutActivityIntent = Intent(requireContext().applicationContext, AboutActivity::class.java)
+                startActivity(aboutActivityIntent)
+            }
         }
 
         return super.onOptionsItemSelected(item)

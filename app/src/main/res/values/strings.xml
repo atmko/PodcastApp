@@ -18,6 +18,7 @@
     <string name="content_description_fast_forward_button">fast forward button</string>
     <string name="content_description_rewind_button">rewind button</string>
     <string name="content_description_logo">logo</string>
+    <string name="powered_by_listen_notes">powered by listen notes</string>
 
     <string name="show_more">Show More</string>
     <string name="show_less">Show Less</string>
@@ -35,6 +36,7 @@
 
     <string name="title_activity_master">Master Activity</string>
     <string name="title_activity_launch">Launch Activity</string>
+    <string name="title_activity_about">About</string>
     <string name="title_launch">Launch</string>
     <string name="title_subscriptions">Subscriptions</string>
     <string name="title_search">Search</string>
@@ -63,6 +65,7 @@
     <string name="retry_sync">retry sync</string>
     <string name="log_out">Log Out</string>
     <string name="log_in">Log In</string>
+    <string name="about">About</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>
@@ -98,6 +101,28 @@
     <string name="terms_url">https://www.websitepolicies.com/policies/view/Z9OW4dTy</string>
     <string name="privacy_url">https://www.websitepolicies.com/policies/view/3W9Q2ZnY</string>
     <!--LAUNCH ACTIVITY TEXT-->
+
+    <!--preference keys-->
+    <string name="settings_key_about_app">about_app</string>
+    <string name="settings_key_support">support</string>
+    <string name="settings_key_privacy">privacy</string>
+    <string name="settings_key_terms">terms</string>
+    <!--preference keys-->
+
+    <!--settings data-->
+    <string name="support_email_address">support@skiptoit.atmko.com</string>
+    <!--settings data-->
+
+    <!--settings titles-->
+    <string name="settings_about_app_title">About App</string>
+    <string name="settings_support_title">Support</string>
+    <string name="settings_privacy_policy_title">Privacy Policy</string>
+    <string name="settings_terms_of_use_title">Terms of Use</string>
+    <!--settings titles-->
+
+    <!--settings summary-->
+    <string name="settings_about_app_summary">Skip To It Version %s</string>
+    <!--settings summary-->
 
     <string name="server_client_id">58655822133-gjg7l8q2dbdtnnrlh4jg583clq32s4kn.apps.googleusercontent.com</string>
 

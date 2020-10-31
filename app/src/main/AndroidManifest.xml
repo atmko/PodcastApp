@@ -15,34 +15,33 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.atmko.skiptoit.MasterActivity"
+            android:name=".MasterActivity"
             android:label="@string/title_activity_master"
             android:launchMode="singleTop"
             android:theme="@style/splashScreenTheme">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
         <activity
-            android:name="com.atmko.skiptoit.launch.LaunchActivity"
+            android:name=".launch.LaunchActivity"
             android:label="@string/title_activity_launch"
             android:launchMode="singleTop" />
 
-        <service android:name="com.atmko.skiptoit.services.PlaybackService">
+        <activity android:name=".about.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:launchMode="singleTop"/>
 
+
+        <service android:name=".services.PlaybackService">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
-
         </service>
 
         <receiver android:name=".services.BecomingNoisyReceiver" />
-
     </application>
 
 </manifest>
