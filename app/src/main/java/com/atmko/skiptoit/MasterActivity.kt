@@ -7,7 +7,6 @@ import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.IBinder
-import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
@@ -15,7 +14,6 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.atmko.skiptoit.common.ManagerViewModel
@@ -43,11 +41,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-
-private const val IS_BOTTOM_SHEET_EXPANDED_KEY = "is_bottom_sheet_expanded"
-private const val IS_BOTTOM_SHEET_SHOWN_KEY = "is_bottom_sheet_shown"
-
-class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
+class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivityViewModel.MasterListener {
 
     private lateinit var binding: ActivityMasterBinding
 
@@ -63,6 +57,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     private var navBarOriginalYPosition: Float? = null
 
     private val playbackListeners = ArrayList<PlayerListener>()
+
+    private var mSavedInstanceState: Bundle? = null
 
     interface PlayerListener {
         fun onPlaybackStateChanged(isPlaying: Boolean)
@@ -112,12 +108,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding = ActivityMasterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        mSavedInstanceState = savedInstanceState
+
         getPresentationComponent().inject(this)
 
         configureOrientationRestrictions()
         configureBaseBackButtonFunctionality()
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
         launchEpisodeFragment()
         if (masterActivityViewModel.isFirstSetUp()) {
             openLaunchFragment()
@@ -128,10 +126,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     override fun onStart() {
         super.onStart()
         masterActivityViewModel.registerListener(this)
+        masterActivityViewModel.registerMasterListener(this)
         Intent(this, PlaybackService::class.java).also { intent ->
             startService(intent)
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
         }
+        masterActivityViewModel.handleSavedState(mSavedInstanceState)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -141,18 +141,13 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-
-        val isBottomSheetShown: Boolean = bottomSheetBehavior.peekHeight > 0
-        outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)
-
-        outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded())
+        masterActivityViewModel.saveState(outState)
     }
 
     override fun onStop() {
         super.onStop()
         masterActivityViewModel.unregisterListener(this)
+        masterActivityViewModel.unregisterMasterListener(this)
         if (mIsBound) {
             unbindService(playbackServiceConnection)
         }
@@ -176,14 +171,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
             override fun handleOnBackPressed() {
                 if (isBottomSheetExpanded()) {
                     val currentDestination: NavDestination? =
-                        findNavController(R.id.episode_nav_host_fragment).currentDestination
+                        getEpisodeNavHostFragment().navController.currentDestination
                     if (currentDestination?.id == R.id.navigation_episode) {
-                        collapseBottomSheet()
+                        masterActivityViewModel.collapseBottomSheetAndNotify()
                     } else {
-                        findNavController(R.id.episode_nav_host_fragment).navigateUp()
+                        getEpisodeNavHostFragment().navController.navigateUp()
                     }
                 } else {
-                    if (!findNavController(R.id.base_nav_host_fragment).navigateUp()){
+                    if (!getBaseNavHostFragment().navController.navigateUp()){
                         finish()
                     }
                 }
@@ -200,42 +195,20 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         configureAppBar()
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
+    private fun configureValues() {
         masterActivityViewModel = ViewModelProvider(this,
             viewModelFactory).get(MasterActivityViewModel::class.java)
         masterActivityViewModel.getMatchingUserAndNotify()
 
         subscriptionsViewModel = ViewModelProvider(this,
             viewModelFactory).get(SubscriptionsViewModel::class.java)
-
-        if (savedInstanceState != null) {
-            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)) {
-                val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-                binding.navView.post {
-                    bottomSheetBehavior.peekHeight =
-                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-                }
-            }
-
-            if (savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)) {
-                expandBottomSheet()
-                binding.collapsedBottomSheet.visibility = View.GONE
-                binding.collapsedBottomSheet.alpha = 0f
-                binding.episodeFragmentFrameLayout.alpha = 1f
-            } else {
-                collapseBottomSheet()
-                binding.collapsedBottomSheet.visibility = View.VISIBLE
-                binding.collapsedBottomSheet.alpha = 1f
-                binding.episodeFragmentFrameLayout.alpha = 0f
-            }
-        }
     }
 
     private fun launchEpisodeFragment() {
         val action = EpisodeFragmentDirections
             .actionNavigationEpisodeToNavigationEpisode()
 
-        findNavController(R.id.episode_nav_host_fragment).navigate(action)
+        getEpisodeNavHostFragment().navController.navigate(action)
     }
 
     private fun configureBottomSheet() {
@@ -290,21 +263,15 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
 
     private fun configureAppBar() {
         val navView: BottomNavigationView = binding.navView
-
-        val navController = findNavController(R.id.base_nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
 
-        navView.setupWithNavController(navController)
+        navView.setupWithNavController(getBaseNavHostFragment().navController)
 
-        navView.setOnNavigationItemReselectedListener(
-            object : BottomNavigationView.OnNavigationItemReselectedListener {
-                override fun onNavigationItemReselected(item: MenuItem) {
-                    if (navView.selectedItemId != item.itemId) {
-                        onNavigationItemReselected(item)
-                    }
-                }
-            })
+
+        navView.setOnNavigationItemReselectedListener {
+            //perform no action on menu item reselected
+        }
     }
 
     fun navBarHeight(): Int {
@@ -313,6 +280,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         } else {
             0
         }
+    }
+
+    private fun getBaseNavHostFragment(): NavHostFragment {
+        return supportFragmentManager.findFragmentById(R.id.base_nav_host_fragment) as NavHostFragment
+    }
+
+    private fun getEpisodeNavHostFragment(): NavHostFragment {
+        return supportFragmentManager.findFragmentById(R.id.episode_nav_host_fragment) as NavHostFragment
     }
 
     fun bottomSheetPeekHeight(): Int {
@@ -337,16 +312,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         return binding.bottomSheet.visibility == View.VISIBLE
     }
 
-    private fun expandBottomSheet() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-    }
-
-    private fun collapseBottomSheet() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-    }
-
     fun loadEpisodeIntoCollapsedBottomSheet(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
@@ -366,20 +331,20 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
             }
         })
 
-        expandBottomSheet()
+        masterActivityViewModel.expandBottomSheetAndNotify()
     }
 
     fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {
-        when (findNavController(R.id.episode_nav_host_fragment).currentDestination?.id) {
+        when (getEpisodeNavHostFragment().navController.currentDestination?.id) {
             R.id.navigation_episode -> {
-                findNavController(R.id.episode_nav_host_fragment).navigate(
+                getEpisodeNavHostFragment().navController.navigate(
                     EpisodeFragmentDirections
                         .actionNavigationEpisodeToNavigationEpisode(
                             podcastId, episodeId)
                 )
             }
             R.id.navigation_replies -> {
-                findNavController(R.id.episode_nav_host_fragment).navigate(
+                getEpisodeNavHostFragment().navController.navigate(
                     RepliesFragmentDirections
                         .actionNavigationRepliesToNavigationEpisode(
                             podcastId, episodeId)
@@ -478,10 +443,9 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
     }
 
     private fun reloadCurrentFragment() {
-        val baseNavHostFragment: NavHostFragment? =
-            supportFragmentManager.findFragmentById(R.id.base_nav_host_fragment) as NavHostFragment
+        val baseNavHostFragment: NavHostFragment? = getBaseNavHostFragment()
         val baseCurrentFragment = baseNavHostFragment!!.childFragmentManager.fragments[0]
-        val baseNavController = findNavController(R.id.base_nav_host_fragment)
+        val baseNavController = baseNavHostFragment.navController
 
         when (baseCurrentFragment) {
             is SubscriptionsFragment -> {
@@ -504,13 +468,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
             }
         }
 
-        val episodeNavHostFragment: NavHostFragment? =
-            supportFragmentManager.findFragmentById(R.id.base_nav_host_fragment) as NavHostFragment
+        val episodeNavHostFragment: NavHostFragment? = getEpisodeNavHostFragment()
         val episodeCurrentFragment = episodeNavHostFragment!!.childFragmentManager.fragments[0]
-        val episodeNacController = findNavController(R.id.base_nav_host_fragment)
+        val episodeNavController = episodeNavHostFragment.navController
 
         if (episodeCurrentFragment is EpisodeFragment) {
-            episodeNacController.navigate(
+            episodeNavController.navigate(
                 EpisodeFragmentDirections
                     .actionNavigationEpisodeToNavigationEpisode(
                         episodeCurrentFragment.podcastId,
@@ -518,7 +481,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
                     )
             )
         } else if (episodeCurrentFragment is RepliesFragment) {
-            episodeNacController.navigate(
+            episodeNavController.navigate(
                 RepliesFragmentDirections
                     .actionNavigationRepliesToNavigationReplies(episodeCurrentFragment.parentComment)
             )
@@ -543,5 +506,27 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_out), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onShowBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        binding.navView.post {
+            bottomSheetBehavior.peekHeight =
+                binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        }
+    }
+
+    override fun onHideBottomSheet() {
+
+    }
+
+    override fun onExpandBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    override fun onCollapseBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 }

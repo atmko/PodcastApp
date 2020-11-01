@@ -26,9 +26,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import javax.inject.Inject
 
-const val IS_SEARCH_BOX_VISIBLE_KEY = "is_search_box_visible"
-const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
-
 class SearchParentFragment : BaseFragment(),
     SearchParentViewModel.Listener,
     SubscriptionsViewModel.ToggleSubscriptionListener,
@@ -45,7 +42,7 @@ class SearchParentFragment : BaseFragment(),
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SearchParentViewModel
 
-    private var isKeyboardVisible = false
+    private var mSavedInstanceState: Bundle? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -74,8 +71,9 @@ class SearchParentFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mSavedInstanceState = savedInstanceState
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
     }
 
     override fun onStart() {
@@ -83,14 +81,12 @@ class SearchParentFragment : BaseFragment(),
         viewModel.registerListener(this)
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         viewModel.registerBoundaryCallbackListener(this)
-        viewModel.restoreSearchModeAndNotify()
+        viewModel.handleSavedState(mSavedInstanceState)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
-        outState.putBoolean(IS_SEARCH_BOX_VISIBLE_KEY, isSearchBarShown())
-        outState.putBoolean(IS_KEYBOARD_VISIBLE_KEY, isKeyboardVisible)
+        viewModel.saveState(outState)
     }
 
     override fun onStop() {
@@ -145,11 +141,7 @@ class SearchParentFragment : BaseFragment(),
         //configure search box
         binding.toolbar.searchBox.searchBox.apply {
             setOnEditorActionListener { view, actionId, event ->
-                val queryString: String = view.text.toString()
-                if (queryString != "") {
-                    getMasterActivity().hideSoftKeyboard(this)
-                    viewModel.activateManualModeAndNotify(queryString)
-                }
+                viewModel.activateManualModeAndNotify(view.text.toString())
 
                 true
             }
@@ -157,15 +149,7 @@ class SearchParentFragment : BaseFragment(),
 
         binding.toolbar.searchImageButton.apply {
             setOnClickListener {
-                if (isSearchBarShown()) {
-                    hideKeyboard()
-                    clearManualSearchData()
-                    hideManualSearchState()
-                    showPresetSearchState()
-                } else {
-                    showManualSearchBar()
-                    showKeyboard()
-                }
+                viewModel.searchButtonClicked()
             }
         }
 
@@ -176,78 +160,17 @@ class SearchParentFragment : BaseFragment(),
         }
     }
 
-    private fun showKeyboard() {
-        getMasterActivity().showSoftKeyboard(binding.toolbar.searchBox.searchBox)
-        isKeyboardVisible = true
-    }
-
-    private fun hideKeyboard() {
-        getMasterActivity().hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
-        isKeyboardVisible = false
-    }
-
-    private fun isSearchBarShown(): Boolean {
-        return binding.toolbar.searchBox.searchBox.visibility == View.VISIBLE
-    }
-
-    private fun clearManualSearchData() {
-        binding.toolbar.searchBox.searchBox.text = "".toEditable()
-        podcastAdapter.submitList(null)
-    }
-
-    private fun showPresetSearchState() {
-        binding.toolbar.titleTextView.visibility = View.VISIBLE
-        binding.tabLayout.visibility = View.VISIBLE
-        binding.searchViewPager.visibility = View.VISIBLE
-        binding.presetSearchDivider.visibility = View.VISIBLE
-    }
-
-    private fun hideManualSearchState() {
-        binding.pageLoading.pageLoading.visibility = View.GONE
-        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-
-        binding.toolbar.searchBox.searchBox.visibility = View.GONE
-        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_manual_search)
-    }
-
-    private fun showManualSearchBar() {
-        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_cancel_search)
-        binding.toolbar.searchBox.searchBox.visibility = View.VISIBLE
-        binding.toolbar.titleTextView.visibility = View.GONE
-    }
-
-    private fun configureValues(savedInstanceState: Bundle?) {
+    private fun configureValues() {
         activity?.let {
             viewModel = ViewModelProvider(
                 it,
                 viewModelFactory
             ).get(SearchParentViewModel::class.java)
         }
-        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
-
-        if (savedInstanceState != null) {
-            val isSearchBoxVisible = savedInstanceState.getBoolean(IS_SEARCH_BOX_VISIBLE_KEY)
-            if (isSearchBoxVisible) {
-                showManualSearchBar()
-            } else {
-                clearManualSearchData()
-                hideManualSearchState()
-                showPresetSearchState()
-            }
-
-            val isKeyboardVisible = savedInstanceState.getBoolean(IS_KEYBOARD_VISIBLE_KEY)
-            if (isKeyboardVisible) {
-                showKeyboard()
-            } else {
-                hideKeyboard()
-            }
-        }
     }
 
     private fun configureViewModel() {
-        viewModel.searchResults.observe(viewLifecycleOwner, Observer { subscriptions ->
+        viewModel.searchResults!!.observe(viewLifecycleOwner, Observer { subscriptions ->
             binding.errorAndLoading.loadingScreen.visibility = View.GONE
             podcastAdapter.subscriptions =
                 getMasterActivity().subscriptionsViewModel.subscriptionsMap
@@ -266,17 +189,6 @@ class SearchParentFragment : BaseFragment(),
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-    }
-
-    private fun showManualSearchMode() {
-        binding.tabLayout.visibility = View.GONE
-        binding.searchViewPager.visibility = View.GONE
-        binding.presetSearchDivider.visibility = View.GONE
-
-        binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
     }
 
     override fun onItemClick(podcast: Podcast) {
@@ -310,29 +222,6 @@ class SearchParentFragment : BaseFragment(),
         Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
     }
 
-    override fun onSearchModeManualActivated(queryString: String) {
-        showManualSearchMode()
-        viewModel.search(queryString)
-        configureViewModel()
-    }
-
-    override fun onSearchModeManualRestored() {
-        showManualSearchBar()
-        showManualSearchMode()
-        configureViewModel()
-    }
-
-    override fun onSearchModeGenreActivated() {
-        binding.tabLayout.visibility = View.VISIBLE
-        binding.searchViewPager.visibility = View.VISIBLE
-        binding.presetSearchDivider.visibility = View.VISIBLE
-
-        binding.pageLoading.pageLoading.visibility = View.GONE
-        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-    }
-
     override fun notifyProcessing() {
 
     }
@@ -345,5 +234,60 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onSubscriptionToggleFailed() {
         Snackbar.make(requireView(), getString(R.string.toggle_subscription_failed), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onQueryStringRestored(queryString: String) {
+        binding.toolbar.searchBox.searchBox.text = queryString.toEditable()
+    }
+
+    override fun onTabPositionRestored(tabPosition: Int) {
+        binding.tabLayout.selectTab(binding.tabLayout.getTabAt(viewModel.tabPosition))
+    }
+
+    override fun onShowGenreLayout() {
+        binding.tabLayout.visibility = View.VISIBLE
+        binding.searchViewPager.visibility = View.VISIBLE
+        binding.presetSearchDivider.visibility = View.VISIBLE
+    }
+
+    override fun onHideGenreLayout() {
+        binding.tabLayout.visibility = View.GONE
+        binding.searchViewPager.visibility = View.GONE
+        binding.presetSearchDivider.visibility = View.GONE
+    }
+
+    override fun onShowManualLayout() {
+        configureViewModel()
+        binding.pageLoading.pageLoading.visibility = View.VISIBLE
+        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
+    }
+
+    override fun onHideManualLayout() {
+        binding.pageLoading.pageLoading.visibility = View.GONE
+        binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+    }
+
+    override fun onShowManualSearchBar() {
+        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_cancel_search)
+        binding.toolbar.searchBox.searchBox.visibility = View.VISIBLE
+        binding.toolbar.titleTextView.visibility = View.GONE
+    }
+
+    override fun onHideManualSearchBar() {
+        binding.toolbar.searchImageButton.setImageResource(R.drawable.ic_manual_search)
+        binding.toolbar.searchBox.searchBox.visibility = View.GONE
+        binding.toolbar.titleTextView.visibility = View.VISIBLE
+    }
+
+    override fun onShowKeyboard() {
+        getMasterActivity().showSoftKeyboard(binding.toolbar.searchBox.searchBox)
+    }
+
+    override fun onHideKeyboard() {
+        getMasterActivity().hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
     }
 }
