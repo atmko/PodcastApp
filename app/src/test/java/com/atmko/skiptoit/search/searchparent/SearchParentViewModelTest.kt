@@ -1,18 +1,17 @@
 package com.atmko.skiptoit.search.searchparent
 
+import android.os.Bundle
+import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.search.common.PodcastDataSourceFactory
 import com.atmko.skiptoit.testdata.PodcastDataSourceProviderMapMocks.Companion.GET_PROVIDER_MAP
-import com.atmko.skiptoit.testutils.TestUtils
-import com.atmko.skiptoit.testutils.kotlinCapture
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -30,6 +29,8 @@ class SearchParentViewModelTest {
 
     @Mock lateinit var mListenerMock1: SearchParentViewModel.Listener
     @Mock lateinit var mListenerMock2: SearchParentViewModel.Listener
+
+    @Mock lateinit var mBundleMock: Bundle
     // endregion helper fields
 
     lateinit var SUT: SearchParentViewModel
@@ -38,94 +39,307 @@ class SearchParentViewModelTest {
     fun setup() {
         dataSourceFactoryTd = PodcastDataSourceFactoryTd()
         SUT = SearchParentViewModel(dataSourceFactoryTd)
+
+        queryStringInBundle()
+        tabPositionInBundle()
+        genreSearchModeInBundle()
+        hideSearchBoxInBundle()
+        hideKeyboardInBundle()
     }
 
     @Test
-    fun toggleSearchModeAndNotify_searchModeGenre_searchModeManualSavedToVariable() {
+    fun handleSavedStateAndNotify_nullBundle_notifyQueryStringRestoredWithCorrectValue() {
         // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_GENRE
-        // Act
-        SUT.activateManualModeAndNotify(QUERY_STRING)
-        // Assert
-        assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_MANUAL))
-    }
-
-    @Test
-    fun toggleSearchModeAndNotify_searchModeGenre_listenersNotifiedWithCorrectValue() {
-        // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_GENRE
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
-        val ac: ArgumentCaptor<String> = ArgumentCaptor.forClass(String::class.java)
         // Act
-        SUT.activateManualModeAndNotify(QUERY_STRING)
+        SUT.handleSavedState(null)
         // Assert
-        verify(mListenerMock1).onSearchModeManualActivated(ac.kotlinCapture())
-        verify(mListenerMock2).onSearchModeManualActivated(ac.kotlinCapture())
-        val captures = ac.allValues
-        assertThat(captures[0], `is`(QUERY_STRING))
-        assertThat(captures[1], `is`(QUERY_STRING))
+        assertThat(SUT.queryString, `is`(""))
+        verify(mListenerMock1).onQueryStringRestored("")
+        verify(mListenerMock2).onQueryStringRestored("")
     }
 
     @Test
-    fun toggleSearchModeAndNotify_searchModeManual_searchModeGenreSavedToVariable() {
+    fun handleSavedStateAndNotify_nullBundle_notifyTabPositionRestoredWithCorrectValue() {
         // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_MANUAL
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(null)
+        // Assert
+        assertThat(SUT.tabPosition, `is`(0))
+        verify(mListenerMock1).onTabPositionRestored(0)
+        verify(mListenerMock2).onTabPositionRestored(0)
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_nullBundle_activateSearchModeGenre() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(null)
+        // Assert
+        assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_GENRE))
+        verify(mListenerMock1).onShowGenreLayout()
+        verify(mListenerMock1).onHideManualLayout()
+        verify(mListenerMock2).onShowGenreLayout()
+        verify(mListenerMock2).onHideManualLayout()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_nullBundle_notifyHideSearchBox() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(null)
+        // Assert
+        assertThat(SUT.isSearchBoxVisible, `is`(false))
+        verify(mListenerMock1).onHideManualSearchBar()
+        verify(mListenerMock2).onHideManualSearchBar()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_nullBundle_notifyHideKeyboard() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(null)
+        // Assert
+        assertThat(SUT.isKeyboardVisible, `is`(false))
+        verify(mListenerMock1).onHideKeyboard()
+        verify(mListenerMock2).onHideKeyboard()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleQueryStringInBundle_notifyQueryStringRestoredWithCorrectValue() {
+        // Arrange
+        queryStringInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.queryString, `is`(QUERY_STRING))
+        verify(mListenerMock1).onQueryStringRestored(QUERY_STRING)
+        verify(mListenerMock2).onQueryStringRestored(QUERY_STRING)
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleTabPositionInBundle_notifyTabPositionRestoredWithCorrectValue() {
+        // Arrange
+        tabPositionInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.tabPosition, `is`(1))
+        verify(mListenerMock1).onTabPositionRestored(1)
+        verify(mListenerMock2).onTabPositionRestored(1)
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleEmptyQueryStringManualSearchModeInBundle_listenersNotNotified() {
+        // Arrange
+        emptyQueryStringInBundle()
+        manualSearchModeInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_MANUAL))
+        verify(mListenerMock1, never()).onShowManualLayout()
+        verify(mListenerMock1, never()).onHideGenreLayout()
+        verify(mListenerMock2, never()).onShowManualLayout()
+        verify(mListenerMock2, never()).onHideGenreLayout()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleNonEmptyQueryStringManualSearchModeInBundle_activateSearchModeManual() {
+        // Arrange
+        manualSearchModeInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_MANUAL))
+        verify(mListenerMock1).onShowManualLayout()
+        verify(mListenerMock1).onHideGenreLayout()
+        verify(mListenerMock2).onShowManualLayout()
+        verify(mListenerMock2).onHideGenreLayout()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleShowSearchBoxInBundle_notifyShowSearchBox() {
+        // Arrange
+        showSearchBoxInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.isSearchBoxVisible, `is`(true))
+        verify(mListenerMock1).onShowManualSearchBar()
+        verify(mListenerMock2).onShowManualSearchBar()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundle_notifyShowKeyBoard() {
+        // Arrange
+        showKeyboardInInBundle()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertThat(SUT.isKeyboardVisible, `is`(true))
+        verify(mListenerMock1).onShowKeyboard()
+        verify(mListenerMock2).onShowKeyboard()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun activateGenreModeAndNotify_notNullBundle_activateSearchModeGenre() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
         // Act
         SUT.activateGenreModeAndNotify()
         // Assert
         assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_GENRE))
+        verify(mListenerMock1).onShowGenreLayout()
+        verify(mListenerMock1).onHideManualLayout()
+        verify(mListenerMock2).onShowGenreLayout()
+        verify(mListenerMock2).onHideManualLayout()
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     @Test
-    fun toggleSearchModeAndNotify_searchModeManual_listenersNotifiedOfChange() {
+    fun activateManualModeAndNotify_emptyQueryString_activateSearchModeManual() {
         // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_MANUAL
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.activateGenreModeAndNotify()
+        SUT.activateManualModeAndNotify("")
         // Assert
-        verify(mListenerMock1).onSearchModeGenreActivated()
-        verify(mListenerMock2).onSearchModeGenreActivated()
+        verify(mListenerMock1, never()).onShowManualLayout()
+        verify(mListenerMock1, never()).onHideGenreLayout()
+        verify(mListenerMock2, never()).onShowManualLayout()
+        verify(mListenerMock2, never()).onHideGenreLayout()
     }
 
     @Test
-    fun restoreSearchModeAndNotify_searchModeGenre_listenersNotifiedOfGenreSearchRestore() {
+    fun activateManualModeAndNotify_nonEmptyQueryString_activateSearchModeManual() {
         // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_GENRE
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.restoreSearchModeAndNotify()
+        SUT.activateManualModeAndNotify(QUERY_STRING)
         // Assert
-        verify(mListenerMock1).onSearchModeGenreActivated()
-        verify(mListenerMock2).onSearchModeGenreActivated()
-        verify(mListenerMock1, never()).onSearchModeManualActivated(TestUtils.kotlinAny(String::class.java))
-        verify(mListenerMock2, never()).onSearchModeManualActivated(TestUtils.kotlinAny(String::class.java))
-        verify(mListenerMock1, never()).onSearchModeManualRestored()
-        verify(mListenerMock2, never()).onSearchModeManualRestored()
+        assertThat(SUT.searchMode, `is`(SearchParentViewModel.SEARCH_MODE_MANUAL))
+        verify(mListenerMock1).onShowManualLayout()
+        verify(mListenerMock1).onHideGenreLayout()
+        verify(mListenerMock2).onShowManualLayout()
+        verify(mListenerMock2).onHideGenreLayout()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun searchButtonClickedAndNotify_searchBoxVisible_listenersNotified() {
+        // Arrange
+        SUT.isSearchBoxVisible = true
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.searchButtonClickedAndNotify()
+        // Assert
+        verify(mListenerMock1).onShowGenreLayout()
+        verify(mListenerMock1).onHideManualLayout()
+        verify(mListenerMock1).onHideKeyboard()
+        verify(mListenerMock1).onHideManualSearchBar()
+
+        verify(mListenerMock2).onShowGenreLayout()
+        verify(mListenerMock2).onHideManualLayout()
+        verify(mListenerMock2).onHideKeyboard()
+        verify(mListenerMock2).onHideManualSearchBar()
     }
 
     @Test
-    fun restoreSearchModeAndNotify_searchModeManual_listenersNotifiedOfManualSearchRestore() {
+    fun searchButtonClickedAndNotify_searchBoxVisible_searchResultsNullified() {
         // Arrange
-        SUT.searchMode = SearchParentViewModel.SEARCH_MODE_MANUAL
+        SUT.isSearchBoxVisible = true
+        SUT.queryString = QUERY_STRING
+        SUT.searchResults = MutableLiveData()
+        // Act
+        SUT.searchButtonClickedAndNotify()
+        // Assert
+        assertNull(SUT.searchResults)
+    }
+
+    @Test
+    fun searchButtonClickedAndNotify_searchBoxNotVisible_listenersNotified() {
+        // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.restoreSearchModeAndNotify()
+        SUT.searchButtonClickedAndNotify()
         // Assert
-        verify(mListenerMock1).onSearchModeManualRestored()
-        verify(mListenerMock2).onSearchModeManualRestored()
-        verify(mListenerMock1, never()).onSearchModeManualActivated(TestUtils.kotlinAny(String::class.java))
-        verify(mListenerMock2, never()).onSearchModeManualActivated(TestUtils.kotlinAny(String::class.java))
-        verify(mListenerMock1, never()).onSearchModeGenreActivated()
-        verify(mListenerMock2, never()).onSearchModeGenreActivated()
+        verify(mListenerMock1).onShowManualSearchBar()
+        verify(mListenerMock1).onShowKeyboard()
+
+        verify(mListenerMock2).onShowManualSearchBar()
+        verify(mListenerMock2).onShowKeyboard()
     }
+
+    // ---------------------------------------------------------------------------------------------
 
     // region helper methods
+    private fun emptyQueryStringInBundle() {
+        `when`(mBundleMock.getString(SearchParentViewModel.QUERY_STRING_KEY, "")).thenReturn(
+            "")
+    }
 
+    private fun queryStringInBundle() {
+        `when`(mBundleMock.getString(SearchParentViewModel.QUERY_STRING_KEY, "")).thenReturn(
+            QUERY_STRING)
+    }
+
+    private fun tabPositionInBundle() {
+        `when`(mBundleMock.getInt(SearchParentViewModel.TAB_POSITION_KEY)).thenReturn(1)
+    }
+
+    private fun genreSearchModeInBundle() {
+        `when`(mBundleMock.getInt(SearchParentViewModel.SEARCH_MODE_KEY)).thenReturn(SearchParentViewModel.SEARCH_MODE_GENRE)
+    }
+
+    private fun manualSearchModeInBundle() {
+        `when`(mBundleMock.getInt(SearchParentViewModel.SEARCH_MODE_KEY)).thenReturn(SearchParentViewModel.SEARCH_MODE_MANUAL)
+    }
+
+    private fun showSearchBoxInBundle() {
+        `when`(mBundleMock.getBoolean(SearchParentViewModel.IS_SEARCH_BOX_VISIBLE_KEY, false)).thenReturn(true)
+    }
+
+    private fun hideSearchBoxInBundle() {
+        `when`(mBundleMock.getBoolean(SearchParentViewModel.IS_SEARCH_BOX_VISIBLE_KEY, false)).thenReturn(false)
+    }
+
+    private fun showKeyboardInInBundle() {
+        `when`(mBundleMock.getBoolean(SearchParentViewModel.IS_KEYBOARD_VISIBLE_KEY)).thenReturn(true)
+    }
+
+    private fun hideKeyboardInBundle() {
+        `when`(mBundleMock.getBoolean(SearchParentViewModel.IS_KEYBOARD_VISIBLE_KEY)).thenReturn(false)
+    }
     // endregion helper methods
 
     // region helper classes

@@ -149,7 +149,7 @@ class SearchParentFragment : BaseFragment(),
 
         binding.toolbar.searchImageButton.apply {
             setOnClickListener {
-                viewModel.searchButtonClicked()
+                viewModel.searchButtonClickedAndNotify()
             }
         }
 

@@ -29,8 +29,8 @@ class SearchParentViewModel(
 
     companion object {
         const val QUERY_STRING_KEY = "query_string"
-        const val SEARCH_MODE_KEY = "search_mode"
         const val TAB_POSITION_KEY = "tab_position"
+        const val SEARCH_MODE_KEY = "search_mode"
         const val IS_SEARCH_BOX_VISIBLE_KEY = "is_search_box_visible"
         const val IS_KEYBOARD_VISIBLE_KEY = "is_keyboard_visible"
         
@@ -70,6 +70,12 @@ class SearchParentViewModel(
         notifyQueryStringRestored()
         notifyTabPositionRestored()
 
+        if (searchMode == SEARCH_MODE_GENRE) {
+            activateGenreModeAndNotify()
+        } else {
+            activateManualModeAndNotify(queryString)
+        }
+
         if (isSearchBoxVisible) {
             notifyShowManualSearchBar()
         } else {
@@ -81,14 +87,9 @@ class SearchParentViewModel(
         } else {
             notifyHideKeyboard()
         }
-
-        if (searchMode == SEARCH_MODE_GENRE) {
-            activateGenreModeAndNotify()
-        } else {
-            activateManualModeAndNotify(queryString)
-        }
     }
 
+    //todo: not tested
     fun saveState(outState: Bundle) {
         outState.putString(QUERY_STRING_KEY, queryString)
         outState.putInt(TAB_POSITION_KEY, tabPosition)
@@ -113,7 +114,7 @@ class SearchParentViewModel(
         }
     }
 
-    fun searchButtonClicked() {
+    fun searchButtonClickedAndNotify() {
         if (isSearchBoxVisible) {
             searchResults = null
             notifyHideKeyboard()
@@ -125,7 +126,7 @@ class SearchParentViewModel(
         }
     }
 
-    fun search(queryString: String) {
+    private fun search(queryString: String) {
         this.queryString = queryString
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
