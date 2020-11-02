@@ -29,10 +29,10 @@ class MasterActivityViewModel(
 
     private val masterListeners = mutableListOf<MasterListener>()
 
-    private var isBottomSheetShown = false
-    private var isBottomSheetExpanded = false
+    var isBottomSheetShown = false
+    var isBottomSheetExpanded = false
 
-    fun handleSavedState(savedInstanceState: Bundle?) {
+    fun handleSavedStateAndNotify(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             isBottomSheetShown = savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)
             isBottomSheetExpanded = savedInstanceState.getBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY)
@@ -51,6 +51,7 @@ class MasterActivityViewModel(
         }
     }
 
+    //todo: not tested
     fun saveState(outState: Bundle) {
         outState.putBoolean(IS_BOTTOM_SHEET_EXPANDED_KEY, isBottomSheetExpanded)
         outState.putBoolean(IS_BOTTOM_SHEET_SHOWN_KEY, isBottomSheetShown)

@@ -131,7 +131,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
             startService(intent)
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
         }
-        masterActivityViewModel.handleSavedState(mSavedInstanceState)
+        masterActivityViewModel.handleSavedStateAndNotify(mSavedInstanceState)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

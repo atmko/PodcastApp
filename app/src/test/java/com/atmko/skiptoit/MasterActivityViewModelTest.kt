@@ -2,6 +2,7 @@ package com.atmko.skiptoit
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.testclass.EpisodesCacheTd
@@ -36,12 +37,17 @@ class MasterActivityViewModelTest {
     // endregion constants
 
     // end region helper fields
-    lateinit var mLoginManagerTd: LoginManagerTd
-    lateinit var mUserEndpointTd: UserEndpointTd
-    lateinit var mEpisodesCacheTd: EpisodesCacheTd
+    private lateinit var mLoginManagerTd: LoginManagerTd
+    private lateinit var mUserEndpointTd: UserEndpointTd
+    private lateinit var mEpisodesCacheTd: EpisodesCacheTd
 
     @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
     @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
+
+    @Mock lateinit var mMasterListenerMock1: MasterActivityViewModel.MasterListener
+    @Mock lateinit var mMasterListenerMock2: MasterActivityViewModel.MasterListener
+
+    @Mock lateinit var mBundleMock: Bundle
     // endregion helper fields
 
     lateinit var SUT: MasterActivityViewModel
@@ -66,6 +72,126 @@ class MasterActivityViewModelTest {
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun handleSavedStateAndNotify_nullBundle_notifyHideBottomSheet() {
+        // Assert
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(null)
+        // Assert
+        assertThat(SUT.isBottomSheetShown, `is`(false))
+        verify(mMasterListenerMock1).onHideBottomSheet()
+        verify(mMasterListenerMock2).onHideBottomSheet()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_nullBundle_notifyCollapseBottomSheet() {
+        // Assert
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(null)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(false))
+        verify(mMasterListenerMock1).onCollapseBottomSheet()
+        verify(mMasterListenerMock2).onCollapseBottomSheet()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleBottomSheetNotVisibleInBundle_notifyHideBottomSheet() {
+        // Assert
+        bottomSheetNotVisibleInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(mBundleMock)
+        // Assert
+        assertThat(SUT.isBottomSheetShown, `is`(false))
+        verify(mMasterListenerMock1).onHideBottomSheet()
+        verify(mMasterListenerMock2).onHideBottomSheet()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleBottomSheetVisibleInBundle_notifyShowBottomSheet() {
+        // Assert
+        bottomSheetVisibleInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(mBundleMock)
+        // Assert
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+        verify(mMasterListenerMock1).onShowBottomSheet()
+        verify(mMasterListenerMock2).onShowBottomSheet()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleBottomSheetCollapsedInBundle_notifyCollapseBottomSheet() {
+        // Assert
+        bottomSheetCollapsedInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(mBundleMock)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(false))
+        verify(mMasterListenerMock1).onCollapseBottomSheet()
+        verify(mMasterListenerMock2).onCollapseBottomSheet()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleBottomSheetExpandedInBundle_notifyExpandBottomSheet() {
+        // Assert
+        bottomSheetExpandedInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.handleSavedStateAndNotify(mBundleMock)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(true))
+        verify(mMasterListenerMock1).onExpandBottomSheet()
+        verify(mMasterListenerMock2).onExpandBottomSheet()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun expandBottomSheetAndNotify_notifyExpandBottomSheet() {
+        // Assert
+        bottomSheetExpandedInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.expandBottomSheetAndNotify()
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(true))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+        verify(mMasterListenerMock1).onExpandBottomSheet()
+        verify(mMasterListenerMock2).onExpandBottomSheet()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun collapseBottomSheetAndNotify_notifyCollapseBottomSheet() {
+        // Assert
+        bottomSheetCollapsedInBundle()
+        SUT.registerMasterListener(mMasterListenerMock1)
+        SUT.registerMasterListener(mMasterListenerMock2)
+        // Act
+        SUT.collapseBottomSheetAndNotify()
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(false))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+        verify(mMasterListenerMock1).onCollapseBottomSheet()
+        verify(mMasterListenerMock2).onCollapseBottomSheet()
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     @Test
     fun silentSignInAndNotify_notifyProcessing() {
@@ -466,6 +592,22 @@ class MasterActivityViewModelTest {
     }
 
     // region helper methods
+    fun bottomSheetNotVisibleInBundle() {
+        `when`(mBundleMock.getBoolean(MasterActivityViewModel.IS_BOTTOM_SHEET_SHOWN_KEY)).thenReturn(false)
+    }
+
+    fun bottomSheetVisibleInBundle() {
+        `when`(mBundleMock.getBoolean(MasterActivityViewModel.IS_BOTTOM_SHEET_SHOWN_KEY)).thenReturn(true)
+    }
+
+    fun bottomSheetCollapsedInBundle() {
+        `when`(mBundleMock.getBoolean(MasterActivityViewModel.IS_BOTTOM_SHEET_EXPANDED_KEY)).thenReturn(false)
+    }
+
+    fun bottomSheetExpandedInBundle() {
+        `when`(mBundleMock.getBoolean(MasterActivityViewModel.IS_BOTTOM_SHEET_EXPANDED_KEY)).thenReturn(true)
+    }
+
     fun silentSignInSuccess() {
         // no-op because mSilentSignInFailure false by default
     }
