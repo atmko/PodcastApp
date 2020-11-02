@@ -140,7 +140,7 @@ class SearchParentFragment : BaseFragment(),
 
         //configure search box
         binding.toolbar.searchBox.searchBox.apply {
-            setOnEditorActionListener { view, actionId, event ->
+            setOnEditorActionListener { view, _, _ ->
                 viewModel.activateManualModeAndNotify(view.text.toString())
 
                 true
@@ -176,10 +176,6 @@ class SearchParentFragment : BaseFragment(),
                 getMasterActivity().subscriptionsViewModel.subscriptionsMap
             subscriptions?.let { podcastAdapter.submitList(it) }
         })
-    }
-
-    fun getSavedTabPosition(): Int {
-        return viewModel.tabPosition
     }
 
     fun saveTabPosition(tabPosition: Int) {

@@ -19,7 +19,6 @@ import com.atmko.skiptoit.model.GENRE_ID_KEY
 import com.atmko.skiptoit.model.GENRE_NAME_KEY
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.search.common.PodcastDataSource
-import com.atmko.skiptoit.search.searchparent.SearchParentFragment
 import com.atmko.skiptoit.search.searchparent.SearchParentFragmentDirections
 import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -28,6 +27,7 @@ import javax.inject.Inject
 class SearchFragment : BaseFragment(),
     PodcastAdapter.OnPodcastItemClickListener,
     PodcastDataSource.Listener,
+    SearchViewModel.Listener,
     SubscriptionsViewModel.ToggleSubscriptionListener {
 
     private var _binding: LayoutRecyclerViewBinding? = null
@@ -42,6 +42,8 @@ class SearchFragment : BaseFragment(),
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: SearchViewModel
+
+    private var mSavedInstanceState: Bundle? = null
 
     companion object {
         @JvmStatic
@@ -78,6 +80,8 @@ class SearchFragment : BaseFragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mSavedInstanceState = savedInstanceState
+
         activity?.let {
             viewModel = ViewModelProvider(
                 it,
@@ -93,12 +97,20 @@ class SearchFragment : BaseFragment(),
 
     override fun onStart() {
         super.onStart()
+        viewModel.registerListener(this)
         viewModel.registerBoundaryCallbackListener(this)
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
+        viewModel.handleSavedState(mSavedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.saveState(outState)
     }
 
     override fun onStop() {
         super.onStop()
+        viewModel.unregisterListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
     }
@@ -108,9 +120,7 @@ class SearchFragment : BaseFragment(),
             layoutManager =
                 GridLayoutManager(context, resources.getInteger(R.integer.list_item_column_span))
             adapter = podcastAdapter
-            if (isSavedTab()) {
-                scrollToPosition(getSavedScrollPosition())
-            }
+            scrollToPosition(viewModel.scrollPosition)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
@@ -118,24 +128,10 @@ class SearchFragment : BaseFragment(),
                     val scrollPosition =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
-                    saveScrollPosition(scrollPosition)
+                    viewModel.scrollPosition = scrollPosition
                 }
             })
         }
-    }
-
-    fun saveScrollPosition(scrollPosition: Int) {
-        viewModel.scrollPosition = scrollPosition
-    }
-
-    private fun getSavedScrollPosition(): Int {
-        return viewModel.scrollPosition
-    }
-
-    private fun isSavedTab(): Boolean {
-        val savedTabPosition = (parentFragment as SearchParentFragment).getSavedTabPosition()
-        val savedTabGenreId = resources.getIntArray(R.array.genre_ids)[savedTabPosition]
-        return savedTabGenreId == genreId
     }
 
     private fun configureViewModel() {
@@ -195,5 +191,9 @@ class SearchFragment : BaseFragment(),
 
     override fun onSubscriptionToggleFailed() {
         Snackbar.make(requireView(), getString(R.string.toggle_subscription_failed), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onScrollPositionRestored(scrollPosition: Int) {
+        binding.resultsRecyclerView.resultsRecyclerView.scrollToPosition(viewModel.scrollPosition)
     }
 }
