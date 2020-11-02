@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.episodelist
 
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
-import com.atmko.skiptoit.common.BaseBoundaryCallback
 
 class EpisodeBoundaryCallback(
     private val getEpisodesEndpoint: GetEpisodesEndpoint,

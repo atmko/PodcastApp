@@ -101,13 +101,10 @@ open class EpisodesCache(
                 skipToItDatabase.episodeDao().insertEpisodes(episodes)
                 skipToItDatabase.setTransactionSuccessful()
 
-                AppExecutors.getInstance().mainThread().execute {
-                    listener.onPageFetchSuccess()
-                }
             } finally {
                 skipToItDatabase.endTransaction()
                 AppExecutors.getInstance().mainThread().execute {
-                    listener.onPageFetchFailed()
+                    listener.onPageFetchSuccess()
                 }
             }
         }
