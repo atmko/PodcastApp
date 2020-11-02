@@ -100,7 +100,6 @@ class EpisodeFragment : BaseFragment(),
 
         configureViews()
         configureValues(savedInstanceState)
-        configureCommentsViewModel()
     }
 
     override fun onStart() {
@@ -111,20 +110,13 @@ class EpisodeFragment : BaseFragment(),
                 it.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
         episodeViewModel.registerListener(this)
         parentCommentsViewModel.registerListener(this)
         parentCommentsViewModel.registerBoundaryCallbackListener(this)
-    }
 
-    override fun onPause() {
-        super.onPause()
-        episodeViewModel.unregisterListener(this)
-        parentCommentsViewModel.unregisterListener(this)
-        parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
+        episodeViewModel.getDetailsAndNotify(episodeId, podcastId)
+        parentCommentsViewModel.getComments(episodeId)
+        configureCommentsViewModel()
     }
 
     override fun onStop() {
@@ -133,6 +125,9 @@ class EpisodeFragment : BaseFragment(),
             context?.unbindService(playbackServiceConnection)
         }
         mIsBound = false
+        episodeViewModel.unregisterListener(this)
+        parentCommentsViewModel.unregisterListener(this)
+        parentCommentsViewModel.unregisterBoundaryCallbackListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -289,14 +284,10 @@ class EpisodeFragment : BaseFragment(),
             viewModelFactory
         ).get(EpisodeViewModel::class.java)
 
-        episodeViewModel.getDetailsAndNotify(episodeId, podcastId)
-
         parentCommentsViewModel = ViewModelProvider(
             this,
             viewModelFactory
         ).get(ParentCommentsViewModel::class.java)
-
-        parentCommentsViewModel.getComments(episodeId)
 
         if (savedInstanceState != null) {
             showMore = savedInstanceState.getBoolean(SHOW_MORE_KEY)
