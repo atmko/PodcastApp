@@ -116,9 +116,19 @@ open class CommentCache(
         }
     }
 
-    open fun updateReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+    open fun increaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
         AppExecutors.getInstance().diskIO().execute {
-            skipToItDatabase!!.commentDao().updateCommentRepliesCount(commentId)
+            skipToItDatabase!!.commentDao().increaseReplyCount(commentId)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onReplyCountUpdated()
+            }
+        }
+    }
+
+    open fun decreaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            skipToItDatabase!!.commentDao().decreaseReplyCount(commentId)
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onReplyCountUpdated()

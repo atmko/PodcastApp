@@ -40,7 +40,6 @@ class CommentCacheTd : CommentCache(null) {
 
     var mDeleteCommentsCounter = 0
     lateinit var mComments: List<Comment>
-
     override fun deleteComments(comments: List<Comment>, listener: CacheUpdateListener) {
         mDeleteCommentsCounter += 1
         mComments = comments
@@ -137,13 +136,26 @@ class CommentCacheTd : CommentCache(null) {
         }
     }
 
-    var mUpdateReplyCountCounter = 0
-    lateinit var mUpdateReplyCountArgCommentId: String
-    var mUpdateReplyCountFailure = false
-    override fun updateReplyCount(commentId: String, listener: UpdateReplyCountListener) {
-        mUpdateReplyCountCounter++
-        mUpdateReplyCountArgCommentId = commentId
-        if (!mUpdateReplyCountFailure) {
+    var mIncreaseReplyCountCounter = 0
+    lateinit var mIncreaseReplyCountArgCommentId: String
+    var mIncreaseReplyCountFailure = false
+    override fun increaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+        mIncreaseReplyCountCounter++
+        mIncreaseReplyCountArgCommentId = commentId
+        if (!mIncreaseReplyCountFailure) {
+            listener.onReplyCountUpdated()
+        } else {
+            listener.onReplyCountUpdateFailed()
+        }
+    }
+
+    var mDecreaseReplyCountCounter = 0
+    lateinit var mDecreaseReplyCountArgCommentId: String
+    var mDecreaseReplyCountFailure = false
+    override fun decreaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+        mDecreaseReplyCountCounter++
+        mDecreaseReplyCountArgCommentId = commentId
+        if (!mDecreaseReplyCountFailure) {
             listener.onReplyCountUpdated()
         } else {
             listener.onReplyCountUpdateFailed()

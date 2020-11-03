@@ -141,6 +141,6 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
     }
 
     override fun onUpdateReplyCountFailed() {
-        Log.d(this.javaClass.simpleName, "error updating reply count")
+        Log.d(this.javaClass.simpleName, "error to increase reply count")
     }
 }

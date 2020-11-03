@@ -62,8 +62,8 @@ class CreateReplyViewModel(
         })
     }
 
-    fun updateParentCommentReplyCountAndNotify(replyId: String) {
-        commentCache.updateReplyCount(replyId, object : CommentCache.UpdateReplyCountListener {
+    fun updateParentCommentReplyCountAndNotify(commentId: String) {
+        commentCache.increaseReplyCount(commentId, object : CommentCache.UpdateReplyCountListener {
             override fun onReplyCountUpdated() {
                 notifyCreateReplySuccess()
             }

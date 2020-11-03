@@ -23,7 +23,10 @@ interface CommentDao {
     fun updateComment(comment: Comment)
 
     @Query("UPDATE comments SET replies = replies + 1 WHERE comment_id = :commentId")
-    fun updateCommentRepliesCount(commentId: String)
+    fun increaseReplyCount(commentId: String)
+
+    @Query("UPDATE comments SET replies = replies - 1 WHERE comment_id = :commentId")
+    fun decreaseReplyCount(commentId: String)
 
     @Delete
     fun deleteComments(comments: List<Comment>)

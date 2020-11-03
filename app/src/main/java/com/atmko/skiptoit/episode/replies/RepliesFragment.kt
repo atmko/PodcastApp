@@ -2,6 +2,7 @@ package com.atmko.skiptoit.episode.replies
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -259,6 +260,10 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), getString(R.string.failed_to_delete_comment), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onUpdateReplyCountFailed() {
+        Log.d(this.javaClass.name, "failed to decrease reply count")
     }
 
     override fun onPageLoading() {

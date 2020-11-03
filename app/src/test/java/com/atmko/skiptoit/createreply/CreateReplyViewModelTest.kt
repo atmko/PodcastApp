@@ -80,8 +80,8 @@ class CreateReplyViewModelTest {
         // Act
         SUT.createReplyAndNotify(PARENT_ID, REPLY_BODY)
         // Assert
-        assertThat(mCommentCacheTd.mUpdateReplyCountCounter, `is`(1))
-        assertThat(mCommentCacheTd.mUpdateReplyCountArgCommentId, `is`(PARENT_ID))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountCounter, `is`(1))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountArgCommentId, `is`(PARENT_ID))
     }
 
     @Test
@@ -103,8 +103,8 @@ class CreateReplyViewModelTest {
         // Act
         SUT.createReplyAndNotify(PARENT_ID, REPLY_BODY)
         // Assert
-        assertThat(mCommentCacheTd.mUpdateReplyCountCounter, `is`(1))
-        assertThat(mCommentCacheTd.mUpdateReplyCountArgCommentId, `is`(PARENT_ID))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountCounter, `is`(1))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountArgCommentId, `is`(PARENT_ID))
     }
 
     @Test
@@ -142,8 +142,8 @@ class CreateReplyViewModelTest {
         // Act
         SUT.createReplyAndNotify(PARENT_ID, REPLY_BODY)
         // Assert
-        assertThat(mCommentCacheTd.mUpdateReplyCountCounter, `is`(1))
-        assertThat(mCommentCacheTd.mUpdateReplyCountArgCommentId, `is`(PARENT_ID))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountCounter, `is`(1))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountArgCommentId, `is`(PARENT_ID))
     }
 
     @Test
@@ -278,8 +278,8 @@ class CreateReplyViewModelTest {
         // Act
         SUT.updateParentCommentReplyCountAndNotify(PARENT_ID)
         // Assert
-        assertThat(mCommentCacheTd.mUpdateReplyCountCounter, `is`(1))
-        assertThat(mCommentCacheTd.mUpdateReplyCountArgCommentId, `is`(PARENT_ID))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountCounter, `is`(1))
+        assertThat(mCommentCacheTd.mIncreaseReplyCountArgCommentId, `is`(PARENT_ID))
     }
 
     @Test
@@ -342,7 +342,7 @@ class CreateReplyViewModelTest {
     }
 
     private fun updateReplyCountError() {
-        mCommentCacheTd.mUpdateReplyCountFailure = true
+        mCommentCacheTd.mIncreaseReplyCountFailure = true
     }
     // endregion helper methods
 

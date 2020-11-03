@@ -3,10 +3,10 @@ package com.atmko.skiptoit.episode.common
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
-import com.atmko.skiptoit.model.*
-import com.atmko.skiptoit.model.database.CommentCache
 import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.common.BaseViewModel
+import com.atmko.skiptoit.model.*
+import com.atmko.skiptoit.model.database.CommentCache
 
 open class CommentsViewModel(
     private val commentEndpoint: CommentsEndpoint,
@@ -20,6 +20,7 @@ open class CommentsViewModel(
         fun onVoteUpdateFailed()
         fun onDeleteComment()
         fun onDeleteCommentFailed()
+        fun onUpdateReplyCountFailed()
     }
 
     companion object {
@@ -113,18 +114,38 @@ open class CommentsViewModel(
     fun deleteCommentAndNotify(comment: Comment) {
         notifyProcessing()
 
-        commentEndpoint.deleteComment(comment, object :
-            CommentsEndpoint.DeleteListener {
+        commentEndpoint.deleteComment(comment, object : CommentsEndpoint.DeleteListener {
             override fun onDeleteSuccess() {
-                commentCache.deleteComments(listOf(comment), object : CommentCache.CacheUpdateListener {
-                        override fun onLocalCacheUpdateSuccess() {
-                            notifyDeleteSuccess()
-                        }
-                    })
+                deleteLocalComment(comment)
             }
 
             override fun onDeleteFailed() {
                 notifyDeleteFailure()
+            }
+        })
+    }
+
+    private fun deleteLocalComment(comment: Comment) {
+        commentCache.deleteComments(listOf(comment), object : CommentCache.CacheUpdateListener {
+            override fun onLocalCacheUpdateSuccess() {
+                if (comment.parentId != null) {
+                    updateParentCommentReplyCountAndNotify(comment.parentId)
+                } else {
+                    notifyDeleteSuccess()
+                }
+            }
+        })
+    }
+
+    fun updateParentCommentReplyCountAndNotify(commentId: String) {
+        commentCache.decreaseReplyCount(commentId, object : CommentCache.UpdateReplyCountListener {
+            override fun onReplyCountUpdated() {
+                notifyDeleteSuccess()
+            }
+
+            override fun onReplyCountUpdateFailed() {
+                notifyUpdateReplyCountFailure()
+                notifyDeleteSuccess()
             }
         })
     }
@@ -170,6 +191,12 @@ open class CommentsViewModel(
     private fun notifyDeleteFailure() {
         for (listener in listeners) {
             listener.onDeleteCommentFailed()
+        }
+    }
+
+    private fun notifyUpdateReplyCountFailure() {
+        for (listener in listeners) {
+            listener.onUpdateReplyCountFailed()
         }
     }
 
