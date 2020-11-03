@@ -1,17 +1,17 @@
 package com.atmko.skiptoit.model.database
 
+import com.atmko.skiptoit.common.BaseBoundaryCallback.Companion.loadTypeRefresh
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.CommentPageTracker
 import com.atmko.skiptoit.model.CommentResults
 import com.atmko.skiptoit.utils.AppExecutors
-import com.atmko.skiptoit.common.BaseBoundaryCallback.Companion.loadTypeRefresh
 
 open class CommentCache(
     private val skipToItDatabase: SkipToItDatabase?
 ) {
 
     interface CommentFetchListener {
-        fun onCommentFetchSuccess(fetchedComment: Comment)
+        fun onCommentFetchSuccess(fetchedComment: Comment?)
         fun onCommentFetchFailed()
     }
 
@@ -29,8 +29,18 @@ open class CommentCache(
     }
 
     interface CommentPageTrackerListener {
-        fun onPageTrackerFetched(commentPageTracker: CommentPageTracker)
+        fun onPageTrackerFetched(commentPageTracker: CommentPageTracker?)
         fun onPageTrackerFetchFailed()
+    }
+
+    interface DeletePageListener {
+        fun onPageDeleted()
+        fun onPageDeleteFailed()
+    }
+
+    interface UpdateReplyCountListener {
+        fun onReplyCountUpdated()
+        fun onReplyCountUpdateFailed()
     }
 
     open fun getCachedComment(commentId: String, listener: CommentFetchListener) {
@@ -65,62 +75,59 @@ open class CommentCache(
     }
 
     //--------------
-    open fun updateCommentPagingTracker(episodeId: String, listener: UpdatePagingDataListener) {
+
+    open fun getLastCommentPageTracker(episodeId: String, listener: CommentPageTrackerListener) {
         AppExecutors.getInstance().diskIO().execute {
-            val lastPageTracker =
-                getLastCommentPageTrackerForEpisode(episodeId)
-            if (lastPageTracker != null && lastPageTracker.nextPage == null) {
-                deleteCommentPage(episodeId, lastPageTracker.page)
-            }
+            val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastCommentPageTracker(episodeId)
 
             AppExecutors.getInstance().mainThread().execute {
-                listener.onPagingDataUpdated()
+                listener.onPageTrackerFetched(commentPageTracker)
             }
         }
     }
 
-    private fun getLastCommentPageTrackerForEpisode(episodeId: String): CommentPageTracker? {
-        val lastCommentInEpisode = skipToItDatabase!!.commentDao().getLastComment(episodeId)
-        lastCommentInEpisode?.let {
-            return skipToItDatabase.commentPageTrackerDao().getCommentPageTracker(lastCommentInEpisode.commentId)
-        }
-        return null
-    }
-
-    private fun deleteCommentPage(episodeId: String, page: Int) {
-        val pageComments = skipToItDatabase!!.commentPageTrackerDao().getCommentsInPage(episodeId, page)
-        skipToItDatabase.commentDao().deleteComments(pageComments)
-    }
-
-    open fun updateReplyPagingTracker(parentId: String, listener: UpdatePagingDataListener) {
+    open fun deleteAllCommentsInPage(episodeId: String, page: Int, listener: DeletePageListener) {
         AppExecutors.getInstance().diskIO().execute {
-            val lastPageTracker =
-                getLastReplyPageTrackerForEpisode(parentId)
-            if (lastPageTracker != null && lastPageTracker.nextPage == null) {
-                deleteReplyPage(parentId, lastPageTracker.page)
-            }
+            skipToItDatabase!!.commentDao().deleteAllCommentsInPage(episodeId, page)
 
             AppExecutors.getInstance().mainThread().execute {
-                listener.onPagingDataUpdated()
+                listener.onPageDeleted()
             }
         }
     }
 
-    private fun getLastReplyPageTrackerForEpisode(parentId: String): CommentPageTracker? {
-        val lastReplyToComment = skipToItDatabase!!.commentDao().getLastReply(parentId)
-        lastReplyToComment?.let {
-            return skipToItDatabase.commentPageTrackerDao().getCommentPageTracker(lastReplyToComment.commentId)
+    open fun getLastReplyPageTracker(parentId: String, listener: CommentPageTrackerListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastReplyPageTracker(parentId)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onPageTrackerFetched(commentPageTracker)
+            }
         }
-        return null
     }
 
-    private fun deleteReplyPage(parentId: String, page: Int) {
-        val pageComments = skipToItDatabase!!.commentPageTrackerDao().getRepliesInPage(parentId, page)
-        skipToItDatabase.commentDao().deleteComments(pageComments)
+    open fun deleteAllRepliesInPage(parentId: String, page: Int, listener: DeletePageListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            skipToItDatabase!!.commentDao().deleteAllRepliesInPage(parentId, page)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onPageDeleted()
+            }
+        }
+    }
+
+    open fun updateReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            skipToItDatabase!!.commentDao().updateCommentRepliesCount(commentId)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onReplyCountUpdated()
+            }
+        }
     }
 
     //--------------
-    open fun getPageTrackers(commentId: String, listener: CommentPageTrackerListener) {
+    open fun getPageTracker(commentId: String, listener: CommentPageTrackerListener) {
         AppExecutors.getInstance().diskIO().execute {
             val commentPageTracker =
                 skipToItDatabase!!.commentPageTrackerDao().getCommentPageTracker(commentId)

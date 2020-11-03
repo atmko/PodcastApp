@@ -50,33 +50,121 @@ class CommentCacheTd : CommentCache(null) {
         }
     }
 
-    lateinit var mEpisodeId: String
-    override fun updateCommentPagingTracker(episodeId: String, listener: UpdatePagingDataListener) {
-        mEpisodeId = episodeId
-        if (!mFailure) {
-            listener.onPagingDataUpdated()
+    var mGetLastCommentPageTrackerCounter = 0
+    var mGetLastCommentPageTrackerFailure = false
+    lateinit var mGetLastCommentPageTrackerArgEpisodeId: String
+    var mGetLastCommentPageTrackerNullPageTracker = true
+    var mGetLastCommentPageTrackerNoNextPage = false
+    override fun getLastCommentPageTracker(
+        episodeId: String,
+        listener: CommentPageTrackerListener
+    ) {
+        mGetLastCommentPageTrackerCounter++
+        mGetLastCommentPageTrackerArgEpisodeId = episodeId
+        if (mGetLastCommentPageTrackerFailure) {
+            listener.onPageTrackerFetchFailed()
+            return
+        }
+        if (!mGetLastCommentPageTrackerNullPageTracker) {
+            if (!mGetLastCommentPageTrackerNoNextPage) {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NEXT_PAGE())
+            } else {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NULL_NEXT_PAGE())
+            }
+        } else {
+            listener.onPageTrackerFetched(null)
         }
     }
 
-    lateinit var mParentId: String
-    override fun updateReplyPagingTracker(parentId: String, listener: UpdatePagingDataListener) {
-        mParentId = parentId
-        if (!mFailure) {
-            listener.onPagingDataUpdated()
+    var mDeleteAllCommentsInPageCounter = 0
+    lateinit var mDeleteAllCommentsInPageArgEpisodeId: String
+    var mDeleteAllCommentsInPageArgPage: Int? = null
+    var mDeleteAllCommentsInPageFailure = false
+    override fun deleteAllCommentsInPage(
+        episodeId: String,
+        page: Int,
+        listener: DeletePageListener
+    ) {
+        mDeleteAllCommentsInPageCounter++
+        mDeleteAllCommentsInPageArgEpisodeId = episodeId
+        mDeleteAllCommentsInPageArgPage = page
+        if (!mDeleteAllCommentsInPageFailure) {
+            listener.onPageDeleted()
+        } else {
+            listener.onPageDeleteFailed()
+        }
+    }
+
+    var mGetLastReplyPageTrackerCounter = 0
+    lateinit var mGetLastReplyPageTrackerArgParentId: String
+    var mGetLastReplyPageTrackerFailure = false
+    var mGetLastReplyPageTrackerNullPageTracker = true
+    var mGetLastReplyPageTrackerNoNextPage = false
+    override fun getLastReplyPageTracker(parentId: String, listener: CommentPageTrackerListener) {
+        mGetLastReplyPageTrackerCounter++
+        mGetLastReplyPageTrackerArgParentId = parentId
+        if (mGetLastReplyPageTrackerFailure) {
+            listener.onPageTrackerFetchFailed()
+            return
+        }
+        if (!mGetLastReplyPageTrackerNullPageTracker) {
+            if (!mGetLastReplyPageTrackerNoNextPage) {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NEXT_PAGE())
+            } else {
+                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NULL_NEXT_PAGE())
+            }
+        } else {
+            listener.onPageTrackerFetched(null)
+        }
+    }
+
+    var mDeleteAllRepliesInPageCounter = 0
+    lateinit var mDeleteAllRepliesInPageArgEpisodeId: String
+    var mDeleteAllRepliesInPageArgPage: Int? = null
+    var mDeleteAllRepliesInPageFailure = false
+    override fun deleteAllRepliesInPage(
+        parentId: String,
+        page: Int,
+        listener: DeletePageListener
+    ) {
+        mDeleteAllRepliesInPageCounter++
+        mDeleteAllRepliesInPageArgEpisodeId = parentId
+        mDeleteAllRepliesInPageArgPage = page
+        if (!mDeleteAllRepliesInPageFailure) {
+            listener.onPageDeleted()
+        } else {
+            listener.onPageDeleteFailed()
+        }
+    }
+
+    var mUpdateReplyCountCounter = 0
+    lateinit var mUpdateReplyCountArgCommentId: String
+    var mUpdateReplyCountFailure = false
+    override fun updateReplyCount(commentId: String, listener: UpdateReplyCountListener) {
+        mUpdateReplyCountCounter++
+        mUpdateReplyCountArgCommentId = commentId
+        if (!mUpdateReplyCountFailure) {
+            listener.onReplyCountUpdated()
+        } else {
+            listener.onReplyCountUpdateFailed()
         }
     }
 
     var mNextPage = false
     var mPrevPage = false
-    override fun getPageTrackers(commentId: String, listener: CommentPageTrackerListener) {
+    override fun getPageTracker(commentId: String, listener: CommentPageTrackerListener) {
         mCommentId = commentId
         if (!mFailure) {
-            if (mNextPage) {
-                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NEXT_PAGE())
-            } else if (mPrevPage) {
-                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_PREV_PAGE())
-            } else {
-                listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NULL_NEXT_PAGE())
+            when {
+                mNextPage -> {
+                    listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NEXT_PAGE())
+                }
+                mPrevPage -> {
+                    listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_PREV_PAGE())
+                }
+                else -> {
+                    listener.onPageTrackerFetched(CommentPageTrackerMocks.COMMENT_PAGE_TRACKER_NULL_NEXT_PAGE())
+                }
             }
         } else {
             listener.onPageTrackerFetchFailed()

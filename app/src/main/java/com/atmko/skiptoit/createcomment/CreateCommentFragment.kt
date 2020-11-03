@@ -2,18 +2,17 @@ package com.atmko.skiptoit.createcomment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentCreateCommentBinding
 import com.atmko.skiptoit.model.BODY_KEY
-import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
@@ -116,12 +115,9 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
-    override fun onCommentCreated(comment: Comment?) {
+    override fun onCommentCreated() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-
-        val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
-        savedStateHandle?.set(CREATED_COMMENT_KEY, comment)
 
         getMasterActivity().onBackPressedDispatcher.onBackPressed()
         view?.let { view -> getMasterActivity().hideSoftKeyboard(view) }
@@ -131,5 +127,13 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(requireView(), getString(R.string.failed_to_create_comment), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPageTrackerFetchFailed() {
+        Log.d(this.javaClass.simpleName, "error getting page tracker")
+    }
+
+    override fun onCommentPageDeleteFailed() {
+        Log.d(this.javaClass.simpleName, "error deleting comment page")
     }
 }

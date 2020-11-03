@@ -2,18 +2,17 @@ package com.atmko.skiptoit.createreply
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
 import com.atmko.skiptoit.model.BODY_KEY
-import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
@@ -117,12 +116,9 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
-    override fun onReplyCreated(comment: Comment?) {
+    override fun onReplyCreated() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-
-        val savedStateHandle = findNavController().previousBackStackEntry?.savedStateHandle
-        savedStateHandle?.set(CREATED_REPLY_KEY, comment)
 
         getMasterActivity().onBackPressedDispatcher.onBackPressed()
         view?.let { view -> getMasterActivity().hideSoftKeyboard(view) }
@@ -132,5 +128,19 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(requireView(), getString(R.string.failed_to_create_comment), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onPageTrackerFetchFailed() {
+        viewModel.updateParentCommentReplyCountAndNotify(parentId)
+        Log.d(this.javaClass.simpleName, "error getting page tracker")
+    }
+
+    override fun onReplyPageDeleteFailed() {
+        viewModel.updateParentCommentReplyCountAndNotify(parentId)
+        Log.d(this.javaClass.simpleName, "error deleting reply page")
+    }
+
+    override fun onUpdateReplyCountFailed() {
+        Log.d(this.javaClass.simpleName, "error updating reply count")
     }
 }

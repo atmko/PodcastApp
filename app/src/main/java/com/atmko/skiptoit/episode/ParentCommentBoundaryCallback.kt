@@ -19,9 +19,9 @@ class ParentCommentBoundaryCallback(
 
     override fun onItemAtEndLoaded(itemAtEnd: Comment) {
         notifyPageLoading()
-        commentCache.getPageTrackers(itemAtEnd.commentId, object : CommentPageTrackerListener {
-            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker) {
-                val nextPage = commentPageTracker.nextPage
+        commentCache.getPageTracker(itemAtEnd.commentId, object : CommentPageTrackerListener {
+            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker?) {
+                val nextPage = commentPageTracker!!.nextPage
                 if (nextPage != null) {
                     requestPage(loadTypeAppend, nextPage)
                 } else {
@@ -37,9 +37,9 @@ class ParentCommentBoundaryCallback(
 
     override fun onItemAtFrontLoaded(itemAtFront: Comment) {
         notifyPageLoading()
-        commentCache.getPageTrackers(itemAtFront.commentId, object : CommentPageTrackerListener {
-            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker) {
-                val prevPage = commentPageTracker.prevPage
+        commentCache.getPageTracker(itemAtFront.commentId, object : CommentPageTrackerListener {
+            override fun onPageTrackerFetched(commentPageTracker: CommentPageTracker?) {
+                val prevPage = commentPageTracker!!.prevPage
                 if (prevPage != null) {
                     requestPage(loadTypePrepend, prevPage)
                 } else {
