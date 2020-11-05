@@ -5,18 +5,13 @@
     android:layout_height="match_parent"
     android:background="@color/color_background">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar_general"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/usernameTextView"
         style="@style/Large_Heading_Excess_Style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/x2_layout_margin"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="slicky" />
 
     <View
