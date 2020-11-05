@@ -135,7 +135,7 @@ class UpdateCommentViewModelTest {
 
     // todo test load comment - fail
 
-    //--------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
     @Test
     fun updateCommentBodyAndNotify_listenersNotifiedOfProcessing() {

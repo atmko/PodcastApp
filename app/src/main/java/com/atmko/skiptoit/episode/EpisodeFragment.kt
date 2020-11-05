@@ -221,6 +221,7 @@ class EpisodeFragment : BaseFragment(),
         }
     }
 
+    // todo: consolidate method with method in replies fragment
     private fun attemptToUpdateComment(comment: Comment) {
         val user = getMasterActivity().user
         if (user?.username != null) {

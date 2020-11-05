@@ -5,7 +5,7 @@ import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.database.CommentCache
 
-class UpdateCommentViewModel(
+open class UpdateCommentViewModel(
     private val updateCommentEndpoint: UpdateCommentEndpoint,
     private val commentCache: CommentCache
 ) : BaseViewModel<UpdateCommentViewModel.Listener>() {

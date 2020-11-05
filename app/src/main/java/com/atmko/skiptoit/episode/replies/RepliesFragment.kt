@@ -132,7 +132,12 @@ class RepliesFragment : BaseFragment(),
             onDeleteClick(parentComment)
         }
         binding.parentComment.editButton.setOnClickListener {
-            onEditClick(parentComment)
+            // todo: move logic to view model
+            if (parentComment.parentId != null) {
+                attemptToUpdateReply(parentComment)
+            } else {
+                attemptToUpdateComment(parentComment)
+            }
         }
 
         //todo: user listeners instead
@@ -187,8 +192,18 @@ class RepliesFragment : BaseFragment(),
 
     private fun attemptToUpdateReply(comment: Comment) {
         val user = getMasterActivity().user
+        // todo: move logic to view model
         if (user?.username != null) {
             navigateToUpdateReply(comment, user.username)
+        } else {
+            getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
+        }
+    }
+
+    private fun attemptToUpdateComment(comment: Comment) {
+        val user = getMasterActivity().user
+        if (user?.username != null) {
+            navigateToUpdateComment(comment, user.username)
         } else {
             getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
@@ -204,8 +219,19 @@ class RepliesFragment : BaseFragment(),
 
     private fun navigateToUpdateReply(comment: Comment, username: String) {
         val action =
-            RepliesFragmentDirections.actionNavigationEpisodeToNavigationUpdateReply(
-                comment.commentId, username, binding.parentComment.body.text.toString()
+            RepliesFragmentDirections.actionNavigationRepliesToNavigationUpdateReply(
+                comment.parentId!!,
+                comment.commentId,
+                username,
+                binding.parentComment.body.text.toString()
+            )
+        view?.findNavController()?.navigate(action)
+    }
+
+    private fun navigateToUpdateComment(comment: Comment, username: String) {
+        val action =
+            RepliesFragmentDirections.actionNavigationRepliesToNavigationUpdateComment(
+                comment.commentId, username
             )
         view?.findNavController()?.navigate(action)
     }
@@ -244,7 +270,11 @@ class RepliesFragment : BaseFragment(),
     }
 
     override fun onParentCommentFetchFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_retrieve_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_retrieve_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onVoteParentUpdate() {
@@ -267,7 +297,8 @@ class RepliesFragment : BaseFragment(),
 
     override fun onVoteUpdateFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG)
+            .show()
     }
 
     override fun onDeleteComment() {
@@ -277,7 +308,11 @@ class RepliesFragment : BaseFragment(),
 
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_delete_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_delete_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onUpdateReplyCountFailed() {
@@ -296,6 +331,7 @@ class RepliesFragment : BaseFragment(),
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG)
+            .show()
     }
 }

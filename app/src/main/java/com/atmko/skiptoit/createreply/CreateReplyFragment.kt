@@ -98,7 +98,7 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
             viewModelFactory).get(CreateReplyViewModel::class.java)
 
         binding.usernameTextView.text = username
-        binding.quotedText.text = quotedText
+        binding.parentEditText.text = quotedText
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
         }

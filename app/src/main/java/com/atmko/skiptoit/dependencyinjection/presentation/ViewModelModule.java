@@ -46,6 +46,7 @@ import com.atmko.skiptoit.subcriptions.SubscriptionsEndpoint;
 import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
+import com.atmko.skiptoit.updatecomment.UpdateReplyViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -181,6 +182,14 @@ public class ViewModelModule {
     ViewModel provideUpdateCommentsViewModel(UpdateCommentEndpoint updateCommentEndpoint,
                                              CommentCache commentCache) {
         return new UpdateCommentViewModel(updateCommentEndpoint, commentCache);
+    }
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(UpdateReplyViewModel.class)
+    ViewModel provideUpdateReplyViewModel(UpdateCommentEndpoint updateCommentEndpoint,
+                                          CommentCache commentCache) {
+        return new UpdateReplyViewModel(updateCommentEndpoint, commentCache);
     }
 
     @Provides
