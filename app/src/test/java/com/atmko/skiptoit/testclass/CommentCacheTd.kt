@@ -9,20 +9,26 @@ import com.atmko.skiptoit.testdata.CommentPageTrackerMocks
 class CommentCacheTd : CommentCache(null) {
 
     var mCommentId: String = ""
-    var mGetCachedCommentCounter = 0
     var mFailure = false
 
-    override
-    fun getCachedComment(commentId: String, listener: CommentFetchListener) {
+    var mGetCachedCommentCounter = 0
+    lateinit var mGetCachedCommentArgCommentId: String
+    var mGetCachedCommentFailure = false
+    var mGetCachedCommentNullCommentReturned = true
+    override fun getCachedComment(commentId: String, listener: CommentFetchListener) {
+        mGetCachedCommentCounter++
+        mGetCachedCommentArgCommentId = commentId
         mCommentId = commentId
-        mGetCachedCommentCounter += 1
 
-        if (!mFailure) {
-            if (mGetCachedCommentCounter == 1) {
-                listener.onCommentFetchSuccess(CommentMocks.GET_COMMENT_1())
-            } else if (mGetCachedCommentCounter == 2) {
-                listener.onCommentFetchSuccess(CommentMocks.GET_COMMENT_2())
-            }
+        if (mGetCachedCommentFailure) {
+            listener.onCommentFetchFailed()
+            return
+        }
+
+        if (mGetCachedCommentNullCommentReturned) {
+            listener.onCommentFetchSuccess(null)
+        } else {
+            listener.onCommentFetchSuccess(CommentMocks.GET_COMMENT_1())
         }
     }
 

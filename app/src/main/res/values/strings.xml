@@ -90,6 +90,7 @@
     <string name="vote_update_failed">Vote Update Failed</string>
     <string name="failed_to_load_previous_episode">Failed to load previous episode</string>
     <string name="failed_to_load_next_episode">Failed to load next episode</string>
+    <string name="failed_to_retrieve_comment">Failed to retrieve comment</string>
     <string name="toggle_subscription_failed">Toggle subscription failed</string>
     <!--SNACK BAR MESSAGES-->
 

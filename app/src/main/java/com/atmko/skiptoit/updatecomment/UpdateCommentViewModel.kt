@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.updatecomment
 
 import android.util.Log
+import com.atmko.skiptoit.common.BaseViewModel
 import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.database.CommentCache
-import com.atmko.skiptoit.common.BaseViewModel
 
 class UpdateCommentViewModel(
     private val updateCommentEndpoint: UpdateCommentEndpoint,
@@ -18,10 +18,10 @@ class UpdateCommentViewModel(
         fun onCommentUpdateFailed()
     }
 
-    lateinit var comment: Comment
+    var comment: Comment? = null
 
     fun getCachedCommentAndNotify(commentId: String) {
-        if (this::comment.isInitialized) {
+        if (comment != null) {
             notifyLoadCommentSuccess()
             return
         }
@@ -29,9 +29,13 @@ class UpdateCommentViewModel(
         notifyProcessing()
 
         commentCache.getCachedComment(commentId, object : CommentCache.CommentFetchListener {
-            override fun onCommentFetchSuccess(fetchedComment: Comment) {
-                comment = fetchedComment
-                notifyLoadCommentSuccess()
+            override fun onCommentFetchSuccess(fetchedComment: Comment?) {
+                if (fetchedComment != null) {
+                    comment = fetchedComment
+                    notifyLoadCommentSuccess()
+                } else {
+                    notifyLoadCommentFailure()
+                }
             }
 
             override fun onCommentFetchFailed() {
@@ -43,10 +47,10 @@ class UpdateCommentViewModel(
     fun updateCommentBodyAndNotify(bodyUpdate : String) {
         notifyProcessing()
 
-        updateCommentEndpoint.updateComment(comment, bodyUpdate, object : UpdateCommentEndpoint.Listener {
+        updateCommentEndpoint.updateComment(comment!!, bodyUpdate, object : UpdateCommentEndpoint.Listener {
             override fun onUpdateSuccess(bodyUpdate: String) {
-                comment.body = bodyUpdate
-                commentCache.updateLocalCache(comment, object : CommentCache.CacheUpdateListener {
+                comment!!.body = bodyUpdate
+                commentCache.updateLocalCache(comment!!, object : CommentCache.CacheUpdateListener {
                     override fun onLocalCacheUpdateSuccess() {
                         notifyUpdateSuccess()
                     }
@@ -73,7 +77,7 @@ class UpdateCommentViewModel(
 
     private fun notifyLoadCommentSuccess() {
         for (listener in listeners) {
-            listener.onLoadComment(comment)
+            listener.onLoadComment(comment!!)
         }
     }
 

@@ -24,17 +24,21 @@ import com.atmko.skiptoit.utils.loadNetworkImage
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListener,
+class RepliesFragment : BaseFragment(),
+    RepliesViewModel.Listener,
+    CommentsAdapter.OnCommentItemClickListener,
     CommentsViewModel.Listener, BaseBoundaryCallback.Listener {
 
     private var _binding: FragmentRepliesBinding? = null
     private val binding get() = _binding!!
 
-    lateinit var parentComment: Comment
+    lateinit var parentCommentId: String
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var repliesViewModel: RepliesViewModel
+
+    private lateinit var parentComment: Comment
 
     @Inject
     lateinit var repliesAdapter: CommentsAdapter
@@ -49,16 +53,9 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
         super.onCreate(savedInstanceState)
 
         val args: RepliesFragmentArgs by navArgs()
-        //todo replace with database call in view model
-        parentComment = args.parentComment
+        parentCommentId = args.parentCommentId
 
         configureBaseBackButtonFunctionality()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        repliesViewModel.registerListener(this)
-        repliesViewModel.registerBoundaryCallbackListener(this)
     }
 
     override fun onCreateView(
@@ -80,11 +77,23 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
         configureViews()
         configureValues()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        repliesViewModel.registerRepliesViewModelListener(this)
+        repliesViewModel.registerListener(this)
+        repliesViewModel.registerBoundaryCallbackListener(this)
+
+        repliesViewModel.getParentCommentAndNotify(parentCommentId)
+        repliesViewModel.getReplies(parentCommentId)
+
         configureViewModel()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
+        repliesViewModel.unregisterRepliesViewModelListener(this)
         repliesViewModel.unregisterListener(this)
         repliesViewModel.unregisterBoundaryCallbackListener(this)
     }
@@ -109,60 +118,58 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     }
 
     private fun configureValues() {
-        setupParentComment(parentComment)
-
         repliesViewModel = ViewModelProvider(
             this,
             viewModelFactory
         ).get(RepliesViewModel::class.java)
-
-        repliesViewModel.getReplies(parentComment.commentId)
     }
 
-    private fun setupParentComment(comment: Comment) {
+    private fun setupParentComment() {
         binding.parentComment.replyButton.setOnClickListener {
-            onReplyButtonClick(comment.commentId, comment.body)
+            onReplyButtonClick(parentComment.commentId, parentComment.body)
         }
         binding.parentComment.upVoteButton.setOnClickListener {
-            onUpVoteClick(comment)
+            onUpVoteClick(parentComment)
         }
         binding.parentComment.downVoteButton.setOnClickListener {
-            onDownVoteClick(comment)
+            onDownVoteClick(parentComment)
         }
         binding.parentComment.deleteButton.setOnClickListener {
-            onDeleteClick(comment)
+            onDeleteClick(parentComment)
         }
         binding.parentComment.editButton.setOnClickListener {
-            onEditClick(comment)
+            onEditClick(parentComment)
         }
 
+        //todo: user listeners instead
         repliesAdapter
             .configureUpDownVoteButtonResource(
-                comment,
+                parentComment,
                 binding.parentComment.upVoteButton,
                 binding.parentComment.downVoteButton
             )
 
+        //todo: user listeners instead
         repliesAdapter
             .configureDeleteEditButtonVisibility(
-                comment,
+                parentComment,
                 binding.parentComment.editButton,
                 binding.parentComment.deleteButton
             )
 
-        binding.parentComment.user.text = comment.username
-        binding.parentComment.body.text = comment.body
-        binding.parentComment.votes.text = comment.voteTally.toString()
-        if (comment.replies != 0) {
+        binding.parentComment.user.text = parentComment.username
+        binding.parentComment.body.text = parentComment.body
+        binding.parentComment.votes.text = parentComment.voteTally.toString()
+        if (parentComment.replies != 0) {
             binding.parentComment.replies.text =
                 String.format(
                     binding.parentComment.replies.text.toString(),
-                    comment.replies.toString()
+                    parentComment.replies.toString()
                 )
         } else {
             binding.parentComment.replies.visibility = View.GONE
         }
-        comment.profileImage?.let { binding.parentComment.profileImageView.loadNetworkImage(it) }
+        parentComment.profileImage?.let { binding.parentComment.profileImageView.loadNetworkImage(it) }
     }
 
     private fun configureViewModel() {
@@ -216,7 +223,7 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
     override fun onRepliesButtonClick(comment: Comment) {
         val action =
             RepliesFragmentDirections.actionNavigationRepliesToNavigationReplies(
-                comment
+                comment.commentId
             )
         view?.findNavController()?.navigate(action)
     }
@@ -235,6 +242,23 @@ class RepliesFragment : BaseFragment(), CommentsAdapter.OnCommentItemClickListen
 
     override fun onEditClick(comment: Comment) {
         attemptToUpdateReply(comment)
+    }
+
+    override fun onParentCommentFetched(comment: Comment) {
+        parentComment = comment
+        setupParentComment()
+    }
+
+    override fun onParentCommentFetchFailed() {
+        Snackbar.make(requireView(), getString(R.string.failed_to_retrieve_comment), Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onVoteParentUpdate() {
+        repliesViewModel.getParentCommentAndNotify(parentCommentId)
+    }
+
+    override fun onDeleteParentComment() {
+        getMasterActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun notifyProcessing() {

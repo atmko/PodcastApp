@@ -81,7 +81,7 @@ open class CommentsViewModel(
             override fun onVoteSuccess(comment: Comment) {
                 commentCache.updateLocalCache(comment, object : CommentCache.CacheUpdateListener {
                     override fun onLocalCacheUpdateSuccess() {
-                        notifyVoteSuccess()
+                        notifyVoteSuccess(comment.commentId)
                     }
                 })
             }
@@ -100,7 +100,7 @@ open class CommentsViewModel(
             override fun onVoteSuccess(comment: Comment) {
                 commentCache.updateLocalCache(comment, object : CommentCache.CacheUpdateListener {
                     override fun onLocalCacheUpdateSuccess() {
-                        notifyVoteSuccess()
+                        notifyVoteSuccess(comment.commentId)
                     }
                 })
             }
@@ -131,7 +131,7 @@ open class CommentsViewModel(
                 if (comment.parentId != null) {
                     updateParentCommentReplyCountAndNotify(comment.parentId)
                 } else {
-                    notifyDeleteSuccess()
+                    notifyDeleteSuccess(comment.commentId)
                 }
             }
         })
@@ -140,12 +140,12 @@ open class CommentsViewModel(
     fun updateParentCommentReplyCountAndNotify(commentId: String) {
         commentCache.decreaseReplyCount(commentId, object : CommentCache.UpdateReplyCountListener {
             override fun onReplyCountUpdated() {
-                notifyDeleteSuccess()
+                notifyDeleteSuccess(commentId)
             }
 
             override fun onReplyCountUpdateFailed() {
                 notifyUpdateReplyCountFailure()
-                notifyDeleteSuccess()
+                notifyDeleteSuccess(commentId)
             }
         })
     }
@@ -170,7 +170,7 @@ open class CommentsViewModel(
         }
     }
 
-    private fun notifyVoteSuccess() {
+    protected open fun notifyVoteSuccess(commentId: String) {
         for (listener in listeners) {
             listener.onVoteUpdate()
         }
@@ -182,7 +182,7 @@ open class CommentsViewModel(
         }
     }
 
-    private fun notifyDeleteSuccess() {
+    protected open fun notifyDeleteSuccess(commentId: String) {
         for (listener in listeners) {
             listener.onDeleteComment()
         }

@@ -71,8 +71,32 @@ class UpdateCommentViewModelTest {
     }
 
     @Test
-    fun getCachedCommentAndNotify_loadCommentSuccess_listenersNotifiedOfSuccess() {
+    fun getCachedCommentAndNotify_getCachedCommentSuccessNullCommentReturned_listenersNotifiedOfError() {
         // Arrange
+        SUT.registerListener(mListenerTd1)
+        SUT.registerListener(mListenerTd2)
+        // Act
+        SUT.getCachedCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        mListenerTd1.assertOnLoadCommentFailedCalled(1)
+        mListenerTd2.assertOnLoadCommentFailedCalled(1)
+    }
+
+    @Test
+    fun getCachedCommentAndNotify_getCachedCommentSuccessNonNullCommentReturned_commentSavedInViewModel() {
+        // Arrange
+        getCachedCommentNonNullCommentReturned()
+        SUT.registerListener(mListenerTd1)
+        // Act
+        SUT.getCachedCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        assertThat(SUT.comment, `is`(GET_COMMENT_1()))
+    }
+
+    @Test
+    fun getCachedCommentAndNotify_getCachedCommentSuccessNonNullCommentReturned_listenersNotifiedOfSuccess() {
+        // Arrange
+        getCachedCommentNonNullCommentReturned()
         SUT.registerListener(mListenerTd1)
         SUT.registerListener(mListenerTd2)
         // Act
@@ -80,28 +104,33 @@ class UpdateCommentViewModelTest {
         // Assert
         mListenerTd1.assertOnLoadCommentCalled(1)
         mListenerTd2.assertOnLoadCommentCalled(1)
+        assertThat(mListenerTd1.mOnLoadCommentArgFetchComment, `is`(GET_COMMENT_1()))
+        assertThat(mListenerTd2.mOnLoadCommentArgFetchComment, `is`(GET_COMMENT_1()))
     }
 
     @Test
-    fun getCachedCommentAndNotify_loadCommentSuccess_commentSavedInViewModel() {
+    fun getCachedCommentAndNotify_loadCommentSuccessNonNullCommentReturned_secondCallReturnsFromSavedValue() {
         // Arrange
-        SUT.registerListener(mListenerTd1)
-        // Act
-        SUT.getCachedCommentAndNotify(COMMENT_ID_1)
-        // Assert
-        mListenerTd1.assertOnLoadCommentCalled(1)
-        assertThat(SUT.comment, `is`(GET_COMMENT_1()))
-    }
-
-    @Test
-    fun getCachedCommentAndNotify_loadCommentSuccess_secondCallReturnsFromSavedValue() {
-        // Arrange
+        getCachedCommentNonNullCommentReturned()
         // Act
         SUT.getCachedCommentAndNotify(COMMENT_ID_1)
         SUT.getCachedCommentAndNotify(COMMENT_ID_2)
         // Assert
         assertThat(mCommentCacheTd.mGetCachedCommentCounter, `is`(1))
         assertThat(SUT.comment, `is`(GET_COMMENT_1()))
+    }
+
+    @Test
+    fun getCachedCommentAndNotify_loadCommentSuccessNonNullCommentReturned_listenersNotifiedOfError() {
+        // Arrange
+        getCachedCommentFailure()
+        SUT.registerListener(mListenerTd1)
+        SUT.registerListener(mListenerTd2)
+        // Act
+        SUT.getCachedCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        mListenerTd1.assertOnLoadCommentFailedCalled(1)
+        mListenerTd2.assertOnLoadCommentFailedCalled(1)
     }
 
     // todo test load comment - fail
@@ -188,6 +217,14 @@ class UpdateCommentViewModelTest {
     private fun updateCommentFailure() {
         mUpdateCommentEndpointTd.mFailure = true
     }
+
+    fun getCachedCommentNonNullCommentReturned() {
+        mCommentCacheTd.mGetCachedCommentNullCommentReturned = false
+    }
+
+    fun getCachedCommentFailure() {
+        mCommentCacheTd.mGetCachedCommentFailure = true
+    }
     // endregion helper methods
 
     // region helper classes
@@ -222,8 +259,10 @@ class UpdateCommentViewModelTest {
         }
 
         private var mOnLoadCommentCounter = 0
+        var mOnLoadCommentArgFetchComment: Comment? = null
         override fun onLoadComment(fetchedComment: Comment) {
             mOnLoadCommentCounter++
+            mOnLoadCommentArgFetchComment = fetchedComment
         }
 
         fun assertOnLoadCommentCalled(times: Int) {

@@ -341,7 +341,7 @@ class EpisodeFragment : BaseFragment(),
     override fun onRepliesButtonClick(comment: Comment) {
         val action =
             EpisodeFragmentDirections.actionNavigationEpisodeToNavigationReplies(
-                comment
+                comment.commentId
             )
         view?.findNavController()?.navigate(action)
     }

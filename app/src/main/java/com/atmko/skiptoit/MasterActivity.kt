@@ -483,7 +483,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
         } else if (episodeCurrentFragment is RepliesFragment) {
             episodeNavController.navigate(
                 RepliesFragmentDirections
-                    .actionNavigationRepliesToNavigationReplies(episodeCurrentFragment.parentComment)
+                    .actionNavigationRepliesToNavigationReplies(episodeCurrentFragment.parentCommentId)
             )
         }
     }
