@@ -8,13 +8,13 @@ import com.atmko.skiptoit.testutils.TestUtils
 import com.atmko.skiptoit.testutils.kotlinCapture
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -33,6 +33,7 @@ class EpisodeViewModelTest {
 
     @Mock
     lateinit var mListenerMock1: EpisodeViewModel.Listener
+
     @Mock
     lateinit var mListenerMock2: EpisodeViewModel.Listener
     // endregion helper fields
@@ -97,7 +98,10 @@ class EpisodeViewModelTest {
         SUT.getDetailsAndNotify(EPISODE_ID, PODCAST_ID)
         // Assert
         assertThat(mEpisodesCacheTd.mSaveEpisodeCounter, `is`(1))
-        assertThat(mEpisodesCacheTd.mSaveEpisodeArgEpisode, `is`(EpisodeMocks.GET_EPISODE_DETAILS()))
+        assertThat(
+            mEpisodesCacheTd.mSaveEpisodeArgEpisode,
+            `is`(EpisodeMocks.GET_EPISODE_DETAILS())
+        )
     }
 
     @Test
@@ -178,7 +182,7 @@ class EpisodeViewModelTest {
     fun getDetailsAndNotify_invalidEpisodeIdAndPodcastId_restoreEpisodesPolled() {
         // Arrange
         // Act
-        SUT.getDetailsAndNotify("", "")
+        SUT.getDetailsAndNotify(null, null)
         // Assert
         assertThat(mEpisodesCacheTd.mRestoreEpisodeCounter, `is`(1))
     }
@@ -188,7 +192,7 @@ class EpisodeViewModelTest {
         // Arrange
         SUT.episodeDetails = null
         // Act
-        SUT.getDetailsAndNotify("", "")
+        SUT.getDetailsAndNotify(null, null)
         // Assert
         assertThat(SUT.episodeDetails, `is`(EpisodeMocks.GET_EPISODE_DETAILS()))
     }
@@ -199,7 +203,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify("", "")
+        SUT.getDetailsAndNotify(null, null)
         // Assert
         verify(mListenerMock1).onDetailsFetched(SUT.episodeDetails, true)
         verify(mListenerMock1).onDetailsFetched(SUT.episodeDetails, true)
@@ -212,7 +216,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.getDetailsAndNotify("", "")
+        SUT.getDetailsAndNotify(null, null)
         // Assert
         verify(mListenerMock1).onDetailsFetched(SUT.episodeDetails, true)
         verify(mListenerMock2, never()).onDetailsFetched(SUT.episodeDetails, true)
@@ -223,7 +227,7 @@ class EpisodeViewModelTest {
         // Arrange
         restoreEpisodeError()
         // Act
-        SUT.getDetailsAndNotify("", "")
+        SUT.getDetailsAndNotify(null, null)
         // Assert
         assertThat(mEpisodesCacheTd.mRestoreEpisodeCounter, `is`(1))
     }
@@ -234,9 +238,16 @@ class EpisodeViewModelTest {
     fun fetchNextEpisodeAndNotify_correctEpisodeIdAndPublishDatePassedToCache() {
         // Arrange
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
-        assertThat(mEpisodesCacheTd.mEpisodeId, `is`(EpisodeMocks.GET_EPISODE_1().episodeId))
+        assertThat(
+            mEpisodesCacheTd.mGetNextEpisodeArgPodcastId,
+            `is`(EpisodeMocks.GET_EPISODE_DETAILS().podcastId)
+        )
+        assertThat(
+            mEpisodesCacheTd.mGetNextEpisodeArgEpisodeId,
+            `is`(EpisodeMocks.GET_EPISODE_DETAILS().episodeId)
+        )
         assertThat(mEpisodesCacheTd.mPublishDate, `is`(EpisodeMocks.GET_EPISODE_1().publishDate))
     }
 
@@ -244,7 +255,7 @@ class EpisodeViewModelTest {
     fun fetchNextEpisodeAndNotify_cacheQuerySuccess_cacheInvoked() {
         // Arrange
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetNextEpisodeCounter, `is`(1))
     }
@@ -256,7 +267,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetNextEpisodeCounter, `is`(1))
         verify(mListenerMock1).onNextEpisodeFetchFailed()
@@ -268,7 +279,7 @@ class EpisodeViewModelTest {
         // Arrange
         SUT.nextEpisode = null
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(SUT.nextEpisode, `is`(EpisodeMocks.GET_NEXT_EPISODE()))
     }
@@ -280,7 +291,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac: ArgumentCaptor<Episode> = ArgumentCaptor.forClass(Episode::class.java)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         verify(mListenerMock1).onNextEpisodeFetched(ac.kotlinCapture())
         verify(mListenerMock2).onNextEpisodeFetched(ac.kotlinCapture())
@@ -296,8 +307,8 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetNextEpisodeCounter, `is`(1))
         assertThat(SUT.nextEpisode, `is`(EpisodeMocks.GET_NEXT_EPISODE()))
@@ -310,10 +321,13 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         verify(mListenerMock1).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
-        verify(mListenerMock2, never()).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(
+            mListenerMock2,
+            never()
+        ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
     }
 
     @Test
@@ -323,10 +337,13 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodeEndpointTd.mPodcastId, `is`(PODCAST_ID))
-        assertThat(mEpisodeEndpointTd.mEpisodePublishDate, `is`(EpisodeMocks.GET_EPISODE_1().publishDate))
+        assertThat(
+            mEpisodeEndpointTd.mEpisodePublishDate,
+            `is`(EpisodeMocks.GET_EPISODE_1().publishDate)
+        )
     }
 
     @Test
@@ -334,7 +351,7 @@ class EpisodeViewModelTest {
         // Arrange
         episodeNotInCache()
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodeEndpointTd.mFetchNextEpisodesCounter, `is`(1))
     }
@@ -347,7 +364,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodeEndpointTd.mFetchNextEpisodesCounter, `is`(1))
         verify(mListenerMock1).onNextEpisodeFetchFailed()
@@ -359,10 +376,13 @@ class EpisodeViewModelTest {
         // Arrange
         episodeNotInCache()
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
-        assertThat(mEpisodesCacheTd.mPodcastDetails, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES()))
+        assertThat(
+            mEpisodesCacheTd.mPodcastDetails,
+            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES())
+        )
     }
 
     @Test
@@ -373,11 +393,17 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(0))
-        verify(mListenerMock1, never()).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
-        verify(mListenerMock2, never()).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(
+            mListenerMock1,
+            never()
+        ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(
+            mListenerMock2,
+            never()
+        ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
         verify(mListenerMock1, never()).onNextEpisodeFetchFailed()
         verify(mListenerMock2, never()).onNextEpisodeFetchFailed()
     }
@@ -388,10 +414,13 @@ class EpisodeViewModelTest {
         SUT.nextEpisode = null
         episodeNotInCache()
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
-        assertThat(SUT.nextEpisode, `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES().episodes[0]))
+        assertThat(
+            SUT.nextEpisode,
+            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES().episodes[0])
+        )
     }
 
     @Test
@@ -402,7 +431,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac: ArgumentCaptor<Episode> = ArgumentCaptor.forClass(Episode::class.java)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
         verify(mListenerMock1).onNextEpisodeFetched(ac.kotlinCapture())
@@ -420,7 +449,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchNextEpisodeAndNotify(PODCAST_ID, EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         verify(mListenerMock1).onNextEpisodeFetchFailed()
         verify(mListenerMock2).onNextEpisodeFetchFailed()
@@ -432,9 +461,16 @@ class EpisodeViewModelTest {
     fun fetchPrevEpisodeAndNotify_correctEpisodeIdAndPublishDatePassedToCache() {
         // Arrange
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
-        assertThat(mEpisodesCacheTd.mEpisodeId, `is`(EpisodeMocks.GET_EPISODE_1().episodeId))
+        assertThat(
+            mEpisodesCacheTd.mGetPreviousEpisodeArgPodcastId,
+            `is`(EpisodeMocks.GET_EPISODE_DETAILS().podcastId)
+        )
+        assertThat(
+            mEpisodesCacheTd.mGetPreviousEpisodeArgEpisodeId,
+            `is`(EpisodeMocks.GET_EPISODE_DETAILS().episodeId)
+        )
         assertThat(mEpisodesCacheTd.mPublishDate, `is`(EpisodeMocks.GET_EPISODE_1().publishDate))
     }
 
@@ -442,7 +478,7 @@ class EpisodeViewModelTest {
     fun fetchPrevEpisodeAndNotify_cacheQuerySuccess_cacheInvoked() {
         // Arrange
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetPreviousEpisodeCounter, `is`(1))
     }
@@ -454,7 +490,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetPreviousEpisodeCounter, `is`(1))
         verify(mListenerMock1).onPreviousEpisodeFetchFailed()
@@ -466,7 +502,7 @@ class EpisodeViewModelTest {
         // Arrange
         SUT.prevEpisode = null
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(SUT.prevEpisode, `is`(EpisodeMocks.GET_PREV_EPISODE()))
     }
@@ -478,7 +514,7 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         val ac: ArgumentCaptor<Episode> = ArgumentCaptor.forClass(Episode::class.java)
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         verify(mListenerMock1).onPreviousEpisodeFetched(ac.kotlinCapture())
         verify(mListenerMock2).onPreviousEpisodeFetched(ac.kotlinCapture())
@@ -494,8 +530,8 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         assertThat(mEpisodesCacheTd.mGetPreviousEpisodeCounter, `is`(1))
         assertThat(SUT.prevEpisode, `is`(EpisodeMocks.GET_PREV_EPISODE()))
@@ -508,10 +544,13 @@ class EpisodeViewModelTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_1())
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
         // Assert
         verify(mListenerMock1).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
-        verify(mListenerMock2, never()).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(
+            mListenerMock2,
+            never()
+        ).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
     }
 
     // region helper methods
@@ -617,7 +656,11 @@ class EpisodeViewModelTest {
         var mNoNextEpisodes = false
         lateinit var mPodcastId: String
         var mEpisodePublishDate: Long? = null
-        override fun fetchNextEpisodes(podcastId: String, episodePublishDate: Long, listener: BatchNextEpisodeListener) {
+        override fun fetchNextEpisodes(
+            podcastId: String,
+            episodePublishDate: Long,
+            listener: BatchNextEpisodeListener
+        ) {
             mFetchNextEpisodesCounter += 1
             mPodcastId = podcastId
             mEpisodePublishDate = episodePublishDate

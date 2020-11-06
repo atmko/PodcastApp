@@ -125,10 +125,7 @@ open class EpisodesCache(
         listener: DeletePodcastEpisodesListener
     ) {
         AppExecutors.getInstance().diskIO().execute {
-            val lastPlayedPodcastId = prefs!!.getString(PODCAST_ID_KEY, "")
-            if (lastPlayedPodcastId != "" && lastPlayedPodcastId != currentPodcastId) {
-                skipToItDatabase!!.episodeDao().deletePodcastEpisodes(currentPodcastId)
-            }
+            skipToItDatabase!!.episodeDao().deleteAllEpisodesExceptNowPlaying(currentPodcastId)
             AppExecutors.getInstance().mainThread().execute {
                 listener.onDeletePodcastEpisodesSuccess()
             }
@@ -185,9 +182,15 @@ open class EpisodesCache(
         }
     }
 
-    open fun getNextEpisode(episodeId: String, publishDate: Long, listener: NextEpisodeListener) {
+    open fun getNextEpisode(
+        podcastId: String,
+        episodeId: String,
+        publishDate: Long,
+        listener: NextEpisodeListener
+    ) {
         AppExecutors.getInstance().diskIO().execute {
-            val episode = skipToItDatabase!!.episodeDao().getNextEpisode(episodeId, publishDate)
+            val episode =
+                skipToItDatabase!!.episodeDao().getNextEpisode(podcastId, episodeId, publishDate)
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onNextEpisodeFetchSuccess(episode)
@@ -196,12 +199,14 @@ open class EpisodesCache(
     }
 
     open fun getPreviousEpisode(
+        podcastId: String,
         episodeId: String,
         publishDate: Long,
         listener: PreviousEpisodeListener
     ) {
         AppExecutors.getInstance().diskIO().execute {
-            val episode = skipToItDatabase!!.episodeDao().getPrevEpisode(episodeId, publishDate)
+            val episode =
+                skipToItDatabase!!.episodeDao().getPrevEpisode(podcastId, episodeId, publishDate)
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onPreviousEpisodeFetchSuccess(episode)

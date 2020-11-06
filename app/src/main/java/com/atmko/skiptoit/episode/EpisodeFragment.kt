@@ -394,7 +394,7 @@ class EpisodeFragment : BaseFragment(),
                 }
             }
 
-            episodeViewModel.fetchNextEpisodeAndNotify(podcastId!!, episodeDetails!!)
+            episodeViewModel.fetchNextEpisodeAndNotify(episodeDetails!!)
             episodeViewModel.fetchPrevEpisodeAndNotify(episodeDetails!!)
 
             setupEpisodeDetailsViewData()

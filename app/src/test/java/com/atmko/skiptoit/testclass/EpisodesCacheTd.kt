@@ -105,16 +105,19 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
 
     var mGetNextEpisodeCounter = 0
     var mGetNextEpisodeError = false
+    lateinit var mGetNextEpisodeArgPodcastId: String
+    lateinit var mGetNextEpisodeArgEpisodeId: String
     var mEpisodeNotInCache = false
-    var mEpisodeId = ""
     var mPublishDate: Long? = null
     override fun getNextEpisode(
+        podcastId: String,
         episodeId: String,
         publishDate: Long,
         listener: NextEpisodeListener
     ) {
         mGetNextEpisodeCounter += 1
-        mEpisodeId = episodeId
+        mGetNextEpisodeArgPodcastId = podcastId
+        mGetNextEpisodeArgEpisodeId = episodeId
         mPublishDate = publishDate
         if (!mGetNextEpisodeError) {
             if (!mEpisodeNotInCache) {
@@ -144,13 +147,17 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
 
     var mGetPreviousEpisodeCounter = 0
     var mGetPreviousEpisodeError = false
+    lateinit var mGetPreviousEpisodeArgPodcastId: String
+    lateinit var mGetPreviousEpisodeArgEpisodeId: String
     override fun getPreviousEpisode(
+        podcastId: String,
         episodeId: String,
         publishDate: Long,
         listener: PreviousEpisodeListener
     ) {
         mGetPreviousEpisodeCounter += 1
-        mEpisodeId = episodeId
+        mGetPreviousEpisodeArgPodcastId = podcastId
+        mGetPreviousEpisodeArgEpisodeId = episodeId
         mPublishDate = publishDate
         if (!mGetPreviousEpisodeError) {
             if (!mEpisodeNotInCache) {

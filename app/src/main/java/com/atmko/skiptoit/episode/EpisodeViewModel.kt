@@ -96,20 +96,24 @@ class EpisodeViewModel(
         })
     }
 
-    fun fetchNextEpisodeAndNotify(podcastId: String, episode: Episode) {
+    fun fetchNextEpisodeAndNotify(episodeDetails: Episode) {
         if (nextEpisode != null) {
             return
         }
         episodesCache.getNextEpisode(
-            episode.episodeId,
-            episode.publishDate,
+            episodeDetails.podcastId!!,
+            episodeDetails.episodeId,
+            episodeDetails.publishDate,
             object : EpisodesCache.NextEpisodeListener {
                 override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
                     nextEpisode = cachedNextEpisode
                     if (nextEpisode != null) {
                         notifyNextEpisodeFetched(nextEpisode!!)
                     } else {
-                        fetchNextEpisodesFromRemoteAndNotify(podcastId, episode.publishDate)
+                        fetchNextEpisodesFromRemoteAndNotify(
+                            episodeDetails.podcastId!!,
+                            episodeDetails.publishDate
+                        )
                     }
                 }
 
@@ -119,13 +123,14 @@ class EpisodeViewModel(
             })
     }
 
-    fun fetchPrevEpisodeAndNotify(episode: Episode) {
+    fun fetchPrevEpisodeAndNotify(episodeDetails: Episode) {
         if (prevEpisode != null) {
             return
         }
         episodesCache.getPreviousEpisode(
-            episode.episodeId,
-            episode.publishDate,
+            episodeDetails.podcastId!!,
+            episodeDetails.episodeId,
+            episodeDetails.publishDate,
             object : EpisodesCache.PreviousEpisodeListener {
                 override fun onPreviousEpisodeFetchSuccess(cachedPreviousEpisode: Episode?) {
                     prevEpisode = cachedPreviousEpisode

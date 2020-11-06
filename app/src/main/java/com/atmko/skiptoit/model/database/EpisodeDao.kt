@@ -29,9 +29,9 @@ interface EpisodeDao {
     @Query("DELETE FROM episodes WHERE podcast_id = :podcastId")
     fun deletePodcastEpisodes(podcastId: String)
 
-    @Query("SELECT * FROM episodes WHERE publish_date >= :currentEpisodePublishDate AND episode_id <> :currentEpisodeId ORDER BY publish_date ASC LIMIT 1")
-    fun getNextEpisode(currentEpisodeId: String, currentEpisodePublishDate: Long): Episode?
+    @Query("SELECT * FROM episodes WHERE podcast_id = :podcastId AND publish_date >= :currentEpisodePublishDate AND episode_id <> :currentEpisodeId ORDER BY publish_date ASC LIMIT 1")
+    fun getNextEpisode(podcastId: String, currentEpisodeId: String, currentEpisodePublishDate: Long): Episode?
 
-    @Query("SELECT * FROM episodes WHERE publish_date <= :currentEpisodePublishDate AND episode_id <> :currentEpisodeId ORDER BY publish_date DESC LIMIT 1")
-    fun getPrevEpisode(currentEpisodeId: String, currentEpisodePublishDate: Long): Episode?
+    @Query("SELECT * FROM episodes WHERE podcast_id = :podcastId AND publish_date <= :currentEpisodePublishDate AND episode_id <> :currentEpisodeId ORDER BY publish_date DESC LIMIT 1")
+    fun getPrevEpisode(podcastId: String, currentEpisodeId: String, currentEpisodePublishDate: Long): Episode?
 }

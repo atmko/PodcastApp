@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.model
 
 import com.atmko.skiptoit.BuildConfig
-import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -22,7 +21,6 @@ interface PodcastsApi {
     @GET("podcasts/{podcast_id}?next_episode_pub_date=0000000000000&sort=recent_first")
     fun getDetails(@Path("podcast_id") podcastId: String): Call<PodcastDetails>
 
-    //todo rename to getPodcastDetails
     @Headers("X-ListenAPI-Key: ${BuildConfig.apiKey}")
     @GET("podcasts/{podcast_id}?sort=recent_first")
     fun getEpisodes(
