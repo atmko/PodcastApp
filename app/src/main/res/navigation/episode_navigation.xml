@@ -12,12 +12,14 @@
         tools:layout="@layout/fragment_episode">
         <argument
             android:name="podcast_id"
-            android:defaultValue=""
-            app:argType="string" />
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="episode_id"
-            android:defaultValue=""
-            app:argType="string" />
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_navigation_episode_to_navigation_episode"
             app:destination="@id/navigation_episode"

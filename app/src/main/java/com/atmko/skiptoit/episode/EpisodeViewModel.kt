@@ -25,7 +25,7 @@ class EpisodeViewModel(
     var nextEpisode: Episode? = null
     var prevEpisode: Episode? = null
 
-    fun getDetailsAndNotify(episodeId: String, podcastId: String) {
+    fun getDetailsAndNotify(episodeId: String?, podcastId: String?) {
         if (episodeDetails != null) {
             notifyDetailsFetched(episodeDetails, true)
             return
@@ -33,7 +33,7 @@ class EpisodeViewModel(
 
         notifyProcessing()
 
-        if (episodeId != "" && podcastId != "") {
+        if (episodeId != null && podcastId != null) {
             clearPodcastCache(podcastId, episodeId)
         } else {
             restoreEpisode()
@@ -42,28 +42,32 @@ class EpisodeViewModel(
 
     //if new podcast, erase previously played podcast's episodes from cache
     private fun clearPodcastCache(currentPodcastId: String, episodeId: String) {
-        episodesCache.deletePodcastEpisodes(currentPodcastId, object : EpisodesCache.DeletePodcastEpisodesListener {
-            override fun onDeletePodcastEpisodesSuccess() {
-                getEpisodeDetails(currentPodcastId, episodeId)
-            }
+        episodesCache.deletePodcastEpisodes(
+            currentPodcastId,
+            object : EpisodesCache.DeletePodcastEpisodesListener {
+                override fun onDeletePodcastEpisodesSuccess() {
+                    getEpisodeDetails(currentPodcastId, episodeId)
+                }
 
-            override fun onDeletePodcastEpisodesFailed() {
-                notifyDetailsFetchFailed()
-            }
-        })
+                override fun onDeletePodcastEpisodesFailed() {
+                    notifyDetailsFetchFailed()
+                }
+            })
     }
 
     private fun getEpisodeDetails(podcastId: String, episodeId: String) {
-        episodeEndpoint.getEpisodeDetails(episodeId, object : EpisodeEndpoint.EpisodeDetailsListener {
-            override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
-                episode.podcastId = podcastId
-                saveEpisode(episode)
-            }
+        episodeEndpoint.getEpisodeDetails(
+            episodeId,
+            object : EpisodeEndpoint.EpisodeDetailsListener {
+                override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
+                    episode.podcastId = podcastId
+                    saveEpisode(episode)
+                }
 
-            override fun onEpisodeDetailsFetchFailed() {
-                notifyDetailsFetchFailed()
-            }
-        })
+                override fun onEpisodeDetailsFetchFailed() {
+                    notifyDetailsFetchFailed()
+                }
+            })
     }
 
     private fun saveEpisode(episode: Episode) {
@@ -96,63 +100,74 @@ class EpisodeViewModel(
         if (nextEpisode != null) {
             return
         }
-        episodesCache.getNextEpisode(episode.episodeId, episode.publishDate, object : EpisodesCache.NextEpisodeListener {
-            override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
-                nextEpisode = cachedNextEpisode
-                if (nextEpisode != null) {
-                    notifyNextEpisodeFetched(nextEpisode!!)
-                } else {
-                    fetchNextEpisodesFromRemoteAndNotify(podcastId, episode.publishDate)
+        episodesCache.getNextEpisode(
+            episode.episodeId,
+            episode.publishDate,
+            object : EpisodesCache.NextEpisodeListener {
+                override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
+                    nextEpisode = cachedNextEpisode
+                    if (nextEpisode != null) {
+                        notifyNextEpisodeFetched(nextEpisode!!)
+                    } else {
+                        fetchNextEpisodesFromRemoteAndNotify(podcastId, episode.publishDate)
+                    }
                 }
-            }
 
-            override fun onNextEpisodeFetchFailed() {
-                notifyNextEpisodeFetchFailed()
-            }
-        })
+                override fun onNextEpisodeFetchFailed() {
+                    notifyNextEpisodeFetchFailed()
+                }
+            })
     }
 
     fun fetchPrevEpisodeAndNotify(episode: Episode) {
         if (prevEpisode != null) {
             return
         }
-        episodesCache.getPreviousEpisode(episode.episodeId, episode.publishDate, object : EpisodesCache.PreviousEpisodeListener {
-            override fun onPreviousEpisodeFetchSuccess(cachedPreviousEpisode: Episode?) {
-                prevEpisode = cachedPreviousEpisode
-                if (prevEpisode != null) {
-                    notifyPreviousEpisodeFetched(prevEpisode!!)
+        episodesCache.getPreviousEpisode(
+            episode.episodeId,
+            episode.publishDate,
+            object : EpisodesCache.PreviousEpisodeListener {
+                override fun onPreviousEpisodeFetchSuccess(cachedPreviousEpisode: Episode?) {
+                    prevEpisode = cachedPreviousEpisode
+                    if (prevEpisode != null) {
+                        notifyPreviousEpisodeFetched(prevEpisode!!)
+                    }
                 }
-            }
 
-            override fun onPreviousEpisodeFetchFailed() {
-                notifyPreviousEpisodeFetchFailed()
-            }
-        })
+                override fun onPreviousEpisodeFetchFailed() {
+                    notifyPreviousEpisodeFetchFailed()
+                }
+            })
     }
 
     private fun fetchNextEpisodesFromRemoteAndNotify(podcastId: String, episodePublishDate: Long) {
-        episodeEndpoint.fetchNextEpisodes(podcastId, episodePublishDate, object : EpisodeEndpoint.BatchNextEpisodeListener {
-            override fun onBatchNextEpisodesFetchSuccess(podcastDetails: PodcastDetails) {
-                if (podcastDetails.episodes.isNotEmpty()) {
-                    episodesCache.insertEpisodesAndReturnNextEpisode(podcastDetails, object : EpisodesCache.NextEpisodeListener {
-                        override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
-                            nextEpisode = cachedNextEpisode
-                            if (nextEpisode != null) {
-                                notifyNextEpisodeFetched(nextEpisode!!)
-                            }
-                        }
+        episodeEndpoint.fetchNextEpisodes(
+            podcastId,
+            episodePublishDate,
+            object : EpisodeEndpoint.BatchNextEpisodeListener {
+                override fun onBatchNextEpisodesFetchSuccess(podcastDetails: PodcastDetails) {
+                    if (podcastDetails.episodes.isNotEmpty()) {
+                        episodesCache.insertEpisodesAndReturnNextEpisode(
+                            podcastDetails,
+                            object : EpisodesCache.NextEpisodeListener {
+                                override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
+                                    nextEpisode = cachedNextEpisode
+                                    if (nextEpisode != null) {
+                                        notifyNextEpisodeFetched(nextEpisode!!)
+                                    }
+                                }
 
-                        override fun onNextEpisodeFetchFailed() {
-                            notifyNextEpisodeFetchFailed()
-                        }
-                    })
+                                override fun onNextEpisodeFetchFailed() {
+                                    notifyNextEpisodeFetchFailed()
+                                }
+                            })
+                    }
                 }
-            }
 
-            override fun onBatchNextEpisodesFetchFailed() {
-                notifyNextEpisodeFetchFailed()
-            }
-        })
+                override fun onBatchNextEpisodesFetchFailed() {
+                    notifyNextEpisodeFetchFailed()
+                }
+            })
     }
 
     private fun unregisterListeners() {

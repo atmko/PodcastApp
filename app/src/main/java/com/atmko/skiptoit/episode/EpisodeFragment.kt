@@ -53,8 +53,8 @@ class EpisodeFragment : BaseFragment(),
     private val binding get() = _binding!!
 
     //fragment init variable
-    lateinit var podcastId: String
-    lateinit var episodeId: String
+    var podcastId: String? = null
+    var episodeId: String? = null
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
@@ -116,8 +116,6 @@ class EpisodeFragment : BaseFragment(),
         parentCommentsViewModel.registerBoundaryCallbackListener(this)
 
         episodeViewModel.getDetailsAndNotify(episodeId, podcastId)
-        parentCommentsViewModel.getComments(episodeId)
-        configureCommentsViewModel()
     }
 
     override fun onStop() {
@@ -180,7 +178,7 @@ class EpisodeFragment : BaseFragment(),
             isEnabled = false
             setOnClickListener {
                 getMasterActivity().loadEpisodeIntoBottomSheet(
-                    podcastId,
+                    podcastId!!,
                     nextEpisodeDetails!!.episodeId
                 )
             }
@@ -190,7 +188,7 @@ class EpisodeFragment : BaseFragment(),
             isEnabled = false
             setOnClickListener {
                 getMasterActivity().loadEpisodeIntoBottomSheet(
-                    podcastId,
+                    podcastId!!,
                     prevEpisodeDetails!!.episodeId
                 )
             }
@@ -201,6 +199,7 @@ class EpisodeFragment : BaseFragment(),
         }
 
         binding.addCommentButton.apply {
+            isEnabled = false
             setOnClickListener {
                 attemptToCreateComment()
             }
@@ -224,6 +223,7 @@ class EpisodeFragment : BaseFragment(),
     // todo: consolidate method with method in replies fragment
     private fun attemptToUpdateComment(comment: Comment) {
         val user = getMasterActivity().user
+        //todo: move logic to view model
         if (user?.username != null) {
             navigateToUpdateComment(comment, user.username)
         } else {
@@ -243,7 +243,7 @@ class EpisodeFragment : BaseFragment(),
     private fun navigateToCreateComment(username: String) {
         val action =
             EpisodeFragmentDirections.actionNavigationEpisodeToNavigationCrateComment(
-                podcastId, episodeId, username
+                podcastId!!, episodeId!!, username
             )
         view?.findNavController()?.navigate(action)
     }
@@ -322,11 +322,6 @@ class EpisodeFragment : BaseFragment(),
         }
     }
 
-    private fun observeNextAndPrevEpisodes() {
-        episodeViewModel.fetchNextEpisodeAndNotify(podcastId, episodeDetails!!)
-        episodeViewModel.fetchPrevEpisodeAndNotify(episodeDetails!!)
-    }
-
     private fun configureCommentsViewModel() {
         parentCommentsViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer {
             binding.errorAndLoading.loadingScreen.visibility = View.GONE
@@ -382,14 +377,26 @@ class EpisodeFragment : BaseFragment(),
 
         episodeDetails = episode
         episodeDetails?.let { details ->
+            episodeId = details.episodeId
+            podcastId = details.podcastId!!
+
+            binding.addCommentButton.isEnabled = true
+
+            parentCommentsViewModel.getComments(episodeId!!)
+            configureCommentsViewModel()
+
             getMasterActivity().configureBottomSheetState()
+
             context?.let {
                 mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
                 if (!isRestoringEpisode) {
                     mPlaybackService?.play()
                 }
             }
-            observeNextAndPrevEpisodes()
+
+            episodeViewModel.fetchNextEpisodeAndNotify(podcastId!!, episodeDetails!!)
+            episodeViewModel.fetchPrevEpisodeAndNotify(episodeDetails!!)
+
             setupEpisodeDetailsViewData()
         }
     }
@@ -397,7 +404,11 @@ class EpisodeFragment : BaseFragment(),
     override fun onDetailsFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_get_details), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_get_details),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onNextEpisodeFetched(episode: Episode) {
@@ -406,7 +417,11 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onNextEpisodeFetchFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_next_episode), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_load_next_episode),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onPreviousEpisodeFetched(episode: Episode) {
@@ -415,7 +430,11 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onPreviousEpisodeFetchFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_previous_episode), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_load_previous_episode),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun notifyProcessing() {
@@ -430,7 +449,8 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onVoteUpdateFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.vote_update_failed), Snackbar.LENGTH_LONG)
+            .show()
     }
 
     override fun onDeleteComment() {
@@ -440,7 +460,11 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_delete_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_delete_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onUpdateReplyCountFailed() {
@@ -459,6 +483,7 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG)
+            .show()
     }
 }
