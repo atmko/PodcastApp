@@ -128,8 +128,11 @@ open class CommentsViewModel(
     private fun deleteLocalComment(comment: Comment) {
         commentCache.deleteComments(listOf(comment), object : CommentCache.CacheUpdateListener {
             override fun onLocalCacheUpdateSuccess() {
+                //todo: notify delete success and update parent comment reply count and notify
+                // might be able to run concurrently since delete success call is not dependent on
+                // parent comment reply count updating
                 if (comment.parentId != null) {
-                    updateParentCommentReplyCountAndNotify(comment.parentId)
+                    updateParentCommentReplyCountAndNotify(comment.parentId, comment.commentId)
                 } else {
                     notifyDeleteSuccess(comment.commentId)
                 }
@@ -137,8 +140,8 @@ open class CommentsViewModel(
         })
     }
 
-    fun updateParentCommentReplyCountAndNotify(commentId: String) {
-        commentCache.decreaseReplyCount(commentId, object : CommentCache.UpdateReplyCountListener {
+    private fun updateParentCommentReplyCountAndNotify(parentCommentId: String, commentId: String) {
+        commentCache.decreaseReplyCount(parentCommentId, object : CommentCache.UpdateReplyCountListener {
             override fun onReplyCountUpdated() {
                 notifyDeleteSuccess(commentId)
             }

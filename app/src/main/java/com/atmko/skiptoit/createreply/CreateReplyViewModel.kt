@@ -53,6 +53,9 @@ class CreateReplyViewModel(
     private fun deleteReplyPage(parentId: String, page: Int) {
         commentCache.deleteAllRepliesInPage(parentId, page, object : CommentCache.DeletePageListener {
             override fun onPageDeleted() {
+                //todo: notify create reply success and update parent comment reply count and notify
+                // might be able to run concurrently since create reply success call is not dependent on
+                // parent comment reply count updating
                 updateParentCommentReplyCountAndNotify(parentId)
             }
 

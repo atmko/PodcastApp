@@ -30,9 +30,9 @@ class RepliesViewModel(
     private val repliesViewModelListeners = mutableListOf<Listener>()
     lateinit var parentId: String
 
-    fun getParentCommentAndNotify(commentId: String) {
-        parentId = commentId
-        commentCache.getCachedComment(commentId, object : CommentCache.CommentFetchListener {
+    fun getParentCommentAndNotify(parentCommentId: String) {
+        parentId = parentCommentId
+        commentCache.getCachedComment(parentCommentId, object : CommentCache.CommentFetchListener {
             override fun onCommentFetchSuccess(fetchedComment: Comment?) {
                 if (fetchedComment != null) {
                     notifyParentCommentFetched(fetchedComment)
