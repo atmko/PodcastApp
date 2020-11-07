@@ -138,7 +138,7 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         parentComment = fetchedComment
-        binding.parentEditText.text = parentComment.body.toEditable()
+        binding.parentText.text = parentComment.body.toEditable()
     }
 
     override fun onLoadParentCommentFailed() {

@@ -23,7 +23,7 @@
         app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
 
     <TextView
-        android:id="@+id/parentEditText"
+        android:id="@+id/parentText"
         style="@style/Body_Style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_height"
         android:layout_marginTop="@dimen/x2_layout_margin"
-        app:layout_constraintTop_toBottomOf="@id/parentEditText" />
+        app:layout_constraintTop_toBottomOf="@id/parentText" />
 
     <EditText
         android:id="@+id/bodyEditText"
