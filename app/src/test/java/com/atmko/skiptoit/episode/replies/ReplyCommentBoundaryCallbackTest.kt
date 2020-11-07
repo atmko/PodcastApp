@@ -1,9 +1,9 @@
 package com.atmko.skiptoit.episode.replies
 
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import com.atmko.skiptoit.testdata.CommentResultsMocks
-import com.atmko.skiptoit.common.BaseBoundaryCallback
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
@@ -149,7 +149,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoading()
         verify(mListenerMock2).onPageLoading()
@@ -159,7 +159,7 @@ class ReplyCommentBoundaryCallbackTest {
     fun onItemAtEndLoaded_correctCommentIdPassedToCommentCache() {
         // Arrange
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         assertThat(mCommentCacheTd.mCommentId, `is`(CommentMocks.COMMENT_ID_1))
     }
@@ -170,7 +170,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2).onPageLoad()
@@ -183,7 +183,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2, never()).onPageLoad()
@@ -194,7 +194,7 @@ class ReplyCommentBoundaryCallbackTest {
         // Arrange
         nextPage()
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         assertThat(mGetRepliesEndpointTd.mParam, `is`(PARENT_ID))
         assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(PAGING_KEY_2))
@@ -207,7 +207,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2).onPageLoad()
@@ -221,7 +221,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()
@@ -234,7 +234,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtEndLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()
@@ -248,7 +248,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoading()
         verify(mListenerMock2).onPageLoading()
@@ -258,7 +258,7 @@ class ReplyCommentBoundaryCallbackTest {
     fun onItemAtFrontLoaded_correctCommentIdPassedToCommentCache() {
         // Arrange
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         assertThat(mCommentCacheTd.mCommentId, `is`(CommentMocks.COMMENT_ID_1))
     }
@@ -269,7 +269,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2).onPageLoad()
@@ -282,7 +282,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2, never()).onPageLoad()
@@ -293,7 +293,7 @@ class ReplyCommentBoundaryCallbackTest {
         // Arrange
         prevPage()
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         assertThat(mGetRepliesEndpointTd.mParam, `is`(PARENT_ID))
         assertThat(mGetRepliesEndpointTd.mLoadKey, `is`(PAGING_KEY_1))
@@ -306,7 +306,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoad()
         verify(mListenerMock2).onPageLoad()
@@ -320,7 +320,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()
@@ -333,7 +333,7 @@ class ReplyCommentBoundaryCallbackTest {
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY())
+        SUT.onItemAtFrontLoaded(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onPageLoadFailed()
         verify(mListenerMock2).onPageLoadFailed()

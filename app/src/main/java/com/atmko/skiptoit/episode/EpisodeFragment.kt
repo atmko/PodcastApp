@@ -456,6 +456,11 @@ class EpisodeFragment : BaseFragment(),
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
     }
 
+    override fun onWipeComment() {
+        // todo: method never called in episode fragment but onlu in replies fragment
+        //  make replies view model not extend comments view model to prevent redundant code
+    }
+
     override fun onDeleteCommentFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(

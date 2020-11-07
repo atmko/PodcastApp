@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.episode.common
 
-import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.model.SkipToItApi
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import retrofit2.Call
@@ -13,7 +12,7 @@ open class CommentsEndpoint(
 ) {
 
     interface VoteListener {
-        fun onVoteSuccess(comment: Comment)
+        fun onVoteSuccess()
         fun onVoteFailed()
     }
 
@@ -22,14 +21,14 @@ open class CommentsEndpoint(
         fun onDeleteFailed()
     }
 
-    open fun voteComment(comment: Comment, voteWeight: Int, listener: VoteListener) {
+    open fun voteComment(commentId: String, voteWeight: Int, listener: VoteListener) {
         googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
-                skipToItApi!!.voteComment(comment.commentId, voteWeight.toString(), it)
+                skipToItApi!!.voteComment(commentId, voteWeight.toString(), it)
                     .enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {
-                                listener.onVoteSuccess(comment)
+                                listener.onVoteSuccess()
                             } else {
                                 listener.onVoteFailed()
                             }
@@ -43,14 +42,14 @@ open class CommentsEndpoint(
         }
     }
 
-    open fun deleteCommentVote(comment: Comment, listener: VoteListener) {
+    open fun deleteCommentVote(commentId: String, listener: VoteListener) {
         googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
-                skipToItApi!!.deleteCommentVote(comment.commentId, it)
+                skipToItApi!!.deleteCommentVote(commentId, it)
                     .enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {
-                                listener.onVoteSuccess(comment)
+                                listener.onVoteSuccess()
                             } else {
                                 listener.onVoteFailed()
                             }
@@ -64,10 +63,10 @@ open class CommentsEndpoint(
         }
     }
 
-    open fun deleteComment(comment: Comment, listener: DeleteListener) {
+    open fun deleteComment(commentId: String, listener: DeleteListener) {
         googleSignInClient!!.silentSignIn().addOnSuccessListener { account ->
             account.idToken?.let {
-                skipToItApi!!.deleteComment(comment.commentId, it)
+                skipToItApi!!.deleteComment(commentId, it)
                     .enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {

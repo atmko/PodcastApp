@@ -156,8 +156,8 @@ class RepliesFragment : BaseFragment(),
                 binding.parentComment.deleteButton
             )
 
-        binding.parentComment.user.text = parentComment.username
-        binding.parentComment.body.text = parentComment.body
+        binding.parentComment.user.text = parentComment.username ?: ""
+        binding.parentComment.body.text = parentComment.body ?: ""
         binding.parentComment.votes.text = parentComment.voteTally.toString()
         if (parentComment.replies != 0) {
             binding.parentComment.replies.text =
@@ -285,6 +285,10 @@ class RepliesFragment : BaseFragment(),
         getMasterActivity().onBackPressedDispatcher.onBackPressed()
     }
 
+    override fun onWipeParentComment() {
+        repliesViewModel.getParentCommentAndNotify(parentCommentId)
+    }
+
     override fun notifyProcessing() {
         binding.errorAndLoading.loadingScreen.visibility = View.INVISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
@@ -301,6 +305,11 @@ class RepliesFragment : BaseFragment(),
     }
 
     override fun onDeleteComment() {
+        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        repliesViewModel.getParentCommentAndNotify(parentCommentId)
+    }
+
+    override fun onWipeComment() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         repliesViewModel.getParentCommentAndNotify(parentCommentId)
     }

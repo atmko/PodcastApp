@@ -65,8 +65,8 @@ class CommentsAdapter(
             clickListener.onEditClick(comment)
         }
 
-        holder.binding.user.text = comment.username
-        holder.binding.body.text = comment.body
+        holder.binding.user.text = comment.username ?: ""
+        holder.binding.body.text = comment.body ?: ""
 
         configureUpDownVoteButtonResource(
             comment,

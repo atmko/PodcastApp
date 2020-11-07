@@ -17,7 +17,7 @@ import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
+class UpdateCommentFragment : BaseFragment(), UpdateCommentViewModel.Listener {
 
     private var _binding: FragmentCreateCommentBinding? = null
     private val binding get() = _binding!!
@@ -92,7 +92,8 @@ class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
     private fun configureValues() {
         viewModel = ViewModelProvider(
             this,
-            viewModelFactory).get(UpdateCommentViewModel::class.java)
+            viewModelFactory
+        ).get(UpdateCommentViewModel::class.java)
 
         viewModel.getCachedCommentAndNotify(commentId)
 
@@ -110,7 +111,8 @@ class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         this.comment = fetchedComment
-        binding.bodyEditText.text = comment.body.toEditable()
+        binding.bodyEditText.text =
+            if (comment.body != null) comment.body!!.toEditable() else "".toEditable()
         binding.createButton.isEnabled = true
     }
 
@@ -119,7 +121,11 @@ class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
 
         binding.createButton.isEnabled = false
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_load_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onCommentUpdated() {
@@ -131,6 +137,10 @@ class UpdateCommentFragment: BaseFragment(), UpdateCommentViewModel.Listener {
     override fun onCommentUpdateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_update_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_update_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 }

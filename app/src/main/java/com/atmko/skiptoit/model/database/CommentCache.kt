@@ -74,6 +74,16 @@ open class CommentCache(
         }
     }
 
+    open fun wipeComment(commentId: String, listener: CacheUpdateListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            skipToItDatabase!!.commentDao().wipeComment(commentId)
+
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onLocalCacheUpdateSuccess()
+            }
+        }
+    }
+
     //--------------
 
     open fun getLastCommentPageTracker(episodeId: String, listener: CommentPageTrackerListener) {

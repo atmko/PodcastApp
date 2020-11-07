@@ -3,6 +3,7 @@ package com.atmko.skiptoit.model
 import androidx.recyclerview.widget.DiffUtil
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
@@ -20,7 +21,15 @@ const val VOTE_WEIGHT_DOWN_VOTE_INVERT: Int = 2
 const val VOTE_WEIGHT_NEUTRALIZE_UP_VOTE: Int = -1
 const val VOTE_WEIGHT_NEUTRALIZE_DOWN_VOTE: Int = 1
 
-@Entity(tableName = "comments")
+@Entity(
+    tableName = "comments",
+    foreignKeys = [ForeignKey(
+        entity = Comment::class,
+        parentColumns = arrayOf("comment_id"),
+        childColumns = arrayOf("parent_id"),
+        onDelete = ForeignKey.CASCADE
+    )]
+)
 class Comment(
     @PrimaryKey
     @ColumnInfo(name = "comment_id")
@@ -32,8 +41,8 @@ class Comment(
     @ColumnInfo(name = "episode_id")
     @SerializedName("episode_id")
     val episodeId: String,
-    val username: String,
-    var body: String,
+    val username: String?,
+    var body: String?,
     @ColumnInfo(name = "vote_tally")
     @SerializedName("vote_tally")
     var voteTally: Int,
@@ -47,7 +56,8 @@ class Comment(
     val timestamp: Long,
     @ColumnInfo(name = "profile_image")
     @SerializedName("profile_image")
-    val profileImage: String?) : Serializable {
+    val profileImage: String?
+) : Serializable {
 
     class CommentDiffCallback : DiffUtil.ItemCallback<Comment>() {
         override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {
@@ -84,8 +94,8 @@ class Comment(
         var result = commentId.hashCode()
         result = 31 * result + (parentId?.hashCode() ?: 0)
         result = 31 * result + episodeId.hashCode()
-        result = 31 * result + username.hashCode()
-        result = 31 * result + body.hashCode()
+        result = 31 * result + (username?.hashCode() ?: 0)
+        result = 31 * result + (body?.hashCode() ?: 0)
         result = 31 * result + voteTally
         result = 31 * result + isUserComment.hashCode()
         result = 31 * result + voteWeight

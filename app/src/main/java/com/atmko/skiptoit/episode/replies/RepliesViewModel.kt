@@ -25,6 +25,7 @@ class RepliesViewModel(
         fun onParentCommentFetchFailed()
         fun onVoteParentUpdate()
         fun onDeleteParentComment()
+        fun onWipeParentComment()
     }
 
     private val repliesViewModelListeners = mutableListOf<Listener>()
@@ -106,6 +107,17 @@ class RepliesViewModel(
         } else {
             for (listener in repliesViewModelListeners) {
                 listener.onDeleteParentComment()
+            }
+        }
+    }
+
+
+    override fun notifyWipeSuccess(commentId: String) {
+        if (commentId != parentId) {
+            super.notifyWipeSuccess(commentId)
+        } else {
+            for (listener in repliesViewModelListeners) {
+                listener.onWipeParentComment()
             }
         }
     }

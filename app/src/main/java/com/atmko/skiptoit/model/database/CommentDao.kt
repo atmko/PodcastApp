@@ -31,6 +31,9 @@ interface CommentDao {
     @Delete
     fun deleteComments(comments: List<Comment>)
 
+    @Query("UPDATE comments SET username = NULL, body = NULL, is_user_comment = 0 WHERE comment_id = :commentId")
+    fun wipeComment(commentId: String)
+
     @Query("DELETE FROM comments")
     fun deleteAllComments()
 

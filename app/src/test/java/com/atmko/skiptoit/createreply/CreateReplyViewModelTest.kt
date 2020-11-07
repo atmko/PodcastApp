@@ -463,7 +463,7 @@ class CreateReplyViewModelTest {
             mParentId = parentId
             mReplyBody = replyBody
             if (!mFailure) {
-                listener.onCreateSuccess(CommentMocks.GET_REPLY())
+                listener.onCreateSuccess(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
             } else {
                 listener.onCreateFailed()
             }

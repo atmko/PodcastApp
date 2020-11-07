@@ -109,7 +109,8 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         parentComment = fetchedComment
-        binding.parentText.text = parentComment.body.toEditable()
+        binding.parentText.text =
+            if (parentComment.body != null) parentComment.body!!.toEditable() else "".toEditable()
         binding.createButton.isEnabled = true
     }
 

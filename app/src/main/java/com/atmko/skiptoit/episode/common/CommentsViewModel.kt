@@ -19,6 +19,7 @@ open class CommentsViewModel(
         fun onVoteUpdate()
         fun onVoteUpdateFailed()
         fun onDeleteComment()
+        fun onWipeComment()
         fun onDeleteCommentFailed()
         fun onUpdateReplyCountFailed()
     }
@@ -76,9 +77,9 @@ open class CommentsViewModel(
     private fun voteComment(comment: Comment, voteWeight: Int) {
         notifyProcessing()
 
-        commentEndpoint.voteComment(comment, voteWeight, object :
+        commentEndpoint.voteComment(comment.commentId, voteWeight, object :
             CommentsEndpoint.VoteListener {
-            override fun onVoteSuccess(comment: Comment) {
+            override fun onVoteSuccess() {
                 commentCache.updateLocalCache(comment, object : CommentCache.CacheUpdateListener {
                     override fun onLocalCacheUpdateSuccess() {
                         notifyVoteSuccess(comment.commentId)
@@ -95,9 +96,9 @@ open class CommentsViewModel(
     private fun deleteCommentVote(comment: Comment) {
         notifyProcessing()
 
-        commentEndpoint.deleteCommentVote(comment, object :
+        commentEndpoint.deleteCommentVote(comment.commentId, object :
             CommentsEndpoint.VoteListener {
-            override fun onVoteSuccess(comment: Comment) {
+            override fun onVoteSuccess() {
                 commentCache.updateLocalCache(comment, object : CommentCache.CacheUpdateListener {
                     override fun onLocalCacheUpdateSuccess() {
                         notifyVoteSuccess(comment.commentId)
@@ -114,9 +115,13 @@ open class CommentsViewModel(
     fun deleteCommentAndNotify(comment: Comment) {
         notifyProcessing()
 
-        commentEndpoint.deleteComment(comment, object : CommentsEndpoint.DeleteListener {
+        commentEndpoint.deleteComment(comment.commentId, object : CommentsEndpoint.DeleteListener {
             override fun onDeleteSuccess() {
-                deleteLocalComment(comment)
+                if (comment.parentId == null || comment.replies == 0) {
+                    deleteLocalComment(comment)
+                } else {
+                    wipeLocalComment(comment)
+                }
             }
 
             override fun onDeleteFailed() {
@@ -136,6 +141,17 @@ open class CommentsViewModel(
                 } else {
                     notifyDeleteSuccess(comment.commentId)
                 }
+            }
+        })
+    }
+
+    private fun wipeLocalComment(comment: Comment) {
+        commentCache.wipeComment(comment.commentId, object : CommentCache.CacheUpdateListener {
+            override fun onLocalCacheUpdateSuccess() {
+                //todo: notify delete success and update parent comment reply count and notify
+                // might be able to run concurrently since delete success call is not dependent on
+                // parent comment reply count updating
+                notifyWipeSuccess(comment.commentId)
             }
         })
     }
@@ -188,6 +204,12 @@ open class CommentsViewModel(
     protected open fun notifyDeleteSuccess(commentId: String) {
         for (listener in listeners) {
             listener.onDeleteComment()
+        }
+    }
+
+    protected open fun notifyWipeSuccess(commentId: String) {
+        for (listener in listeners) {
+            listener.onWipeComment()
         }
     }
 

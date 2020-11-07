@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.episode.common
 
-import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import org.hamcrest.CoreMatchers.`is`
@@ -45,6 +44,7 @@ class CommentsViewModelTest {
         )
         voteSuccess()
         deleteSuccess()
+        wipeSuccess()
     }
 
     @Test
@@ -53,7 +53,7 @@ class CommentsViewModelTest {
         // Act
         SUT.upVoteAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_UPVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_UPVOTED_COMMENT().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(1))
     }
 
@@ -65,7 +65,7 @@ class CommentsViewModelTest {
         // Act
         SUT.upVoteAndNotify(CommentMocks.GET_DOWNVOTED_COMMENT())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_UPVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_UPVOTED_COMMENT().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(1))
     }
 
@@ -77,7 +77,7 @@ class CommentsViewModelTest {
         // Act
         SUT.upVoteAndNotify(CommentMocks.GET_UPVOTED_COMMENT())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_COMMENT_1().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(0))
     }
 
@@ -153,7 +153,7 @@ class CommentsViewModelTest {
         // Act
         SUT.downVoteAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_DOWNVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_DOWNVOTED_COMMENT().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(-1))
     }
 
@@ -165,7 +165,7 @@ class CommentsViewModelTest {
         // Act
         SUT.downVoteAndNotify(CommentMocks.GET_UPVOTED_COMMENT())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_DOWNVOTED_COMMENT()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_DOWNVOTED_COMMENT().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(-1))
     }
 
@@ -177,7 +177,7 @@ class CommentsViewModelTest {
         // Act
         SUT.downVoteAndNotify(CommentMocks.GET_DOWNVOTED_COMMENT())
         // Assert
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_COMMENT_1().commentId))
         assertThat(mCommentsEndpointTd.mVoteWeight, `is`(0))
     }
 
@@ -265,14 +265,12 @@ class CommentsViewModelTest {
         SUT.deleteCommentAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
         assertThat(mCommentsEndpointTd.mDeleteCommentCounter, `is`(1))
-        assertThat(mCommentsEndpointTd.mComment, `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(mCommentsEndpointTd.mCommentId, `is`(CommentMocks.GET_COMMENT_1().commentId))
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccess_correctCommentPassedToLocalDelete() {
-        // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+    fun deleteCommentAndNotify_remoteDeleteSuccessIsRootComment_toBeDeleted() {
+        //Arrange
         // Act
         SUT.deleteCommentAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
@@ -281,7 +279,17 @@ class CommentsViewModelTest {
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsRootComment_listenersNotifiedOfSuccess() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessNotRootCommentNoReplies_toBeDeleted() {
+        // Arrange
+        // Act
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
+        // Assert
+        assertThat(mCommentCacheTd.mDeleteCommentsCounter, `is`(1))
+        assertThat(mCommentCacheTd.mComments, `is`(listOf(CommentMocks.GET_REPLY_WITHOUT_REPLIES())))
+    }
+
+    @Test
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsRootComment_listenersNotifiedOfSuccess() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -293,38 +301,60 @@ class CommentsViewModelTest {
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsNotRootComment_correctParentIdPassedToUpdateReplyCount() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsNotRootComment_correctParentIdPassedToUpdateReplyCount() {
         // Arrange
         // Act
-        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY())
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         assertThat(mCommentCacheTd.mDecreaseReplyCountCounter, `is`(1))
-        assertThat(mCommentCacheTd.mDecreaseReplyCountArgCommentId, `is`(CommentMocks.GET_REPLY().parentId))
+        assertThat(mCommentCacheTd.mDecreaseReplyCountArgCommentId, `is`(CommentMocks.GET_REPLY_WITHOUT_REPLIES().parentId))
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsNotRootCommentIncreaseReplyCountSuccess_listenersNotifiedOfSuccess() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsNotRootCommentIncreaseReplyCountSuccess_listenersNotifiedOfSuccess() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY())
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onDeleteComment()
         verify(mListenerMock2).onDeleteComment()
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsNotRootCommentIncreaseReplyCountSuccess_unsubscribedListenersNotNotifiedOfSuccess() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsNotRootCommentIncreaseReplyCountSuccess_unsubscribedListenersNotNotifiedOfSuccess() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         SUT.unregisterListener(mListenerMock2)
         // Act
-        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY())
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onDeleteComment()
         verify(mListenerMock2, never()).onDeleteComment()
+    }
+
+    @Test
+    fun deleteCommentAndNotify_remoteDeleteSuccessNotRootCommentWithReplies_toBeWiped() {
+        //Arrange
+        // Act
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITH_REPLIES())
+        // Assert
+        assertThat(mCommentCacheTd.mWipeCommentCounter, `is`(1))
+        assertThat(mCommentCacheTd.mWipeCommentArgCommentId, `is`(CommentMocks.GET_REPLY_WITH_REPLIES().commentId))
+    }
+
+    @Test
+    fun deleteCommentAndNotify_remoteDeleteSuccessNotRootCommentWithReplies_listenersNotifiedOfSuccess() {
+        //Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITH_REPLIES())
+        // Assert
+        verify(mListenerMock1).onWipeComment()
+        verify(mListenerMock2).onWipeComment()
     }
 
     @Test
@@ -341,26 +371,26 @@ class CommentsViewModelTest {
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsNotRootCommentUpdateReplyCountError_listenersNotifiedOfError() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsNotRootCommentUpdateReplyCountError_listenersNotifiedOfError() {
         // Arrange
         updateReplyCountError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY())
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onUpdateReplyCountFailed()
         verify(mListenerMock2).onUpdateReplyCountFailed()
     }
 
     @Test
-    fun deleteCommentAndNotify_remoteDeleteSuccessLocalDeleteSuccessIsNotRootCommentUpdateReplyCountError_listenersNotifiedCommentDeletion() {
+    fun deleteCommentAndNotify_remoteDeleteSuccessToBeDeletedLocalDeleteSuccessIsNotRootCommentUpdateReplyCountError_listenersNotifiedCommentDeletion() {
         // Arrange
         updateReplyCountError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY())
+        SUT.deleteCommentAndNotify(CommentMocks.GET_REPLY_WITHOUT_REPLIES())
         // Assert
         verify(mListenerMock1).onDeleteComment()
         verify(mListenerMock2).onDeleteComment()
@@ -379,6 +409,14 @@ class CommentsViewModelTest {
         // no-op because mFailure false by default
     }
 
+    private fun wipeSuccess() {
+        // no-op because mWipeCommentError false by default
+    }
+
+    private fun wipeError() {
+        mCommentCacheTd.mWipeCommentError = true
+    }
+
     private fun remoteDeleteError() {
         mCommentsEndpointTd.mDeleteCommentFailure = true
     }
@@ -391,26 +429,26 @@ class CommentsViewModelTest {
     // region helper classes
     class CommentsEndpointTd : CommentsEndpoint(null, null) {
 
-        lateinit var mComment: Comment
+        lateinit var mCommentId: String
         var mVoteWeight: Int = 0
         var mFailure = false
 
-        override fun voteComment(comment: Comment, voteWeight: Int, listener: VoteListener) {
-            mComment = comment
+        override fun voteComment(commentId: String, voteWeight: Int, listener: VoteListener) {
+            mCommentId = commentId
             mVoteWeight = voteWeight
 
             if (!mFailure) {
-                listener.onVoteSuccess(comment)
+                listener.onVoteSuccess()
             } else {
                 listener.onVoteFailed()
             }
         }
 
-        override fun deleteCommentVote(comment: Comment, listener: VoteListener) {
-            mComment = comment
+        override fun deleteCommentVote(commentId: String, listener: VoteListener) {
+            mCommentId = commentId
 
             if (!mFailure) {
-                listener.onVoteSuccess(comment)
+                listener.onVoteSuccess()
             } else {
                 listener.onVoteFailed()
             }
@@ -418,9 +456,9 @@ class CommentsViewModelTest {
 
         var mDeleteCommentCounter = 0
         var mDeleteCommentFailure = false
-        override fun deleteComment(comment: Comment, listener: DeleteListener) {
+        override fun deleteComment(commentId: String, listener: DeleteListener) {
             mDeleteCommentCounter++
-            mComment = comment
+            mCommentId = commentId
             if (!mDeleteCommentFailure) {
                 listener.onDeleteSuccess()
             } else {

@@ -117,7 +117,8 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         comment = fetchedComment
-        binding.bodyEditText.text = comment.body.toEditable()
+        binding.bodyEditText.text =
+            if (comment.body != null) comment.body!!.toEditable() else "".toEditable()
         binding.createButton.isEnabled = true
     }
 
@@ -138,7 +139,8 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         parentComment = fetchedComment
-        binding.parentText.text = parentComment.body.toEditable()
+        binding.parentText.text =
+            if (parentComment.body != null) parentComment.body!!.toEditable() else "".toEditable()
     }
 
     override fun onLoadParentCommentFailed() {

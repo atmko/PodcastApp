@@ -55,6 +55,17 @@ class CommentCacheTd : CommentCache(null) {
         }
     }
 
+    var mWipeCommentCounter = 0
+    lateinit var mWipeCommentArgCommentId: String
+    var mWipeCommentError = false
+    override fun wipeComment(commentId: String, listener: CacheUpdateListener) {
+        mWipeCommentCounter++
+        mWipeCommentArgCommentId = commentId
+        if (!mWipeCommentError) {
+            listener.onLocalCacheUpdateSuccess()
+        }
+    }
+
     var mGetLastCommentPageTrackerCounter = 0
     var mGetLastCommentPageTrackerFailure = false
     lateinit var mGetLastCommentPageTrackerArgEpisodeId: String

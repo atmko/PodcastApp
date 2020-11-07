@@ -15,7 +15,8 @@ class CommentMocks {
         val VOTE_TALLY_0: Int = 0
         val IS_USER_COMMENT: Boolean = false
         val VOTE_WEIGHT_0: Int = 0
-        val REPLIES: Int = 0
+        val WITHOUT_REPLIES: Int = 0
+        val WITH_REPLIES: Int = 1
         val TIMESTAMP: Long = 1000000
         val PROFILE_IMAGE: String = "profileImage"
 
@@ -35,7 +36,7 @@ class CommentMocks {
                 VOTE_TALLY_0,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_0,
-                REPLIES ,
+                WITHOUT_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
@@ -51,7 +52,7 @@ class CommentMocks {
                 VOTE_TALLY_0,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_0,
-                REPLIES ,
+                WITHOUT_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
@@ -67,7 +68,7 @@ class CommentMocks {
                 VOTE_TALLY_0,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_0,
-                REPLIES ,
+                WITHOUT_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
@@ -83,7 +84,7 @@ class CommentMocks {
                 VOTE_TALLY_1,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_1,
-                REPLIES ,
+                WITHOUT_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
@@ -99,13 +100,13 @@ class CommentMocks {
                 VOTE_TALLY_NEG1,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_NEG1,
-                REPLIES ,
+                WITHOUT_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
         }
 
-        fun GET_REPLY(): Comment {
+        fun GET_REPLY_WITHOUT_REPLIES(): Comment {
             return Comment(
                 COMMENT_ID_1,
                 PARENT_ID,
@@ -115,7 +116,23 @@ class CommentMocks {
                 VOTE_TALLY_0,
                 IS_USER_COMMENT,
                 VOTE_WEIGHT_0,
-                REPLIES ,
+                WITHOUT_REPLIES ,
+                TIMESTAMP ,
+                PROFILE_IMAGE
+            )
+        }
+
+        fun GET_REPLY_WITH_REPLIES(): Comment {
+            return Comment(
+                COMMENT_ID_1,
+                PARENT_ID,
+                EPISODE_ID,
+                USERNAME,
+                BODY_UPDATE,
+                VOTE_TALLY_0,
+                IS_USER_COMMENT,
+                VOTE_WEIGHT_0,
+                WITH_REPLIES ,
                 TIMESTAMP ,
                 PROFILE_IMAGE
             )
