@@ -1,12 +1,15 @@
 package com.atmko.skiptoit.createreply
 
+import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
+import com.atmko.skiptoit.testutils.kotlinCapture
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
@@ -16,6 +19,8 @@ import org.mockito.junit.MockitoJUnitRunner
 class CreateReplyViewModelTest {
 
     // region constants
+    val COMMENT_ID_1: String = "commentId1"
+    val COMMENT_ID_2: String = "commentId2"
     val PARENT_ID: String = "parentId"
     val REPLY_BODY: String = "commentBody"
     // endregion constants
@@ -40,6 +45,93 @@ class CreateReplyViewModelTest {
         mCommentCacheTd = CommentCacheTd()
         SUT = CreateReplyViewModel(mCreateReplyEndpointTd, mCommentCacheTd)
     }
+
+    @Test
+    fun getCachedParentCommentAndNotify_correctCommentIdPassedToMethod() {
+        // Arrange
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        assertThat(mCommentCacheTd.mCommentId, `is`(COMMENT_ID_1))
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_listenersNotifiedOfProcessing() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        verify(mListenerMock1).notifyProcessing()
+        verify(mListenerMock2).notifyProcessing()
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_getCachedCommentSuccessNullCommentReturned_listenersNotifiedOfError() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        verify(mListenerMock1).onLoadParentCommentFailed()
+        verify(mListenerMock2).onLoadParentCommentFailed()
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_getCachedCommentSuccessNonNullCommentReturned_commentSavedInViewModel() {
+        // Arrange
+        getCachedCommentNonNullCommentReturned()
+        SUT.registerListener(mListenerMock1)
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        assertThat(SUT.parentComment, `is`(CommentMocks.GET_COMMENT_1()))
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_getCachedCommentSuccessNonNullCommentReturned_listenersNotifiedOfSuccess() {
+        // Arrange
+        getCachedCommentNonNullCommentReturned()
+        val ac: ArgumentCaptor<Comment> = ArgumentCaptor.forClass(Comment::class.java)
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        verify(mListenerMock1).onLoadParentComment(ac.kotlinCapture())
+        verify(mListenerMock2).onLoadParentComment(ac.kotlinCapture())
+        assertThat(ac.allValues[0], `is`(CommentMocks.GET_COMMENT_1()))
+        assertThat(ac.allValues[1], `is`(CommentMocks.GET_COMMENT_1()))
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_loadCommentSuccessNonNullCommentReturned_secondCallReturnsFromSavedValue() {
+        // Arrange
+        getCachedCommentNonNullCommentReturned()
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_2)
+        // Assert
+        assertThat(mCommentCacheTd.mGetCachedCommentCounter, `is`(1))
+        assertThat(SUT.parentComment, `is`(CommentMocks.GET_COMMENT_1()))
+    }
+
+    @Test
+    fun getCachedParentCommentAndNotify_loadCommentSuccessNonNullCommentReturned_listenersNotifiedOfError() {
+        // Arrange
+        getCachedCommentFailure()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getCachedParentCommentAndNotify(COMMENT_ID_1)
+        // Assert
+        verify(mListenerMock1).onLoadParentCommentFailed()
+        verify(mListenerMock2).onLoadParentCommentFailed()
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     @Test
     fun createReplyAndNotify_listenersNotifiedOfProcessing() {
@@ -321,6 +413,14 @@ class CreateReplyViewModelTest {
     }
 
     // region helper methods
+    fun getCachedCommentNonNullCommentReturned() {
+        mCommentCacheTd.mGetCachedCommentNullCommentReturned = false
+    }
+
+    fun getCachedCommentFailure() {
+        mCommentCacheTd.mGetCachedCommentFailure = true
+    }
+
     private fun endpointFailure() {
         mCreateReplyEndpointTd.mFailure = true
     }

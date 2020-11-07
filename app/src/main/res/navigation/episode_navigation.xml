@@ -96,9 +96,6 @@
             android:name="parent_id"
             app:argType="string" />
         <argument
-            android:name="quoted_text"
-            app:argType="string" />
-        <argument
             android:name="username"
             app:argType="string" />
     </fragment>

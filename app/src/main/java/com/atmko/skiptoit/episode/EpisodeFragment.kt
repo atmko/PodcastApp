@@ -231,10 +231,10 @@ class EpisodeFragment : BaseFragment(),
         }
     }
 
-    private fun attemptToReplyComment(parentId: String, quotedText: String) {
+    private fun attemptToReplyComment(parentId: String) {
         val user = getMasterActivity().user
         if (user?.username != null) {
-            navigateToReplyComment(user.username, parentId, quotedText)
+            navigateToReplyComment(user.username, parentId)
         } else {
             getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
@@ -256,10 +256,10 @@ class EpisodeFragment : BaseFragment(),
         view?.findNavController()?.navigate(action)
     }
 
-    private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
+    private fun navigateToReplyComment(username: String, parentId: String) {
         val action =
             EpisodeFragmentDirections.actionNavigationEpisodeToNavigationCreateReply(
-                parentId, quotedText, username
+                parentId, username
             )
         view?.findNavController()?.navigate(action)
     }
@@ -330,8 +330,8 @@ class EpisodeFragment : BaseFragment(),
         })
     }
 
-    override fun onReplyButtonClick(commentId: String, quotedText: String) {
-        attemptToReplyComment(commentId, quotedText)
+    override fun onReplyButtonClick(commentId: String) {
+        attemptToReplyComment(commentId)
     }
 
     override fun onRepliesButtonClick(comment: Comment) {

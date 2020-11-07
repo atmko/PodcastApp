@@ -12,19 +12,20 @@ import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentCreateReplyBinding
-import com.atmko.skiptoit.model.BODY_KEY
+import com.atmko.skiptoit.model.Comment
 import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
+class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
 
     private var _binding: FragmentCreateReplyBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var username: String
     private lateinit var parentId: String
-    private lateinit var quotedText: String
+
+    private lateinit var parentComment: Comment
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -41,13 +42,7 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
 
         val args: CreateReplyFragmentArgs by navArgs()
         parentId = args.parentId
-        quotedText = args.quotedText
         username = args.username
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.registerListener(this)
     }
 
     override fun onCreateView(
@@ -62,17 +57,19 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureValues()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
+
+        viewModel.getCachedParentCommentAndNotify(parentId)
+    }
+
+    override fun onStop() {
+        super.onStop()
         viewModel.unregisterListener(this)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(BODY_KEY, binding.bodyEditText.text.toString())
     }
 
     private fun configureViews() {
@@ -84,6 +81,7 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         }
 
         binding.createButton.apply {
+            isEnabled = false
             setOnClickListener {
                 val comment = binding.bodyEditText.text.toString()
                 viewModel.createReplyAndNotify(parentId, comment)
@@ -91,21 +89,40 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this,
-            viewModelFactory).get(CreateReplyViewModel::class.java)
+    private fun configureValues() {
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(CreateReplyViewModel::class.java)
 
         binding.usernameTextView.text = username
-        binding.parentEditText.text = quotedText
-        if (savedInstanceState != null) {
-            binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()
-        }
     }
 
     override fun notifyProcessing() {
         binding.createButton.isEnabled = false
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
+    }
+
+    override fun onLoadParentComment(fetchedComment: Comment) {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+
+        parentComment = fetchedComment
+        binding.bodyEditText.text = parentComment.body.toEditable()
+        binding.createButton.isEnabled = true
+    }
+
+    override fun onLoadParentCommentFailed() {
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
+        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+
+        binding.createButton.isEnabled = false
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_load_parent_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onReplyCreated() {
@@ -119,7 +136,11 @@ class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
     override fun onReplyCreateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_create_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_create_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onPageTrackerFetchFailed() {

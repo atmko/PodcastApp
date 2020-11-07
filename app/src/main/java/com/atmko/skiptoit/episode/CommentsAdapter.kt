@@ -19,7 +19,7 @@ class CommentsAdapter(
     PagedListAdapter<Comment, CommentsAdapter.CommentViewHolder>(Comment.CommentDiffCallback()) {
 
     interface OnCommentItemClickListener {
-        fun onReplyButtonClick(commentId: String, quotedText: String)
+        fun onReplyButtonClick(commentId: String)
         fun onRepliesButtonClick(comment: Comment)
         fun onUpVoteClick(comment: Comment)
         fun onDownVoteClick(comment: Comment)
@@ -43,7 +43,7 @@ class CommentsAdapter(
         if (position >= itemCount) return
         val comment: Comment = getItem(position) ?: return
         holder.binding.replyButton.setOnClickListener {
-            clickListener.onReplyButtonClick(comment.commentId, comment.body)
+            clickListener.onReplyButtonClick(comment.commentId)
         }
         holder.binding.replies.setOnClickListener {
             clickListener.onRepliesButtonClick(comment)

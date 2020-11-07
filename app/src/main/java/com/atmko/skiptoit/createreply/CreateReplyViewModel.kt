@@ -13,11 +13,39 @@ class CreateReplyViewModel(
 
     interface Listener {
         fun notifyProcessing()
+        fun onLoadParentComment(fetchedComment: Comment)
+        fun onLoadParentCommentFailed()
         fun onReplyCreated()
         fun onReplyCreateFailed()
         fun onPageTrackerFetchFailed()
         fun onReplyPageDeleteFailed()
         fun onUpdateReplyCountFailed()
+    }
+
+    var parentComment: Comment? = null
+
+    fun getCachedParentCommentAndNotify(commentId: String) {
+        if (parentComment != null) {
+            notifyLoadParentCommentSuccess()
+            return
+        }
+
+        notifyProcessing()
+
+        commentCache.getCachedComment(commentId, object : CommentCache.CommentFetchListener {
+            override fun onCommentFetchSuccess(fetchedComment: Comment?) {
+                if (fetchedComment != null) {
+                    parentComment = fetchedComment
+                    notifyLoadParentCommentSuccess()
+                } else {
+                    notifyLoadParentCommentFailure()
+                }
+            }
+
+            override fun onCommentFetchFailed() {
+                notifyLoadParentCommentFailure()
+            }
+        })
     }
 
     fun createReplyAndNotify(parentId: String, replyBody: String) {
@@ -87,6 +115,18 @@ class CreateReplyViewModel(
     private fun notifyProcessing() {
         for (listener in listeners) {
             listener.notifyProcessing()
+        }
+    }
+
+    private fun notifyLoadParentCommentSuccess() {
+        for (listener in listeners) {
+            listener.onLoadParentComment(parentComment!!)
+        }
+    }
+
+    private fun notifyLoadParentCommentFailure() {
+        for (listener in listeners) {
+            listener.onLoadParentCommentFailed()
         }
     }
 

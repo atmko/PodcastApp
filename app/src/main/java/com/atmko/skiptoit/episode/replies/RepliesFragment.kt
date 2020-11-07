@@ -120,7 +120,7 @@ class RepliesFragment : BaseFragment(),
 
     private fun setupParentComment() {
         binding.parentComment.replyButton.setOnClickListener {
-            onReplyButtonClick(parentComment.commentId, parentComment.body)
+            onReplyButtonClick(parentComment.commentId)
         }
         binding.parentComment.upVoteButton.setOnClickListener {
             onUpVoteClick(parentComment)
@@ -181,10 +181,10 @@ class RepliesFragment : BaseFragment(),
         })
     }
 
-    private fun attemptToReplyComment(parentId: String, quotedText: String) {
+    private fun attemptToReplyComment(parentId: String) {
         val user = getMasterActivity().user
         if (user?.username != null) {
-            navigateToReplyComment(user.username, parentId, quotedText)
+            navigateToReplyComment(user.username, parentId)
         } else {
             getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
         }
@@ -209,10 +209,10 @@ class RepliesFragment : BaseFragment(),
         }
     }
 
-    private fun navigateToReplyComment(username: String, parentId: String, quotedText: String) {
+    private fun navigateToReplyComment(username: String, parentId: String) {
         val action =
             RepliesFragmentDirections.actionNavigationRepliesToNavigationCreateReply(
-                parentId, quotedText, username
+                parentId, username
             )
         view?.findNavController()?.navigate(action)
     }
@@ -236,8 +236,8 @@ class RepliesFragment : BaseFragment(),
         view?.findNavController()?.navigate(action)
     }
 
-    override fun onReplyButtonClick(commentId: String, quotedText: String) {
-        attemptToReplyComment(commentId, quotedText)
+    override fun onReplyButtonClick(commentId: String) {
+        attemptToReplyComment(commentId)
     }
 
     override fun onRepliesButtonClick(comment: Comment) {
