@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.episode
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,8 @@ class CommentsAdapter(
 ) :
     PagedListAdapter<Comment, CommentsAdapter.CommentViewHolder>(Comment.CommentDiffCallback()) {
 
+    private lateinit var mContext: Context
+
     interface OnCommentItemClickListener {
         fun onReplyButtonClick(commentId: String)
         fun onRepliesButtonClick(comment: Comment)
@@ -28,6 +31,7 @@ class CommentsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
+        mContext = parent.context
         return CommentViewHolder(
             ItemCommentBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -80,7 +84,7 @@ class CommentsAdapter(
 
         if (comment.replies != 0) {
             holder.binding.replies.text =
-                String.format(holder.binding.replies.text.toString(), comment.replies.toString())
+                String.format(mContext.getString(R.string.replies_format), comment.replies.toString())
             holder.binding.replies.visibility = View.VISIBLE
         } else {
             holder.binding.replies.visibility = View.GONE
