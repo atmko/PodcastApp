@@ -17,8 +17,6 @@ import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-const val CREATED_REPLY_KEY = "create_reply"
-
 class CreateReplyFragment: BaseFragment(), CreateReplyViewModel.Listener {
 
     private var _binding: FragmentCreateReplyBinding? = null

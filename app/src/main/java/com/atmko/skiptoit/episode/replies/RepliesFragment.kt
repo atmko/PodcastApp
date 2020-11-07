@@ -162,7 +162,7 @@ class RepliesFragment : BaseFragment(),
         if (parentComment.replies != 0) {
             binding.parentComment.replies.text =
                 String.format(
-                    binding.parentComment.replies.text.toString(),
+                    getString(R.string.replies_format),
                     parentComment.replies.toString()
                 )
         } else {
@@ -302,6 +302,7 @@ class RepliesFragment : BaseFragment(),
 
     override fun onDeleteComment() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        repliesViewModel.getParentCommentAndNotify(parentCommentId)
     }
 
     override fun onDeleteCommentFailed() {
