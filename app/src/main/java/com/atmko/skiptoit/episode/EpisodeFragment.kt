@@ -324,7 +324,7 @@ class EpisodeFragment : BaseFragment(),
 
     private fun configureCommentsViewModel() {
         parentCommentsViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer {
-            binding.errorAndLoading.loadingScreen.visibility = View.GONE
+            binding.commentsErrorAndLoading.loadingScreen.visibility = View.GONE
             commentsAdapter.submitList(it)
             commentsAdapter.notifyDataSetChanged()
         })
@@ -372,8 +372,8 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onDetailsFetched(episode: Episode?, isRestoringEpisode: Boolean) {
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.detailsErrorAndLoading.loadingScreen.visibility = View.GONE
+        binding.detailsErrorAndLoading.errorScreen.visibility = View.GONE
 
         episodeDetails = episode
         episodeDetails?.let { details ->
@@ -402,8 +402,8 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun onDetailsFetchFailed() {
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
+        binding.detailsErrorAndLoading.loadingScreen.visibility = View.GONE
+        binding.detailsErrorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(
             requireView(),
             getString(R.string.failed_to_get_details),
@@ -438,13 +438,12 @@ class EpisodeFragment : BaseFragment(),
     }
 
     override fun notifyProcessing() {
-        binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.detailsErrorAndLoading.loadingScreen.visibility = View.VISIBLE
+        binding.detailsErrorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdate() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdateFailed() {
@@ -455,7 +454,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onDeleteComment() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onDeleteCommentFailed() {
@@ -473,12 +471,10 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onPageLoading() {
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {

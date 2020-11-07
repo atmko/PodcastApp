@@ -286,13 +286,12 @@ class RepliesFragment : BaseFragment(),
     }
 
     override fun notifyProcessing() {
-        binding.pageLoading.pageLoading.visibility = View.INVISIBLE
+        binding.errorAndLoading.loadingScreen.visibility = View.INVISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdate() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdateFailed() {
@@ -303,7 +302,6 @@ class RepliesFragment : BaseFragment(),
 
     override fun onDeleteComment() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onDeleteCommentFailed() {
@@ -321,12 +319,10 @@ class RepliesFragment : BaseFragment(),
 
     override fun onPageLoading() {
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {

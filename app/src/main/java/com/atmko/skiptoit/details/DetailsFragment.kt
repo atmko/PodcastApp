@@ -262,7 +262,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun notifyProcessing() {
-        binding.pageLoading.pageLoading.visibility = View.VISIBLE
+        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
         binding.toggleSubscriptionButton.isEnabled = false
     }
 
@@ -280,7 +280,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     override fun onSubscriptionToggleFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         binding.toggleSubscriptionButton.isEnabled = true
-        Snackbar.make(requireView(), getString(R.string.failed_to_update_subscription), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_update_subscription),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onSubscriptionStatusFetched(isSubscribed: Boolean) {
@@ -297,7 +301,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     override fun onSubscriptionStatusFetchFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         binding.toggleSubscriptionButton.isEnabled = true
-        Snackbar.make(requireView(), getString(R.string.failed_to_get_subscription_data), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_get_subscription_data),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onDetailsFetched(podcastDetails: PodcastDetails) {
@@ -314,7 +322,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     override fun onDetailsFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_get_details), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_get_details),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onOldPodcastDetced() {
@@ -326,7 +338,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun onPodcastDetectFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_detect_podcast), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_detect_podcast),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onToggleOldEpisodePlayback() {
@@ -334,7 +350,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun onToggleOldEpisodePlaybackFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_toggle_old_playback), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_toggle_old_playback),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onToggleNewEpisodePlayback(latestEpisodeId: String) {
@@ -346,21 +366,24 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     override fun onToggleNewEpisodePlaybackFailed() {
-        Snackbar.make(requireView(), getString(R.string.failed_to_toggle_new_playback), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_toggle_new_playback),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onPageLoading() {
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG)
+            .show()
     }
 }

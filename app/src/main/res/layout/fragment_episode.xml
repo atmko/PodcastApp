@@ -120,7 +120,7 @@
         </HorizontalScrollView>
 
         <include
-            android:id="@+id/errorAndLoading"
+            android:id="@+id/detailsErrorAndLoading"
             layout="@layout/layout_error_and_loading"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -252,7 +252,7 @@ sources, please visit " />
                     app:layout_constraintTop_toBottomOf="@id/commentsDivider" />
 
                 <include
-                    android:id="@+id/error_and_loading"
+                    android:id="@+id/commentsErrorAndLoading"
                     layout="@layout/layout_error_and_loading"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
