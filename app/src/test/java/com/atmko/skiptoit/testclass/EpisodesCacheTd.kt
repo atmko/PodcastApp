@@ -130,18 +130,18 @@ class EpisodesCacheTd : EpisodesCache(null, null) {
         }
     }
 
-    var mInsertEpisodesAndReturnNextEpisodeCounter = 0
-    var mInsertEpisodesAndReturnNextEpisodeError = false
-    override fun insertEpisodesAndReturnNextEpisode(
+    var mInsertEpisodesAndReturnPrevEpisodeCounter = 0
+    var mInsertEpisodesAndReturnPrevEpisodeError = false
+    override fun insertEpisodesAndReturnPrevEpisode(
         podcastDetails: PodcastDetails,
-        listener: NextEpisodeListener
+        listener: PreviousEpisodeListener
     ) {
-        mInsertEpisodesAndReturnNextEpisodeCounter += 1
+        mInsertEpisodesAndReturnPrevEpisodeCounter += 1
         mPodcastDetails = podcastDetails
-        if (!mInsertEpisodesAndReturnNextEpisodeError) {
-            listener.onNextEpisodeFetchSuccess(EpisodeMocks.GET_NEXT_EPISODE())
+        if (!mInsertEpisodesAndReturnPrevEpisodeError) {
+            listener.onPreviousEpisodeFetchSuccess(EpisodeMocks.GET_PREV_EPISODE())
         } else {
-            listener.onNextEpisodeFetchFailed()
+            listener.onPreviousEpisodeFetchFailed()
         }
     }
 

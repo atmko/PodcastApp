@@ -45,6 +45,7 @@ class EpisodeBoundaryCallbackTest {
 
         SUT.param = PODCAST_ID
         endpointSuccess()
+        previousEpisodesAvailable()
         cacheSuccess()
     }
 
@@ -66,13 +67,14 @@ class EpisodeBoundaryCallbackTest {
         // Act
         SUT.onZeroItemsLoaded()
         // Assert
-        assertThat(mGetEpisodesEndpointTd.mParam, `is`(PODCAST_ID))
-        assertThat(mGetEpisodesEndpointTd.mLoadKey, `is`(PAGING_KEY_START))
+        assertThat(mGetEpisodesEndpointTd.mGetEpisodesArgPodcastId, `is`(PODCAST_ID))
+        assertThat(mGetEpisodesEndpointTd.mGetEpisodesArgPublishedAfterDate, `is`(PAGING_KEY_START))
     }
 
     @Test
     fun onZeroItemsLoaded_correctPodcastDetailsLoadTypeAndPodcastIdPassedToEpisodesCache() {
         // Arrange
+        prevEpisodesUnavailable()
         // Act
         SUT.onZeroItemsLoaded()
         // Assert
@@ -204,7 +206,15 @@ class EpisodeBoundaryCallbackTest {
     }
 
     private fun endpointError() {
-        mGetEpisodesEndpointTd.mFailure = true
+        mGetEpisodesEndpointTd.mGetEpisodesError = true
+    }
+
+    private fun previousEpisodesAvailable() {
+        // no-op because mNoPreviousEpisodes false by default
+    }
+
+    private fun prevEpisodesUnavailable() {
+        mGetEpisodesEndpointTd.mNoPreviousEpisodes = true
     }
 
     private fun cacheSuccess() {
@@ -219,15 +229,25 @@ class EpisodeBoundaryCallbackTest {
     // region helper classes
     class GetEpisodesEndpointTd : GetEpisodesEndpoint(null) {
 
-        var mFailure = false
-        var mLoadKey: Long? = null
-        var mParam = ""
-
-        override fun getEpisodes(param: String, loadKey: Long?, listener: Listener) {
-            mParam = param
-            mLoadKey = loadKey
-            if (!mFailure) {
-                listener.onEpisodesQuerySuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES())
+        var mGetEpisodesCounter = 0
+        var mGetEpisodesError = false
+        var mNoPreviousEpisodes = false
+        lateinit var mGetEpisodesArgPodcastId: String
+        var mGetEpisodesArgPublishedAfterDate: Long? = null
+        override fun getEpisodes(
+            podcastId: String,
+            publishedAfterDate: Long?,
+            listener: Listener
+        ) {
+            mGetEpisodesCounter += 1
+            mGetEpisodesArgPodcastId = podcastId
+            mGetEpisodesArgPublishedAfterDate = publishedAfterDate
+            if (!mGetEpisodesError) {
+                if (!mNoPreviousEpisodes) {
+                    listener.onEpisodesQuerySuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES())
+                } else {
+                    listener.onEpisodesQuerySuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES())
+                }
             } else {
                 listener.onEpisodesQueryFailed()
             }

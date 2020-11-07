@@ -132,8 +132,9 @@ public class ViewModelModule {
     @IntoMap
     @ViewModelKey(EpisodeViewModel.class)
     ViewModel provideEpisodeViewModel(EpisodeEndpoint episodeEndpoint,
+                                      GetEpisodesEndpoint getEpisodesEndpoint,
                                       EpisodesCache episodesCache) {
-        return new EpisodeViewModel(episodeEndpoint, episodesCache);
+        return new EpisodeViewModel(episodeEndpoint, getEpisodesEndpoint, episodesCache);
     }
 
     @Provides

@@ -14,8 +14,8 @@ open class GetEpisodesEndpoint(
         fun onEpisodesQueryFailed()
     }
 
-    open fun getEpisodes(param: String, loadKey: Long?, listener: Listener) {
-        podcastsApi!!.getEpisodes(param, loadKey)
+    open fun getEpisodes(podcastId: String, publishedAfterDate: Long?, listener: Listener) {
+        podcastsApi!!.getEpisodes(podcastId, publishedAfterDate)
             .enqueue(object : Callback<PodcastDetails> {
                 override fun onResponse(call: Call<PodcastDetails>, response: Response<PodcastDetails>) {
                     if (response.isSuccessful) {

@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.episode
 
 import com.atmko.skiptoit.model.Episode
-import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.PodcastsApi
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,11 +13,6 @@ open class EpisodeEndpoint(
     interface EpisodeDetailsListener {
         fun onEpisodeDetailsFetchSuccess(episode: Episode)
         fun onEpisodeDetailsFetchFailed()
-    }
-
-    interface BatchNextEpisodeListener {
-        fun onBatchNextEpisodesFetchSuccess(podcastDetails: PodcastDetails)
-        fun onBatchNextEpisodesFetchFailed()
     }
 
     open fun getEpisodeDetails(episodeId: String, listener: EpisodeDetailsListener) {
@@ -34,23 +28,6 @@ open class EpisodeEndpoint(
 
                 override fun onFailure(call: Call<Episode>, t: Throwable) {
                     listener.onEpisodeDetailsFetchFailed()
-                }
-            })
-    }
-
-    open fun fetchNextEpisodes(podcastId: String, episodePublishDate: Long, listener: BatchNextEpisodeListener) {
-        podcastsApi!!.getEpisodes(podcastId, episodePublishDate)
-            .enqueue(object : Callback<PodcastDetails> {
-                override fun onResponse(call: Call<PodcastDetails>, response: Response<PodcastDetails>) {
-                    if (response.isSuccessful) {
-                        listener.onBatchNextEpisodesFetchSuccess(response.body()!!)
-                    } else {
-                        listener.onBatchNextEpisodesFetchFailed()
-                    }
-                }
-
-                override fun onFailure(call: Call<PodcastDetails>, t: Throwable) {
-                    listener.onBatchNextEpisodesFetchFailed()
                 }
             })
     }

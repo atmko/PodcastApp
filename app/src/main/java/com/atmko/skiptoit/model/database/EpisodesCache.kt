@@ -51,14 +51,15 @@ open class EpisodesCache(
         fun onGetAllEpisodesFailed()
     }
 
-    open fun insertEpisodesAndReturnNextEpisode(
+    open fun insertEpisodesAndReturnPrevEpisode(
         podcastDetails: PodcastDetails,
-        listener: NextEpisodeListener
+        listener: PreviousEpisodeListener
     ) {
         AppExecutors.getInstance().diskIO().execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 val episodes = podcastDetails.episodes
+                // todo: remove processing from here to view model
                 for (i in episodes) {
                     i.podcastId = podcastDetails.id
                 }
@@ -67,12 +68,12 @@ open class EpisodesCache(
                 skipToItDatabase.setTransactionSuccessful()
 
                 AppExecutors.getInstance().mainThread().execute {
-                    listener.onNextEpisodeFetchSuccess(episodes[0])
+                    listener.onPreviousEpisodeFetchSuccess(episodes[0])
                 }
             } finally {
                 skipToItDatabase.endTransaction()
                 AppExecutors.getInstance().mainThread().execute {
-                    listener.onNextEpisodeFetchFailed()
+                    listener.onPreviousEpisodeFetchFailed()
                 }
             }
         }

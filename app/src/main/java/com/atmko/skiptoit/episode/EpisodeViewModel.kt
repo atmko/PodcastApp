@@ -2,12 +2,14 @@ package com.atmko.skiptoit.episode
 
 import android.util.Log
 import com.atmko.skiptoit.common.BaseViewModel
+import com.atmko.skiptoit.episodelist.GetEpisodesEndpoint
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 
 class EpisodeViewModel(
     private val episodeEndpoint: EpisodeEndpoint,
+    private val getEpisodesEndpoint: GetEpisodesEndpoint,
     private val episodesCache: EpisodesCache
 ) : BaseViewModel<EpisodeViewModel.Listener>() {
 
@@ -109,11 +111,6 @@ class EpisodeViewModel(
                     nextEpisode = cachedNextEpisode
                     if (nextEpisode != null) {
                         notifyNextEpisodeFetched(nextEpisode!!)
-                    } else {
-                        fetchNextEpisodesFromRemoteAndNotify(
-                            episodeDetails.podcastId!!,
-                            episodeDetails.publishDate
-                        )
                     }
                 }
 
@@ -136,6 +133,11 @@ class EpisodeViewModel(
                     prevEpisode = cachedPreviousEpisode
                     if (prevEpisode != null) {
                         notifyPreviousEpisodeFetched(prevEpisode!!)
+                    } else {
+                        fetchPrevEpisodesFromRemoteAndNotify(
+                            episodeDetails.podcastId!!,
+                            episodeDetails.publishDate
+                        )
                     }
                 }
 
@@ -145,32 +147,32 @@ class EpisodeViewModel(
             })
     }
 
-    private fun fetchNextEpisodesFromRemoteAndNotify(podcastId: String, episodePublishDate: Long) {
-        episodeEndpoint.fetchNextEpisodes(
+    private fun fetchPrevEpisodesFromRemoteAndNotify(podcastId: String, episodePublishDate: Long) {
+        getEpisodesEndpoint.getEpisodes(
             podcastId,
             episodePublishDate,
-            object : EpisodeEndpoint.BatchNextEpisodeListener {
-                override fun onBatchNextEpisodesFetchSuccess(podcastDetails: PodcastDetails) {
+            object : GetEpisodesEndpoint.Listener {
+                override fun onEpisodesQuerySuccess(podcastDetails: PodcastDetails) {
                     if (podcastDetails.episodes.isNotEmpty()) {
-                        episodesCache.insertEpisodesAndReturnNextEpisode(
+                        episodesCache.insertEpisodesAndReturnPrevEpisode(
                             podcastDetails,
-                            object : EpisodesCache.NextEpisodeListener {
-                                override fun onNextEpisodeFetchSuccess(cachedNextEpisode: Episode?) {
-                                    nextEpisode = cachedNextEpisode
-                                    if (nextEpisode != null) {
-                                        notifyNextEpisodeFetched(nextEpisode!!)
+                            object : EpisodesCache.PreviousEpisodeListener {
+                                override fun onPreviousEpisodeFetchSuccess(cachedPreviousEpisode: Episode?) {
+                                    prevEpisode = cachedPreviousEpisode
+                                    if (prevEpisode != null) {
+                                        notifyPreviousEpisodeFetched(prevEpisode!!)
                                     }
                                 }
 
-                                override fun onNextEpisodeFetchFailed() {
-                                    notifyNextEpisodeFetchFailed()
+                                override fun onPreviousEpisodeFetchFailed() {
+                                    notifyPreviousEpisodeFetchFailed()
                                 }
                             })
                     }
                 }
 
-                override fun onBatchNextEpisodesFetchFailed() {
-                    notifyNextEpisodeFetchFailed()
+                override fun onEpisodesQueryFailed() {
+                    notifyPreviousEpisodeFetchFailed()
                 }
             })
     }

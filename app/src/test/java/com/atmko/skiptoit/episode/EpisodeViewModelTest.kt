@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.episode
 
+import com.atmko.skiptoit.episodelist.EpisodeBoundaryCallbackTest
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.testclass.EpisodesCacheTd
 import com.atmko.skiptoit.testdata.EpisodeMocks
@@ -30,6 +31,7 @@ class EpisodeViewModelTest {
     // end region helper fields
     private lateinit var mEpisodesCacheTd: EpisodesCacheTd
     private lateinit var mEpisodeEndpointTd: EpisodeEndpointTd
+    private lateinit var mGetEpisodesEndpointTd: EpisodeBoundaryCallbackTest.GetEpisodesEndpointTd
 
     @Mock
     lateinit var mListenerMock1: EpisodeViewModel.Listener
@@ -44,15 +46,16 @@ class EpisodeViewModelTest {
     fun setup() {
         mEpisodesCacheTd = EpisodesCacheTd()
         mEpisodeEndpointTd = EpisodeEndpointTd()
-        SUT = EpisodeViewModel(mEpisodeEndpointTd, mEpisodesCacheTd)
+        mGetEpisodesEndpointTd = EpisodeBoundaryCallbackTest.GetEpisodesEndpointTd()
+        SUT = EpisodeViewModel(mEpisodeEndpointTd, mGetEpisodesEndpointTd, mEpisodesCacheTd)
 
         //----------------
-        fetchNextEpisodesSuccess()
-        getPrevEpisodeSuccess()
-        getNextEpisodesSuccess()
+        getEpisodesSuccess()
+        getNextEpisodeSuccess()
+        getPreviousEpisodesSuccess()
         episodeInCache()
-        nextEpisodesAvailable()
-        insertEpisodesAndReturnNextEpisodeSuccess()
+        prevEpisodesAvailable()
+        insertEpisodesAndReturnPrevEpisodeSuccess()
         deletePodcastEpisodesSuccess()
         getEpisodeDetailsSuccess()
         saveEpisodeSuccess()
@@ -263,7 +266,7 @@ class EpisodeViewModelTest {
     @Test
     fun fetchNextEpisodeAndNotify_cacheQueryError_cacheInvokedListenersNotifiedOfError() {
         // Arrange
-        getNextEpisodesError()
+        getNextEpisodeError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -330,132 +333,7 @@ class EpisodeViewModelTest {
         ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
     }
 
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCache_correctPodcastIdAndPublishDatePassedToEndpoint() {
-        // Arrange
-        episodeNotInCache()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodeEndpointTd.mPodcastId, `is`(PODCAST_ID))
-        assertThat(
-            mEpisodeEndpointTd.mEpisodePublishDate,
-            `is`(EpisodeMocks.GET_EPISODE_1().publishDate)
-        )
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccess_endpointInvoked() {
-        // Arrange
-        episodeNotInCache()
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodeEndpointTd.mFetchNextEpisodesCounter, `is`(1))
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQueryError_endpointInvokedListenersNotifiedOfError() {
-        // Arrange
-        episodeNotInCache()
-        fetchNextEpisodesError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodeEndpointTd.mFetchNextEpisodesCounter, `is`(1))
-        verify(mListenerMock1).onNextEpisodeFetchFailed()
-        verify(mListenerMock2).onNextEpisodeFetchFailed()
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailable_correctPodcastDetailsPassedToCache() {
-        // Arrange
-        episodeNotInCache()
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
-        assertThat(
-            mEpisodesCacheTd.mPodcastDetails,
-            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES())
-        )
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesUnavailable_saveEpisodesNotCalledListenersNotNotified() {
-        // Arrange
-        episodeNotInCache()
-        nextEpisodesUnavailable()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(0))
-        verify(
-            mListenerMock1,
-            never()
-        ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
-        verify(
-            mListenerMock2,
-            never()
-        ).onNextEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
-        verify(mListenerMock1, never()).onNextEpisodeFetchFailed()
-        verify(mListenerMock2, never()).onNextEpisodeFetchFailed()
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesSuccess_nextEpisodeSavedToVariable() {
-        // Arrange
-        SUT.nextEpisode = null
-        episodeNotInCache()
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
-        assertThat(
-            SUT.nextEpisode,
-            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES().episodes[0])
-        )
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesSuccess_listenersNotifiedWithCorrectEpisode() {
-        // Arrange
-        episodeNotInCache()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        val ac: ArgumentCaptor<Episode> = ArgumentCaptor.forClass(Episode::class.java)
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeCounter, `is`(1))
-        verify(mListenerMock1).onNextEpisodeFetched(ac.kotlinCapture())
-        verify(mListenerMock2).onNextEpisodeFetched(ac.kotlinCapture())
-        val captures = ac.allValues
-        assertThat(captures[0], `is`(EpisodeMocks.GET_NEXT_EPISODE()))
-        assertThat(captures[1], `is`(EpisodeMocks.GET_NEXT_EPISODE()))
-    }
-
-    @Test
-    fun fetchNextEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesError_listenersNotifiedOfError() {
-        // Arrange
-        episodeNotInCache()
-        insertEpisodesAndReturnNextEpisodeError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.fetchNextEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
-        // Assert
-        verify(mListenerMock1).onNextEpisodeFetchFailed()
-        verify(mListenerMock2).onNextEpisodeFetchFailed()
-    }
-
-    //----------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
     @Test
     fun fetchPrevEpisodeAndNotify_correctEpisodeIdAndPublishDatePassedToCache() {
@@ -486,7 +364,7 @@ class EpisodeViewModelTest {
     @Test
     fun fetchPrevEpisodeAndNotify_cacheQueryError_cacheInvokedListenersNotifiedOfError() {
         // Arrange
-        getPrevEpisodeError()
+        getPreviousEpisodesError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -553,28 +431,153 @@ class EpisodeViewModelTest {
         ).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
     }
 
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCache_correctPodcastIdAndPublishDatePassedToEndpoint() {
+        // Arrange
+        episodeNotInCache()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mGetEpisodesEndpointTd.mGetEpisodesArgPodcastId, `is`(PODCAST_ID))
+        assertThat(
+            mGetEpisodesEndpointTd.mGetEpisodesArgPublishedAfterDate,
+            `is`(EpisodeMocks.GET_EPISODE_1().publishDate)
+        )
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccess_endpointInvoked() {
+        // Arrange
+        episodeNotInCache()
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mGetEpisodesEndpointTd.mGetEpisodesCounter, `is`(1))
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQueryError_endpointInvokedListenersNotifiedOfError() {
+        // Arrange
+        episodeNotInCache()
+        getEpisodesError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mGetEpisodesEndpointTd.mGetEpisodesCounter, `is`(1))
+        verify(mListenerMock1).onPreviousEpisodeFetchFailed()
+        verify(mListenerMock2).onPreviousEpisodeFetchFailed()
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailable_correctPodcastDetailsPassedToCache() {
+        // Arrange
+        episodeNotInCache()
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnPrevEpisodeCounter, `is`(1))
+        assertThat(
+            mEpisodesCacheTd.mPodcastDetails,
+            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES())
+        )
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesUnavailable_saveEpisodesNotCalledListenersNotNotified() {
+        // Arrange
+        episodeNotInCache()
+        prevEpisodesUnavailable()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnPrevEpisodeCounter, `is`(0))
+        verify(
+            mListenerMock1,
+            never()
+        ).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(
+            mListenerMock2,
+            never()
+        ).onPreviousEpisodeFetched(TestUtils.kotlinAny(Episode::class.java))
+        verify(mListenerMock1, never()).onPreviousEpisodeFetchFailed()
+        verify(mListenerMock2, never()).onPreviousEpisodeFetchFailed()
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesSuccess_prevEpisodeSavedToVariable() {
+        // Arrange
+        SUT.prevEpisode = null
+        episodeNotInCache()
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnPrevEpisodeCounter, `is`(1))
+        assertThat(
+            SUT.prevEpisode,
+            `is`(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES().episodes[0])
+        )
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesSuccess_listenersNotifiedWithCorrectEpisode() {
+        // Arrange
+        episodeNotInCache()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        val ac: ArgumentCaptor<Episode> = ArgumentCaptor.forClass(Episode::class.java)
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        assertThat(mEpisodesCacheTd.mInsertEpisodesAndReturnPrevEpisodeCounter, `is`(1))
+        verify(mListenerMock1).onPreviousEpisodeFetched(ac.kotlinCapture())
+        verify(mListenerMock2).onPreviousEpisodeFetched(ac.kotlinCapture())
+        val captures = ac.allValues
+        assertThat(captures[0], `is`(EpisodeMocks.GET_PREV_EPISODE()))
+        assertThat(captures[1], `is`(EpisodeMocks.GET_PREV_EPISODE()))
+    }
+
+    @Test
+    fun fetchPrevEpisodeAndNotify_cacheQuerySuccessEpisodeNotInCacheEndpointQuerySuccessEpisodesAvailableSaveEpisodesError_listenersNotifiedOfError() {
+        // Arrange
+        episodeNotInCache()
+        insertEpisodesAndReturnPreviousEpisodeError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.fetchPrevEpisodeAndNotify(EpisodeMocks.GET_EPISODE_DETAILS())
+        // Assert
+        verify(mListenerMock1).onPreviousEpisodeFetchFailed()
+        verify(mListenerMock2).onPreviousEpisodeFetchFailed()
+    }
+
     // region helper methods
-    private fun fetchNextEpisodesSuccess() {
-        // no-op because mFetchNextEpisodesError false by default
+    private fun getEpisodesSuccess() {
+        // no-op because mGetEpisodesError false by default
     }
 
-    private fun fetchNextEpisodesError() {
-        mEpisodeEndpointTd.mFetchNextEpisodesError = true
+    private fun getEpisodesError() {
+        mGetEpisodesEndpointTd.mGetEpisodesError = true
     }
 
-    private fun getNextEpisodesSuccess() {
+    private fun getNextEpisodeSuccess() {
         // no-op because mGetNextEpisodeError false by default
     }
 
-    private fun getNextEpisodesError() {
+    private fun getNextEpisodeError() {
         mEpisodesCacheTd.mGetNextEpisodeError = true
     }
 
-    private fun getPrevEpisodeSuccess() {
+    private fun getPreviousEpisodesSuccess() {
         // no-op because mGetPreviousEpisodeError false by default
     }
 
-    private fun getPrevEpisodeError() {
+    private fun getPreviousEpisodesError() {
         mEpisodesCacheTd.mGetPreviousEpisodeError = true
     }
 
@@ -586,20 +589,20 @@ class EpisodeViewModelTest {
         mEpisodesCacheTd.mEpisodeNotInCache = true
     }
 
-    private fun nextEpisodesAvailable() {
-        // no-op because mNoNextEpisodes false by default
+    private fun prevEpisodesAvailable() {
+        // no-op because mNoPreviousEpisodes false by default
     }
 
-    private fun nextEpisodesUnavailable() {
-        mEpisodeEndpointTd.mNoNextEpisodes = true
+    private fun prevEpisodesUnavailable() {
+        mGetEpisodesEndpointTd.mNoPreviousEpisodes = true
     }
 
-    private fun insertEpisodesAndReturnNextEpisodeSuccess() {
-        // no-op because mInsertEpisodesAndReturnNextEpisodeError false by default
+    private fun insertEpisodesAndReturnPrevEpisodeSuccess() {
+        // no-op because mInsertEpisodesAndReturnPrevEpisodeError false by default
     }
 
-    private fun insertEpisodesAndReturnNextEpisodeError() {
-        mEpisodesCacheTd.mInsertEpisodesAndReturnNextEpisodeError = true
+    private fun insertEpisodesAndReturnPreviousEpisodeError() {
+        mEpisodesCacheTd.mInsertEpisodesAndReturnPrevEpisodeError = true
     }
 
     private fun deletePodcastEpisodesSuccess() {
@@ -648,30 +651,6 @@ class EpisodeViewModelTest {
                 listener.onEpisodeDetailsFetchSuccess(EpisodeMocks.GET_EPISODE_DETAILS())
             } else {
                 listener.onEpisodeDetailsFetchFailed()
-            }
-        }
-
-        var mFetchNextEpisodesCounter = 0
-        var mFetchNextEpisodesError = false
-        var mNoNextEpisodes = false
-        lateinit var mPodcastId: String
-        var mEpisodePublishDate: Long? = null
-        override fun fetchNextEpisodes(
-            podcastId: String,
-            episodePublishDate: Long,
-            listener: BatchNextEpisodeListener
-        ) {
-            mFetchNextEpisodesCounter += 1
-            mPodcastId = podcastId
-            mEpisodePublishDate = episodePublishDate
-            if (!mFetchNextEpisodesError) {
-                if (!mNoNextEpisodes) {
-                    listener.onBatchNextEpisodesFetchSuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITH_EPISODES())
-                } else {
-                    listener.onBatchNextEpisodesFetchSuccess(PodcastMocks.PodcastDetailsMocks.GET_PODCAST_DETAILS_WITHOUT_EPISODES())
-                }
-            } else {
-                listener.onBatchNextEpisodesFetchFailed()
             }
         }
     }

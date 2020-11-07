@@ -80,7 +80,7 @@ class PodcastMocks {
                 )
             }
 
-            val WITH_EPISODES: List<Episode> = listOf(EpisodeMocks.GET_NEXT_EPISODE())
+            val WITH_EPISODES: List<Episode> = listOf(EpisodeMocks.GET_PREV_EPISODE())
             fun GET_PODCAST_DETAILS_WITH_EPISODES(): PodcastDetails {
                 return PodcastDetails(
                     PODCAST_ID_1,
