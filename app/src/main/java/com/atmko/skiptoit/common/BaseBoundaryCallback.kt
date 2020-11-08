@@ -36,7 +36,7 @@ open class BaseBoundaryCallback<Type> : PagedList.BoundaryCallback<Type>() {
         return Collections.unmodifiableSet(mListeners)
     }
 
-    protected fun notifyPageLoading() {
+    fun notifyPageLoading() {
         for (listener in getListeners()) {
             listener.onPageLoading()
         }

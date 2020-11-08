@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.episode.common
 
+import com.atmko.skiptoit.common.BaseBoundaryCallback
 import com.atmko.skiptoit.testclass.CommentCacheTd
 import com.atmko.skiptoit.testdata.CommentMocks
 import org.hamcrest.CoreMatchers.`is`
@@ -22,13 +23,18 @@ class CommentsViewModelTest {
     // end region helper fields
     private lateinit var mCommentsEndpointTd: CommentsEndpointTd
     private lateinit var mCommentCacheTd: CommentCacheTd
-    @Mock
+
     lateinit var commentBoundaryCallback: CommentBoundaryCallback
 
     @Mock
     lateinit var mListenerMock1: CommentsViewModel.Listener
     @Mock
     lateinit var mListenerMock2: CommentsViewModel.Listener
+
+    @Mock
+    lateinit var mBoundaryListenerMock1: BaseBoundaryCallback.Listener
+    @Mock
+    lateinit var mBoundaryListenerMock2: BaseBoundaryCallback.Listener
     // endregion helper fields
 
     private lateinit var SUT: CommentsViewModel
@@ -37,6 +43,7 @@ class CommentsViewModelTest {
     fun setup() {
         mCommentsEndpointTd = CommentsEndpointTd()
         mCommentCacheTd = CommentCacheTd()
+        commentBoundaryCallback = CommentBoundaryCallback()
         SUT = CommentsViewModel(
             mCommentsEndpointTd,
             mCommentCacheTd,
@@ -84,13 +91,13 @@ class CommentsViewModelTest {
     @Test
     fun upVoteAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock1)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock2)
         // Act
         SUT.upVoteAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
-        verify(mListenerMock1).notifyProcessing()
-        verify(mListenerMock2).notifyProcessing()
+        verify(mBoundaryListenerMock1).onPageLoading()
+        verify(mBoundaryListenerMock2).onPageLoading()
     }
 
     @Test
@@ -184,13 +191,13 @@ class CommentsViewModelTest {
     @Test
     fun downVoteAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock1)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock2)
         // Act
         SUT.downVoteAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
-        verify(mListenerMock1).notifyProcessing()
-        verify(mListenerMock2).notifyProcessing()
+        verify(mBoundaryListenerMock1).onPageLoading()
+        verify(mBoundaryListenerMock2).onPageLoading()
     }
 
     @Test
@@ -249,13 +256,13 @@ class CommentsViewModelTest {
     @Test
     fun deleteCommentAndNotify_listenersNotifiedOfProcessing() {
         // Arrange
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock1)
+        SUT.registerBoundaryCallbackListener(mBoundaryListenerMock2)
         // Act
         SUT.deleteCommentAndNotify(CommentMocks.GET_COMMENT_1())
         // Assert
-        verify(mListenerMock1).notifyProcessing()
-        verify(mListenerMock2).notifyProcessing()
+        verify(mBoundaryListenerMock1).onPageLoading()
+        verify(mBoundaryListenerMock2).onPageLoading()
     }
 
     @Test

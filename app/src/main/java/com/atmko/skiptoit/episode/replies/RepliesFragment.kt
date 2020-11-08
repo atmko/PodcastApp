@@ -289,11 +289,6 @@ class RepliesFragment : BaseFragment(),
         repliesViewModel.getParentCommentAndNotify(parentCommentId)
     }
 
-    override fun notifyProcessing() {
-        binding.errorAndLoading.loadingScreen.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-    }
-
     override fun onVoteUpdate() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
     }

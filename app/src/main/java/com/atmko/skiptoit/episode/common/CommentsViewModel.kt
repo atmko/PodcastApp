@@ -15,7 +15,6 @@ open class CommentsViewModel(
 ) : BaseViewModel<CommentsViewModel.Listener>() {
 
     interface Listener {
-        fun notifyProcessing()
         fun onVoteUpdate()
         fun onVoteUpdateFailed()
         fun onDeleteComment()
@@ -75,8 +74,7 @@ open class CommentsViewModel(
     }
 
     private fun voteComment(comment: Comment, voteWeight: Int) {
-        notifyProcessing()
-
+        commentBoundaryCallback.notifyPageLoading()
         commentEndpoint.voteComment(comment.commentId, voteWeight, object :
             CommentsEndpoint.VoteListener {
             override fun onVoteSuccess() {
@@ -94,8 +92,7 @@ open class CommentsViewModel(
     }
 
     private fun deleteCommentVote(comment: Comment) {
-        notifyProcessing()
-
+        commentBoundaryCallback.notifyPageLoading()
         commentEndpoint.deleteCommentVote(comment.commentId, object :
             CommentsEndpoint.VoteListener {
             override fun onVoteSuccess() {
@@ -113,8 +110,7 @@ open class CommentsViewModel(
     }
 
     fun deleteCommentAndNotify(comment: Comment) {
-        notifyProcessing()
-
+        commentBoundaryCallback.notifyPageLoading()
         commentEndpoint.deleteComment(comment.commentId, object : CommentsEndpoint.DeleteListener {
             override fun onDeleteSuccess() {
                 if (comment.parentId == null || comment.replies == 0) {
@@ -180,12 +176,6 @@ open class CommentsViewModel(
     private fun unregisterListeners() {
         for (listener in listeners) {
             unregisterListener(listener)
-        }
-    }
-
-    private fun notifyProcessing() {
-        for (listener in listeners) {
-            listener.notifyProcessing()
         }
     }
 
