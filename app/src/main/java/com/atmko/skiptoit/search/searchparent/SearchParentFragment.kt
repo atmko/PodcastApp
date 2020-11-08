@@ -50,6 +50,11 @@ class SearchParentFragment : BaseFragment(),
         getPresentationComponent().inject(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        defineViewModel()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -73,7 +78,6 @@ class SearchParentFragment : BaseFragment(),
 
         mSavedInstanceState = savedInstanceState
         configureViews()
-        configureValues()
     }
 
     override fun onStart() {
@@ -81,6 +85,7 @@ class SearchParentFragment : BaseFragment(),
         viewModel.registerListener(this)
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         viewModel.registerBoundaryCallbackListener(this)
+
         viewModel.handleSavedState(mSavedInstanceState)
     }
 
@@ -94,6 +99,15 @@ class SearchParentFragment : BaseFragment(),
         viewModel.unregisterListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
+    }
+
+    private fun defineViewModel() {
+        activity?.let {
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(SearchParentViewModel::class.java)
+        }
     }
 
     private fun configureBottomMargin() {
@@ -157,15 +171,6 @@ class SearchParentFragment : BaseFragment(),
         binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = podcastAdapter
-        }
-    }
-
-    private fun configureValues() {
-        activity?.let {
-            viewModel = ViewModelProvider(
-                it,
-                viewModelFactory
-            ).get(SearchParentViewModel::class.java)
         }
     }
 

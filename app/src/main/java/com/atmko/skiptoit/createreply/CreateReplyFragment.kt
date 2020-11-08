@@ -43,6 +43,7 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
         val args: CreateReplyFragmentArgs by navArgs()
         parentId = args.parentId
         username = args.username
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -57,7 +58,7 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
+        configureViewValues()
     }
 
     override fun onStart() {
@@ -70,6 +71,13 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
     override fun onStop() {
         super.onStop()
         viewModel.unregisterListener(this)
+    }
+
+    private fun defineViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(CreateReplyViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -89,12 +97,7 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
         }
     }
 
-    private fun configureValues() {
-        viewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(CreateReplyViewModel::class.java)
-
+    private fun configureViewValues() {
         binding.usernameTextView.text = username
     }
 

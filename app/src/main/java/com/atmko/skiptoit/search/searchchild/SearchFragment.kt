@@ -68,6 +68,7 @@ class SearchFragment : BaseFragment(),
             genreId = it.getInt(GENRE_ID_KEY)
             genreName = it.getString(GENRE_NAME_KEY)!!
         }
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -82,17 +83,7 @@ class SearchFragment : BaseFragment(),
 
         mSavedInstanceState = savedInstanceState
 
-        activity?.let {
-            viewModel = ViewModelProvider(
-                it,
-                viewModelFactory
-            ).get(genreName, SearchViewModel::class.java)
-        }
-
-        viewModel.fetchPodcastsByGenre(genreId)
-
         configureViews()
-        configureViewModel()
     }
 
     override fun onStart() {
@@ -100,7 +91,12 @@ class SearchFragment : BaseFragment(),
         viewModel.registerListener(this)
         viewModel.registerBoundaryCallbackListener(this)
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
+
         viewModel.handleSavedState(mSavedInstanceState)
+
+        viewModel.fetchPodcastsByGenre(genreId)
+
+        configureViewModel()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -113,6 +109,15 @@ class SearchFragment : BaseFragment(),
         viewModel.unregisterListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
+    }
+
+    private fun defineViewModel() {
+        activity?.let {
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(genreName, SearchViewModel::class.java)
+        }
     }
 
     fun configureViews() {

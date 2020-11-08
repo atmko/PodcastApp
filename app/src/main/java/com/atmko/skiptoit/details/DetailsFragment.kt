@@ -65,6 +65,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         val args: DetailsFragmentArgs by navArgs()
         //todo replace with database call in view model
         podcast = args.podcast
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -86,8 +87,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
-        configureViewModel()
+        configureViewValues(savedInstanceState)
     }
 
     override fun onStart() {
@@ -97,6 +97,12 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         getMasterActivity().subscriptionsViewModel.registerSubscriptionStatusListener(this)
         getMasterActivity().subscriptionsViewModel.getSubscriptionStatusAndNotify(podcast.id)
+
+        detailsViewModel.detectOldOrNewPodcastAndNotify(podcast.id)
+        detailsViewModel.getDetailsAndNotify(podcast.id)
+
+        episodeListViewModel.getEpisodes(podcast.id)
+        configureViewModel()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -122,6 +128,13 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
+    }
+
+    private fun defineViewModel() {
+        detailsViewModel = ViewModelProvider(this, viewModelFactory)
+            .get(DetailsViewModel::class.java)
+        episodeListViewModel = ViewModelProvider(this, viewModelFactory)
+            .get(EpisodeListViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -170,16 +183,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        detailsViewModel = ViewModelProvider(this, viewModelFactory)
-            .get(DetailsViewModel::class.java)
-        detailsViewModel.detectOldOrNewPodcastAndNotify(podcast.id)
-        detailsViewModel.getDetailsAndNotify(podcast.id)
-
-        episodeListViewModel = ViewModelProvider(this, viewModelFactory)
-            .get(EpisodeListViewModel::class.java)
-        episodeListViewModel.getEpisodes(podcast.id)
-
+    private fun configureViewValues(savedInstanceState: Bundle?) {
         binding.toggleSubscriptionButton.isEnabled = false
 
         if (savedInstanceState != null) {

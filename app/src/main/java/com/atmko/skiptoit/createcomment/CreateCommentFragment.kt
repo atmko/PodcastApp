@@ -17,8 +17,6 @@ import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-const val CREATED_COMMENT_KEY = "create_comment"
-
 class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
 
     private var _binding: FragmentCreateCommentBinding? = null
@@ -45,10 +43,11 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
         podcastId = args.podcastId
         episodeId = args.episodeId
         username = args.username
+        defineViewModel()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         viewModel.registerListener(this)
     }
 
@@ -64,17 +63,22 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureViewValues(savedInstanceState)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         viewModel.unregisterListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(BODY_KEY, binding.bodyEditText.text.toString())
+    }
+
+    private fun defineViewModel() {
+        viewModel = ViewModelProvider(this,
+            viewModelFactory).get(CreateCommentViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -93,10 +97,7 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this,
-            viewModelFactory).get(CreateCommentViewModel::class.java)
-
+    private fun configureViewValues(savedInstanceState: Bundle?) {
         binding.usernameTextView.text = username
         if (savedInstanceState != null) {
             binding.bodyEditText.text = savedInstanceState.getString(BODY_KEY)?.toEditable()

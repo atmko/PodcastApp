@@ -47,6 +47,7 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         parentId = args.parentId
         commentId = args.commentId
         username = args.username
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -61,7 +62,7 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
+        configureViewValues()
     }
 
     override fun onStart() {
@@ -77,6 +78,13 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         super.onStop()
         viewModel.unregisterListener(this)
         viewModel.unregisterReplyViewModelListener(this)
+    }
+
+    private fun defineViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(UpdateReplyViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -98,12 +106,7 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
         }
     }
 
-    private fun configureValues() {
-        viewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(UpdateReplyViewModel::class.java)
-
+    private fun configureViewValues() {
         binding.usernameTextView.text = username
     }
 

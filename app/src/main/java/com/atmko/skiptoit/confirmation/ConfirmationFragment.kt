@@ -40,11 +40,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
 
         val args: ConfirmationFragmentArgs by navArgs()
         message = args.message
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.registerListener(this)
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -59,7 +55,12 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureViewValues(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -68,8 +69,8 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
         outState.putString(USERNAME_KEY, binding.usernameEditText.text.toString())
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         viewModel.unregisterListener(this)
     }
 
@@ -81,12 +82,14 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
         }
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
+    private fun defineViewModel() {
         activity?.let {
             viewModel = ViewModelProvider(it,
                 viewModelFactory).get(ConfirmationViewModel::class.java)
         }
+    }
 
+    private fun configureViewValues(savedInstanceState: Bundle?) {
         binding.messageTextView.text = message
         if (savedInstanceState != null) {
             binding.usernameEditText.text =

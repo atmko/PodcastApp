@@ -47,14 +47,16 @@ class LaunchActivity : BaseActivity(),
 
         getPresentationComponent().inject(this)
 
+        defineViewModel()
         configureViews()
-        configureValues()
         retryProviderInstall()
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.registerListener(this)
+
+        viewModel.silentSignInAndNotify()
     }
 
     override fun onStop() {
@@ -90,6 +92,13 @@ class LaunchActivity : BaseActivity(),
         if (!viewModel.isFirstSetUp()) {
             startApp()
         }
+    }
+
+    private fun defineViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(LaunchViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -136,15 +145,6 @@ class LaunchActivity : BaseActivity(),
                 startApp()
             }
         }
-    }
-
-    private fun configureValues() {
-        viewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(LaunchViewModel::class.java)
-
-        viewModel.silentSignInAndNotify()
     }
 
     private fun retryProviderInstall() {

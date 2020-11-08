@@ -43,11 +43,7 @@ class UpdateCommentFragment : BaseFragment(), UpdateCommentViewModel.Listener {
         val args: UpdateCommentFragmentArgs by navArgs()
         commentId = args.commentId
         username = args.username
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.registerListener(this)
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -62,12 +58,26 @@ class UpdateCommentFragment : BaseFragment(), UpdateCommentViewModel.Listener {
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
+        configureViewValues()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerListener(this)
+
+        viewModel.getCachedCommentAndNotify(commentId)
+    }
+
+    override fun onStop() {
+        super.onStop()
         viewModel.unregisterListener(this)
+    }
+
+    private fun defineViewModel() {
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(UpdateCommentViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -89,14 +99,7 @@ class UpdateCommentFragment : BaseFragment(), UpdateCommentViewModel.Listener {
         }
     }
 
-    private fun configureValues() {
-        viewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(UpdateCommentViewModel::class.java)
-
-        viewModel.getCachedCommentAndNotify(commentId)
-
+    private fun configureViewValues() {
         binding.usernameTextView.text = username
     }
 

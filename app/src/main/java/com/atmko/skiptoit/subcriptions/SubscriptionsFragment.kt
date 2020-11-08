@@ -38,6 +38,11 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         getPresentationComponent().inject(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        defineViewModel()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -56,14 +61,16 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        defineViewModelValues()
         configureViews()
-        configureDetailsViewModel()
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.registerListener(this)
+
+        viewModel.silentSignIn()
+
+        configureDetailsViewModel()
     }
 
     override fun onStop() {
@@ -71,21 +78,19 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         viewModel.unregisterListener(this)
     }
 
-    private fun configureBottomMargin() {
-        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
-        newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
-        binding.root.layoutParams = newLayoutParams
-    }
-
-    private fun defineViewModelValues() {
+    private fun defineViewModel() {
         activity?.let {
             viewModel = ViewModelProvider(
                 it,
                 viewModelFactory
             ).get(SubscriptionsViewModel::class.java)
         }
+    }
 
-        viewModel.silentSignIn()
+    private fun configureBottomMargin() {
+        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
+        binding.root.layoutParams = newLayoutParams
     }
 
     private fun configureViews() {

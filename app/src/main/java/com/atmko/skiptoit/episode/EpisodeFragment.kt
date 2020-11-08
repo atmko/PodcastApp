@@ -86,6 +86,7 @@ class EpisodeFragment : BaseFragment(),
         val args: EpisodeFragmentArgs by navArgs()
         podcastId = args.podcastId
         episodeId = args.episodeId
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -100,7 +101,7 @@ class EpisodeFragment : BaseFragment(),
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues(savedInstanceState)
+        configureViewValues(savedInstanceState)
     }
 
     override fun onStart() {
@@ -155,6 +156,18 @@ class EpisodeFragment : BaseFragment(),
             binding.playPanel.player = mPlaybackService?.player
             binding.playPanel.showController()
         }
+    }
+
+    private fun defineViewModel() {
+        episodeViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(EpisodeViewModel::class.java)
+
+        parentCommentsViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(ParentCommentsViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -280,17 +293,7 @@ class EpisodeFragment : BaseFragment(),
         includeDetailsExtras?.layoutParams = detailExtrasParams
     }
 
-    private fun configureValues(savedInstanceState: Bundle?) {
-        episodeViewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(EpisodeViewModel::class.java)
-
-        parentCommentsViewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(ParentCommentsViewModel::class.java)
-
+    private fun configureViewValues(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             showMore = savedInstanceState.getBoolean(SHOW_MORE_KEY)
         }

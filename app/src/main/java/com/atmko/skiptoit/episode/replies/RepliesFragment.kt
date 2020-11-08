@@ -56,6 +56,7 @@ class RepliesFragment : BaseFragment(),
         parentCommentId = args.parentCommentId
 
         configureBaseBackButtonFunctionality()
+        defineViewModel()
     }
 
     override fun onCreateView(
@@ -70,7 +71,6 @@ class RepliesFragment : BaseFragment(),
         super.onActivityCreated(savedInstanceState)
 
         configureViews()
-        configureValues()
     }
 
     override fun onStart() {
@@ -104,18 +104,18 @@ class RepliesFragment : BaseFragment(),
         activity?.onBackPressedDispatcher?.addCallback(this, callback)
     }
 
+    private fun defineViewModel() {
+        repliesViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(RepliesViewModel::class.java)
+    }
+
     private fun configureViews() {
         binding.resultsRecyclerView.resultsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = repliesAdapter
         }
-    }
-
-    private fun configureValues() {
-        repliesViewModel = ViewModelProvider(
-            this,
-            viewModelFactory
-        ).get(RepliesViewModel::class.java)
     }
 
     private fun setupParentComment() {

@@ -114,6 +114,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
 
         configureOrientationRestrictions()
         configureBaseBackButtonFunctionality()
+        defineViewModel()
         configureViews()
         configureValues()
         launchEpisodeFragment()
@@ -132,6 +133,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
         }
         masterActivityViewModel.handleSavedStateAndNotify(mSavedInstanceState)
+
+        masterActivityViewModel.getMatchingUserAndNotify()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -186,6 +189,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
         }
 
         onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    private fun defineViewModel() {
+        masterActivityViewModel = ViewModelProvider(this,
+            viewModelFactory).get(MasterActivityViewModel::class.java)
+
+        subscriptionsViewModel = ViewModelProvider(this,
+            viewModelFactory).get(SubscriptionsViewModel::class.java)
     }
 
     private fun configureViews() {
