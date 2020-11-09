@@ -22,7 +22,7 @@ class PodcastAdapter(
         fun onSubscriptionToggle(podcast: Podcast)
     }
 
-    var subscriptions: HashMap<String, Unit?>? = null
+    var subscriptions: HashMap<String, Unit?>? = HashMap()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastViewHolder {
         return PodcastViewHolder(
@@ -57,15 +57,15 @@ class PodcastAdapter(
             clickListener.onSubscriptionToggle(podcast)
         }
 
-        if (subscriptions != null) {
-            if (!subscriptions!!.containsKey(podcast.id)) {
-                setIsNotSubscribed(holder)
-            } else {
-                setIsSubscribed(holder)
-            }
+        if (isSubscribed(podcast.id)) {
+            setIsSubscribed(holder)
         } else {
             setIsNotSubscribed(holder)
         }
+    }
+
+    private fun isSubscribed(podcastId: String): Boolean {
+        return subscriptions != null && subscriptions!!.containsKey(podcastId)
     }
 
     private fun setIsSubscribed(holder: PodcastViewHolder) {
