@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.testdata
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.atmko.skiptoit.model.Episode
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.PodcastDetails
@@ -92,6 +94,27 @@ class PodcastMocks {
                     WITH_EPISODES,
                     NEXT_EPISODE_PUBLISH_DATE
                 )
+            }
+        }
+    }
+
+    class PodcastLiveDataMocks {
+
+        companion object {
+            fun GET_PODCAST_LIST(): LiveData<List<Podcast>> {
+                return MutableLiveData<List<Podcast>>(listOf(GET_PODCAST_1()))
+            }
+        }
+    }
+
+    class PodcastSubscriptionAMap {
+
+        companion object {
+            fun GET_SUBSCRIPTION_MAP(): Map<String, Unit?> {
+                val desiredResult = HashMap<String, Unit?>()
+                desiredResult[PodcastMocks.PODCAST_ID_1] = null
+                desiredResult[PodcastMocks.PODCAST_ID_2] = null
+                return desiredResult
             }
         }
     }

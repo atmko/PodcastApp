@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.model.database
 
+import androidx.lifecycle.LiveData
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.utils.AppExecutors
 
@@ -20,6 +21,10 @@ open class SubscriptionsCache(
     interface FetchSubscriptionsListener {
         fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>)
         fun onFetchSubscriptionFailed()
+    }
+
+    interface FetchSubscriptionsLiveDataListener {
+        fun onFetchSubscriptionsSuccess(localSubscriptions: LiveData<List<Podcast>>)
     }
 
     interface SubscriptionStatusListener {
@@ -48,6 +53,10 @@ open class SubscriptionsCache(
                 listener.onFetchSubscriptionsSuccess(localSubscriptions)
             }
         }
+    }
+
+    open fun getSubscriptionsLiveData(listener: FetchSubscriptionsLiveDataListener) {
+        listener.onFetchSubscriptionsSuccess(subscriptionsDao!!.getAllSubscriptions())
     }
 
     open fun removeSubscription(podcastId: String, listener: SubscriptionUpdateListener) {

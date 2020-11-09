@@ -37,6 +37,12 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
         }
     }
 
+    var mGetSubscriptionsLiveDataCounter = 0
+    override fun getSubscriptionsLiveData(listener: FetchSubscriptionsLiveDataListener) {
+        mGetSubscriptionsLiveDataCounter++
+        listener.onFetchSubscriptionsSuccess(PodcastMocks.PodcastLiveDataMocks.GET_PODCAST_LIST())
+    }
+
     var mRemoveSubscriptionCounter = 0
     var mRemoveSubscriptionFailure = false
     override fun removeSubscription(podcastId: String, listener: SubscriptionUpdateListener) {

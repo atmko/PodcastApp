@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.subcriptions
 
-import com.atmko.skiptoit.model.database.SubscriptionsDao
 import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testclass.PodcastsEndpointTd
 import com.atmko.skiptoit.testclass.SubscriptionsCacheTd
@@ -27,7 +26,6 @@ class SubscriptionsViewModelTest {
     // region constants
     companion object {
         @Mock lateinit var GOOGLE_SIGN_IN_ACCOUNT_MOCK: GoogleSignInAccount
-        const val PODCAST_ID = "podcastId"
     }
 
     // endregion constants
@@ -37,7 +35,6 @@ class SubscriptionsViewModelTest {
     lateinit var mPodcastsEndpointTd: PodcastsEndpointTd
     lateinit var mSubscriptionsEndpointTd: SubscriptionsEndpointTd
     lateinit var mSubscriptionsCacheTd: SubscriptionsCacheTd
-    @Mock lateinit var mSubscriptionsDao: SubscriptionsDao
 
     @Mock lateinit var mListenerMock1: SubscriptionsViewModel.Listener
     @Mock lateinit var mListenerMock2: SubscriptionsViewModel.Listener
@@ -58,7 +55,7 @@ class SubscriptionsViewModelTest {
         mSubscriptionsEndpointTd = SubscriptionsEndpointTd()
         mSubscriptionsCacheTd = SubscriptionsCacheTd()
         SUT = SubscriptionsViewModel(mLoginManagerTd, mPodcastsEndpointTd,
-            mSubscriptionsEndpointTd, mSubscriptionsCacheTd, mSubscriptionsDao)
+            mSubscriptionsEndpointTd, mSubscriptionsCacheTd)
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
         silentSignInSuccess()
@@ -586,6 +583,35 @@ class SubscriptionsViewModelTest {
         // Assert
         verify(mListenerMock1).onSubscriptionsSyncStatusSyncFailed()
         verify(mListenerMock2).onSubscriptionsSyncStatusSyncFailed()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun getSubscriptions_getSubscriptionsLiveDataCalled() {
+        // Assert
+        // Act
+        SUT.getSubscriptions()
+        // Assert
+        assertThat(mSubscriptionsCacheTd.mGetSubscriptionsLiveDataCounter, `is`(1))
+    }
+
+    @Test
+    fun getSubscriptions_getSubscriptionsLiveDataSuccess_subscriptionsSavedToVariable() {
+        // Assert
+        // Act
+        SUT.getSubscriptions()
+        // Assert
+        assertThat(SUT.subscriptions!!.value, `is`(PodcastMocks.PodcastLiveDataMocks.GET_PODCAST_LIST().value))
+    }
+
+    @Test
+    fun saveSubscriptionMap_getSubscriptionsLiveDataSuccess_subscriptionsSavedToVariable() {
+        // Assert
+        // Act
+        SUT.saveSubscriptionMap(listOf(PodcastMocks.GET_PODCAST_1(), PodcastMocks.GET_PODCAST_2()))
+        // Assert
+        assertThat(SUT.subscriptionsMap, `is`(PodcastMocks.PodcastSubscriptionAMap.GET_SUBSCRIPTION_MAP()))
     }
 
     // ---------------------------------------------------------------------------------------------

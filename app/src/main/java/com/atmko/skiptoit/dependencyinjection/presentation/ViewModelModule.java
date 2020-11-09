@@ -103,9 +103,8 @@ public class ViewModelModule {
     ViewModel provideSubscriptionsViewModel(LoginManager loginManager,
                                             PodcastsEndpoint podcastsEndpoint,
                                             SubscriptionsEndpoint subscriptionsEndpoint,
-                                            SubscriptionsCache subscriptionsCache,
-                                            SubscriptionsDao subscriptionsDao) {
-        return new SubscriptionsViewModel(loginManager, podcastsEndpoint, subscriptionsEndpoint, subscriptionsCache, subscriptionsDao);
+                                            SubscriptionsCache subscriptionsCache) {
+        return new SubscriptionsViewModel(loginManager, podcastsEndpoint, subscriptionsEndpoint, subscriptionsCache);
     }
 
     @Provides

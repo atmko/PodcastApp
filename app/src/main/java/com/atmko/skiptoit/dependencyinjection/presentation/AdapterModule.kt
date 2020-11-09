@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.atmko.skiptoit.details.EpisodeAdapter
 import com.atmko.skiptoit.episode.CommentsAdapter
 import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.atmko.skiptoit.updatecomment.SubscriptionsAdapter
 import dagger.Module
 import dagger.Provides
 
@@ -14,6 +15,13 @@ class AdapterModule(private val lifecycleOwner: LifecycleOwner, private val cont
     fun providePodcastAdapter(): PodcastAdapter {
         return PodcastAdapter(
             lifecycleOwner as PodcastAdapter.OnPodcastItemClickListener, context
+        )
+    }
+
+    @Provides
+    fun provideSubscriptionsAdapter(): SubscriptionsAdapter {
+        return SubscriptionsAdapter(
+            lifecycleOwner as SubscriptionsAdapter.OnSubscriptionItemClickListener
         )
     }
 

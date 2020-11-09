@@ -17,10 +17,10 @@ import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
 import com.atmko.skiptoit.databinding.FragmentSubscriptionsBinding
 import com.atmko.skiptoit.model.Podcast
-import com.atmko.skiptoit.search.searchchild.PodcastAdapter
+import com.atmko.skiptoit.updatecomment.SubscriptionsAdapter
 import javax.inject.Inject
 
-class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickListener,
+class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptionItemClickListener,
     SubscriptionsViewModel.Listener {
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
@@ -30,7 +30,7 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
     private lateinit var viewModel: SubscriptionsViewModel
 
     @Inject
-    lateinit var subscriptionsAdapter: PodcastAdapter
+    lateinit var subscriptionsAdapter: SubscriptionsAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,8 +69,6 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         viewModel.registerListener(this)
 
         viewModel.silentSignIn()
-
-        configureDetailsViewModel()
     }
 
     override fun onStop() {
@@ -116,27 +114,10 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
         }
     }
 
-    private fun configureDetailsViewModel() {
-        viewModel.subscriptions.observe(viewLifecycleOwner, Observer {
-            binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
-            subscriptionsAdapter.submitList(it)
-        })
-
-        viewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
-            isLoading?.let {
-                binding.errorAndLoading.loadingScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-                if (it) {
-                    binding.errorAndLoading.errorScreen.visibility = View.GONE
-                }
-            }
-        })
-
-        viewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
-            isError.let {
-                binding.errorAndLoading.errorScreen.visibility =
-                    if (it) View.VISIBLE else View.GONE
-            }
+    private fun configureViewModel() {
+        viewModel.subscriptions!!.observe(viewLifecycleOwner, Observer {
+            viewModel.saveSubscriptionMap(it!!)
+            subscriptionsAdapter.updateList(it)
         })
     }
 
@@ -166,15 +147,18 @@ class SubscriptionsFragment : BaseFragment(), PodcastAdapter.OnPodcastItemClickL
 
     override fun onSilentSignInFailed() {
         viewModel.getSubscriptions()
+        configureViewModel()
     }
 
     override fun onSubscriptionsSyncStatusSynced() {
         binding.syncErrorLayout.visibility = View.GONE
         viewModel.getSubscriptions()
+        configureViewModel()
     }
 
     override fun onSubscriptionsSyncStatusSyncFailed() {
         binding.syncErrorLayout.visibility = View.VISIBLE
         viewModel.getSubscriptions()
+        configureViewModel()
     }
 }

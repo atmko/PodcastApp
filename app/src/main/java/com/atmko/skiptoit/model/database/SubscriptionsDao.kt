@@ -1,6 +1,6 @@
 package com.atmko.skiptoit.model.database
 
-import androidx.paging.DataSource
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -16,7 +16,7 @@ interface SubscriptionsDao {
     fun isSubscribed(podcastId: String): Boolean
 
     @Query("SELECT * FROM subscriptions")
-    fun getAllSubscriptions(): DataSource.Factory<Int, Podcast>
+    fun getAllSubscriptions(): LiveData<List<Podcast>>
 
     @Query("SELECT * FROM subscriptions")
     fun getAllSubscriptionsAlt(): List<Podcast>

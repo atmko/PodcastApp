@@ -7,22 +7,8 @@
     android:layout_height="match_parent">
 
     <include
-        android:id="@+id/pageLoading"
-        layout="@layout/page_loading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <include
         android:id="@+id/resultsRecyclerView"
         layout="@layout/results_recycler_view" />
-
-    <include
-        android:id="@+id/error_and_loading"
-        layout="@layout/layout_error_and_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
