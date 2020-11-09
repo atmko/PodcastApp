@@ -96,10 +96,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         episodeListViewModel.registerBoundaryCallbackListener(this)
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         getMasterActivity().subscriptionsViewModel.registerSubscriptionStatusListener(this)
-        getMasterActivity().subscriptionsViewModel.getSubscriptionStatusAndNotify(podcast.id)
 
         detailsViewModel.detectOldOrNewPodcastAndNotify(podcast.id)
         detailsViewModel.getDetailsAndNotify(podcast.id)
+        getMasterActivity().subscriptionsViewModel.getSubscriptionStatusAndNotify(podcast.id)
 
         episodeListViewModel.getEpisodes(podcast.id)
         configureViewModel()
