@@ -68,7 +68,8 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
         super.onStart()
         viewModel.registerListener(this)
 
-        viewModel.silentSignIn()
+        viewModel.checkSyncStatusAndNotify()
+        configureViewModel()
     }
 
     override fun onStop() {
@@ -115,7 +116,7 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
     }
 
     private fun configureViewModel() {
-        viewModel.subscriptions!!.observe(viewLifecycleOwner, Observer {
+        viewModel.subscriptionsLiveData!!.observe(viewLifecycleOwner, Observer {
             viewModel.saveSubscriptionMap(it!!)
             subscriptionsAdapter.updateList(it)
         })
@@ -141,24 +142,11 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
 
     }
 
-    override fun onSilentSignInSuccess() {
-        viewModel.checkSyncStatusAndNotify()
-    }
-
-    override fun onSilentSignInFailed() {
-        viewModel.getSubscriptions()
-        configureViewModel()
-    }
-
     override fun onSubscriptionsSyncStatusSynced() {
         binding.syncErrorLayout.visibility = View.GONE
-        viewModel.getSubscriptions()
-        configureViewModel()
     }
 
     override fun onSubscriptionsSyncStatusSyncFailed() {
         binding.syncErrorLayout.visibility = View.VISIBLE
-        viewModel.getSubscriptions()
-        configureViewModel()
     }
 }

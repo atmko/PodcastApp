@@ -41,7 +41,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivityViewModel.MasterListener {
+class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
+    MasterActivityViewModel.MasterListener {
 
     private lateinit var binding: ActivityMasterBinding
 
@@ -450,7 +451,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener, MasterActivity
 
         reloadCurrentFragment()
 
-        subscriptionsViewModel.restoreSubscriptionsAndNotify()
+        subscriptionsViewModel.checkSyncStatusAndNotify()
     }
 
     private fun reloadCurrentFragment() {

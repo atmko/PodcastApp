@@ -46,6 +46,15 @@ open class SubscriptionsCache(
         }
     }
 
+    open fun getSubscriptionsForSync(listener: FetchSubscriptionsListener) {
+        AppExecutors.getInstance().diskIO().execute {
+            val localSubscriptions = subscriptionsDao!!.getAllSubscriptionsAlt()
+            AppExecutors.getInstance().mainThread().execute {
+                listener.onFetchSubscriptionsSuccess(localSubscriptions)
+            }
+        }
+    }
+
     open fun getSubscriptions(listener: FetchSubscriptionsListener) {
         AppExecutors.getInstance().diskIO().execute {
             val localSubscriptions = subscriptionsDao!!.getAllSubscriptionsAlt()

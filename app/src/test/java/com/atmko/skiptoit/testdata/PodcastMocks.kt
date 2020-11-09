@@ -107,13 +107,13 @@ class PodcastMocks {
         }
     }
 
-    class PodcastSubscriptionAMap {
+    class PodcastSubscriptionsMap {
 
         companion object {
             fun GET_SUBSCRIPTION_MAP(): Map<String, Unit?> {
                 val desiredResult = HashMap<String, Unit?>()
-                desiredResult[PodcastMocks.PODCAST_ID_1] = null
-                desiredResult[PodcastMocks.PODCAST_ID_2] = null
+                desiredResult[PODCAST_ID_1] = null
+                desiredResult[PODCAST_ID_2] = null
                 return desiredResult
             }
         }

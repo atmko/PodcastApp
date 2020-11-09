@@ -21,17 +21,28 @@ class  SubscriptionsCacheTd : SubscriptionsCache(null) {
         }
     }
 
-    var mGetSubscriptionsCounter = 0
-    var mGetSubscriptionsFailure = false
+    var mGetSubscriptionsForSyncCounter = 0
+    var mGetSubscriptionsForSyncFailure = false
     var mNoPushablePodcasts = true
-    override fun getSubscriptions(listener: FetchSubscriptionsListener) {
-        mGetSubscriptionsCounter += 1
-        if (!mGetSubscriptionsFailure) {
+    override fun getSubscriptionsForSync(listener: FetchSubscriptionsListener) {
+        mGetSubscriptionsForSyncCounter += 1
+        if (!mGetSubscriptionsForSyncFailure) {
             if (mNoPushablePodcasts) {
                 listener.onFetchSubscriptionsSuccess(listOf())
             } else {
                 listener.onFetchSubscriptionsSuccess(listOf(PodcastMocks.GET_PODCAST_3(), PodcastMocks.GET_PODCAST_4()))
             }
+        } else {
+            listener.onFetchSubscriptionFailed()
+        }
+    }
+
+    var mGetSubscriptionsCounter = 0
+    var mGetSubscriptionsFailure = false
+    override fun getSubscriptions(listener: FetchSubscriptionsListener) {
+        mGetSubscriptionsCounter += 1
+        if (!mGetSubscriptionsFailure) {
+            listener.onFetchSubscriptionsSuccess(listOf(PodcastMocks.GET_PODCAST_1(), PodcastMocks.GET_PODCAST_2()))
         } else {
             listener.onFetchSubscriptionFailed()
         }

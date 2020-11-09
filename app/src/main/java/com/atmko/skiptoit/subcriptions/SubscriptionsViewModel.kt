@@ -1,6 +1,5 @@
 package com.atmko.skiptoit.subcriptions
 
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.atmko.skiptoit.LoginManager
@@ -10,7 +9,6 @@ import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.Subscription
 import com.atmko.skiptoit.model.database.SubscriptionsCache
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 const val STATUS_SUBSCRIBE = 1
 const val STATUS_UNSUBSCRIBE = 0
@@ -22,10 +20,15 @@ class SubscriptionsViewModel(
     private val subscriptionsCache: SubscriptionsCache
 ) : BaseViewModel<SubscriptionsViewModel.Listener>() {
 
+    init {
+        // initialize fetch of subscriptions live data
+        getSubscriptionsLiveData()
+        // initialize fetch of subscriptions and save to subscriptions map
+        getSubscriptions()
+    }
+
     interface Listener {
         fun notifyProcessing()
-        fun onSilentSignInSuccess()
-        fun onSilentSignInFailed()
         fun onSubscriptionsSyncStatusSynced()
         fun onSubscriptionsSyncStatusSyncFailed()
     }
@@ -81,22 +84,10 @@ class SubscriptionsViewModel(
     var mIsLocalSubscriptionsSynced: Boolean? = null
     var mIsSubscriptionsSynced: Boolean? = null
 
-    var subscriptions: LiveData<List<Podcast>>? = null
+    var subscriptionsLiveData: LiveData<List<Podcast>>? = null
 
     // todo: not yet tested
     var subscriptionsMap: HashMap<String, Unit?>? = null
-
-    fun silentSignIn() {
-        loginManager.silentSignIn(object : LoginManager.SignInListener {
-            override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
-                notifySilentSignInSuccess()
-            }
-
-            override fun onSignInFailed(googleSignInIntent: Intent) {
-                notifySilentSignInFailed()
-            }
-        })
-    }
 
     fun checkSyncStatusAndNotify() {
         if (mIsSubscriptionsSynced != null) {
@@ -124,15 +115,30 @@ class SubscriptionsViewModel(
     }
 
     // todo: not yet tested
-    fun getSubscriptions() {
-        if (subscriptions != null) {
+    // get local subscriptions live data
+    private fun getSubscriptionsLiveData() {
+        if (subscriptionsLiveData != null) {
             return
         }
 
         subscriptionsCache.getSubscriptionsLiveData(object :
             SubscriptionsCache.FetchSubscriptionsLiveDataListener {
             override fun onFetchSubscriptionsSuccess(localSubscriptions: LiveData<List<Podcast>>) {
-                subscriptions = localSubscriptions
+                subscriptionsLiveData = localSubscriptions
+            }
+        })
+    }
+
+    // get subscriptions and save results in subscriptions map
+    private fun getSubscriptions() {
+        subscriptionsCache.getSubscriptions(object :
+            SubscriptionsCache.FetchSubscriptionsListener {
+            override fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>) {
+                saveSubscriptionMap(localSubscriptions)
+            }
+
+            override fun onFetchSubscriptionFailed() {
+
             }
         })
     }
@@ -256,7 +262,8 @@ class SubscriptionsViewModel(
     }
 
     private fun getLocalSubscriptions(serverSubscriptions: List<Subscription>) {
-        subscriptionsCache.getSubscriptions(object : SubscriptionsCache.FetchSubscriptionsListener {
+        subscriptionsCache.getSubscriptionsForSync(object :
+            SubscriptionsCache.FetchSubscriptionsListener {
             override fun onFetchSubscriptionsSuccess(localSubscriptions: List<Podcast>) {
                 val serverSubscriptionsMap = createServerSubscriptionsMap(serverSubscriptions)
                 val localSubscriptionsMap = createLocalSubscriptionsMap(localSubscriptions)
@@ -396,18 +403,6 @@ class SubscriptionsViewModel(
             }
         }
         return notInMap
-    }
-
-    private fun notifySilentSignInSuccess() {
-        for (listener in listeners) {
-            listener.onSilentSignInSuccess()
-        }
-    }
-
-    private fun notifySilentSignInFailed() {
-        for (listener in listeners) {
-            listener.onSilentSignInFailed()
-        }
     }
 
     private fun notifyOnSubscriptionStatusSynced() {
