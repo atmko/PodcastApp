@@ -59,14 +59,24 @@ class PodcastAdapter(
 
         if (subscriptions != null) {
             if (!subscriptions!!.containsKey(podcast.id)) {
-                holder.binding.toggleSubscriptionButton.setImageDrawable(
-                    context.resources.getDrawable(R.drawable.ic_subscribe_button_black)
-                )
+                setIsNotSubscribed(holder)
             } else {
-                holder.binding.toggleSubscriptionButton.setImageDrawable(
-                    context.resources.getDrawable(R.drawable.ic_subscribed_button_black)
-                )
+                setIsSubscribed(holder)
             }
+        } else {
+            setIsNotSubscribed(holder)
         }
+    }
+
+    private fun setIsSubscribed(holder: PodcastViewHolder) {
+        holder.binding.toggleSubscriptionButton.setImageDrawable(
+            context.resources.getDrawable(R.drawable.ic_subscribed_button_black)
+        )
+    }
+
+    private fun setIsNotSubscribed(holder: PodcastViewHolder) {
+        holder.binding.toggleSubscriptionButton.setImageDrawable(
+            context.resources.getDrawable(R.drawable.ic_subscribe_button_black)
+        )
     }
 }
