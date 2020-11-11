@@ -16,18 +16,21 @@ class DetailsViewModel(
         fun onDetailsFetched(podcastDetails: PodcastDetails)
         fun onDetailsFetchFailed()
 
-        fun onOldPodcastDetced()
-        fun onNewPodcastDetcted()
+        fun onOldPodcastDetected(episodeId: String)
+        fun onNewPodcastDetected()
         fun onPodcastDetectFailed()
 
         fun onToggleOldEpisodePlayback()
         fun onToggleOldEpisodePlaybackFailed()
-        fun onToggleNewEpisodePlayback(latestEpisodeId: String)
+        fun onToggleNewEpisodePlayback(episodeId: String)
         fun onToggleNewEpisodePlaybackFailed()
+
+        fun onExpandOldListedEpisode()
+        fun onExpandNewListedEpisode(episodeId: String)
     }
 
     lateinit var podcastDetails: PodcastDetails
-    var latestEpisodeId: String? = null
+    var currentEpisodeId: String? = null
 
     fun getDetailsAndNotify(podcastId: String) {
         if (this::podcastDetails.isInitialized) {
@@ -57,6 +60,7 @@ class DetailsViewModel(
             override fun onEpisodeRestoreSuccess(episode: Episode?) {
                 isOldPodcast = episode != null && podcastId == episode.podcastId
                 if (isOldPodcast!!) {
+                    currentEpisodeId = episode?.episodeId
                     notifyOldPodcastDetected()
                 } else {
                     notifyNewPodcastDetected()
@@ -69,18 +73,21 @@ class DetailsViewModel(
         })
     }
 
-    fun togglePlaybackAndNotify(podcastId: String) {
-        if (latestEpisodeId != null) {
-            notifyToggleOldEpisodePlayback()
-            return
-        }
-
-        if (isOldPodcast == null ) {
+    fun togglePlayButtonAndNotify(podcastId: String) {
+        // notify failure if isOldPodcast hasn't been determined
+        if (isOldPodcast == null) {
             notifyToggleOldEpisodePlaybackFailed()
             return
         }
 
+        // if isOldPodcast means that it been determined that there must be a currently loaded episode. toggle old episode playback
         if (isOldPodcast!!) {
+            notifyToggleOldEpisodePlayback()
+            return
+        }
+
+        // toggle current episode if it exists
+        if (currentEpisodeId != null) {
             notifyToggleOldEpisodePlayback()
             return
         }
@@ -89,10 +96,11 @@ class DetailsViewModel(
             podcastId,
             object : EpisodesCache.GetAllPodcastEpisodesListener {
                 override fun onGetAllEpisodesSuccess(podcastEpisodes: List<Episode>) {
-                    latestEpisodeId =
+                    isOldPodcast = true
+                    currentEpisodeId =
                         if (podcastEpisodes.isNotEmpty()) podcastEpisodes[0].episodeId else null
 
-                    if (latestEpisodeId != null) {
+                    if (currentEpisodeId != null) {
                         notifyToggleNewEpisodePlayback()
                     } else {
                         notifyToggleNewEpisodePlaybackFailed()
@@ -103,6 +111,28 @@ class DetailsViewModel(
                     notifyToggleNewEpisodePlaybackFailed()
                 }
             })
+    }
+
+    fun toggleListedEpisodePlaybackAndNotify(episodeId: String) {
+        if (isOldEpisode(episodeId)) {
+            notifyToggleOldEpisodePlayback()
+        } else {
+            currentEpisodeId = episodeId
+            notifyToggleNewEpisodePlayback()
+        }
+    }
+
+    fun expandListedEpisodeAndNotify(episodeId: String) {
+        if (isOldEpisode(episodeId)) {
+            notifyExpandOldListedEpisode()
+        } else {
+            currentEpisodeId = episodeId
+            notifyExpandNewListedEpisode()
+        }
+    }
+
+    private fun isOldEpisode(episodeId: String): Boolean {
+        return currentEpisodeId == episodeId
     }
 
     private fun unregisterListeners() {
@@ -131,13 +161,13 @@ class DetailsViewModel(
 
     private fun notifyOldPodcastDetected() {
         for (listener in listeners) {
-            listener.onOldPodcastDetced()
+            listener.onOldPodcastDetected(currentEpisodeId!!)
         }
     }
 
     private fun notifyNewPodcastDetected() {
         for (listener in listeners) {
-            listener.onNewPodcastDetcted()
+            listener.onNewPodcastDetected()
         }
     }
 
@@ -161,13 +191,25 @@ class DetailsViewModel(
 
     private fun notifyToggleNewEpisodePlayback() {
         for (listener in listeners) {
-            listener.onToggleNewEpisodePlayback(latestEpisodeId!!)
+            listener.onToggleNewEpisodePlayback(currentEpisodeId!!)
         }
     }
 
     private fun notifyToggleNewEpisodePlaybackFailed() {
         for (listener in listeners) {
             listener.onToggleNewEpisodePlaybackFailed()
+        }
+    }
+
+    private fun notifyExpandOldListedEpisode() {
+        for (listener in listeners) {
+            listener.onExpandOldListedEpisode()
+        }
+    }
+
+    private fun notifyExpandNewListedEpisode() {
+        for (listener in listeners) {
+            listener.onExpandNewListedEpisode(currentEpisodeId!!)
         }
     }
 

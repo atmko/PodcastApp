@@ -1,7 +1,6 @@
 package com.atmko.skiptoit.details
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -146,7 +145,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.playButton.setOnClickListener {
-            detailsViewModel.togglePlaybackAndNotify(podcast.id)
+            detailsViewModel.togglePlayButtonAndNotify(podcast.id)
         }
 
         binding.showMore.setOnClickListener {
@@ -165,20 +164,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     private fun updatePlayButtonIcon(isPlaying: Boolean) {
         if (isPlaying) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                binding.playButton.icon =
-                    resources.getDrawable(R.drawable.ic_pause_button_sharp, null)
-            } else {
-                binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp)
-            }
+            binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp)
             binding.playButton.text = getString(R.string.pause)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                binding.playButton.icon =
-                    resources.getDrawable(R.drawable.ic_play_button_sharp, null)
-            } else {
-                binding.playButton.icon = resources.getDrawable(R.drawable.ic_pause_button_sharp)
-            }
+            binding.playButton.icon = resources.getDrawable(R.drawable.ic_play_button_sharp)
             binding.playButton.text = getString(R.string.play)
         }
     }
@@ -256,13 +245,17 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onPlaybackStateChanged(isPlaying: Boolean) {
         updatePlayButtonIcon(isPlaying)
+        episodeAdapter.isPlaying = isPlaying
+        // todo inefficient operation
+        episodeAdapter.notifyDataSetChanged()
     }
 
     override fun onItemClick(episode: Episode) {
-        getMasterActivity().loadEpisodeIntoCollapsedBottomSheet(
-            podcast.id,
-            episode.episodeId
-        )
+        detailsViewModel.expandListedEpisodeAndNotify(episode.episodeId)
+    }
+
+    override fun onPlayClicked(episode: Episode) {
+        detailsViewModel.toggleListedEpisodePlaybackAndNotify(episode.episodeId)
     }
 
     override fun notifyProcessing() {
@@ -333,11 +326,13 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         ).show()
     }
 
-    override fun onOldPodcastDetced() {
+    override fun onOldPodcastDetected(episodeId: String) {
+        episodeAdapter.currentlyLoadedEpisodeId = episodeId
+        getMasterActivity().unregisterPlaybackListener(this)
         getMasterActivity().registerPlaybackListener(this)
     }
 
-    override fun onNewPodcastDetcted() {
+    override fun onNewPodcastDetected() {
 
     }
 
@@ -361,12 +356,14 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         ).show()
     }
 
-    override fun onToggleNewEpisodePlayback(latestEpisodeId: String) {
+    override fun onToggleNewEpisodePlayback(episodeId: String) {
+        getMasterActivity().unregisterPlaybackListener(this)
         getMasterActivity().registerPlaybackListener(this)
         getMasterActivity().loadEpisodeIntoBottomSheet(
             podcast.id,
-            latestEpisodeId
+            episodeId
         )
+        episodeAdapter.currentlyLoadedEpisodeId = episodeId
     }
 
     override fun onToggleNewEpisodePlaybackFailed() {
@@ -375,6 +372,20 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             getString(R.string.failed_to_toggle_new_playback),
             Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    override fun onExpandOldListedEpisode() {
+        getMasterActivity().expandBottomSheet()
+    }
+
+    override fun onExpandNewListedEpisode(episodeId: String) {
+        getMasterActivity().unregisterPlaybackListener(this)
+        getMasterActivity().registerPlaybackListener(this)
+        getMasterActivity().loadEpisodeIntoBottomSheetAndExpand(
+            podcast.id,
+            episodeId
+        )
+        episodeAdapter.currentlyLoadedEpisodeId = episodeId
     }
 
     override fun onPageLoading() {

@@ -324,7 +324,11 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         return binding.bottomSheet.visibility == View.VISIBLE
     }
 
-    fun loadEpisodeIntoCollapsedBottomSheet(podcastId: String, episodeId: String) {
+    fun expandBottomSheet() {
+        masterActivityViewModel.expandBottomSheetAndNotify()
+    }
+
+    fun loadEpisodeIntoBottomSheetAndExpand(podcastId: String, episodeId: String) {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -343,7 +347,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
             }
         })
 
-        masterActivityViewModel.expandBottomSheetAndNotify()
+        expandBottomSheet()
     }
 
     fun loadEpisodeIntoBottomSheet(podcastId: String, episodeId: String) {

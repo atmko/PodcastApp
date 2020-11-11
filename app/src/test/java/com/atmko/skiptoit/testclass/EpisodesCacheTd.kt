@@ -5,7 +5,7 @@ import com.atmko.skiptoit.model.PodcastDetails
 import com.atmko.skiptoit.model.database.EpisodesCache
 import com.atmko.skiptoit.testdata.EpisodeMocks
 
-class EpisodesCacheTd : EpisodesCache(null, null) {
+open class EpisodesCacheTd : EpisodesCache(null, null) {
 
     var mFailure = false
     lateinit var mPodcastDetails: PodcastDetails
