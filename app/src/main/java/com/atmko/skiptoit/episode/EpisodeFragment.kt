@@ -58,6 +58,7 @@ class EpisodeFragment : BaseFragment(),
 
     private var mIsBound: Boolean = false
     private var mPlaybackService: PlaybackService? = null
+    private var isRestoringEpisode: Boolean = false
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -106,12 +107,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onStart() {
         super.onStart()
-        context?.let {
-            Intent(context, PlaybackService::class.java).also { intent ->
-                it.startService(intent)
-                it.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
-            }
-        }
         episodeViewModel.registerListener(this)
         parentCommentsViewModel.registerListener(this)
         parentCommentsViewModel.registerBoundaryCallbackListener(this)
@@ -134,6 +129,8 @@ class EpisodeFragment : BaseFragment(),
         super.onSaveInstanceState(outState)
 
         outState.putBoolean(SHOW_MORE_KEY, showMore)
+        val lastPlaybackPosition = mPlaybackService?.player?.contentPosition
+        episodeViewModel.saveState(lastPlaybackPosition)
     }
 
     //todo nullify binding in on destroy view instead of on destroy
@@ -149,12 +146,17 @@ class EpisodeFragment : BaseFragment(),
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             mIsBound = true
-            mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
-            episodeDetails?.let {
-                mPlaybackService!!.prepareMediaForPlayback(Uri.parse(it.audio))
-            }
-            binding.playPanel.player = mPlaybackService?.player
+            mPlaybackService =
+                (service as PlaybackService.PlaybackServiceBinder).getService()
+            mPlaybackService!!.prepareMediaForPlayback(Uri.parse(episodeDetails!!.audio))
+            binding.playPanel.player = mPlaybackService!!.player
             binding.playPanel.showController()
+
+            if (!isRestoringEpisode) {
+                mPlaybackService!!.play()
+            } else {
+                mPlaybackService!!.restorePlayback(episodeDetails!!.lastPlaybackPosition)
+            }
         }
     }
 
@@ -379,6 +381,7 @@ class EpisodeFragment : BaseFragment(),
         binding.detailsErrorAndLoading.errorScreen.visibility = View.GONE
 
         episodeDetails = episode
+        this.isRestoringEpisode = isRestoringEpisode
         episodeDetails?.let { details ->
             episodeId = details.episodeId
             podcastId = details.podcastId!!
@@ -390,18 +393,24 @@ class EpisodeFragment : BaseFragment(),
 
             getMasterActivity().configureBottomSheetState()
 
-            context?.let {
-                mPlaybackService?.prepareMediaForPlayback(Uri.parse(details.audio))
-                if (!isRestoringEpisode) {
-                    mPlaybackService?.play()
-                }
-            }
+            startPlaybackService()
+            attemptServiceBind()
 
             episodeViewModel.fetchNextEpisodeAndNotify(episodeDetails!!)
             episodeViewModel.fetchPrevEpisodeAndNotify(episodeDetails!!)
 
             setupEpisodeDetailsViewData()
         }
+    }
+
+    private fun startPlaybackService() {
+        val intent = Intent(context, PlaybackService::class.java)
+        requireContext().startService(intent)
+    }
+
+    private fun attemptServiceBind() {
+        val intent = Intent(context, PlaybackService::class.java)
+        requireContext().bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onDetailsFetchFailed() {

@@ -15,6 +15,7 @@ class EpisodeMocks {
         val LENTH_IN_SECONDS: Int = 3600
 
         val PODCAST_ID = "podcastId"
+        val LAST_PLAYBACK_POSITION: Long = 1000
 
         fun GET_EPISODE_1(): Episode {
             return Episode(
@@ -43,6 +44,7 @@ class EpisodeMocks {
         fun GET_EPISODE_DETAILS(): Episode {
             val episode = GET_EPISODE_1()
             episode.podcastId = PODCAST_ID
+            episode.lastPlaybackPosition = LAST_PLAYBACK_POSITION
             return episode
         }
 

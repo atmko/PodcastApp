@@ -25,6 +25,7 @@ class EpisodeViewModelTest {
     companion object {
         const val PODCAST_ID = "podcastId"
         const val EPISODE_ID = "episodeId"
+        const val LAST_PLAYBACK_POSITION: Long = 2000
     }
     // endregion constants
 
@@ -58,9 +59,21 @@ class EpisodeViewModelTest {
         insertEpisodesAndReturnPrevEpisodeSuccess()
         deletePodcastEpisodesSuccess()
         getEpisodeDetailsSuccess()
-        saveEpisodeSuccess()
+        saveEpisodeWithListenerSuccess()
         restoreEpisodeSuccess()
     }
+
+    @Test
+    fun saveState_saveEpisodeCalled() {
+        // Arrange
+        SUT.episodeDetails = EpisodeMocks.GET_EPISODE_DETAILS()
+        // Act
+        SUT.saveState(LAST_PLAYBACK_POSITION)
+        // Assert
+        assertThat(mEpisodesCacheTd.mSaveEpisodeCounter, `is`(1))
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     @Test
     fun getDetailsAndNotify_listenersNotifiedOfProcessing() {
@@ -95,20 +108,20 @@ class EpisodeViewModelTest {
     }
 
     @Test
-    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccess_correctEpisodePassedToSaveEpisode() {
+    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccess_correctEpisodePassedToSaveEpisodeWithListener() {
         // Arrange
         // Act
         SUT.getDetailsAndNotify(EPISODE_ID, PODCAST_ID)
         // Assert
-        assertThat(mEpisodesCacheTd.mSaveEpisodeCounter, `is`(1))
+        assertThat(mEpisodesCacheTd.mSaveEpisodeWithListenerCounter, `is`(1))
         assertThat(
-            mEpisodesCacheTd.mSaveEpisodeArgEpisode,
+            mEpisodesCacheTd.mSaveEpisodeWithListenerArgEpisode,
             `is`(EpisodeMocks.GET_EPISODE_DETAILS())
         )
     }
 
     @Test
-    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeSuccess_episodeDetailsSavedToVariable() {
+    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeWithListenerSuccess_episodeDetailsSavedToVariable() {
         // Arrange
         SUT.episodeDetails = null
         // Act
@@ -118,7 +131,7 @@ class EpisodeViewModelTest {
     }
 
     @Test
-    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeSuccess_listenersNotifiedOfSuccessWithCorrectValues() {
+    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeWithListenerSuccess_listenersNotifiedOfSuccessWithCorrectValues() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -130,7 +143,7 @@ class EpisodeViewModelTest {
     }
 
     @Test
-    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeSuccess_unregisteredListenersNotNotified() {
+    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeWithListenerSuccess_unregisteredListenersNotNotified() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -143,9 +156,9 @@ class EpisodeViewModelTest {
     }
 
     @Test
-    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeError_listenersNotifiedOfError() {
+    fun getDetailsAndNotify_validEpisodeIdAndPodcastIdDeletePodcastEpisodesSuccessGetEpisodeDetailsSuccessSaveEpisodeWithListenerError_listenersNotifiedOfError() {
         // Arrange
-        saveEpisodeError()
+        saveEpisodeWithListenerError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -621,12 +634,12 @@ class EpisodeViewModelTest {
         mEpisodeEndpointTd.mGetEpisodeDetailsError = true
     }
 
-    private fun saveEpisodeSuccess() {
-        // no-op because mSaveEpisodeError false by default
+    private fun saveEpisodeWithListenerSuccess() {
+        // no-op because mSaveEpisodeWithListenerError false by default
     }
 
-    private fun saveEpisodeError() {
-        mEpisodesCacheTd.mSaveEpisodeError = true
+    private fun saveEpisodeWithListenerError() {
+        mEpisodesCacheTd.mSaveEpisodeWithListenerError = true
     }
 
     private fun restoreEpisodeSuccess() {

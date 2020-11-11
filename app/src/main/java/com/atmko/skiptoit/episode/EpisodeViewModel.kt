@@ -27,6 +27,18 @@ class EpisodeViewModel(
     var nextEpisode: Episode? = null
     var prevEpisode: Episode? = null
 
+
+    fun saveState(lastPlaybackPosition: Long?) {
+        episodeDetails?.let {
+            it.lastPlaybackPosition = lastPlaybackPosition ?: 0
+            saveEpisodeState()
+        }
+    }
+
+    private fun saveEpisodeState() {
+        episodesCache.saveEpisode(episodeDetails!!)
+    }
+
     fun getDetailsAndNotify(episodeId: String?, podcastId: String?) {
         if (episodeDetails != null) {
             notifyDetailsFetched(episodeDetails, true)
@@ -63,7 +75,7 @@ class EpisodeViewModel(
             object : EpisodeEndpoint.EpisodeDetailsListener {
                 override fun onEpisodeDetailsFetchSuccess(episode: Episode) {
                     episode.podcastId = podcastId
-                    saveEpisode(episode)
+                    saveEpisodeAsLastPlayed(episode)
                 }
 
                 override fun onEpisodeDetailsFetchFailed() {
@@ -72,8 +84,8 @@ class EpisodeViewModel(
             })
     }
 
-    private fun saveEpisode(episode: Episode) {
-        episodesCache.saveEpisode(episode, object : EpisodesCache.SaveEpisodeListener {
+    private fun saveEpisodeAsLastPlayed(episode: Episode) {
+        episodesCache.saveEpisodeWithListener(episode, object : EpisodesCache.SaveEpisodeListener {
             override fun onEpisodeSaveSuccess() {
                 episodeDetails = episode
                 notifyDetailsFetched(episodeDetails, false)

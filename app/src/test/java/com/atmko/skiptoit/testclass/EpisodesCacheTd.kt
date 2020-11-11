@@ -67,17 +67,24 @@ open class EpisodesCacheTd : EpisodesCache(null, null) {
         }
     }
 
-    var mSaveEpisodeCounter = 0
-    var mSaveEpisodeError = false
-    lateinit var mSaveEpisodeArgEpisode: Episode
-    override fun saveEpisode(episode: Episode, listener: SaveEpisodeListener) {
-        mSaveEpisodeCounter += 1
-        mSaveEpisodeArgEpisode = episode
-        if (!mSaveEpisodeError) {
+    var mSaveEpisodeWithListenerCounter = 0
+    var mSaveEpisodeWithListenerError = false
+    lateinit var mSaveEpisodeWithListenerArgEpisode: Episode
+    override fun saveEpisodeWithListener(episode: Episode, listener: SaveEpisodeListener) {
+        mSaveEpisodeWithListenerCounter += 1
+        mSaveEpisodeWithListenerArgEpisode = episode
+        if (!mSaveEpisodeWithListenerError) {
             listener.onEpisodeSaveSuccess()
         } else {
             listener.onEpisodeSaveFailed()
         }
+    }
+
+    var mSaveEpisodeCounter = 0
+    lateinit var mSaveEpisodeArgEpisode: Episode
+    override fun saveEpisode(episode: Episode) {
+        mSaveEpisodeCounter += 1
+        mSaveEpisodeArgEpisode = episode
     }
 
     var mRestoreEpisodeCounter = 0

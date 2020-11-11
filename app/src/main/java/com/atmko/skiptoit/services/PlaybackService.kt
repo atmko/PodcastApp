@@ -81,6 +81,12 @@ class PlaybackService: BaseService() {
         registerReceiver(noisyReceiver, intentFilter)
     }
 
+    fun restorePlayback(lastPlaybackPosition: Long) {
+        if (!player!!.isPlaying) {
+            player!!.seekTo(lastPlaybackPosition)
+        }
+    }
+
     fun togglePlayPause() {
         player?.let {
             it.playWhenReady = !it.isPlaying

@@ -133,14 +133,9 @@ open class EpisodesCache(
         }
     }
 
-    @SuppressLint("ApplySharedPref")
-    open fun saveEpisode(episode: Episode, listener: SaveEpisodeListener) {
+    open fun saveEpisodeWithListener(episode: Episode, listener: SaveEpisodeListener) {
         AppExecutors.getInstance().diskIO().execute {
-            prefs!!.edit()
-                .putString(PODCAST_ID_KEY, episode.podcastId)
-                .putString(EPISODE_ID_KEY, episode.episodeId)
-                .putString(PODCAST_TITLE_KEY, episode.podcast!!.title)
-                .commit()
+            saveEpisodeHelper(episode)
 
             AppExecutors.getInstance().mainThread().execute {
                 listener.onEpisodeSaveSuccess()
@@ -148,11 +143,26 @@ open class EpisodesCache(
         }
     }
 
+    open fun saveEpisode(episode: Episode) {
+        saveEpisodeHelper(episode)
+    }
+
+    @SuppressLint("ApplySharedPref")
+    private fun saveEpisodeHelper(episode: Episode) {
+        prefs!!.edit()
+            .putString(PODCAST_ID_KEY, episode.podcastId)
+            .putString(EPISODE_ID_KEY, episode.episodeId)
+            .putString(PODCAST_TITLE_KEY, episode.podcast!!.title)
+            .putLong(LAST_PLAYBACK_POSITION_KEY, episode.lastPlaybackPosition)
+            .commit()
+    }
+
     open fun restoreEpisode(listener: RestoreEpisodeListener) {
         AppExecutors.getInstance().diskIO().execute {
             val episodeId = prefs!!.getString(EPISODE_ID_KEY, "")
             val podcastId = prefs.getString(PODCAST_ID_KEY, "")
             val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
+            val lastPlaybackPosition = prefs.getLong(LAST_PLAYBACK_POSITION_KEY, 0)
 
             val restoredEpisode: Episode? = skipToItDatabase!!.episodeDao().getEpisode(episodeId!!)
             if (restoredEpisode != null) {
@@ -160,6 +170,7 @@ open class EpisodesCache(
                 val podcast =
                     Podcast(podcastId!!, podcastTitle, "", "", "", 0)
                 restoredEpisode.podcast = podcast
+                restoredEpisode.lastPlaybackPosition = lastPlaybackPosition
             }
 
             AppExecutors.getInstance().mainThread().execute {

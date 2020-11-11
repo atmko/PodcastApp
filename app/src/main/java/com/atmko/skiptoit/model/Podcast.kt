@@ -7,19 +7,22 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
+// todo: move constants to companion object
 const val PODCAST_ID_KEY = "podcast_id"
 const val PODCAST_TITLE_KEY = "podcast_title"
 
 @Entity(tableName = "subscriptions")
-class Podcast(@PrimaryKey
-              @SerializedName("id") val id: String,
-              @SerializedName("title", alternate=["title_original"]) val title: String?,
-              @SerializedName("publisher", alternate=["publisher_original"]) val publisher: String,
-              val image: String,
-              val description: String?,
-              @ColumnInfo(name = "total_episodes")
-              @SerializedName("total_episodes") val totalEpisodes: Int) : Serializable {
-    
+class Podcast(
+    @PrimaryKey
+    @SerializedName("id") val id: String,
+    @SerializedName("title", alternate = ["title_original"]) val title: String?,
+    @SerializedName("publisher", alternate = ["publisher_original"]) val publisher: String,
+    val image: String,
+    val description: String?,
+    @ColumnInfo(name = "total_episodes")
+    @SerializedName("total_episodes") val totalEpisodes: Int
+) : Serializable {
+
     class PodcastDiffCallback : DiffUtil.ItemCallback<Podcast>() {
         override fun areItemsTheSame(oldItem: Podcast, newItem: Podcast): Boolean {
             return oldItem.id == newItem.id

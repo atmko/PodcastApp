@@ -10,10 +10,12 @@ import com.google.gson.annotations.SerializedName
 import java.text.SimpleDateFormat
 import java.util.*
 
+// todo: move constants to companion object
 const val EPISODE_ID_KEY = "episode_id"
 
 const val MINUTE_TO_SECONDS = 60
 const val PUBLISH_DATE_FORMAT = "MMM dd, yyyy"
+const val LAST_PLAYBACK_POSITION_KEY = "last_playback_position"
 
 @Entity(tableName = "episodes")
 class Episode(
@@ -30,14 +32,20 @@ class Episode(
     val publishDate: Long,
     @ColumnInfo(name = "length_in_seconds")
     @SerializedName("audio_length_sec")
-    val lengthInSeconds: Int) {
+    val lengthInSeconds: Int
+) {
 
     @ColumnInfo(name = "podcast_id")
     var podcastId: String? = null
-    @Ignore var podcast: Podcast? = null
+    @Ignore
+    var podcast: Podcast? = null
+    @Ignore
+    var lastPlaybackPosition: Long = 0
 
-    constructor(id: String, title: String?, description: String?, image: String?, audio: String?,
-                publishDate: Long, lengthInSeconds: Int, podcast: Podcast):
+    constructor(
+        id: String, title: String?, description: String?, image: String?, audio: String?,
+        publishDate: Long, lengthInSeconds: Int, podcast: Podcast
+    ) :
             this(id, title, description, image, audio, publishDate, lengthInSeconds) {
         this.podcast = podcast
     }
@@ -64,7 +72,6 @@ class Episode(
         }
     }
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -80,6 +87,7 @@ class Episode(
         if (lengthInSeconds != other.lengthInSeconds) return false
         if (podcastId != other.podcastId) return false
         if (podcast != other.podcast) return false
+        if (lastPlaybackPosition != other.lastPlaybackPosition) return false
 
         return true
     }
@@ -94,6 +102,7 @@ class Episode(
         result = 31 * result + lengthInSeconds
         result = 31 * result + (podcastId?.hashCode() ?: 0)
         result = 31 * result + (podcast?.hashCode() ?: 0)
+        result = 31 * result + lastPlaybackPosition.hashCode()
         return result
     }
 }
