@@ -52,7 +52,7 @@ class PodcastAdapter(
         holder.binding.publisher.text = podcast.publisher
         holder.binding.podcastImageView.loadNetworkImage(podcast.image)
         holder.binding.totalEpisodes.text =
-            String.format(holder.binding.totalEpisodes.text.toString(), podcast.totalEpisodes)
+            String.format(context.getString(R.string.total_episodes_format), podcast.totalEpisodes)
         holder.binding.toggleSubscriptionButton.setOnClickListener {
             clickListener.onSubscriptionToggle(podcast)
         }

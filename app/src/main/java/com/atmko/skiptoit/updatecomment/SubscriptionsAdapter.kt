@@ -1,11 +1,13 @@
 package com.atmko.skiptoit.updatecomment
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.Nullable
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.databinding.ItemPodcastListBinding
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.utils.loadNetworkImage
@@ -19,9 +21,11 @@ class SubscriptionsAdapter(
         fun onSubscriptionToggle(podcast: Podcast)
     }
 
+    lateinit var context: Context
     var subscriptions = arrayListOf<Podcast>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastViewHolder {
+        context = parent.context
         return PodcastViewHolder(
             ItemPodcastListBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -49,7 +53,7 @@ class SubscriptionsAdapter(
         holder.binding.publisher.text = podcast.publisher
         holder.binding.podcastImageView.loadNetworkImage(podcast.image)
         holder.binding.totalEpisodes.text =
-            String.format(holder.binding.totalEpisodes.text.toString(), podcast.totalEpisodes)
+            String.format(context.getString(R.string.total_episodes_format), podcast.totalEpisodes)
         holder.binding.toggleSubscriptionButton.setOnClickListener {
             clickListener.onSubscriptionToggle(podcast)
         }
