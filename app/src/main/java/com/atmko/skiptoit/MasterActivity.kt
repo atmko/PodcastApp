@@ -228,6 +228,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                masterActivityViewModel.handleBottomSheetDrag(slideOffset)
                 when (slideOffset) {
                     1f -> {
                         //hide collapsedBottomSheet and navView
@@ -539,10 +540,24 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     override fun onExpandBottomSheet() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        binding.navView.visibility = View.GONE
+        binding.episodeFragmentFrameLayout.visibility = View.VISIBLE
+        binding.collapsedBottomSheet.visibility = View.GONE
+
+        binding.episodeFragmentFrameLayout.alpha = 1f
+        binding.collapsedBottomSheet.alpha = 0f
     }
 
     override fun onCollapseBottomSheet() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        binding.navView.visibility = View.VISIBLE
+        binding.episodeFragmentFrameLayout.visibility = View.GONE
+        binding.collapsedBottomSheet.visibility = View.VISIBLE
+
+        binding.episodeFragmentFrameLayout.alpha = 0f
+        binding.collapsedBottomSheet.alpha = 1f
     }
 }

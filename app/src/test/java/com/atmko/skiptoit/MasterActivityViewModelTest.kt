@@ -73,6 +73,25 @@ class MasterActivityViewModelTest {
         getMatchingUserSuccess()
     }
 
+    @Test
+    fun handleBottomSheetDrag_slideEffectLessThan1_variablesCorrectlyUpdated() {
+        // Arrange
+        // Act
+        SUT.handleBottomSheetDrag(0.3f)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(false))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+    }
+
+    @Test
+    fun handleBottomSheetDrag_slideEffectEqualTo1_variablesCorrectlyUpdated() {
+        // Arrange
+        // Act
+        SUT.handleBottomSheetDrag(1f)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(true))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+    }
     // ---------------------------------------------------------------------------------------------
 
     @Test

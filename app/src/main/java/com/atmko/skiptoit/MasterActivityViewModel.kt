@@ -32,6 +32,12 @@ class MasterActivityViewModel(
     var isBottomSheetShown = false
     var isBottomSheetExpanded = false
 
+    // called every time bottom sheet is being dragged
+    fun handleBottomSheetDrag(slideOffset: Float) {
+        isBottomSheetExpanded = slideOffset == 1f
+        isBottomSheetShown = true
+    }
+
     fun handleSavedStateAndNotify(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             isBottomSheetShown = savedInstanceState.getBoolean(IS_BOTTOM_SHEET_SHOWN_KEY)
