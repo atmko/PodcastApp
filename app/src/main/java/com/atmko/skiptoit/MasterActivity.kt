@@ -117,7 +117,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         configureBaseBackButtonFunctionality()
         defineViewModel()
         configureViews()
-        configureValues()
         launchEpisodeFragment()
         if (masterActivityViewModel.isFirstSetUp()) {
             openLaunchFragment()
@@ -205,15 +204,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         configureBottomSheet()
         configureAppBar()
-    }
-
-    private fun configureValues() {
-        masterActivityViewModel = ViewModelProvider(this,
-            viewModelFactory).get(MasterActivityViewModel::class.java)
-        masterActivityViewModel.getMatchingUserAndNotify()
-
-        subscriptionsViewModel = ViewModelProvider(this,
-            viewModelFactory).get(SubscriptionsViewModel::class.java)
     }
 
     private fun launchEpisodeFragment() {
