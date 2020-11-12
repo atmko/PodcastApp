@@ -184,7 +184,7 @@ class SearchFragment : BaseFragment(),
         Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
     }
 
-    override fun notifyProcessing() {
+    override fun notifySubscriptionToggleProcessing() {
 
     }
 

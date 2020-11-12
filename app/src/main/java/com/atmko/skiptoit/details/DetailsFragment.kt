@@ -263,6 +263,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.toggleSubscriptionButton.isEnabled = false
     }
 
+    override fun notifySubscriptionToggleProcessing() {
+        binding.toggleSubscriptionButton.isEnabled = false
+    }
+
     override fun onSubscriptionToggleSuccess(isSubscribed: Boolean) {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
 
@@ -282,6 +286,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
             getString(R.string.failed_to_update_subscription),
             Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    override fun notifyFetchingSubscriptionStatus() {
+        binding.toggleSubscriptionButton.isEnabled = false
     }
 
     override fun onSubscriptionStatusFetched(isSubscribed: Boolean) {

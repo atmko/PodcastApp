@@ -36,7 +36,7 @@ class SubscriptionsViewModel(
     private val toggleListeners = mutableListOf<ToggleSubscriptionListener>()
 
     interface ToggleSubscriptionListener {
-        fun notifyProcessing()
+        fun notifySubscriptionToggleProcessing()
         fun onSubscriptionToggleSuccess(isSubscribed: Boolean)
         fun onSubscriptionToggleFailed()
     }
@@ -58,7 +58,7 @@ class SubscriptionsViewModel(
     private val subscriptionStatusListeners = mutableListOf<FetchSubscriptionStatusListener>()
 
     interface FetchSubscriptionStatusListener {
-        fun notifyProcessing()
+        fun notifyFetchingSubscriptionStatus()
         fun onSubscriptionStatusFetched(isSubscribed: Boolean)
         fun onSubscriptionStatusFetchFailed()
     }
@@ -419,7 +419,7 @@ class SubscriptionsViewModel(
 
     private fun notifyToggleStatusProcessing() {
         for (listener in toggleListeners) {
-            listener.notifyProcessing()
+            listener.notifySubscriptionToggleProcessing()
         }
     }
 
@@ -437,7 +437,7 @@ class SubscriptionsViewModel(
 
     private fun notifySubscriptionStatusProcessing() {
         for (listener in subscriptionStatusListeners) {
-            listener.notifyProcessing()
+            listener.notifyFetchingSubscriptionStatus()
         }
     }
 
