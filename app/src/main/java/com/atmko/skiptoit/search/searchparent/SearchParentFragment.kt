@@ -261,8 +261,8 @@ class SearchParentFragment : BaseFragment(),
         configureViewModel()
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
         binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
+        binding.errorAndLoading.errorScreen.visibility = View.GONE
+        binding.errorAndLoading.loadingScreen.visibility = View.GONE
     }
 
     override fun onHideManualLayout() {
