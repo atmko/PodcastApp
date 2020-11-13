@@ -1,12 +1,15 @@
 package com.atmko.skiptoit.search.searchparent
 
 import android.os.Bundle
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.search.common.PodcastDataSourceFactory
 import com.atmko.skiptoit.testdata.PodcastDataSourceProviderMapMocks.Companion.GET_PROVIDER_MAP
 import org.hamcrest.CoreMatchers.`is`
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,6 +23,13 @@ class SearchParentViewModelTest {
     // region constants
     companion object {
         const val QUERY_STRING = "queryString"
+
+        fun GET_SEARCH_RESULTS_LIVEDATA(dataSourceFactoryTd: PodcastDataSourceFactoryTd): LiveData<PagedList<Podcast>> {
+            return LivePagedListBuilder<Int, Podcast>(
+                dataSourceFactoryTd,
+                PagedList.Config.Builder().build()
+            ).build()
+        }
     }
 
     // endregion constants
@@ -157,6 +167,29 @@ class SearchParentViewModelTest {
         verify(mListenerMock1, never()).onHideGenreLayout()
         verify(mListenerMock2, never()).onShowManualLayout()
         verify(mListenerMock2, never()).onHideGenreLayout()
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleNonEmptyQueryStringManualSearchModeInBundleNonNullSearchResults_searchNotRefreshed() {
+        // Arrange
+        manualSearchModeInBundle()
+        SUT.searchResults = GET_SEARCH_RESULTS_LIVEDATA(dataSourceFactoryTd)
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        val expectedResults = GET_SEARCH_RESULTS_LIVEDATA(dataSourceFactoryTd)
+        assertThat(SUT.searchResults!!.value, `is`(expectedResults.value))
+    }
+
+    @Test
+    fun handleSavedStateAndNotify_notNullBundleNonEmptyQueryStringManualSearchModeInBundleNullSearchResults_searchRefreshed() {
+        // Arrange
+        manualSearchModeInBundle()
+        SUT.searchResults = null
+        // Act
+        SUT.handleSavedState(mBundleMock)
+        // Assert
+        assertNotNull(SUT.searchResults)
     }
 
     @Test

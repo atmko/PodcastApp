@@ -73,7 +73,7 @@ class SearchParentViewModel(
         if (searchMode == SEARCH_MODE_GENRE) {
             activateGenreModeAndNotify()
         } else {
-            activateManualModeAndNotify(queryString)
+            restoreManualModeAndNotify()
         }
 
         if (isSearchBoxVisible) {
@@ -102,6 +102,18 @@ class SearchParentViewModel(
         searchMode = SEARCH_MODE_GENRE
         notifyShowGenreLayout()
         notifyHideManualLayout()
+    }
+
+    private fun restoreManualModeAndNotify() {
+        if (queryString != "") {
+            searchMode = SEARCH_MODE_MANUAL
+            if (searchResults == null) {
+                search(queryString)
+            }
+            notifyShowManualLayout()
+            notifyHideGenreLayout()
+            notifyHideKeyboard()
+        }
     }
 
     fun activateManualModeAndNotify(queryString: String) {
