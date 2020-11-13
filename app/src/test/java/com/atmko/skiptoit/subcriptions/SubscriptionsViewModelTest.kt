@@ -599,8 +599,8 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.getSubscriptionStatusAndNotify(PodcastMocks.PODCAST_ID_1)
         // Assert
-        verify(mSubscriptionStatusListenerMock1).notifyProcessing()
-        verify(mSubscriptionStatusListenerMock2).notifyProcessing()
+        verify(mSubscriptionStatusListenerMock1).notifyFetchingSubscriptionStatus()
+        verify(mSubscriptionStatusListenerMock2).notifyFetchingSubscriptionStatus()
     }
 
     @Test
@@ -658,8 +658,8 @@ class SubscriptionsViewModelTest {
         // Act
         SUT.toggleSubscriptionAndNotify(PodcastMocks.GET_PODCAST_1())
         // Assert
-        verify(mToggleListenerMock1).notifyProcessing()
-        verify(mToggleListenerMock2).notifyProcessing()
+        verify(mToggleListenerMock1).notifySubscriptionToggleProcessing()
+        verify(mToggleListenerMock2).notifySubscriptionToggleProcessing()
     }
 
     @Test
