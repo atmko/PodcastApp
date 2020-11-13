@@ -15,7 +15,11 @@ abstract class BaseService : JobIntentService() {
         if (!mIsServiceComponentUsed) {
             mIsServiceComponentUsed = true
             return getApplicationComponent()
-                .newServiceComponent(ServiceModule(this))
+                .newServiceComponent(
+                    ServiceModule(
+                        this
+                    )
+                )
         }
         throw RuntimeException("getPresentationComponent() called more than once")
     }
