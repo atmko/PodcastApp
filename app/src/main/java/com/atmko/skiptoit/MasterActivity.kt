@@ -99,7 +99,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
                     }
                 }
             })
-            binding.collapsedBottomSheet.showController()
         }
     }
 
@@ -200,6 +199,9 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     }
 
     private fun configureViews() {
+        // show player controller (prevents black flashes upon loading)
+        binding.collapsedBottomSheet.showController()
+
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         configureBottomSheet()

@@ -150,7 +150,6 @@ class EpisodeFragment : BaseFragment(),
                 (service as PlaybackService.PlaybackServiceBinder).getService()
             mPlaybackService!!.prepareMediaForPlayback(Uri.parse(episodeDetails!!.audio))
             binding.playPanel.player = mPlaybackService!!.player
-            binding.playPanel.showController()
 
             if (!isRestoringEpisode) {
                 mPlaybackService!!.play()
@@ -188,6 +187,9 @@ class EpisodeFragment : BaseFragment(),
 
             }, SCRUBBER_HIDE_LENGTH)
         }
+
+        // show player controller (prevents black flashes upon loading)
+        binding.playPanel.showController()
 
         binding.nextEpisodeButton.apply {
             isEnabled = false
