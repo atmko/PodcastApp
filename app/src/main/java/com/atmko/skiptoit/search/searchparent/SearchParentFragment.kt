@@ -5,13 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -30,7 +31,8 @@ class SearchParentFragment : BaseFragment(),
     SearchParentViewModel.Listener,
     SubscriptionsViewModel.ToggleSubscriptionListener,
     PodcastAdapter.OnPodcastItemClickListener,
-    PodcastDataSource.Listener {
+    PodcastDataSource.Listener,
+    MasterActivity.BottomSheetListener {
 
     private var _binding: FragmentSearchParentBinding? = null
     private val binding get() = _binding!!
@@ -83,8 +85,10 @@ class SearchParentFragment : BaseFragment(),
     override fun onStart() {
         super.onStart()
         viewModel.registerListener(this)
-        getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         viewModel.registerBoundaryCallbackListener(this)
+
+        getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
+        getMasterActivity().registerBottomSheetListener(this)
 
         viewModel.handleSavedState(mSavedInstanceState)
     }
@@ -97,8 +101,10 @@ class SearchParentFragment : BaseFragment(),
     override fun onStop() {
         super.onStop()
         viewModel.unregisterListener(this)
-        getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
         viewModel.unregisterBoundaryCallbackListener(this)
+
+        getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
+        getMasterActivity().unregisterBottomSheetListener(this)
     }
 
     private fun defineViewModel() {
@@ -111,7 +117,7 @@ class SearchParentFragment : BaseFragment(),
     }
 
     private fun configureBottomMargin() {
-        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        val newLayoutParams = FrameLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
     }
@@ -220,7 +226,8 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onPageLoadFailed() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG)
+            .show()
     }
 
     override fun notifySubscriptionToggleProcessing() {
@@ -234,7 +241,11 @@ class SearchParentFragment : BaseFragment(),
     }
 
     override fun onSubscriptionToggleFailed() {
-        Snackbar.make(requireView(), getString(R.string.toggle_subscription_failed), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.toggle_subscription_failed),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onQueryStringRestored(queryString: String) {
@@ -290,5 +301,9 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onHideKeyboard() {
         getMasterActivity().hideSoftKeyboard(binding.toolbar.searchBox.searchBox)
+    }
+
+    override fun applyChange() {
+        configureBottomMargin()
     }
 }

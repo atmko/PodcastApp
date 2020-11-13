@@ -33,7 +33,8 @@ private const val SHOW_MORE_KEY = "show_more"
 class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListener,
     MasterActivity.PlayerListener, DetailsViewModel.Listener,
     SubscriptionsViewModel.ToggleSubscriptionListener,
-    SubscriptionsViewModel.FetchSubscriptionStatusListener, BaseBoundaryCallback.Listener {
+    SubscriptionsViewModel.FetchSubscriptionStatusListener, BaseBoundaryCallback.Listener,
+    MasterActivity.BottomSheetListener {
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
@@ -93,8 +94,10 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onStart()
         detailsViewModel.registerListener(this)
         episodeListViewModel.registerBoundaryCallbackListener(this)
+
         getMasterActivity().subscriptionsViewModel.registerToggleListener(this)
         getMasterActivity().subscriptionsViewModel.registerSubscriptionStatusListener(this)
+        getMasterActivity().registerBottomSheetListener(this)
 
         detailsViewModel.detectOldOrNewPodcastAndNotify(podcast.id)
         detailsViewModel.getDetailsAndNotify(podcast.id)
@@ -113,9 +116,11 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         super.onStop()
         detailsViewModel.unregisterListener(this)
         episodeListViewModel.unregisterBoundaryCallbackListener(this)
+
         getMasterActivity().unregisterPlaybackListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterToggleListener(this)
         getMasterActivity().subscriptionsViewModel.unregisterSubscriptionStatusListener(this)
+        getMasterActivity().unregisterBottomSheetListener(this)
     }
 
     override fun onDestroy() {
@@ -124,7 +129,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
     }
 
     private fun configureBottomMargin() {
-        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        val newLayoutParams = FrameLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
     }
@@ -408,5 +413,9 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
         Snackbar.make(requireView(), getString(R.string.failed_to_load_page), Snackbar.LENGTH_LONG)
             .show()
+    }
+
+    override fun applyChange() {
+        configureBottomMargin()
     }
 }

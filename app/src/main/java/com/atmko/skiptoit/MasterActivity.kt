@@ -58,11 +58,24 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     private var navBarOriginalYPosition: Float? = null
 
     private val playbackListeners = ArrayList<PlayerListener>()
+    private val bottomSheetListeners = ArrayList<BottomSheetListener>()
 
     private var mSavedInstanceState: Bundle? = null
 
     interface PlayerListener {
         fun onPlaybackStateChanged(isPlaying: Boolean)
+    }
+
+    interface BottomSheetListener {
+        fun applyChange()
+    }
+
+    fun registerBottomSheetListener(listener: BottomSheetListener) {
+        bottomSheetListeners.add(listener)
+    }
+
+    fun unregisterBottomSheetListener(listener: BottomSheetListener) {
+        bottomSheetListeners.remove(listener)
     }
 
     fun registerPlaybackListener(playbackListener: PlayerListener) {
@@ -363,18 +376,18 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     }
 
     fun configureBottomSheetState() {
-        if (!isBottomSheetExpanded()) {
-            val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-            val hasPeekHeight: Boolean = bottomSheetBehavior.peekHeight > 0
-            if (!hasPeekHeight || !isBottomSheetVisible() ) {
-                binding.navView.post {
-                    bottomSheetBehavior.peekHeight =
-                        binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-                }
-            }
-        }
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.peekHeight =
+            binding.navView.height + resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
 
         showBottomPanels()
+        notifyBottomSheetListeners()
+    }
+
+    private fun notifyBottomSheetListeners() {
+        for (listener in bottomSheetListeners) {
+            listener.applyChange()
+        }
     }
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {

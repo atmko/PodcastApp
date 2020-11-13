@@ -5,13 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.atmko.skiptoit.MasterActivity
 import com.atmko.skiptoit.R
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseFragment
@@ -21,7 +22,9 @@ import com.atmko.skiptoit.updatecomment.SubscriptionsAdapter
 import javax.inject.Inject
 
 class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptionItemClickListener,
-    SubscriptionsViewModel.Listener {
+    SubscriptionsViewModel.Listener,
+    MasterActivity.BottomSheetListener {
+
     private var _binding: FragmentSubscriptionsBinding? = null
     private val binding get() = _binding!!
 
@@ -68,6 +71,8 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
         super.onStart()
         viewModel.registerListener(this)
 
+        getMasterActivity().registerBottomSheetListener(this)
+
         viewModel.checkSyncStatusAndNotify()
         configureViewModel()
     }
@@ -75,6 +80,8 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
     override fun onStop() {
         super.onStop()
         viewModel.unregisterListener(this)
+
+        getMasterActivity().unregisterBottomSheetListener(this)
     }
 
     private fun defineViewModel() {
@@ -87,7 +94,7 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
     }
 
     private fun configureBottomMargin() {
-        val newLayoutParams = ConstraintLayout.LayoutParams(binding.root.layoutParams)
+        val newLayoutParams = FrameLayout.LayoutParams(binding.root.layoutParams)
         newLayoutParams.bottomMargin = getBaseFragmentBottomMargin()
         binding.root.layoutParams = newLayoutParams
     }
@@ -148,5 +155,9 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
 
     override fun onSubscriptionsSyncStatusSyncFailed() {
         binding.syncErrorLayout.visibility = View.VISIBLE
+    }
+
+    override fun applyChange() {
+        configureBottomMargin()
     }
 }
