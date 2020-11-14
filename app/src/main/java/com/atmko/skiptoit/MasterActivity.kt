@@ -27,7 +27,6 @@ import com.atmko.skiptoit.episode.EpisodeFragmentDirections
 import com.atmko.skiptoit.episode.replies.RepliesFragment
 import com.atmko.skiptoit.episode.replies.RepliesFragmentDirections
 import com.atmko.skiptoit.launch.LaunchActivity
-import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.search.searchparent.SearchParentFragment
 import com.atmko.skiptoit.search.searchparent.SearchParentFragmentDirections
 import com.atmko.skiptoit.services.PlaybackService
@@ -466,7 +465,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_in), Snackbar.LENGTH_LONG).show()
     }
 
-    override fun onUserFetchSuccess(user: User) {
+    override fun onUserFetchSuccess() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
 

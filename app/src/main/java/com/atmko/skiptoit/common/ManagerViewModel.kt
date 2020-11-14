@@ -21,7 +21,7 @@ open class ManagerViewModel(
         fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int)
         fun onSignInSuccess()
         fun onSignInFailed()
-        fun onUserFetchSuccess(user: User)
+        fun onUserFetchSuccess()
         fun onUserFetchFailed()
         fun onSignOutSuccess()
         fun onSignOutFailed()
@@ -123,9 +123,9 @@ open class ManagerViewModel(
         notifyProcessing()
 
         userEndpoint.getMatchingUser(object : UserEndpoint.GetUserListener {
-            override fun onUserFetchSuccess(user: User) {
+            override fun onUserFetchSuccess(user: User?) {
                 currentUser = user
-                notifyUserFetchSuccess(currentUser!!)
+                notifyUserFetchSuccess()
             }
 
             override fun onUserFetchFailed() {
@@ -180,9 +180,9 @@ open class ManagerViewModel(
         }
     }
 
-    private fun notifyUserFetchSuccess(user: User) {
+    private fun notifyUserFetchSuccess() {
         for (listener in listeners) {
-            listener.onUserFetchSuccess(user)
+            listener.onUserFetchSuccess()
         }
     }
 

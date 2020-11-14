@@ -4,12 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.atmko.skiptoit.common.ManagerViewModel
-import com.atmko.skiptoit.model.User
 import com.atmko.skiptoit.testclass.EpisodesCacheTd
 import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
-import com.atmko.skiptoit.testutils.kotlinCapture
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertNull
@@ -17,7 +15,6 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
@@ -518,20 +515,16 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun getMatchingUserAndNotify_getMatchingUserSuccess_listenersNotifiedOfSuccessWithCorrectUser() {
+    fun getMatchingUserAndNotify_getMatchingUserSuccess_listenersNotifiedOfSuccess() {
         // Assert
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
-        val ac: ArgumentCaptor<User> = ArgumentCaptor.forClass(User::class.java)
         // Act
         SUT.getMatchingUserAndNotify()
         // Assert
         assertThat(mUserEndpointTd.mGetMatchingUserCounter, `is`(1))
-        verify(mListenerMock1).onUserFetchSuccess(ac.kotlinCapture())
-        verify(mListenerMock2).onUserFetchSuccess(ac.kotlinCapture())
-        val captures = ac.allValues
-        assertThat(captures[0], `is`(UserMocks.GET_USER()))
-        assertThat(captures[1], `is`(UserMocks.GET_USER()))
+        verify(mListenerMock1).onUserFetchSuccess()
+        verify(mListenerMock2).onUserFetchSuccess()
     }
 
     @Test
@@ -558,8 +551,8 @@ class MasterActivityViewModelTest {
         SUT.getMatchingUserAndNotify()
         // Assert
         assertThat(mUserEndpointTd.mGetMatchingUserCounter, `is`(1))
-        verify(mListenerMock1).onUserFetchSuccess(TestUtils.kotlinAny(User::class.java))
-        verify(mListenerMock2, never()).onUserFetchSuccess(TestUtils.kotlinAny(User::class.java))
+        verify(mListenerMock1).onUserFetchSuccess()
+        verify(mListenerMock2, never()).onUserFetchSuccess()
     }
 
     @Test

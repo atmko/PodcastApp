@@ -13,7 +13,7 @@ open class UserEndpoint(
 ) {
 
     interface GetUserListener {
-        fun onUserFetchSuccess(user: User)
+        fun onUserFetchSuccess(user: User?)
         fun onUserFetchFailed()
     }
 
@@ -40,6 +40,8 @@ open class UserEndpoint(
                         }
                     })
             }
+        }.addOnFailureListener {
+            listener.onUserFetchSuccess(null)
         }
     }
 

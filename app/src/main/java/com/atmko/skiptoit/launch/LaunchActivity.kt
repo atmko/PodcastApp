@@ -17,7 +17,6 @@ import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.common.ViewModelFactory
 import com.atmko.skiptoit.common.views.BaseActivity
 import com.atmko.skiptoit.databinding.ActivityLaunchBinding
-import com.atmko.skiptoit.model.User
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.material.snackbar.Snackbar
@@ -200,7 +199,7 @@ class LaunchActivity : BaseActivity(),
         Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_in), Snackbar.LENGTH_LONG).show()
     }
 
-    override fun onUserFetchSuccess(user: User) {
+    override fun onUserFetchSuccess() {
         startApp()
     }
 
