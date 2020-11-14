@@ -66,6 +66,7 @@
     <string name="log_out">Log Out</string>
     <string name="log_in">Log In</string>
     <string name="about">About</string>
+    <string name="you_have_no_subscriptions">You Have No Subscriptions</string>
 
     <!--SNACK BAR MESSAGES-->
     <string name="no_browser_error_message">No browser to launch page</string>

@@ -124,6 +124,11 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
 
     private fun configureViewModel() {
         viewModel.subscriptionsLiveData!!.observe(viewLifecycleOwner, Observer {
+            if (it.isEmpty()) {
+                binding.textViewNoPodcasts.visibility = View.VISIBLE
+            } else {
+                binding.textViewNoPodcasts.visibility = View.GONE
+            }
             viewModel.saveSubscriptionMap(it!!)
             subscriptionsAdapter.updateList(it)
         })
