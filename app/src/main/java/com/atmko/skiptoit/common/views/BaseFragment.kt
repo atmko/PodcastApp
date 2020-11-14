@@ -127,7 +127,7 @@ open class BaseFragment : Fragment(),
     }
 
     fun getExtrasHeight(): Int {
-        return getScreenHeight() - (getStatusBarHeight() + getToolbarHeight() + getBaseFragmentBottomMargin())
+        return getScreenHeight() - (getStatusBarHeight() + getBaseFragmentBottomMargin())
     }
 
     fun getStatusBarHeight(): Int {
