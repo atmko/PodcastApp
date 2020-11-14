@@ -207,7 +207,7 @@ class SearchParentFragment : BaseFragment(),
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
-        if (getMasterActivity().user != null) {
+        if (getMasterActivity().masterActivityViewModel.currentUser != null) {
             getMasterActivity().subscriptionsViewModel.toggleSubscriptionAndNotify(podcast)
         } else {
             getMasterActivity().subscriptionsViewModel.toggleLocalSubscriptionAndNotify(podcast)

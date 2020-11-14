@@ -159,7 +159,7 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
         }
 
         binding.toggleSubscriptionButton.setOnClickListener {
-            if (getMasterActivity().user != null) {
+            if (getMasterActivity().masterActivityViewModel.currentUser != null) {
                 getMasterActivity().subscriptionsViewModel.toggleSubscriptionAndNotify(podcast)
             } else {
                 getMasterActivity().subscriptionsViewModel.toggleLocalSubscriptionAndNotify(podcast)

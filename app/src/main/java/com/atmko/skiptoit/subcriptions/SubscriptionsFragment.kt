@@ -138,7 +138,7 @@ class SubscriptionsFragment : BaseFragment(), SubscriptionsAdapter.OnSubscriptio
     }
 
     override fun onSubscriptionToggle(podcast: Podcast) {
-        if (getMasterActivity().user != null) {
+        if (getMasterActivity().masterActivityViewModel.currentUser != null) {
             viewModel.toggleSubscriptionAndNotify(podcast)
         } else {
             viewModel.toggleLocalSubscriptionAndNotify(podcast)

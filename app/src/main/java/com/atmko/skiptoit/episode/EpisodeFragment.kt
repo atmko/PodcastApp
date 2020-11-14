@@ -229,7 +229,7 @@ class EpisodeFragment : BaseFragment(),
     }
 
     private fun attemptToCreateComment() {
-        val user = getMasterActivity().user
+        val user = getMasterActivity().masterActivityViewModel.currentUser
         if (user?.username != null) {
             navigateToCreateComment(user.username)
         } else {
@@ -239,7 +239,7 @@ class EpisodeFragment : BaseFragment(),
 
     // todo: consolidate method with method in replies fragment
     private fun attemptToUpdateComment(comment: Comment) {
-        val user = getMasterActivity().user
+        val user = getMasterActivity().masterActivityViewModel.currentUser
         //todo: move logic to view model
         if (user?.username != null) {
             navigateToUpdateComment(comment, user.username)
@@ -249,7 +249,7 @@ class EpisodeFragment : BaseFragment(),
     }
 
     private fun attemptToReplyComment(parentId: String) {
-        val user = getMasterActivity().user
+        val user = getMasterActivity().masterActivityViewModel.currentUser
         if (user?.username != null) {
             navigateToReplyComment(user.username, parentId)
         } else {

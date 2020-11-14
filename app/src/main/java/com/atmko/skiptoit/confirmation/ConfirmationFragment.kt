@@ -105,7 +105,7 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
     override fun onUsernameUpdated(user: User) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-        getMasterActivity().user = user
+        getMasterActivity().masterActivityViewModel.currentUser = user
         findNavController().navigateUp()
     }
 

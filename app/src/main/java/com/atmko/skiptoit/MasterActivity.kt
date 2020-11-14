@@ -53,12 +53,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var masterActivityViewModel: MasterActivityViewModel
     lateinit var subscriptionsViewModel: SubscriptionsViewModel
-    var user: User? = null
 
     private var navBarOriginalYPosition: Float? = null
 
     private val playbackListeners = ArrayList<PlayerListener>()
     private val bottomSheetListeners = ArrayList<BottomSheetListener>()
+    private val authenticationStateListeners = ArrayList<AuthenticationStateListener>()
 
     private var mSavedInstanceState: Bundle? = null
 
@@ -70,12 +70,37 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         fun applyChange()
     }
 
+    interface AuthenticationStateListener {
+        fun onUserSignedIn()
+    }
+
+    fun registerAuthenticationStateListener(listener: AuthenticationStateListener) {
+        authenticationStateListeners.add(listener)
+    }
+
+    fun unregisterAuthenticationStateListener(listener: AuthenticationStateListener) {
+        authenticationStateListeners.remove(listener)
+    }
+
+    private fun notifyAuthenticationListeners() {
+        for (listener in authenticationStateListeners) {
+            listener.onUserSignedIn()
+        }
+    }
+
     fun registerBottomSheetListener(listener: BottomSheetListener) {
         bottomSheetListeners.add(listener)
     }
 
     fun unregisterBottomSheetListener(listener: BottomSheetListener) {
         bottomSheetListeners.remove(listener)
+    }
+
+
+    private fun notifyBottomSheetListeners() {
+        for (listener in bottomSheetListeners) {
+            listener.applyChange()
+        }
     }
 
     fun registerPlaybackListener(playbackListener: PlayerListener) {
@@ -89,6 +114,12 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
 
     fun unregisterPlaybackListener(playbackListener: PlayerListener) {
         playbackListeners.remove(playbackListener)
+    }
+
+    private fun notifyPlaybackListeners(playWhenReady: Boolean) {
+        for (listener in playbackListeners) {
+            listener.onPlaybackStateChanged(playWhenReady)
+        }
     }
 
     fun togglePlayPause() {
@@ -107,9 +138,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
             mPlaybackService!!.player!!.addListener(object: Player.EventListener {
                 override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                     super.onPlayerStateChanged(playWhenReady, playbackState)
-                    for (listener in playbackListeners) {
-                        listener.onPlaybackStateChanged(playWhenReady)
-                    }
+                    notifyPlaybackListeners(playWhenReady)
                 }
             })
         }
@@ -129,7 +158,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         configureBaseBackButtonFunctionality()
         defineViewModel()
         configureViews()
-        launchEpisodeFragment()
         if (masterActivityViewModel.isFirstSetUp()) {
             openLaunchFragment()
             return
@@ -219,13 +247,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         configureBottomSheet()
         configureAppBar()
-    }
-
-    private fun launchEpisodeFragment() {
-        val action = EpisodeFragmentDirections
-            .actionNavigationEpisodeToNavigationEpisode()
-
-        getEpisodeNavHostFragment().navController.navigate(action)
     }
 
     private fun configureBottomSheet() {
@@ -326,10 +347,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         return binding.navView.visibility == View.VISIBLE
     }
 
-    private fun isBottomSheetVisible(): Boolean {
-        return binding.bottomSheet.visibility == View.VISIBLE
-    }
-
     fun expandBottomSheet() {
         masterActivityViewModel.expandBottomSheetAndNotify()
     }
@@ -382,12 +399,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
 
         showBottomPanels()
         notifyBottomSheetListeners()
-    }
-
-    private fun notifyBottomSheetListeners() {
-        for (listener in bottomSheetListeners) {
-            listener.applyChange()
-        }
     }
 
     fun setCollapsedSheetValues(image: String?, podcastTitle: String?, episodeTitle: String?) {
@@ -446,6 +457,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         masterActivityViewModel.getMatchingUserAndNotify()
+        reloadCurrentFragment()
     }
 
     override fun onSignInFailed() {
@@ -457,10 +469,8 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     override fun onUserFetchSuccess(user: User) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
-        this.user = user
 
-        reloadCurrentFragment()
-
+        notifyAuthenticationListeners()
         subscriptionsViewModel.checkSyncStatusAndNotify()
     }
 

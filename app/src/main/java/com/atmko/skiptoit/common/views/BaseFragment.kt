@@ -26,7 +26,8 @@ private const val STATUS_BAR_IDENTIFIER: String = "status_bar_height"
 private const val STATUS_BAR_IDENTIFIER_TYPE: String = "dimen"
 private const val STATUS_BAR_IDENTIFIER_PACKAGE: String = "android"
 
-open class BaseFragment : Fragment() {
+open class BaseFragment : Fragment(),
+    MasterActivity.AuthenticationStateListener {
 
     private var isInjected: Boolean = false
 
@@ -62,8 +63,18 @@ open class BaseFragment : Fragment() {
         toolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
+    override fun onStart() {
+        super.onStart()
+        getMasterActivity().registerAuthenticationStateListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        getMasterActivity().unregisterAuthenticationStateListener(this)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (getMasterActivity().user != null) {
+        if (getMasterActivity().masterActivityViewModel.currentUser != null) {
             inflater.inflate(R.menu.signed_in_options_menu, menu)
         } else {
             inflater.inflate(R.menu.signed_out_options_menu, menu)
@@ -81,7 +92,8 @@ open class BaseFragment : Fragment() {
                 getMasterActivity().masterActivityViewModel.silentSignInAndNotify()
             }
             R.id.about -> {
-                val aboutActivityIntent = Intent(requireContext().applicationContext, AboutActivity::class.java)
+                val aboutActivityIntent =
+                    Intent(requireContext().applicationContext, AboutActivity::class.java)
                 startActivity(aboutActivityIntent)
             }
         }
@@ -137,5 +149,9 @@ open class BaseFragment : Fragment() {
             return requireView().findViewById<View>(R.id.toolbar).height
         }
         return 0
+    }
+
+    override fun onUserSignedIn() {
+        getMasterActivity().invalidateOptionsMenu()
     }
 }
