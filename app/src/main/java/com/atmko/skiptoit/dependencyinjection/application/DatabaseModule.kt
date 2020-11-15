@@ -3,8 +3,12 @@ package com.atmko.skiptoit.dependencyinjection.application
 import androidx.room.Room
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.database.*
+import com.atmko.skiptoit.utils.AppExecutors
 import dagger.Module
 import dagger.Provides
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import javax.inject.Singleton
 
 @Module
@@ -43,5 +47,25 @@ class DatabaseModule  {
                 SkipToItDatabase::class.java,
                 "skip_to_it_database"
         ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppExecutors(singleThreadExecutor: ExecutorService,
+                            mainThreadExecutor: Executor
+    ): AppExecutors {
+        return AppExecutors(singleThreadExecutor, mainThreadExecutor)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSingleThreadExecutor(): ExecutorService {
+        return Executors.newSingleThreadExecutor()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMainThreadExecutor(skipToItApplication: SkipToItApplication): Executor {
+        return skipToItApplication.mainExecutor
     }
 }

@@ -47,6 +47,7 @@ import com.atmko.skiptoit.subcriptions.SubscriptionsViewModel;
 import com.atmko.skiptoit.updatecomment.UpdateCommentEndpoint;
 import com.atmko.skiptoit.updatecomment.UpdateCommentViewModel;
 import com.atmko.skiptoit.updatecomment.UpdateReplyViewModel;
+import com.atmko.skiptoit.utils.AppExecutors;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.lang.annotation.ElementType;
@@ -215,8 +216,8 @@ public class ViewModelModule {
 
     //------------
     @Provides
-    CommentCache provideCommentCache(SkipToItDatabase skipToItDatabase) {
-        return new CommentCache(skipToItDatabase);
+    CommentCache provideCommentCache(SkipToItDatabase skipToItDatabase, AppExecutors appExecutors) {
+        return new CommentCache(skipToItDatabase, appExecutors);
     }
 
     @Provides
@@ -262,8 +263,8 @@ public class ViewModelModule {
     }
 
     @Provides
-    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao) {
-        return new SubscriptionsCache(subscriptionsDao);
+    SubscriptionsCache provideSubscriptionsCache(SubscriptionsDao subscriptionsDao, AppExecutors appExecutors) {
+        return new SubscriptionsCache(subscriptionsDao, appExecutors);
     }
 
     @Provides
@@ -283,15 +284,16 @@ public class ViewModelModule {
 
     @Provides
     EpisodesCache provideEpisodesCache(SkipToItDatabase skipToItDatabase,
-                                       @Named("episode_fragment") SharedPreferences sharedPreferences) {
-        return new EpisodesCache(skipToItDatabase, sharedPreferences);
+                                       @Named("episode_fragment") SharedPreferences sharedPreferences,
+                                       AppExecutors appExecutors) {
+        return new EpisodesCache(skipToItDatabase, sharedPreferences, appExecutors);
     }
 
     @Provides
     LoginManager provideLoginManager(GoogleSignInClient googleSignInClient,
                                      @Named("login_manager") SharedPreferences sharedPreferences,
-                                     SkipToItDatabase skipToItDatabase) {
-        return new LoginManager(googleSignInClient, sharedPreferences, skipToItDatabase);
+                                     SkipToItDatabase skipToItDatabase, AppExecutors appExecutors) {
+        return new LoginManager(googleSignInClient, sharedPreferences, skipToItDatabase, appExecutors);
     }
 
     @Provides

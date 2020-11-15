@@ -17,6 +17,7 @@ import com.atmko.skiptoit.search.common.PodcastDataSourceFactory;
 import com.atmko.skiptoit.search.searchparent.GenrePodcastDataSource;
 import com.atmko.skiptoit.search.common.PodcastDataSource;
 import com.atmko.skiptoit.search.searchchild.QueryPodcastDataSource;
+import com.atmko.skiptoit.utils.AppExecutors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,15 +53,15 @@ public class PagingModule {
     @Provides
     @IntoMap
     @PodcastDataSourceKey(GenrePodcastDataSource.class)
-    PodcastDataSource provideGenrePodcastDataSource(PodcastsApi podcastApi) {
-        return new GenrePodcastDataSource(podcastApi);
+    PodcastDataSource provideGenrePodcastDataSource(PodcastsApi podcastApi, AppExecutors appExecutors) {
+        return new GenrePodcastDataSource(podcastApi, appExecutors);
     }
 
     @Provides
     @IntoMap
     @PodcastDataSourceKey(QueryPodcastDataSource.class)
-    PodcastDataSource provideQueryPodcastDataSource(PodcastsApi podcastApi) {
-        return new QueryPodcastDataSource(podcastApi);
+    PodcastDataSource provideQueryPodcastDataSource(PodcastsApi podcastApi, AppExecutors appExecutors) {
+        return new QueryPodcastDataSource(podcastApi, appExecutors);
     }
 
     @Provides

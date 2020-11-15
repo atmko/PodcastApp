@@ -15,7 +15,8 @@ import com.google.android.gms.common.api.ApiException
 open class LoginManager(
     private val googleSignInClient: GoogleSignInClient?,
     private val sharedPreferences: SharedPreferences?,
-    private val skipToItDatabase: SkipToItDatabase?
+    private val skipToItDatabase: SkipToItDatabase?,
+    private val appExecutors: AppExecutors
 ) {
 
     companion object {
@@ -74,25 +75,25 @@ open class LoginManager(
         isSubscriptionsSynced: Boolean,
         listener: SyncStatusUpdateListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             sharedPreferences!!.edit()
                 .putBoolean(SubscriptionsCache.IS_SUBSCRIPTIONS_SYNCED_KEY, isSubscriptionsSynced)
                 .commit()
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onSyncStatusUpdated()
             }
         }
     }
 
     open fun isSubscriptionsSynced(listener: SubscriptionsCache.SyncStatusFetchListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val isSubscriptionsSynced = sharedPreferences!!.getBoolean(
                 SubscriptionsCache.IS_SUBSCRIPTIONS_SYNCED_KEY,
                 false
             )
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onSyncStatusFetched(isSubscriptionsSynced)
             }
         }
@@ -121,10 +122,10 @@ open class LoginManager(
     //----------------------------------------------------------------------------------------------
 
     open fun clearDatabase(listener: ClearDatabaseListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.clearAllTables()
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onDatabaseCleared()
             }
         }

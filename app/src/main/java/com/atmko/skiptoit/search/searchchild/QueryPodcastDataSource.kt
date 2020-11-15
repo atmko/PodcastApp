@@ -10,7 +10,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class QueryPodcastDataSource(
-    private val podcastsApi: PodcastsApi?
+    private val podcastsApi: PodcastsApi?,
+    private val appExecutors: AppExecutors
 ) : PodcastDataSource() {
 
     var queryString: String? = null
@@ -19,7 +20,7 @@ class QueryPodcastDataSource(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, Podcast>
     ) {
-        AppExecutors.getInstance().mainThread().execute {
+        appExecutors.mainThread.execute {
             notifyPageLoading()
         }
         val call: Call<ApiResults> = podcastsApi!!.searchPodcasts(queryString!!, startingPage)
@@ -38,7 +39,7 @@ class QueryPodcastDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Podcast>) {
-        AppExecutors.getInstance().mainThread().execute {
+        appExecutors.mainThread.execute {
             notifyPageLoading()
         }
         val call: Call<ApiResults> = podcastsApi!!.searchPodcasts(queryString!!, params.key)

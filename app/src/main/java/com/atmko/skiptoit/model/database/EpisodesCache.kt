@@ -8,7 +8,8 @@ import com.atmko.skiptoit.utils.AppExecutors
 
 open class EpisodesCache(
     private val skipToItDatabase: SkipToItDatabase?,
-    private val prefs: SharedPreferences?
+    private val prefs: SharedPreferences?,
+    private val appExecutors: AppExecutors
 ) {
 
     interface PageFetchListener {
@@ -55,7 +56,7 @@ open class EpisodesCache(
         podcastDetails: PodcastDetails,
         listener: PreviousEpisodeListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 val episodes = podcastDetails.episodes
@@ -67,12 +68,12 @@ open class EpisodesCache(
                 skipToItDatabase.episodeDao().insertEpisodes(episodes)
                 skipToItDatabase.setTransactionSuccessful()
 
-                AppExecutors.getInstance().mainThread().execute {
+                appExecutors.mainThread.execute {
                     listener.onPreviousEpisodeFetchSuccess(episodes[0])
                 }
             } finally {
                 skipToItDatabase.endTransaction()
-                AppExecutors.getInstance().mainThread().execute {
+                appExecutors.mainThread.execute {
                     listener.onPreviousEpisodeFetchFailed()
                 }
             }
@@ -85,7 +86,7 @@ open class EpisodesCache(
         param: String,
         listener: PageFetchListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 if (loadType == loadTypeRefresh) {
@@ -104,7 +105,7 @@ open class EpisodesCache(
 
             } finally {
                 skipToItDatabase.endTransaction()
-                AppExecutors.getInstance().mainThread().execute {
+                appExecutors.mainThread.execute {
                     listener.onPageFetchSuccess()
                 }
             }
@@ -112,10 +113,10 @@ open class EpisodesCache(
     }
 
     open fun getAllPodcastEpisodes(podcastId: String, listener: GetAllPodcastEpisodesListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val podcastEpisodes =
                 skipToItDatabase!!.episodeDao().getAllPodcastEpisodesAlt(podcastId)
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onGetAllEpisodesSuccess(podcastEpisodes)
             }
         }
@@ -125,19 +126,19 @@ open class EpisodesCache(
         currentPodcastId: String,
         listener: DeletePodcastEpisodesListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.episodeDao().deleteAllEpisodesExceptNowPlaying(currentPodcastId)
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onDeletePodcastEpisodesSuccess()
             }
         }
     }
 
     open fun saveEpisodeWithListener(episode: Episode, listener: SaveEpisodeListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             saveEpisodeHelper(episode)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onEpisodeSaveSuccess()
             }
         }
@@ -158,7 +159,7 @@ open class EpisodesCache(
     }
 
     open fun restoreEpisode(listener: RestoreEpisodeListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val episodeId = prefs!!.getString(EPISODE_ID_KEY, "")
             val podcastId = prefs.getString(PODCAST_ID_KEY, "")
             val podcastTitle = prefs.getString(PODCAST_TITLE_KEY, "")
@@ -173,7 +174,7 @@ open class EpisodesCache(
                 restoredEpisode.lastPlaybackPosition = lastPlaybackPosition
             }
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onEpisodeRestoreSuccess(restoredEpisode)
             }
         }
@@ -181,14 +182,14 @@ open class EpisodesCache(
 
     @SuppressLint("ApplySharedPref")
     open fun clearLastPlayedEpisode(listener: ClearLastPlayedEpisodeListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             prefs!!.edit()
                 .remove(PODCAST_ID_KEY)
                 .remove(EPISODE_ID_KEY)
                 .remove(PODCAST_TITLE_KEY)
                 .commit()
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onEpisodeClearSuccess()
             }
         }
@@ -200,11 +201,11 @@ open class EpisodesCache(
         publishDate: Long,
         listener: NextEpisodeListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val episode =
                 skipToItDatabase!!.episodeDao().getNextEpisode(podcastId, episodeId, publishDate)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onNextEpisodeFetchSuccess(episode)
             }
         }
@@ -216,11 +217,11 @@ open class EpisodesCache(
         publishDate: Long,
         listener: PreviousEpisodeListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val episode =
                 skipToItDatabase!!.episodeDao().getPrevEpisode(podcastId, episodeId, publishDate)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPreviousEpisodeFetchSuccess(episode)
             }
         }

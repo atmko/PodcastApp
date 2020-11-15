@@ -7,7 +7,8 @@ import com.atmko.skiptoit.model.CommentResults
 import com.atmko.skiptoit.utils.AppExecutors
 
 open class CommentCache(
-    private val skipToItDatabase: SkipToItDatabase?
+    private val skipToItDatabase: SkipToItDatabase?,
+    private val appExecutors: AppExecutors
 ) {
 
     interface CommentFetchListener {
@@ -44,10 +45,10 @@ open class CommentCache(
     }
 
     open fun getCachedComment(commentId: String, listener: CommentFetchListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val fetchedComment = skipToItDatabase!!.commentDao().getComment(commentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onCommentFetchSuccess(fetchedComment)
             }
         }
@@ -55,30 +56,30 @@ open class CommentCache(
 
     //--------------
     open fun updateLocalCache(updatedComment: Comment, listener: CacheUpdateListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().updateComment(updatedComment)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onLocalCacheUpdateSuccess()
             }
         }
     }
 
     open fun deleteComments(comments: List<Comment>, listener: CacheUpdateListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteComments(comments)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onLocalCacheUpdateSuccess()
             }
         }
     }
 
     open fun wipeComment(commentId: String, listener: CacheUpdateListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().wipeComment(commentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onLocalCacheUpdateSuccess()
             }
         }
@@ -87,60 +88,60 @@ open class CommentCache(
     //--------------
 
     open fun getLastCommentPageTracker(episodeId: String, listener: CommentPageTrackerListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastCommentPageTracker(episodeId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageTrackerFetched(commentPageTracker)
             }
         }
     }
 
     open fun deleteAllCommentsInPage(episodeId: String, page: Int, listener: DeletePageListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteAllCommentsInPage(episodeId, page)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageDeleted()
             }
         }
     }
 
     open fun getLastReplyPageTracker(parentId: String, listener: CommentPageTrackerListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastReplyPageTracker(parentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageTrackerFetched(commentPageTracker)
             }
         }
     }
 
     open fun deleteAllRepliesInPage(parentId: String, page: Int, listener: DeletePageListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteAllRepliesInPage(parentId, page)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageDeleted()
             }
         }
     }
 
     open fun increaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().increaseReplyCount(commentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onReplyCountUpdated()
             }
         }
     }
 
     open fun decreaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.commentDao().decreaseReplyCount(commentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onReplyCountUpdated()
             }
         }
@@ -148,11 +149,11 @@ open class CommentCache(
 
     //--------------
     open fun getPageTracker(commentId: String, listener: CommentPageTrackerListener) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             val commentPageTracker =
                 skipToItDatabase!!.commentPageTrackerDao().getCommentPageTracker(commentId)
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageTrackerFetched(commentPageTracker)
             }
         }
@@ -164,7 +165,7 @@ open class CommentCache(
         param: String,
         listener: PageFetchListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 if (loadType == loadTypeRefresh) {
@@ -179,7 +180,7 @@ open class CommentCache(
                 skipToItDatabase.endTransaction()
             }
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageFetchSuccess()
             }
         }
@@ -190,7 +191,7 @@ open class CommentCache(
         loadType: Int,
         listener: PageFetchListener
     ) {
-        AppExecutors.getInstance().diskIO().execute {
+        appExecutors.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 if (loadType == loadTypeRefresh) {
@@ -205,7 +206,7 @@ open class CommentCache(
                 skipToItDatabase.endTransaction()
             }
 
-            AppExecutors.getInstance().mainThread().execute {
+            appExecutors.mainThread.execute {
                 listener.onPageFetchSuccess()
             }
         }
