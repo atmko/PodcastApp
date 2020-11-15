@@ -7,12 +7,12 @@ import javax.inject.Provider
 
 class QueryPodcastDataSourceProviderTd : Provider<PodcastDataSource> {
     override fun get(): QueryPodcastDataSource {
-        return QueryPodcastDataSource(null)
+        return QueryPodcastDataSource(null, null)
     }
 }
 
 class GenrePodcastDataSourceProviderTd : Provider<PodcastDataSource> {
     override fun get(): GenrePodcastDataSource {
-        return GenrePodcastDataSource(null)
+        return GenrePodcastDataSource(null, null)
     }
 }

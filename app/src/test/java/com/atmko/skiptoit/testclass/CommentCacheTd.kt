@@ -6,7 +6,7 @@ import com.atmko.skiptoit.model.database.CommentCache
 import com.atmko.skiptoit.testdata.CommentMocks
 import com.atmko.skiptoit.testdata.CommentPageTrackerMocks
 
-class CommentCacheTd : CommentCache(null) {
+class CommentCacheTd : CommentCache(null, null) {
 
     var mCommentId: String = ""
     var mFailure = false

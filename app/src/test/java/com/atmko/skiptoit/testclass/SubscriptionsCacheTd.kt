@@ -4,7 +4,7 @@ import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.atmko.skiptoit.testdata.PodcastMocks
 
-class  SubscriptionsCacheTd : SubscriptionsCache(null) {
+class  SubscriptionsCacheTd : SubscriptionsCache(null, null) {
 
     var mFailure = false
     var mPodcastId = ""

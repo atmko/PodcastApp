@@ -16,7 +16,7 @@ open class LoginManager(
     private val googleSignInClient: GoogleSignInClient?,
     private val sharedPreferences: SharedPreferences?,
     private val skipToItDatabase: SkipToItDatabase?,
-    private val appExecutors: AppExecutors
+    private val appExecutors: AppExecutors?
 ) {
 
     companion object {
@@ -75,7 +75,7 @@ open class LoginManager(
         isSubscriptionsSynced: Boolean,
         listener: SyncStatusUpdateListener
     ) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             sharedPreferences!!.edit()
                 .putBoolean(SubscriptionsCache.IS_SUBSCRIPTIONS_SYNCED_KEY, isSubscriptionsSynced)
                 .commit()
@@ -87,7 +87,7 @@ open class LoginManager(
     }
 
     open fun isSubscriptionsSynced(listener: SubscriptionsCache.SyncStatusFetchListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val isSubscriptionsSynced = sharedPreferences!!.getBoolean(
                 SubscriptionsCache.IS_SUBSCRIPTIONS_SYNCED_KEY,
                 false
@@ -122,7 +122,7 @@ open class LoginManager(
     //----------------------------------------------------------------------------------------------
 
     open fun clearDatabase(listener: ClearDatabaseListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.clearAllTables()
 
             appExecutors.mainThread.execute {

@@ -6,7 +6,7 @@ import com.atmko.skiptoit.utils.AppExecutors
 
 open class SubscriptionsCache(
     private val subscriptionsDao: SubscriptionsDao?,
-    private val appExecutors: AppExecutors
+    private val appExecutors: AppExecutors?
 ) {
 
     companion object {
@@ -38,7 +38,7 @@ open class SubscriptionsCache(
     }
 
     open fun insertSubscription(podcasts: List<Podcast>, listener: SubscriptionUpdateListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             subscriptionsDao!!.createSubscription(podcasts)
 
             appExecutors.mainThread.execute {
@@ -48,7 +48,7 @@ open class SubscriptionsCache(
     }
 
     open fun getSubscriptionsForSync(listener: FetchSubscriptionsListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val localSubscriptions = subscriptionsDao!!.getAllSubscriptionsAlt()
             appExecutors.mainThread.execute {
                 listener.onFetchSubscriptionsSuccess(localSubscriptions)
@@ -57,7 +57,7 @@ open class SubscriptionsCache(
     }
 
     open fun getSubscriptions(listener: FetchSubscriptionsListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val localSubscriptions = subscriptionsDao!!.getAllSubscriptionsAlt()
             appExecutors.mainThread.execute {
                 listener.onFetchSubscriptionsSuccess(localSubscriptions)
@@ -70,7 +70,7 @@ open class SubscriptionsCache(
     }
 
     open fun removeSubscription(podcastId: String, listener: SubscriptionUpdateListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             subscriptionsDao!!.deleteSubscription(podcastId)
 
             appExecutors.mainThread.execute {
@@ -80,7 +80,7 @@ open class SubscriptionsCache(
     }
 
     open fun getSubscriptionStatus(podcastId: String, listener: SubscriptionStatusListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val isSubscribed = subscriptionsDao!!.isSubscribed(podcastId)
 
             appExecutors.mainThread.execute {

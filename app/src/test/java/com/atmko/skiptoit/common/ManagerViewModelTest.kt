@@ -1,15 +1,15 @@
-package com.atmko.skiptoit.launch
+package com.atmko.skiptoit.common
 
 import android.app.Activity
 import android.content.Intent
 import com.atmko.skiptoit.UserEndpoint
-import com.atmko.skiptoit.common.ManagerViewModel
 import com.atmko.skiptoit.testclass.EpisodesCacheTd
 import com.atmko.skiptoit.testclass.LoginManagerTd
 import com.atmko.skiptoit.testdata.UserMocks
 import com.atmko.skiptoit.testutils.TestUtils
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -20,33 +20,38 @@ import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class LaunchViewModelTest {
+class ManagerViewModelTest {
 
     // region constants
     companion object {
-        @Mock lateinit var GOOGLE_SIGN_IN_ACCOUNT_MOCK: GoogleSignInAccount
-        @Mock lateinit var INTENT_MOCK: Intent
+        @Mock
+        lateinit var GOOGLE_SIGN_IN_ACCOUNT_MOCK: GoogleSignInAccount
+
+        @Mock
+        lateinit var INTENT_MOCK: Intent
         const val REQUEST_CODE_NOT_SIGN_IN = 0
     }
     // endregion constants
 
     // end region helper fields
-    lateinit var mLoginManagerTd: LoginManagerTd
-    lateinit var mUserEndpointTd: UserEndpointTd
-    lateinit var mEpisodesCacheTd: EpisodesCacheTd
+    private lateinit var mLoginManagerTd: LoginManagerTd
+    private lateinit var mUserEndpointTd: UserEndpointTd
+    private lateinit var mEpisodesCacheTd: EpisodesCacheTd
 
-    @Mock lateinit var mListenerMock1: ManagerViewModel.Listener
-    @Mock lateinit var mListenerMock2: ManagerViewModel.Listener
+    @Mock
+    lateinit var mListenerMock1: ManagerViewModel.Listener
+    @Mock
+    lateinit var mListenerMock2: ManagerViewModel.Listener
     // endregion helper fields
 
-    lateinit var SUT: LaunchViewModel
+    lateinit var SUT: ManagerViewModel
 
     @Before
     fun setup() {
         mLoginManagerTd = LoginManagerTd()
         mUserEndpointTd = UserEndpointTd()
         mEpisodesCacheTd = EpisodesCacheTd()
-        SUT = LaunchViewModel(
+        SUT = ManagerViewModel(
             mLoginManagerTd,
             mUserEndpointTd,
             mEpisodesCacheTd
@@ -54,6 +59,10 @@ class LaunchViewModelTest {
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
         silentSignInSuccess()
+        signOutSuccess()
+        setIsFirstSetUpSuccess()
+        clearDatabaseSuccess()
+        clearLastPlayedEpisodeSuccess()
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
     }
@@ -138,12 +147,129 @@ class LaunchViewModelTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
+    fun signOutAndNotify_notifyProcessing() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        verify(mListenerMock1).notifyProcessing()
+        verify(mListenerMock2).notifyProcessing()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccess_userVariableNullified() {
+        // Assert
+        SUT.currentUser = UserMocks.GET_USER()
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertNull(SUT.currentUser)
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccess_correctValueSentToSetIsFirstSetup() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
+        assertThat(mLoginManagerTd.mIsFirstSetup, `is`(true))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccess_clearDatabasePolled() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mClearDatabaseCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccess_clearLastPlayedEpisodePolled() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mEpisodesCacheTd.mClearLastPlayedEpisodeCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeSuccess_setSubscriptionsSyncedPolled() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeError_listenersNotifiedOfError() {
+        // Assert
+        clearLastPlayedEpisodeError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseError_listenersNotifiedOfError() {
+        // Assert
+        clearDatabaseError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupError_listenersNotifiedOfError() {
+        // Assert
+        setIsFirstSetUpError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutError_listenersNotifiedOfError() {
+        // Assert
+        signOutError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSignOutCounter, `is`(1))
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    @Test
     fun onRequestResultReceived_requestCodeNotSignIn_loginManagerNotAccessedListenersNotNotified() {
         // Assert
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
-        SUT.onRequestResultReceived(REQUEST_CODE_NOT_SIGN_IN, Activity.RESULT_OK, INTENT_MOCK)
+        SUT.onRequestResultReceived(
+            REQUEST_CODE_NOT_SIGN_IN, Activity.RESULT_OK,
+            INTENT_MOCK
+        )
         // Assert
         assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(0))
         verify(mListenerMock1, never()).onSignInSuccess()
@@ -167,6 +293,24 @@ class LaunchViewModelTest {
         assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(1))
         verify(mListenerMock1).onSignInSuccess()
         verify(mListenerMock2).onSignInSuccess()
+    }
+
+    @Test
+    fun onRequestResultReceived_requestCodeSignInResultCodeOkGetSignedInAccountSuccess_unsubscribedListenersNotNotified() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        SUT.unregisterListener(mListenerMock2)
+        // Act
+        SUT.onRequestResultReceived(
+            ManagerViewModel.REQUEST_CODE_SIGN_IN,
+            Activity.RESULT_OK,
+            INTENT_MOCK
+        )
+        // Assert
+        assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(1))
+        verify(mListenerMock1).onSignInSuccess()
+        verify(mListenerMock2, never()).onSignInSuccess()
     }
 
     @Test
@@ -204,24 +348,6 @@ class LaunchViewModelTest {
         verify(mListenerMock2).onSignInFailed()
     }
 
-    @Test
-    fun onRequestResultReceived_requestCodeSignInResultCodeOkGetSignedInAccountSuccess_unsubscribedListenersNotNotified() {
-        // Assert
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        SUT.unregisterListener(mListenerMock2)
-        // Act
-        SUT.onRequestResultReceived(
-            ManagerViewModel.REQUEST_CODE_SIGN_IN,
-            Activity.RESULT_OK,
-            INTENT_MOCK
-        )
-        // Assert
-        assertThat(mLoginManagerTd.mGetSignedInAccountCounter, `is`(1))
-        verify(mListenerMock1).onSignInSuccess()
-        verify(mListenerMock2, never()).onSignInSuccess()
-    }
-
     //----------------------------------------------------------------------------------------------
 
     @Test
@@ -250,7 +376,7 @@ class LaunchViewModelTest {
     }
 
     @Test
-    fun getMatchingUserAndNotify_getMatchingUserSuccess_listenersNotifiedOfSuccessWithCorrectUser() {
+    fun getMatchingUserAndNotify_getMatchingUserSuccess_listenersNotifiedOfSuccess() {
         // Assert
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -343,7 +469,39 @@ class LaunchViewModelTest {
     }
 
     fun silentSignInError() {
-        mLoginManagerTd.mSilentSignInFailure =  true
+        mLoginManagerTd.mSilentSignInFailure = true
+    }
+
+    fun signOutSuccess() {
+        // no-op because mSignOutFailure false by default
+    }
+
+    fun signOutError() {
+        mLoginManagerTd.mSignOutFailure = true
+    }
+
+    fun setIsFirstSetUpSuccess() {
+        // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun setIsFirstSetUpError() {
+        mLoginManagerTd.mIsFirstSetUpError = true
+    }
+
+    fun clearDatabaseSuccess() {
+        // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun clearDatabaseError() {
+        mLoginManagerTd.mClearDatabaseFailure = true
+    }
+
+    fun clearLastPlayedEpisodeSuccess() {
+        // no-op because mClearDatabaseFailure false by default
+    }
+
+    fun clearLastPlayedEpisodeError() {
+        mEpisodesCacheTd.mClearLastPlayedEpisodeError = true
     }
 
     fun getSignedIAccountSuccess() {
@@ -378,4 +536,5 @@ class LaunchViewModelTest {
         }
     }
     // endregion helper classes
+
 }

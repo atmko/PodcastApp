@@ -5,7 +5,7 @@ import com.atmko.skiptoit.LoginManager
 import com.atmko.skiptoit.model.database.SubscriptionsCache
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
-class LoginManagerTd : LoginManager(null, null, null) {
+class LoginManagerTd : LoginManager(null, null, null, null) {
 
     var mSilentSignInCounter = 0
     var mSilentSignInFailure = false
@@ -34,7 +34,10 @@ class LoginManagerTd : LoginManager(null, null, null) {
 
     var mSetSubscriptionsSyncedCounter = 0
     var mSetSubscriptionsSyncedArgIsSubscriptionSynced: Boolean = true
-    override fun setSubscriptionsSynced(isSubscriptionsSynced: Boolean, listener: SyncStatusUpdateListener) {
+    override fun setSubscriptionsSynced(
+        isSubscriptionsSynced: Boolean,
+        listener: SyncStatusUpdateListener
+    ) {
         mSetSubscriptionsSyncedCounter += 1
         mSetSubscriptionsSyncedArgIsSubscriptionSynced = isSubscriptionsSynced
         listener.onSyncStatusUpdated()

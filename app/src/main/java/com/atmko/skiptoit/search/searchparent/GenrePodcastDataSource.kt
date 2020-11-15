@@ -11,7 +11,7 @@ import retrofit2.Response
 
 class GenrePodcastDataSource(
     private val podcastsApi: PodcastsApi?,
-    private var appExecutors: AppExecutors
+    private var appExecutors: AppExecutors?
 ) : PodcastDataSource() {
 
     var genreId: Int? = null
@@ -20,7 +20,7 @@ class GenrePodcastDataSource(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, Podcast>
     ) {
-        appExecutors.mainThread.execute {
+        appExecutors!!.mainThread.execute {
             notifyPageLoading()
         }
         val call: Call<ApiResults> = podcastsApi!!.getPodcastsByGenre(genreId!!, startingPage)
@@ -39,7 +39,7 @@ class GenrePodcastDataSource(
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, Podcast>) {
-        appExecutors.mainThread.execute {
+        appExecutors!!.mainThread.execute {
             notifyPageLoading()
         }
         val call: Call<ApiResults> = podcastsApi!!.getPodcastsByGenre(genreId!!, params.key)

@@ -8,7 +8,7 @@ import com.atmko.skiptoit.utils.AppExecutors
 
 open class CommentCache(
     private val skipToItDatabase: SkipToItDatabase?,
-    private val appExecutors: AppExecutors
+    private val appExecutors: AppExecutors?
 ) {
 
     interface CommentFetchListener {
@@ -45,7 +45,7 @@ open class CommentCache(
     }
 
     open fun getCachedComment(commentId: String, listener: CommentFetchListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val fetchedComment = skipToItDatabase!!.commentDao().getComment(commentId)
 
             appExecutors.mainThread.execute {
@@ -56,7 +56,7 @@ open class CommentCache(
 
     //--------------
     open fun updateLocalCache(updatedComment: Comment, listener: CacheUpdateListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().updateComment(updatedComment)
 
             appExecutors.mainThread.execute {
@@ -66,7 +66,7 @@ open class CommentCache(
     }
 
     open fun deleteComments(comments: List<Comment>, listener: CacheUpdateListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteComments(comments)
 
             appExecutors.mainThread.execute {
@@ -76,7 +76,7 @@ open class CommentCache(
     }
 
     open fun wipeComment(commentId: String, listener: CacheUpdateListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().wipeComment(commentId)
 
             appExecutors.mainThread.execute {
@@ -88,7 +88,7 @@ open class CommentCache(
     //--------------
 
     open fun getLastCommentPageTracker(episodeId: String, listener: CommentPageTrackerListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastCommentPageTracker(episodeId)
 
             appExecutors.mainThread.execute {
@@ -98,7 +98,7 @@ open class CommentCache(
     }
 
     open fun deleteAllCommentsInPage(episodeId: String, page: Int, listener: DeletePageListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteAllCommentsInPage(episodeId, page)
 
             appExecutors.mainThread.execute {
@@ -108,7 +108,7 @@ open class CommentCache(
     }
 
     open fun getLastReplyPageTracker(parentId: String, listener: CommentPageTrackerListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val commentPageTracker = skipToItDatabase!!.commentPageTrackerDao().getLastReplyPageTracker(parentId)
 
             appExecutors.mainThread.execute {
@@ -118,7 +118,7 @@ open class CommentCache(
     }
 
     open fun deleteAllRepliesInPage(parentId: String, page: Int, listener: DeletePageListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().deleteAllRepliesInPage(parentId, page)
 
             appExecutors.mainThread.execute {
@@ -128,7 +128,7 @@ open class CommentCache(
     }
 
     open fun increaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().increaseReplyCount(commentId)
 
             appExecutors.mainThread.execute {
@@ -138,7 +138,7 @@ open class CommentCache(
     }
 
     open fun decreaseReplyCount(commentId: String, listener: UpdateReplyCountListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.commentDao().decreaseReplyCount(commentId)
 
             appExecutors.mainThread.execute {
@@ -149,7 +149,7 @@ open class CommentCache(
 
     //--------------
     open fun getPageTracker(commentId: String, listener: CommentPageTrackerListener) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             val commentPageTracker =
                 skipToItDatabase!!.commentPageTrackerDao().getCommentPageTracker(commentId)
 
@@ -165,7 +165,7 @@ open class CommentCache(
         param: String,
         listener: PageFetchListener
     ) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 if (loadType == loadTypeRefresh) {
@@ -191,7 +191,7 @@ open class CommentCache(
         loadType: Int,
         listener: PageFetchListener
     ) {
-        appExecutors.diskIO.execute {
+        appExecutors!!.diskIO.execute {
             skipToItDatabase!!.beginTransaction()
             try {
                 if (loadType == loadTypeRefresh) {
