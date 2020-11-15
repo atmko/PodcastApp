@@ -16,6 +16,8 @@ open class ManagerViewModel(
 ) : BaseViewModel<ManagerViewModel.Listener>() {
 
     interface Listener {
+        fun onFirstSetup()
+        fun onSubsequentSetup()
         fun notifyProcessing()
         fun onSilentSignInSuccess()
         fun onSilentSignInFailed(googleSignInIntent: Intent, googleSignInRequestCode: Int)
@@ -56,19 +58,23 @@ open class ManagerViewModel(
                 currentUser = null
                 //todo is editing shared preferences here thread safe?
                 setIsFirstSetUp(true)
-                if (isFirstSetUp()) {
-                    loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
-                        override fun onDatabaseCleared() {
-                            clearLastPlayedEpisode()
-                        }
+                loginManager.isFirstSetUp(object : LoginManager.IsFirstSetupFetchListener {
+                    override fun onIsFirstSetupFetched(isFirstSetup: Boolean) {
+                        if (isFirstSetup) {
+                            loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
+                                override fun onDatabaseCleared() {
+                                    clearLastPlayedEpisode()
+                                }
 
-                        override fun onDatabaseClearFailed() {
+                                override fun onDatabaseClearFailed() {
+                                    notifySignOutFailed()
+                                }
+                            })
+                        } else {
                             notifySignOutFailed()
                         }
-                    })
-                } else {
-                    notifySignOutFailed()
-                }
+                    }
+                })
             }
 
             override fun onSignOutFailed() {
@@ -100,15 +106,17 @@ open class ManagerViewModel(
     fun onRequestResultReceived(requestCode: Int, resultCode: Int, intent: Intent) {
         if (requestCode == REQUEST_CODE_SIGN_IN) {
             if (resultCode == Activity.RESULT_OK) {
-                loginManager.getSignedInAccount(intent, object : LoginManager.GoogleAccountFetchListener {
-                    override fun onAccountFetchSuccess() {
-                        notifySignInSuccess()
-                    }
+                loginManager.getSignedInAccount(
+                    intent,
+                    object : LoginManager.GoogleAccountFetchListener {
+                        override fun onAccountFetchSuccess() {
+                            notifySignInSuccess()
+                        }
 
-                    override fun onAccountFetchFailed() {
-                        notifySignInFailed()
-                    }
-                })
+                        override fun onAccountFetchFailed() {
+                            notifySignInFailed()
+                        }
+                    })
             } else {
                 notifySignInFailed()
             }
@@ -134,8 +142,16 @@ open class ManagerViewModel(
         })
     }
 
-    fun isFirstSetUp(): Boolean {
-        return loginManager.isFirstSetUp()
+    fun getIsFirstSetupAndNotify() {
+        loginManager.isFirstSetUp(object : LoginManager.IsFirstSetupFetchListener {
+            override fun onIsFirstSetupFetched(isFirstSetup: Boolean) {
+                if (isFirstSetup) {
+                    notifyIsFirstSetup()
+                } else {
+                    notifySubsequentSetup()
+                }
+            }
+        })
     }
 
     fun setIsFirstSetUp(isFirstSetUp: Boolean) {
@@ -154,6 +170,18 @@ open class ManagerViewModel(
         }
     }
 
+    private fun notifyIsFirstSetup() {
+        for (listener in listeners) {
+            listener.onFirstSetup()
+        }
+    }
+
+    private fun notifySubsequentSetup() {
+        for (listener in listeners) {
+            listener.onSubsequentSetup()
+        }
+    }
+
     private fun notifySilentSignInSuccess() {
         for (listener in listeners) {
             listener.onSilentSignInSuccess()
@@ -162,7 +190,8 @@ open class ManagerViewModel(
 
     private fun notifySilentSignInFailed(googleSignInIntent: Intent) {
         for (listener in listeners) {
-            listener.onSilentSignInFailed(googleSignInIntent,
+            listener.onSilentSignInFailed(
+                googleSignInIntent,
                 REQUEST_CODE_SIGN_IN
             )
         }

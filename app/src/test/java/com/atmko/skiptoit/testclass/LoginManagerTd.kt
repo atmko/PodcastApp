@@ -61,17 +61,17 @@ class LoginManagerTd : LoginManager(null, null, null, null) {
     }
 
     var mIsFirstSetupCounter = 0
-    var mIsFirstSetUpError = false
-    override fun isFirstSetUp(): Boolean {
-        mIsFirstSetupCounter += 1
-        return !mIsFirstSetUpError
+    var mIsFirstSetupStateIsFirstSetUp = true
+    override fun isFirstSetUp(listener: IsFirstSetupFetchListener) {
+        mIsFirstSetupCounter ++
+        listener.onIsFirstSetupFetched(mIsFirstSetupStateIsFirstSetUp)
     }
 
     var mSetIsFirstSetupCounter = 0
-    var mIsFirstSetup: Boolean? = null
+    var mSetIsFirstSetupArgIsFirstSetup: Boolean? = null
     override fun setIsFirstSetup(isFirstSetup: Boolean) {
         mSetIsFirstSetupCounter += 1
-        mIsFirstSetup = isFirstSetup
+        mSetIsFirstSetupArgIsFirstSetup = isFirstSetup
     }
 
     var mClearDatabaseCounter = 0

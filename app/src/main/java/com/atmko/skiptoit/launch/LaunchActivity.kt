@@ -88,9 +88,7 @@ class LaunchActivity : BaseActivity(),
 
     override fun onProviderInstalled() {
         isProviderUpdated = true
-        if (!viewModel.isFirstSetUp()) {
-            startApp()
-        }
+        viewModel.getIsFirstSetupAndNotify()
     }
 
     private fun defineViewModel() {
@@ -176,6 +174,14 @@ class LaunchActivity : BaseActivity(),
             this, getString(R.string.couldnt_update_google_play_services),
             Toast.LENGTH_LONG
         ).show()
+    }
+
+    override fun onFirstSetup() {
+
+    }
+
+    override fun onSubsequentSetup() {
+        startApp()
     }
 
     override fun notifyProcessing() {

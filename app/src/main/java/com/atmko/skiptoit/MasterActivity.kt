@@ -157,10 +157,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         configureBaseBackButtonFunctionality()
         defineViewModel()
         configureViews()
-        if (masterActivityViewModel.isFirstSetUp()) {
-            openLaunchFragment()
-            return
-        }
+        masterActivityViewModel.getIsFirstSetupAndNotify()
     }
 
     override fun onStart() {
@@ -436,6 +433,14 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onFirstSetup() {
+        openLaunchFragment()
+    }
+
+    override fun onSubsequentSetup() {
+
     }
 
     override fun notifyProcessing() {

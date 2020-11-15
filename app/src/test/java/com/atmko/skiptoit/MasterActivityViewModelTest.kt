@@ -61,27 +61,6 @@ class MasterActivityViewModelTest {
     }
 
     @Test
-    fun handleBottomSheetDrag_slideEffectLessThan1_variablesCorrectlyUpdated() {
-        // Arrange
-        // Act
-        SUT.handleBottomSheetDrag(0.3f)
-        // Assert
-        assertThat(SUT.isBottomSheetExpanded, `is`(false))
-        assertThat(SUT.isBottomSheetShown, `is`(true))
-    }
-
-    @Test
-    fun handleBottomSheetDrag_slideEffectEqualTo1_variablesCorrectlyUpdated() {
-        // Arrange
-        // Act
-        SUT.handleBottomSheetDrag(1f)
-        // Assert
-        assertThat(SUT.isBottomSheetExpanded, `is`(true))
-        assertThat(SUT.isBottomSheetShown, `is`(true))
-    }
-    // ---------------------------------------------------------------------------------------------
-
-    @Test
     fun handleSavedStateAndNotify_nullBundle_notifyHideBottomSheet() {
         // Assert
         SUT.registerMasterListener(mMasterListenerMock1)
@@ -161,6 +140,28 @@ class MasterActivityViewModelTest {
         assertThat(SUT.isBottomSheetExpanded, `is`(true))
         verify(mMasterListenerMock1).onExpandBottomSheet()
         verify(mMasterListenerMock2).onExpandBottomSheet()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    fun handleBottomSheetDrag_slideEffectLessThan1_variablesCorrectlyUpdated() {
+        // Arrange
+        // Act
+        SUT.handleBottomSheetDrag(0.3f)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(false))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
+    }
+
+    @Test
+    fun handleBottomSheetDrag_slideEffectEqualTo1_variablesCorrectlyUpdated() {
+        // Arrange
+        // Act
+        SUT.handleBottomSheetDrag(1f)
+        // Assert
+        assertThat(SUT.isBottomSheetExpanded, `is`(true))
+        assertThat(SUT.isBottomSheetShown, `is`(true))
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -38,6 +38,10 @@ open class LoginManager(
         fun onAccountFetchFailed()
     }
 
+    interface IsFirstSetupFetchListener {
+        fun onIsFirstSetupFetched(isFirstSetup: Boolean)
+    }
+
     interface SyncStatusUpdateListener {
         fun onSyncStatusUpdated()
     }
@@ -111,8 +115,14 @@ open class LoginManager(
 
     //----------------------------------------------------------------------------------------------
 
-    open fun isFirstSetUp(): Boolean {
-        return sharedPreferences!!.getBoolean(IS_FIRST_SETUP_KEY, true)
+    open fun isFirstSetUp(listener: IsFirstSetupFetchListener) {
+        appExecutors!!.diskIO.execute {
+            val isFirstSetup = sharedPreferences!!.getBoolean(IS_FIRST_SETUP_KEY, true)
+
+            appExecutors.mainThread.execute {
+                listener.onIsFirstSetupFetched(isFirstSetup)
+            }
+        }
     }
 
     open fun setIsFirstSetup(isFirstSetup: Boolean) {

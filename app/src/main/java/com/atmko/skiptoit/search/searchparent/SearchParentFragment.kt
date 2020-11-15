@@ -270,7 +270,6 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onShowManualLayout() {
         configureViewModel()
-        binding.pageLoading.pageLoading.visibility = View.VISIBLE
         binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
         binding.errorAndLoading.errorScreen.visibility = View.GONE
         binding.errorAndLoading.loadingScreen.visibility = View.GONE

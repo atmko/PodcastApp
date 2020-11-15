@@ -58,6 +58,7 @@ class ManagerViewModelTest {
         )
 
         mLoginManagerTd.mGoogleSignInAccount = GOOGLE_SIGN_IN_ACCOUNT_MOCK
+        isFirstSetup()
         silentSignInSuccess()
         signOutSuccess()
         setIsFirstSetUpSuccess()
@@ -66,6 +67,33 @@ class ManagerViewModelTest {
         getSignedIAccountSuccess()
         getMatchingUserSuccess()
     }
+
+    @Test
+    fun getIsFirstSetupAndNotify_isFirstSetup_listenersNotifiedWithCorrectValue() {
+        // Assert
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getIsFirstSetupAndNotify()
+        // Assert
+        verify(mListenerMock1).onFirstSetup()
+        verify(mListenerMock2).onFirstSetup()
+    }
+
+    @Test
+    fun getIsFirstSetupAndNotify_isSubsequentSetup_listenersNotifiedWithCorrectValue() {
+        // Assert
+        isSubsequentSetup()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.getIsFirstSetupAndNotify()
+        // Assert
+        verify(mListenerMock1).onSubsequentSetup()
+        verify(mListenerMock2).onSubsequentSetup()
+    }
+
+    //----------------------------------------------------------------------------------------------
 
     @Test
     fun silentSignInAndNotify_notifyProcessing() {
@@ -175,7 +203,16 @@ class ManagerViewModelTest {
         SUT.signOutAndNotify()
         // Assert
         assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
-        assertThat(mLoginManagerTd.mIsFirstSetup, `is`(true))
+        assertThat(mLoginManagerTd.mSetIsFirstSetupArgIsFirstSetup, `is`(true))
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccess_isFirstSetupCalled() {
+        // Assert
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mIsFirstSetupCounter, `is`(1))
     }
 
     @Test
@@ -197,18 +234,33 @@ class ManagerViewModelTest {
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeSuccess_setSubscriptionsSyncedPolled() {
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeSuccess_falseValueSentToSetSubscriptionsSynced() {
         // Assert
         // Act
         SUT.signOutAndNotify()
         // Assert
         assertThat(mLoginManagerTd.mSetSubscriptionsSyncedCounter, `is`(1))
+        assertThat(mLoginManagerTd.mSetSubscriptionsSyncedArgIsSubscriptionSynced, `is`(false))
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeError_listenersNotifiedOfError() {
+    fun signOutAndNotify_signOutError_listenersNotifiedOfError() {
         // Assert
-        clearLastPlayedEpisodeError()
+        signOutError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.signOutAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSignOutCounter, `is`(1))
+        verify(mListenerMock1).onSignOutFailed()
+        verify(mListenerMock2).onSignOutFailed()
+    }
+
+    @Test
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupError_listenersNotifiedOfError() {
+        // Assert
+        isSubsequentSetup()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
@@ -232,28 +284,14 @@ class ManagerViewModelTest {
     }
 
     @Test
-    fun signOutAndNotify_signOutSuccessSetIsFirstSetupError_listenersNotifiedOfError() {
+    fun signOutAndNotify_signOutSuccessSetIsFirstSetupSuccessClearDatabaseSuccessClearLastPlayedEpisodeError_listenersNotifiedOfError() {
         // Assert
-        setIsFirstSetUpError()
+        clearLastPlayedEpisodeError()
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
         // Act
         SUT.signOutAndNotify()
         // Assert
-        verify(mListenerMock1).onSignOutFailed()
-        verify(mListenerMock2).onSignOutFailed()
-    }
-
-    @Test
-    fun signOutAndNotify_signOutError_listenersNotifiedOfError() {
-        // Assert
-        signOutError()
-        SUT.registerListener(mListenerMock1)
-        SUT.registerListener(mListenerMock2)
-        // Act
-        SUT.signOutAndNotify()
-        // Assert
-        assertThat(mLoginManagerTd.mSignOutCounter, `is`(1))
         verify(mListenerMock1).onSignOutFailed()
         verify(mListenerMock2).onSignOutFailed()
     }
@@ -433,10 +471,10 @@ class ManagerViewModelTest {
     //----------------------------------------------------------------------------------------------
 
     @Test
-    fun isFirstSetUp_isFirstSetUpCalled() {
+    fun getIsFirstSetupAndNotify_isFirstSetupCalled() {
         // Assert
         // Act
-        SUT.isFirstSetUp()
+        SUT.getIsFirstSetupAndNotify()
         // Assert
         assertThat(mLoginManagerTd.mIsFirstSetupCounter, `is`(1))
     }
@@ -450,7 +488,7 @@ class ManagerViewModelTest {
         SUT.setIsFirstSetUp(true)
         // Assert
         assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
-        assertThat(mLoginManagerTd.mIsFirstSetup, `is`(true))
+        assertThat(mLoginManagerTd.mSetIsFirstSetupArgIsFirstSetup, `is`(true))
     }
 
     @Test
@@ -460,10 +498,18 @@ class ManagerViewModelTest {
         SUT.setIsFirstSetUp(false)
         // Assert
         assertThat(mLoginManagerTd.mSetIsFirstSetupCounter, `is`(1))
-        assertThat(mLoginManagerTd.mIsFirstSetup, `is`(false))
+        assertThat(mLoginManagerTd.mSetIsFirstSetupArgIsFirstSetup, `is`(false))
     }
 
     // region helper methods
+    fun isFirstSetup() {
+        // no-op because mIsFirstSetupStateIsFirstSetUp false by default
+    }
+
+    fun isSubsequentSetup() {
+        mLoginManagerTd.mIsFirstSetupStateIsFirstSetUp = false
+    }
+
     fun silentSignInSuccess() {
         // no-op because mSilentSignInFailure false by default
     }
@@ -482,10 +528,6 @@ class ManagerViewModelTest {
 
     fun setIsFirstSetUpSuccess() {
         // no-op because mClearDatabaseFailure false by default
-    }
-
-    fun setIsFirstSetUpError() {
-        mLoginManagerTd.mIsFirstSetUpError = true
     }
 
     fun clearDatabaseSuccess() {
