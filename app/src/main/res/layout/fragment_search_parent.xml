@@ -13,16 +13,18 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <include
-        android:id="@+id/pageLoading"
-        layout="@layout/page_loading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <include
         android:id="@+id/resultsRecyclerView"
         layout="@layout/results_recycler_view"
         android:visibility="gone"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <include
+        android:id="@+id/pageLoading"
+        layout="@layout/page_loading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <include
         android:id="@+id/error_and_loading"
