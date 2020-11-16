@@ -16,14 +16,14 @@ class AboutFragment : PreferenceFragmentCompat() {
 
         val aboutAppPreference: Preference? =
             findPreference(getString(R.string.settings_key_about_app))
-        if (aboutAppPreference != null) {
+        aboutAppPreference?.let {
             aboutAppPreference.summary =
                 getString(R.string.settings_about_app_summary, BuildConfig.VERSION_NAME)
         }
 
         val contactPreference: Preference? =
             findPreference(getString(R.string.settings_key_support))
-        if (contactPreference != null) {
+        contactPreference?.let {
             contactPreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 val sentTo =
                     arrayOfNulls<String>(1)
@@ -42,7 +42,7 @@ class AboutFragment : PreferenceFragmentCompat() {
 
         val privacyPreference: Preference? =
             findPreference(getString(R.string.settings_key_privacy))
-        if (privacyPreference != null) {
+        privacyPreference?.let {
             privacyPreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 launchBrowserIntent(getString(R.string.privacy_url))
                 true
@@ -51,7 +51,7 @@ class AboutFragment : PreferenceFragmentCompat() {
 
         val termsPreference: Preference? =
             findPreference(getString(R.string.settings_key_terms))
-        if (termsPreference != null) {
+        termsPreference?.let {
             termsPreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 launchBrowserIntent(getString(R.string.terms_url))
                 true
