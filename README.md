@@ -28,3 +28,14 @@
 * PostgreSql
 * Spring Boot
 * Database migrations handled via Flyaway
+
+#### How do I apply for an API key?
+Read [this](https://www.listennotes.com/api/pricing/) Click on the "Free" option
+
+The api key goes into gradle.properties
+
+example:
+
+     Api_Key = "value"
+
+Replace value with your api key (leave the quotes)
