@@ -7,7 +7,7 @@
 * Listen to your favorite podcasts
 * Subscribe to podcasts
 * Comment on episodes
-* vote on comments
+* Vote on comments
 * Cloud backup
 
 #### Libraries
@@ -22,3 +22,9 @@
 * ~~Rxjava~~
 * Glide
 * Android Paging Library 2
+
+#### Backend
+* Hosted by Aws
+* PostgreSql
+* Spring Boot
+* Database migrations handled via Flyaway
