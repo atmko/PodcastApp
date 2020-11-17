@@ -1,7 +1,5 @@
-# Podcast App
+# Podcast App (Skip To It)
 ### Listen to your favorite podcasts and comment on episodes
-
-#### Skip To It
 
 #### Features
 * Listen to your favorite podcasts
