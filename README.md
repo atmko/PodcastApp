@@ -1,6 +1,8 @@
 # Podcast App (Skip To It)
 ### Listen to your favorite podcasts and comment on episodes
 
+![Feature Image](https://github.com/atmko/PodcastApp/blob/master/images/feature_image.png)
+
 #### Features
 * Listen to your favorite podcasts
 * Subscribe to podcasts
