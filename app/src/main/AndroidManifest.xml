@@ -17,7 +17,6 @@
 
         <activity
             android:name=".MasterActivity"
-            android:label="@string/title_activity_master"
             android:launchMode="singleTop"
             android:theme="@style/splashScreenTheme">
             <intent-filter>
