@@ -106,7 +106,18 @@ class SubscriptionsViewModelTest {
     // ---------------------------------------------------------------------------------------------
 
     @Test
-    fun checkSyncStatusAndNotify_notifyProcessing() {
+    fun checkSyncStatusAndNotify_silentSignInCalled() {
+        // Arrange
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        assertThat(mLoginManagerTd.mSilentSignInCounter, `is`(1))
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccess_notifyProcessing() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -118,7 +129,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_checkIsSubscriptionsSyncedCalled() {
+    fun checkSyncStatusAndNotify_silentSignInSuccess_checkIsSubscriptionsSyncedCalled() {
         // Arrange
         // Act
         SUT.checkSyncStatusAndNotify()
@@ -127,7 +138,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsSynced_variableUpdated() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsSynced_variableUpdated() {
         // Arrange
         SUT.mIsSubscriptionsSynced = null
         // Act
@@ -138,7 +149,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsSynced_listenersNotified() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsSynced_listenersNotified() {
         // Arrange
         SUT.registerListener(mListenerMock1)
         SUT.registerListener(mListenerMock2)
@@ -150,7 +161,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsSynced_isSubscriptionsSyncedCalledOnlyOnce() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsSynced_isSubscriptionsSyncedCalledOnlyOnce() {
         // Arrange
         SUT.mIsSubscriptionsSynced = null
         SUT.registerListener(mListenerMock1)
@@ -166,7 +177,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSynced_getRemoteSubscriptionsCalled() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSynced_getRemoteSubscriptionsCalled() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -176,7 +187,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccess_getLocalSubscriptionsForSyncCalled() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccess_getLocalSubscriptionsForSyncCalled() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -186,7 +197,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_batchSubscribePodcastsNotCalled() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_batchSubscribePodcastsNotCalled() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -196,7 +207,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_setRemoteSubscriptionsSynced() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_setRemoteSubscriptionsSynced() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -206,7 +217,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_setSubscriptionsSyncedCalledOnce() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPushablePodcasts_setSubscriptionsSyncedCalledOnce() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -216,7 +227,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcasts_correctCombinedIdsPassedToBatchSubscribePodcasts() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcasts_correctCombinedIdsPassedToBatchSubscribePodcasts() {
         // Assert
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -228,7 +239,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccess_syncVariablesUpdated() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccess_syncVariablesUpdated() {
         // Arrange
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -242,7 +253,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccess_trueArgumentPassedToSetSubscriptionsSynced() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccess_trueArgumentPassedToSetSubscriptionsSynced() {
         // Assert
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -254,7 +265,7 @@ class SubscriptionsViewModelTest {
     }
 
 
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccess_listenersNotifiedOfSuccess() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccess_listenersNotifiedOfSuccess() {
         // Assert
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -268,7 +279,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccess_unregisteredListenersNotNotifiedOfSuccess() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccess_unregisteredListenersNotNotifiedOfSuccess() {
         // Assert
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -283,7 +294,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccessSecondCall_isSubscriptionsSyncedCalledOnlyOnce() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPushablePodcastsBatchSubscribePodcastsSuccessSetSubscriptionsSyncedSuccessSecondCall_isSubscriptionsSyncedCalledOnlyOnce() {
         // Arrange
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -301,7 +312,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_getBatchPodcastMetaDataNotCalled() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_getBatchPodcastMetaDataNotCalled() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -311,7 +322,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_setLocalSubscriptionsSynced() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_setLocalSubscriptionsSynced() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -321,7 +332,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_setSubscriptionsSyncedCalledOnce() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessNoPullablePodcasts_setSubscriptionsSyncedCalledOnce() {
         // Assert
         subscriptionsNotSynced()
         // Act
@@ -331,7 +342,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcasts_correctCombinedIdsPassedToGetBatchPodcastMetadata() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcasts_correctCombinedIdsPassedToGetBatchPodcastMetadata() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -343,7 +354,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccess_correctPodcastsPassedToInsertSubscriptions() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccess_correctPodcastsPassedToInsertSubscriptions() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -357,7 +368,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_syncVariablesUpdated() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_syncVariablesUpdated() {
         // Arrange
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -371,7 +382,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedToSetSubscriptionsSynced() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccess_trueArgumentPassedToSetSubscriptionsSynced() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -383,7 +394,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_listenersNotifiedOfSuccess() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_listenersNotifiedOfSuccess() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -397,7 +408,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_unregisteredListenersNotNotifiedOfSuccess() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccess_unregisteredListenersNotNotifiedOfSuccess() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -412,7 +423,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccesPullablePodcastssGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccessSecondCall_isSubscriptionsSyncedCalledOnlyOnce() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncSuccesPullablePodcastssGetBatchPodcastMetadataSuccessInsertSubscriptionsSuccessSetSubscriptionsSyncedSuccessSecondCall_isSubscriptionsSyncedCalledOnlyOnce() {
         // Arrange
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -430,7 +441,21 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
+    fun checkSyncStatusAndNotify_silentSignInError_nothingHappens() {
+        //nothing happens because sync status can't be determined when not signed in
+        // Arrange
+        silentSignInError()
+        SUT.registerListener(mListenerMock1)
+        SUT.registerListener(mListenerMock2)
+        // Act
+        SUT.checkSyncStatusAndNotify()
+        // Assert
+        verify(mListenerMock1, never()).notifyProcessing()
+        verify(mListenerMock2, never()).notifyProcessing()
+    }
+
+    @Test
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
         // Arrange
         subscriptionsNotSynced()
         getRemoteSubscriptionsError()
@@ -445,7 +470,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsError_listenersNotifiedOfError() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsError_listenersNotifiedOfError() {
         // Arrange
         subscriptionsNotSynced()
         getRemoteSubscriptionsError()
@@ -459,7 +484,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncError_falseArgumentPassedIntoUpdateMethod() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsForSyncError_falseArgumentPassedIntoUpdateMethod() {
         // Arrange
         subscriptionsNotSynced()
         getLocalSubscriptionsForSyncError()
@@ -474,7 +499,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsError_listenersNotifiedOfError() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsError_listenersNotifiedOfError() {
         // Assert
         subscriptionsNotSynced()
         getLocalSubscriptionsForSyncError()
@@ -488,7 +513,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPushablePodcastsBatchSubscribePodcastsError_falseArgumentPassedIntoUpdateMethod() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPushablePodcastsBatchSubscribePodcastsError_falseArgumentPassedIntoUpdateMethod() {
         // Arrange
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -503,7 +528,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPushablePodcastsBatchSubscribePodcastsError_listenersNotifiedOfError() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPushablePodcastsBatchSubscribePodcastsError_listenersNotifiedOfError() {
         // Arrange
         subscriptionsNotSynced()
         pushablePodcasts()
@@ -518,7 +543,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataError_falseArgumentPassedIntoUpdateMethod() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataError_falseArgumentPassedIntoUpdateMethod() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -533,7 +558,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataError_listenersNotifiedOfError() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataError_listenersNotifiedOfError() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -549,7 +574,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsError_falseArgumentPassedIntoUpdateMethod() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()
@@ -564,7 +589,7 @@ class SubscriptionsViewModelTest {
     }
 
     @Test
-    fun checkSyncStatusAndNotify_subscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsError_listenersNotifiedOfError() {
+    fun checkSyncStatusAndNotify_silentSignInSuccessSubscriptionsNotSyncedGetRemoteSubscriptionsSuccessGetLocalSubscriptionsSuccessPullablePodcastsGetBatchPodcastMetadataSuccessInsertSubscriptionsError_listenersNotifiedOfError() {
         // Assert
         subscriptionsNotSynced()
         pullablePodcasts()

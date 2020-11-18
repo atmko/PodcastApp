@@ -1,5 +1,6 @@
 package com.atmko.skiptoit.subcriptions
 
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.atmko.skiptoit.LoginManager
@@ -9,6 +10,7 @@ import com.atmko.skiptoit.model.ApiResults
 import com.atmko.skiptoit.model.Podcast
 import com.atmko.skiptoit.model.Subscription
 import com.atmko.skiptoit.model.database.SubscriptionsCache
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 const val STATUS_SUBSCRIBE = 1
 const val STATUS_UNSUBSCRIBE = 0
@@ -99,17 +101,26 @@ class SubscriptionsViewModel(
             return
         }
 
-        notifyProcessing()
-        loginManager.isSubscriptionsSynced(object : SubscriptionsCache.SyncStatusFetchListener {
-            override fun onSyncStatusFetched(isSubscriptionsSynced: Boolean) {
-                if (!isSubscriptionsSynced) {
-                    restoreSubscriptionsAndNotify()
-                } else {
-                    mIsRemoteSubscriptionsSynced = true
-                    mIsLocalSubscriptionsSynced = true
-                    mIsSubscriptionsSynced = isSubscriptionsSynced
-                    notifyOnSubscriptionStatusSynced()
-                }
+        loginManager.silentSignIn(object : LoginManager.SignInListener {
+            override fun onSignInSuccess(googleSignInAccount: GoogleSignInAccount) {
+                notifyProcessing()
+                loginManager.isSubscriptionsSynced(object :
+                    SubscriptionsCache.SyncStatusFetchListener {
+                    override fun onSyncStatusFetched(isSubscriptionsSynced: Boolean) {
+                        if (!isSubscriptionsSynced) {
+                            restoreSubscriptionsAndNotify()
+                        } else {
+                            mIsRemoteSubscriptionsSynced = true
+                            mIsLocalSubscriptionsSynced = true
+                            mIsSubscriptionsSynced = isSubscriptionsSynced
+                            notifyOnSubscriptionStatusSynced()
+                        }
+                    }
+                })
+            }
+
+            override fun onSignInFailed(googleSignInIntent: Intent) {
+                System.out.println("subscriptions sync failed: user not signed in")
             }
         })
     }
