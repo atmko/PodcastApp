@@ -1,5 +1,7 @@
 package com.atmko.skiptoit.dependencyinjection.application
 
+import android.os.Handler
+import android.os.Looper
 import androidx.room.Room
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.database.*
@@ -10,6 +12,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Singleton
+
 
 @Module
 class DatabaseModule  {
@@ -65,7 +68,13 @@ class DatabaseModule  {
 
     @Provides
     @Singleton
-    fun provideMainThreadExecutor(skipToItApplication: SkipToItApplication): Executor {
-        return skipToItApplication.mainExecutor
+    fun provideMainThreadExecutor(handler: Handler): Executor {
+        return Executor { command -> handler.post(command) }
+    }
+
+    @Provides
+    @Singleton
+    fun provideMainThreadHandler(): Handler {
+        return Handler(Looper.getMainLooper())
     }
 }
