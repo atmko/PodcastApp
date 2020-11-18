@@ -173,7 +173,6 @@ class RepliesFragment : BaseFragment(),
 
     private fun configureViewModel() {
         repliesViewModel.retrievedComments!!.observe(viewLifecycleOwner, Observer { replies ->
-            binding.errorAndLoading.loadingScreen.visibility = View.GONE
             replies?.let {
                 repliesAdapter.submitList(replies)
                 repliesAdapter.notifyDataSetChanged()

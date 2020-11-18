@@ -136,7 +136,7 @@ discussion and listener participation. The" />
 
                     <include
                         android:id="@+id/error_and_loading"
-                        layout="@layout/layout_error_and_loading"
+                        layout="@layout/layout_loading"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:layout_constraintBottom_toBottomOf="@id/resultsRecyclerView"

@@ -134,7 +134,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
             mIsBound = true
             mPlaybackService = (service as PlaybackService.PlaybackServiceBinder).getService()
             binding.collapsedBottomSheet.player = mPlaybackService!!.player
-            mPlaybackService!!.player!!.addListener(object: Player.EventListener {
+            mPlaybackService!!.player!!.addListener(object : Player.EventListener {
                 override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                     super.onPlayerStateChanged(playWhenReady, playbackState)
                     notifyPlaybackListeners(playWhenReady)
@@ -217,7 +217,7 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
                         getEpisodeNavHostFragment().navController.navigateUp()
                     }
                 } else {
-                    if (!getBaseNavHostFragment().navController.navigateUp()){
+                    if (!getBaseNavHostFragment().navController.navigateUp()) {
                         finish()
                     }
                 }
@@ -228,11 +228,15 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
     }
 
     private fun defineViewModel() {
-        masterActivityViewModel = ViewModelProvider(this,
-            viewModelFactory).get(MasterActivityViewModel::class.java)
+        masterActivityViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(MasterActivityViewModel::class.java)
 
-        subscriptionsViewModel = ViewModelProvider(this,
-            viewModelFactory).get(SubscriptionsViewModel::class.java)
+        subscriptionsViewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(SubscriptionsViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -240,7 +244,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         binding.collapsedBottomSheet.showController()
 
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
         configureBottomSheet()
         configureAppBar()
     }
@@ -375,14 +378,16 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
                 getEpisodeNavHostFragment().navController.navigate(
                     EpisodeFragmentDirections
                         .actionNavigationEpisodeToNavigationEpisode(
-                            podcastId, episodeId)
+                            podcastId, episodeId
+                        )
                 )
             }
             R.id.navigation_replies -> {
                 getEpisodeNavHostFragment().navController.navigate(
                     RepliesFragmentDirections
                         .actionNavigationRepliesToNavigationEpisode(
-                            podcastId, episodeId)
+                            podcastId, episodeId
+                        )
                 )
             }
         }
@@ -445,7 +450,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
 
     override fun notifyProcessing() {
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onSilentSignInSuccess() {
@@ -459,20 +463,21 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
 
     override fun onSignInSuccess() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
         masterActivityViewModel.getMatchingUserAndNotify()
         reloadCurrentFragment()
     }
 
     override fun onSignInFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_in), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            binding.topLayout,
+            getString(R.string.failed_to_sign_in),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onUserFetchSuccess() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         notifyAuthenticationListeners()
         subscriptionsViewModel.checkSyncStatusAndNotify()
@@ -526,22 +531,27 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
 
     override fun onUserFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, getString(R.string.failed_to_retrieve_user), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            binding.topLayout,
+            getString(R.string.failed_to_retrieve_user),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onSignOutSuccess() {
         val playbackService = Intent(this@MasterActivity, PlaybackService::class.java)
         stopService(playbackService)
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
         openLaunchFragment()
     }
 
     override fun onSignOutFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(binding.topLayout, getString(R.string.failed_to_sign_out), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            binding.topLayout,
+            getString(R.string.failed_to_sign_out),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onShowBottomSheet() {

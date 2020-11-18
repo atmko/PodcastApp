@@ -71,7 +71,7 @@
 
     <include
         android:id="@+id/errorAndLoading"
-        layout="@layout/layout_error_and_loading"
+        layout="@layout/layout_loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

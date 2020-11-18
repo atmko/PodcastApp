@@ -380,7 +380,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onDetailsFetched(episode: Episode?, isRestoringEpisode: Boolean) {
         binding.detailsErrorAndLoading.loadingScreen.visibility = View.GONE
-        binding.detailsErrorAndLoading.errorScreen.visibility = View.GONE
 
         episodeDetails = episode
         this.isRestoringEpisode = isRestoringEpisode
@@ -417,7 +416,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun onDetailsFetchFailed() {
         binding.detailsErrorAndLoading.loadingScreen.visibility = View.GONE
-        binding.detailsErrorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(
             requireView(),
             getString(R.string.failed_to_get_details),
@@ -453,7 +451,6 @@ class EpisodeFragment : BaseFragment(),
 
     override fun notifyProcessing() {
         binding.detailsErrorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.detailsErrorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onVoteUpdate() {

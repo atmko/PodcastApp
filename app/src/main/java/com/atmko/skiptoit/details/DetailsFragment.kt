@@ -320,7 +320,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onDetailsFetched(podcastDetails: PodcastDetails) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         this.podcastDetails = podcastDetails
 
@@ -331,7 +330,6 @@ class DetailsFragment : BaseFragment(), EpisodeAdapter.OnEpisodeItemClickListene
 
     override fun onDetailsFetchFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(
             requireView(),
             getString(R.string.failed_to_get_details),

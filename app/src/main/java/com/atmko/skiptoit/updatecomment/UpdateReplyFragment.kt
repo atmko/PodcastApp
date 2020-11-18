@@ -112,12 +112,10 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
 
     override fun notifyProcessing() {
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onLoadComment(fetchedComment: Comment) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         comment = fetchedComment
         binding.bodyEditText.text =
@@ -127,7 +125,6 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
 
     override fun onLoadCommentFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
 
         binding.createButton.isEnabled = false
         Snackbar.make(
@@ -139,7 +136,6 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
 
     override fun onLoadParentComment(fetchedComment: Comment) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         parentComment = fetchedComment
         binding.parentText.text =
@@ -148,7 +144,6 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
 
     override fun onLoadParentCommentFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
 
         binding.createButton.isEnabled = false
         Snackbar.make(
@@ -160,13 +155,11 @@ class UpdateReplyFragment : BaseFragment(), UpdateCommentViewModel.Listener,
 
     override fun onCommentUpdated() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
         findNavController().navigateUp()
     }
 
     override fun onCommentUpdateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(
             requireView(),
             getString(R.string.failed_to_update_comment),

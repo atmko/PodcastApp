@@ -84,8 +84,10 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
 
     private fun defineViewModel() {
         activity?.let {
-            viewModel = ViewModelProvider(it,
-                viewModelFactory).get(ConfirmationViewModel::class.java)
+            viewModel = ViewModelProvider(
+                it,
+                viewModelFactory
+            ).get(ConfirmationViewModel::class.java)
         }
     }
 
@@ -99,19 +101,20 @@ class ConfirmationFragment : BaseBottomSheetDialogFragment(), ConfirmationViewMo
 
     override fun notifyProcessing() {
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onUsernameUpdated(user: User) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
         getMasterActivity().masterActivityViewModel.currentUser = user
         findNavController().navigateUp()
     }
 
     override fun onUsernameUpdateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_update_username), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_update_username),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 }

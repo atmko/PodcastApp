@@ -182,7 +182,6 @@ class SearchParentFragment : BaseFragment(),
 
     private fun configureViewModel() {
         viewModel.searchResults!!.observe(viewLifecycleOwner, Observer { subscriptions ->
-            binding.errorAndLoading.loadingScreen.visibility = View.GONE
             podcastAdapter.subscriptions =
                 getMasterActivity().subscriptionsViewModel.subscriptionsMap
             subscriptions?.let { podcastAdapter.submitList(it) }
@@ -216,12 +215,10 @@ class SearchParentFragment : BaseFragment(),
 
     override fun onPageLoading() {
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {
@@ -271,15 +268,11 @@ class SearchParentFragment : BaseFragment(),
     override fun onShowManualLayout() {
         configureViewModel()
         binding.resultsRecyclerView.resultsRecyclerView.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
     }
 
     override fun onHideManualLayout() {
         binding.pageLoading.pageLoading.visibility = View.GONE
         binding.resultsRecyclerView.resultsRecyclerView.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
-        binding.errorAndLoading.loadingScreen.visibility = View.GONE
     }
 
     override fun onShowManualSearchBar() {

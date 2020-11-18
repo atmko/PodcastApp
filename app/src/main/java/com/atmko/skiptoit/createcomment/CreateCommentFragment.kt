@@ -17,7 +17,7 @@ import com.atmko.skiptoit.utils.toEditable
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 
-class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
+class CreateCommentFragment : BaseFragment(), CreateCommentViewModel.Listener {
 
     private var _binding: FragmentCreateCommentBinding? = null
     private val binding get() = _binding!!
@@ -77,8 +77,10 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
     }
 
     private fun defineViewModel() {
-        viewModel = ViewModelProvider(this,
-            viewModelFactory).get(CreateCommentViewModel::class.java)
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        ).get(CreateCommentViewModel::class.java)
     }
 
     private fun configureViews() {
@@ -107,12 +109,10 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
     override fun notifyProcessing() {
         binding.createButton.isEnabled = false
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onCommentCreated() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         getMasterActivity().onBackPressedDispatcher.onBackPressed()
         view?.let { view -> getMasterActivity().hideSoftKeyboard(view) }
@@ -120,8 +120,11 @@ class CreateCommentFragment: BaseFragment(), CreateCommentViewModel.Listener {
 
     override fun onCommentCreateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
-        Snackbar.make(requireView(), getString(R.string.failed_to_create_comment), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+            requireView(),
+            getString(R.string.failed_to_create_comment),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onPageTrackerFetchFailed() {

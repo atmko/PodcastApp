@@ -141,7 +141,6 @@ class SearchFragment : BaseFragment(),
 
     private fun configureViewModel() {
         viewModel.genreResults.observe(viewLifecycleOwner, Observer { subscriptions ->
-            binding.errorAndLoading.loadingScreen.visibility = View.GONE
             podcastAdapter.subscriptions =
                 getMasterActivity().subscriptionsViewModel.subscriptionsMap
             subscriptions?.let { podcastAdapter.submitList(it) }
@@ -171,12 +170,10 @@ class SearchFragment : BaseFragment(),
 
     override fun onPageLoading() {
         binding.pageLoading.pageLoading.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoad() {
         binding.pageLoading.pageLoading.visibility = View.INVISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onPageLoadFailed() {

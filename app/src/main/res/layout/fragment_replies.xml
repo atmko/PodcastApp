@@ -26,14 +26,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pageLoading" />
 
-    <include
-        android:id="@+id/error_and_loading"
-        layout="@layout/layout_error_and_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/resultsRecyclerView"
-        app:layout_constraintEnd_toEndOf="@id/resultsRecyclerView"
-        app:layout_constraintStart_toStartOf="@id/resultsRecyclerView"
-        app:layout_constraintTop_toTopOf="@id/resultsRecyclerView" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -104,12 +104,10 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
     override fun notifyProcessing() {
         binding.createButton.isEnabled = false
         binding.errorAndLoading.loadingScreen.visibility = View.VISIBLE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
     }
 
     override fun onLoadParentComment(fetchedComment: Comment) {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         parentComment = fetchedComment
         binding.parentText.text =
@@ -119,7 +117,6 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
 
     override fun onLoadParentCommentFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
 
         binding.createButton.isEnabled = false
         Snackbar.make(
@@ -131,7 +128,6 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
 
     override fun onReplyCreated() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.GONE
 
         getMasterActivity().onBackPressedDispatcher.onBackPressed()
         view?.let { view -> getMasterActivity().hideSoftKeyboard(view) }
@@ -139,7 +135,6 @@ class CreateReplyFragment : BaseFragment(), CreateReplyViewModel.Listener {
 
     override fun onReplyCreateFailed() {
         binding.errorAndLoading.loadingScreen.visibility = View.GONE
-        binding.errorAndLoading.errorScreen.visibility = View.VISIBLE
         Snackbar.make(
             requireView(),
             getString(R.string.failed_to_create_comment),
