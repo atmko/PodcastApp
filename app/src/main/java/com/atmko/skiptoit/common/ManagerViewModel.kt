@@ -58,23 +58,19 @@ open class ManagerViewModel(
                 currentUser = null
                 //todo is editing shared preferences here thread safe?
                 setIsFirstSetUp(true)
-                loginManager.isFirstSetUp(object : LoginManager.IsFirstSetupFetchListener {
-                    override fun onIsFirstSetupFetched(isFirstSetup: Boolean) {
-                        if (isFirstSetup) {
-                            loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
-                                override fun onDatabaseCleared() {
-                                    clearLastPlayedEpisode()
-                                }
+                if (loginManager.isFirstSetUp()) {
+                    loginManager.clearDatabase(object : LoginManager.ClearDatabaseListener {
+                        override fun onDatabaseCleared() {
+                            clearLastPlayedEpisode()
+                        }
 
-                                override fun onDatabaseClearFailed() {
-                                    notifySignOutFailed()
-                                }
-                            })
-                        } else {
+                        override fun onDatabaseClearFailed() {
                             notifySignOutFailed()
                         }
-                    }
-                })
+                    })
+                } else {
+                    notifySignOutFailed()
+                }
             }
 
             override fun onSignOutFailed() {
@@ -143,15 +139,11 @@ open class ManagerViewModel(
     }
 
     fun getIsFirstSetupAndNotify() {
-        loginManager.isFirstSetUp(object : LoginManager.IsFirstSetupFetchListener {
-            override fun onIsFirstSetupFetched(isFirstSetup: Boolean) {
-                if (isFirstSetup) {
-                    notifyIsFirstSetup()
-                } else {
-                    notifySubsequentSetup()
-                }
-            }
-        })
+        if (loginManager.isFirstSetUp()) {
+            notifyIsFirstSetup()
+        } else {
+            notifySubsequentSetup()
+        }
     }
 
     fun setIsFirstSetUp(isFirstSetUp: Boolean) {

@@ -62,9 +62,9 @@ class LoginManagerTd : LoginManager(null, null, null, null) {
 
     var mIsFirstSetupCounter = 0
     var mIsFirstSetupStateIsFirstSetUp = true
-    override fun isFirstSetUp(listener: IsFirstSetupFetchListener) {
+    override fun isFirstSetUp(): Boolean {
         mIsFirstSetupCounter ++
-        listener.onIsFirstSetupFetched(mIsFirstSetupStateIsFirstSetUp)
+        return mIsFirstSetupStateIsFirstSetUp
     }
 
     var mSetIsFirstSetupCounter = 0

@@ -157,7 +157,6 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
         configureBaseBackButtonFunctionality()
         defineViewModel()
         configureViews()
-        masterActivityViewModel.getIsFirstSetupAndNotify()
     }
 
     override fun onStart() {
@@ -168,8 +167,9 @@ class MasterActivity : BaseActivity(), ManagerViewModel.Listener,
             startService(intent)
             bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
         }
-        masterActivityViewModel.handleSavedStateAndNotify(mSavedInstanceState)
 
+        masterActivityViewModel.getIsFirstSetupAndNotify()
+        masterActivityViewModel.handleSavedStateAndNotify(mSavedInstanceState)
         masterActivityViewModel.getMatchingUserAndNotify()
     }
 
