@@ -9,7 +9,7 @@
         app:iconSpaceReserved="false"
         app:allowDividerAbove="true"
         app:allowDividerBelow="true"
-        app:icon="@drawable/logo_placeholder"/>
+        app:icon="@drawable/ic_logo"/>
 
     <Preference
         android:title="@string/settings_support_title"

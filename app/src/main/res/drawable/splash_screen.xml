@@ -5,6 +5,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/logo_placeholder"/>
+            android:src="@mipmap/ic_launcher_foreground"/>
     </item>
 </layer-list>

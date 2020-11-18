@@ -10,7 +10,7 @@
     tools:ignore="Overdraw">
 
     <ImageView
-        android:src="@drawable/circular_mask"
+        android:src="@drawable/ic_logo"
         android:id="@+id/logo_image_view"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/splash_logo_size"
