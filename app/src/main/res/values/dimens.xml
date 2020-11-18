@@ -43,7 +43,7 @@
     <dimen name="item_podcast_square_size_small">40dp</dimen>
     <dimen name="trending_fragment_size">200dp</dimen>
     <dimen name="home_fragment_size">150dp</dimen>
-    <dimen name="play_panel_height">108dp</dimen>
+    <dimen name="play_panel_height">100dp</dimen>
 
     <dimen name="bottom_sheet_peek_height">56dp</dimen>
 

@@ -14,8 +14,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/x1_layout_margin"
-    android:background="@color/color_background">
+    android:background="@color/color_background"
+    android:paddingTop="@dimen/x1_layout_margin">
 
     <TextView
         android:id="@id/exo_position"
@@ -40,6 +40,8 @@
     <ImageButton
         android:id="@id/exo_rew"
         style="@style/ExoMediaButton.Rewind"
+        android:layout_width="@dimen/x5_layout_margin"
+        android:layout_height="@dimen/x5_layout_margin"
         android:contentDescription="@string/content_description_rewind_button"
         android:src="@drawable/ic_rewind"
         app:layout_constraintEnd_toStartOf="@id/exo_prev"
@@ -49,6 +51,8 @@
     <ImageButton
         android:id="@id/exo_prev"
         style="@style/ExoMediaButton.Previous"
+        android:layout_width="@dimen/x5_layout_margin"
+        android:layout_height="@dimen/x5_layout_margin"
         android:contentDescription="@string/content_description_skip_to_start"
         android:src="@drawable/ic_skip_backwards"
         app:layout_constraintEnd_toStartOf="@id/playFrameLayout"
@@ -86,6 +90,8 @@
     <ImageButton
         android:id="@id/exo_next"
         style="@style/ExoMediaButton.Next"
+        android:layout_width="@dimen/x5_layout_margin"
+        android:layout_height="@dimen/x5_layout_margin"
         android:contentDescription="@string/content_description_skip_to_next_button"
         android:src="@drawable/ic_skip_forward"
         app:layout_constraintEnd_toStartOf="@id/exo_ffwd"
@@ -95,6 +101,8 @@
     <ImageButton
         android:id="@id/exo_ffwd"
         style="@style/ExoMediaButton.FastForward"
+        android:layout_width="@dimen/x5_layout_margin"
+        android:layout_height="@dimen/x5_layout_margin"
         android:contentDescription="@string/content_description_fast_forward_button"
         android:src="@drawable/ic_forward"
         app:layout_constraintEnd_toEndOf="parent"
@@ -102,14 +110,14 @@
         app:layout_constraintTop_toBottomOf="@id/exo_position" />
 
     <com.google.android.exoplayer2.ui.DefaultTimeBar
-        android:layout_marginTop="@dimen/x1_layout_margin"
         android:id="@id/exo_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x1_layout_margin"
+        app:buffered_color="@color/color_divider"
         app:layout_constraintTop_toBottomOf="@id/playFrameLayout"
         app:played_color="@color/colorAccent"
         app:scrubber_color="@color/colorAccent"
-        app:buffered_color="@color/color_divider"
         app:unplayed_color="@color/color_divider" />
 
     <Button
@@ -117,8 +125,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:alpha="0"
-        app:layout_constraintTop_toBottomOf="@id/playFrameLayout"
+        android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@null" />
+        app:layout_constraintTop_toBottomOf="@id/playFrameLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
