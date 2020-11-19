@@ -22,7 +22,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "apiKey", Api_Key
-        buildConfigField "String", "googleServerId", Google_Server_Id
     }
 
     buildTypes {

@@ -1,6 +1,6 @@
 package com.atmko.skiptoit.dependencyinjection.application
 
-import com.atmko.skiptoit.BuildConfig
+import com.atmko.skiptoit.R
 import com.atmko.skiptoit.SkipToItApplication
 import com.atmko.skiptoit.model.PodcastsApi
 import com.atmko.skiptoit.model.SkipToItApi
@@ -65,9 +65,9 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGoogleSignInOptions(): GoogleSignInOptions {
+    fun provideGoogleSignInOptions(application: SkipToItApplication): GoogleSignInOptions {
         return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.googleServerId)
+                .requestIdToken(application.getString(R.string.server_client_id))
                 .requestEmail()
                 .build()
     }
